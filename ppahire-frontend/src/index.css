@@ -1,0 +1,24 @@
+/* Step 1: Import the Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Step 2: Include Tailwind base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Step 3: Global base styles */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-800 antialiased font-sans;
+  }
+}
+
+/* Step 4: Custom utility classes */
+@layer utilities {
+  .main-background {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 20% 10%, #f0fdf4 0px, transparent 50%),
+      radial-gradient(at 80% 90%, #f1f5f9 0px, transparent 50%);
+  }
+}

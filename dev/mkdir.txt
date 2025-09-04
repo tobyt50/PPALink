@@ -1,0 +1,247 @@
+# === ROOT PROJECT ===
+mkdir -Force ppahire-backend, ppahire-frontend
+
+# ===============================
+# BACKEND STRUCTURE
+# ===============================
+mkdir -Force ppahire-backend\prisma\migrations
+ni ppahire-backend\prisma\schema.prisma -ItemType File -Force
+
+mkdir -Force ppahire-backend\src\config
+mkdir -Force ppahire-backend\src\middleware
+mkdir -Force ppahire-backend\src\modules\auth
+mkdir -Force ppahire-backend\src\modules\users
+mkdir -Force ppahire-backend\src\modules\candidates
+mkdir -Force ppahire-backend\src\modules\agencies
+mkdir -Force ppahire-backend\src\modules\jobs
+mkdir -Force ppahire-backend\src\modules\applications
+mkdir -Force ppahire-backend\src\modules\verification
+mkdir -Force ppahire-backend\src\modules\audit
+mkdir -Force ppahire-backend\src\modules\utils
+mkdir -Force ppahire-backend\src\types
+mkdir -Force ppahire-backend\src\tests
+
+# Backend root files
+ni ppahire-backend\src\app.ts -ItemType File -Force
+ni ppahire-backend\src\server.ts -ItemType File -Force
+ni ppahire-backend\.env.example -ItemType File -Force
+ni ppahire-backend\docker-compose.yml -ItemType File -Force
+ni ppahire-backend\Dockerfile -ItemType File -Force
+ni ppahire-backend\package.json -ItemType File -Force
+ni ppahire-backend\tsconfig.json -ItemType File -Force
+ni ppahire-backend\README.md -ItemType File -Force
+
+# Config
+ni ppahire-backend\src\config\env.ts -ItemType File -Force
+ni ppahire-backend\src\config\db.ts -ItemType File -Force
+ni ppahire-backend\src\config\redis.ts -ItemType File -Force
+ni ppahire-backend\src\config\mailer.ts -ItemType File -Force
+
+# Middleware
+ni ppahire-backend\src\middleware\auth.ts -ItemType File -Force
+ni ppahire-backend\src\middleware\rbac.ts -ItemType File -Force
+ni ppahire-backend\src\middleware\rateLimiter.ts -ItemType File -Force
+ni ppahire-backend\src\middleware\errorHandler.ts -ItemType File -Force
+ni ppahire-backend\src\middleware\fileUpload.ts -ItemType File -Force
+
+# Modules - Auth
+ni ppahire-backend\src\modules\auth\auth.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\auth\auth.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\auth\auth.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\auth\auth.types.ts -ItemType File -Force
+
+# Modules - Users
+ni ppahire-backend\src\modules\users\user.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\users\user.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\users\user.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\users\user.types.ts -ItemType File -Force
+
+# Modules - Candidates
+ni ppahire-backend\src\modules\candidates\candidate.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\candidates\candidate.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\candidates\candidate.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\candidates\candidate.types.ts -ItemType File -Force
+
+# Modules - Agencies
+ni ppahire-backend\src\modules\agencies\agency.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\agencies\agency.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\agencies\agency.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\agencies\agency.types.ts -ItemType File -Force
+
+# Modules - Jobs
+ni ppahire-backend\src\modules\jobs\job.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\jobs\job.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\jobs\job.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\jobs\job.types.ts -ItemType File -Force
+
+# Modules - Applications
+ni ppahire-backend\src\modules\applications\application.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\applications\application.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\applications\application.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\applications\application.types.ts -ItemType File -Force
+
+# Modules - Verification
+ni ppahire-backend\src\modules\verification\verification.controller.ts -ItemType File -Force
+ni ppahire-backend\src\modules\verification\verification.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\verification\verification.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\verification\verification.types.ts -ItemType File -Force
+
+# Modules - Audit
+ni ppahire-backend\src\modules\audit\audit.service.ts -ItemType File -Force
+ni ppahire-backend\src\modules\audit\audit.routes.ts -ItemType File -Force
+ni ppahire-backend\src\modules\audit\audit.types.ts -ItemType File -Force
+
+# Modules - Utils
+ni ppahire-backend\src\modules\utils\crypto.ts -ItemType File -Force
+ni ppahire-backend\src\modules\utils\file.ts -ItemType File -Force
+ni ppahire-backend\src\modules\utils\email.ts -ItemType File -Force
+ni ppahire-backend\src\modules\utils\validation.ts -ItemType File -Force
+
+# Types
+ni ppahire-backend\src\types\express.d.ts -ItemType File -Force
+ni ppahire-backend\src\types\index.d.ts -ItemType File -Force
+
+# Tests
+ni ppahire-backend\src\tests\auth.test.ts -ItemType File -Force
+ni ppahire-backend\src\tests\candidate.test.ts -ItemType File -Force
+ni ppahire-backend\src\tests\job.test.ts -ItemType File -Force
+
+
+# ===============================
+# FRONTEND STRUCTURE
+# ===============================
+mkdir -Force ppahire-frontend\public
+mkdir -Force ppahire-frontend\src\config
+mkdir -Force ppahire-frontend\src\routes
+mkdir -Force ppahire-frontend\src\pages\auth
+mkdir -Force ppahire-frontend\src\pages\candidates
+mkdir -Force ppahire-frontend\src\pages\agencies
+mkdir -Force ppahire-frontend\src\pages\admin
+mkdir -Force ppahire-frontend\src\pages\jobs
+mkdir -Force ppahire-frontend\src\pages\misc
+mkdir -Force ppahire-frontend\src\components\forms
+mkdir -Force ppahire-frontend\src\components\layout
+mkdir -Force ppahire-frontend\src\components\ui
+mkdir -Force ppahire-frontend\src\components\verification
+mkdir -Force ppahire-frontend\src\context
+mkdir -Force ppahire-frontend\src\hooks
+mkdir -Force ppahire-frontend\src\services
+mkdir -Force ppahire-frontend\src\types
+mkdir -Force ppahire-frontend\src\utils
+mkdir -Force ppahire-frontend\src\tests
+
+# Frontend root files
+ni ppahire-frontend\public\favicon.ico -ItemType File -Force
+ni ppahire-frontend\src\main.tsx -ItemType File -Force
+ni ppahire-frontend\src\App.tsx -ItemType File -Force
+ni ppahire-frontend\src\index.css -ItemType File -Force
+ni ppahire-frontend\.env.example -ItemType File -Force
+ni ppahire-frontend\tailwind.config.js -ItemType File -Force
+ni ppahire-frontend\vite.config.ts -ItemType File -Force
+ni ppahire-frontend\tsconfig.json -ItemType File -Force
+ni ppahire-frontend\package.json -ItemType File -Force
+ni ppahire-frontend\README.md -ItemType File -Force
+
+# Config
+ni ppahire-frontend\src\config\env.ts -ItemType File -Force
+ni ppahire-frontend\src\config\axios.ts -ItemType File -Force
+
+# Routes
+ni ppahire-frontend\src\routes\index.tsx -ItemType File -Force
+ni ppahire-frontend\src\routes\ProtectedRoute.tsx -ItemType File -Force
+ni ppahire-frontend\src\routes\Layouts.tsx -ItemType File -Force
+
+# Pages - Auth
+ni ppahire-frontend\src\pages\auth\Login.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\auth\RegisterCandidate.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\auth\RegisterAgency.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\auth\ForgotPassword.tsx -ItemType File -Force
+
+# Pages - Candidates
+ni ppahire-frontend\src\pages\candidates\Dashboard.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\candidates\Profile.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\candidates\UploadCredentials.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\candidates\Applications.tsx -ItemType File -Force
+
+# Pages - Agencies
+ni ppahire-frontend\src\pages\agencies\Dashboard.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\agencies\CompanyProfile.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\agencies\JobPosts.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\agencies\App
+# Pages - Agencies (continued)
+ni ppahire-frontend\src\pages\agencies\Applicants.tsx -ItemType File -Force
+
+# Pages - Admin
+ni ppahire-frontend\src\pages\admin\Dashboard.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\admin\Users.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\admin\VerificationQueue.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\admin\AuditLogs.tsx -ItemType File -Force
+
+# Pages - Jobs
+ni ppahire-frontend\src\pages\jobs\BrowseJobs.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\jobs\JobDetails.tsx -ItemType File -Force
+
+# Pages - Misc
+ni ppahire-frontend\src\pages\misc\Home.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\misc\About.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\misc\Privacy.tsx -ItemType File -Force
+ni ppahire-frontend\src\pages\misc\NotFound.tsx -ItemType File -Force
+
+# Components - Forms
+ni ppahire-frontend\src\components\forms\Input.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\forms\Select.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\forms\FileUpload.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\forms\Checkbox.tsx -ItemType File -Force
+
+# Components - Layout
+ni ppahire-frontend\src\components\layout\Navbar.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\layout\Sidebar.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\layout\Footer.tsx -ItemType File -Force
+
+# Components - UI
+ni ppahire-frontend\src\components\ui\Button.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\ui\Modal.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\ui\Toast.tsx -ItemType File -Force
+
+# Components - Verification
+ni ppahire-frontend\src\components\verification\VerificationBadge.tsx -ItemType File -Force
+ni ppahire-frontend\src\components\verification\VerificationStatus.tsx -ItemType File -Force
+
+# Context
+ni ppahire-frontend\src\context\AuthContext.tsx -ItemType File -Force
+ni ppahire-frontend\src\context\ThemeContext.tsx -ItemType File -Force
+ni ppahire-frontend\src\context\LanguageContext.tsx -ItemType File -Force
+
+# Hooks
+ni ppahire-frontend\src\hooks\useAuth.ts -ItemType File -Force
+ni ppahire-frontend\src\hooks\useFetch.ts -ItemType File -Force
+ni ppahire-frontend\src\hooks\useRole.ts -ItemType File -Force
+ni ppahire-frontend\src\hooks\useFileUpload.ts -ItemType File -Force
+
+# Services
+ni ppahire-frontend\src\services\auth.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\user.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\candidate.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\agency.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\job.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\application.service.ts -ItemType File -Force
+ni ppahire-frontend\src\services\verification.service.ts -ItemType File -Force
+
+# Types
+ni ppahire-frontend\src\types\auth.d.ts -ItemType File -Force
+ni ppahire-frontend\src\types\user.d.ts -ItemType File -Force
+ni ppahire-frontend\src\types\candidate.d.ts -ItemType File -Force
+ni ppahire-frontend\src\types\agency.d.ts -ItemType File -Force
+ni ppahire-frontend\src\types\job.d.ts -ItemType File -Force
+ni ppahire-frontend\src\types\verification.d.ts -ItemType File -Force
+
+# Utils
+ni ppahire-frontend\src\utils\formatDate.ts -ItemType File -Force
+ni ppahire-frontend\src\utils\formatCurrency.ts -ItemType File -Force
+ni ppahire-frontend\src\utils\storage.ts -ItemType File -Force
+ni ppahire-frontend\src\utils\constants.ts -ItemType File -Force
+
+# Tests
+ni ppahire-frontend\src\tests\auth.test.tsx -ItemType File -Force
+ni ppahire-frontend\src\tests\dashboard.test.tsx -ItemType File -Force
+ni ppahire-frontend\src\tests\jobs.test.tsx -ItemType File -Force

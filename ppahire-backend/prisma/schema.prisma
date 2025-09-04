@@ -1,0 +1,393 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  phone           String?    @unique
+  passwordHash    String
+  role            Role
+  emailVerifiedAt DateTime?
+  status          UserStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  candidateProfile CandidateProfile?
+  agencyMembers    AgencyMember[]
+  messagesSent     Message[] @relation("MessageFromUser")
+  messagesReceived Message[] @relation("MessageToUser")
+
+  verifications    Verification[] @relation("UserVerifications")
+  reviewsDone      Verification[] @relation("UserReviewedVerifications")
+
+  auditLogs        AuditLog[]
+
+  // 🔥 New relations
+  verifiedCertificates CandidateCertificate[] @relation("UserVerifiedCertificates")
+  ownedAgencies Agency[]
+}
+
+
+
+enum Role {
+  ADMIN
+  CANDIDATE
+  AGENCY
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model CandidateProfile {
+  id              String     @id @default(uuid())
+  userId          String     @unique
+  user            User       @relation(fields: [userId], references: [id])
+  firstName       String
+  lastName        String
+  phone           String?    @unique
+  dob             DateTime?
+  gender          String?
+  nyscNumber      String?    @unique
+  nyscBatch       String?
+  nyscStream      String?
+  callupHash      String?    
+  stateCode       String?
+  primaryStateId  Int?
+  lgaId           Int?
+  disabilityInfo  String?
+  isVerified      Boolean    @default(false)
+  verificationLevel VerificationLevel @default(UNVERIFIED)
+  isRemote        Boolean    @default(false)
+  isOpenToReloc   Boolean    @default(false)
+  salaryMin       Int?
+  salaryMax       Int?
+  availability    DateTime?
+  workAuth        String?
+  summary         String?
+  linkedin        String?
+  portfolio       String?
+  graduationYear  Int?
+  gpaBand         String?
+
+  skills          CandidateSkill[]
+  certificates    CandidateCertificate[]
+  credentials     Credential[]
+  applications    Application[]
+  shortlists      Shortlist[]
+}
+
+enum VerificationLevel {
+  UNVERIFIED
+  EMAIL_VERIFIED
+  ID_VERIFIED
+  NYSC_VERIFIED
+  CERTS_VERIFIED
+  AGENCY_DOMAIN_VERIFIED
+  AGENCY_CAC_VERIFIED
+}
+
+model CandidateSkill {
+  id          String            @id @default(uuid())
+  candidateId String
+  candidate   CandidateProfile  @relation(fields: [candidateId], references: [id])
+  skillId     Int
+  skill       Skill             @relation(fields: [skillId], references: [id])
+  level       Int
+  years       Int?
+}
+
+model Skill {
+  id        Int                @id @default(autoincrement())
+  name      String             @unique
+  slug      String             @unique
+  candidates CandidateSkill[]
+}
+
+model CandidateCertificate {
+  id          String            @id @default(uuid())
+  candidateId String
+  candidate   CandidateProfile  @relation(fields: [candidateId], references: [id])
+  title       String
+  issuer      String
+  issuedAt    DateTime?
+  fileKey     String            
+  fileHash    String
+  verified    Boolean           @default(false)
+  verifierId  String?
+  verifiedBy  User?             @relation("UserVerifiedCertificates", fields: [verifierId], references: [id])
+}
+
+
+model Credential {
+  id          String    @id @default(uuid())
+  candidateId String
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id])
+  fileUrl     String
+  type        String    
+  hash        String    
+  verified    Boolean   @default(false)
+}
+
+model Agency {
+  id            String         @id @default(uuid())
+  ownerUserId   String
+  owner         User           @relation(fields: [ownerUserId], references: [id])
+  name          String
+  rcNumber      String?
+  industryId    Int?
+  website       String?
+  sizeRange     String?
+  domainVerified Boolean       @default(false)
+  cacVerified    Boolean       @default(false)
+  logoKey       String?
+  headquartersStateId Int?
+  lgaId         Int?
+  createdAt     DateTime       @default(now())
+
+  members       AgencyMember[]
+  positions     Position[]
+  shortlists    Shortlist[]
+  subscriptions AgencySubscription[]
+}
+
+model AgencyMember {
+  id        String  @id @default(uuid())
+  agencyId  String
+  agency    Agency  @relation(fields: [agencyId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  role      AgencyRole
+}
+
+enum AgencyRole {
+  OWNER
+  MANAGER
+  RECRUITER
+}
+
+model Position {
+  id           String      @id @default(uuid())
+  agencyId     String
+  agency       Agency      @relation(fields: [agencyId], references: [id])
+  title        String
+  description  String
+  employmentType EmploymentType
+  isRemote     Boolean     @default(false)
+  stateId      Int?
+  lgaId        Int?
+  minSalary    Int?
+  maxSalary    Int?
+  skillsReq    Json?
+  visibility   PositionVisibility
+  status       PositionStatus @default(OPEN)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  applications Application[]
+}
+
+enum EmploymentType {
+  INTERN
+  NYSC
+  FULLTIME
+  PARTTIME
+  CONTRACT
+}
+
+enum PositionVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PositionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+model Application {
+  id          String     @id @default(uuid())
+  positionId  String
+  position    Position   @relation(fields: [positionId], references: [id])
+  candidateId String
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id])
+  status      ApplicationStatus @default(APPLIED)
+  notes       String?
+  createdAt   DateTime   @default(now())
+
+  // 🔥 New relations
+  interviews Interview[]
+  offers Offer[]
+}
+
+
+enum ApplicationStatus {
+  APPLIED
+  REVIEWING
+  INTERVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
+model Shortlist {
+  id          String           @id @default(uuid())
+  agencyId    String
+  agency      Agency           @relation(fields: [agencyId], references: [id])
+  candidateId String
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id])
+  source      ShortlistSource
+}
+
+enum ShortlistSource {
+  SEARCH
+  IMPORT
+  PRIVATE_ROLE
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  fromId    String
+  from      User     @relation("MessageFromUser", fields: [fromId], references: [id])
+  toId      String
+  to        User     @relation("MessageToUser", fields: [toId], references: [id])
+  subject   String?
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Interview {
+  id           String     @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id])
+  scheduledAt   DateTime
+  mode          InterviewMode
+  location      String?
+  status        InterviewStatus @default(SCHEDULED)
+}
+
+enum InterviewMode {
+  INPERSON
+  REMOTE
+  PHONE
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+model Offer {
+  id           String     @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id])
+  salary        Int?
+  startDate     DateTime?
+  status        OfferStatus @default(PENDING)
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model SubscriptionPlan {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  price       Int
+  currency    String    @default("NGN")
+  features    Json
+  agencies    AgencySubscription[]
+}
+
+model AgencySubscription {
+  id           String     @id @default(uuid())
+  agencyId     String
+  agency       Agency     @relation(fields: [agencyId], references: [id])
+  planId       String
+  plan         SubscriptionPlan @relation(fields: [planId], references: [id])
+  startDate    DateTime
+  endDate      DateTime?
+  status       SubscriptionStatus @default(ACTIVE)
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+model Verification {
+  id        String       @id @default(uuid())
+
+  userId    String
+  user      User         @relation("UserVerifications", fields: [userId], references: [id])
+
+  type      VerificationType
+  status    VerificationStatus
+  evidence  Json?
+
+  reviewedBy String?
+  reviewer   User?        @relation("UserReviewedVerifications", fields: [reviewedBy], references: [id])
+
+  createdAt DateTime     @default(now())
+}
+
+
+enum VerificationType {
+  EMAIL
+  DOMAIN
+  CAC
+  NYSC
+  NIN
+  CERTIFICATE
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String
+  actor     User     @relation(fields: [actorId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model LocationState {
+  id   Int     @id @default(autoincrement())
+  name String  @unique
+  lgas LocationLGA[]
+}
+
+model LocationLGA {
+  id     Int    @id @default(autoincrement())
+  name   String
+  stateId Int
+  state  LocationState @relation(fields: [stateId], references: [id])
+}
+
+model Industry {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}

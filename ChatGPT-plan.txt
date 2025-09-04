@@ -1,0 +1,259 @@
+1) Product & Scope (refinements)
+
+Core users & goals
+
+Candidate (NYSC corps member): create profile, upload verified credentials, set preferences, get matched and contacted.
+
+Agency (employer/recruiter): verify company, post “talent needs” (public or private), search/match candidates, contact.
+
+Admin: verify users & companies, moderate content, handle disputes, audit logs, reporting.
+
+Refinements you should decide now
+
+Vacancy visibility:
+
+Public roles (visible to candidates, allows direct applications).
+
+Private talent-pool roles (only agency+admin see; agencies search & reach out).
+
+Contact mode v1: email-only (keep it simple), add in-app messaging later.
+
+Verification levels (badges): Unverified → Email verified → ID & NYSC call-up verified → Certificates verified → Agency verified (CAC/domain).
+
+Matching model: filter + score: location (state/LGA), remote, role/title, skills, industry, NYSC status (batch/stream), availability date, salary range, contract type (intern/NYSC/FT), graduation year, GPA band, languages, certifications, preferred PPA location, work authorization, disability accommodations.
+
+Anti-fraud: duplicate detection (email+phone+NIN hash, device fingerprint bucketed), document hashing, manual review queue.
+
+Geo granularity for NG: Country > State > LGA. Store normalized tables.
+
+2) Security & Compliance (non-negotiables)
+
+Auth: JWT access + refresh tokens, short-lived access (15m), rotating refresh, device-bound refresh, argon2id for passwords.
+
+RBAC: policy-first (permissions matrix), checked at controller + DB level (consider Postgres RLS on sensitive tables).
+
+Input validation: zod on server & client; sanitize HTML; file type/size whitelist.
+
+File uploads: presigned URLs to S3-compatible storage; strip EXIF; antivirus scan (ClamAV in a worker).
+
+Secrets: .env managed via Doppler/Vault/GitHub Encrypted Secrets.
+
+Rate limiting: IP + user-level with Redis; user creation + login + search endpoints protected; bot-proofing via hCaptcha/Turnstile.
+
+Logging & audit: append-only audit_log (who/what/when); structured logs (pino) with request IDs; no PII in logs.
+
+Compliance: NDPR principles (data minimization, consent, deletion), GDPR-like rights (export/delete), terms/privacy pages.
+
+3) Verification Strategy (agencies & candidates)
+
+Agencies
+
+Domain verification: email on company domain + DNS TXT challenge.
+
+CAC check: request RC/BN number + legal name; automated via provider if available, else admin review with evidence upload.
+
+Work email proof: OTP to work email.
+
+Badge levels: “Email verified” → “Domain verified” → “CAC verified”.
+
+Candidates
+
+NYSC evidence: call-up number + card/photo (manual review), optional integration later if an official API exists.
+
+ID check: NIN slip/photo (hash & redact), liveness selfie (optional phase 2).
+
+Certificates: PDF only, OCR text extraction for keywords; SHA-256 stored for tamper detection.
+
+4) Data Model (tables – first pass)
+
+users(id, email, phone, password_hash, role: enum[admin,candidate,agency], email_verified_at, status, created_at, …)
+
+profiles_candidate(user_id FK, first_name, last_name, dob, gender, nysc_batch, stream, callup_number_hash, state_code, primary_state_id, lga_id, is_open_to_relocation, is_remote, salary_min, salary_max, availability_date, summary, linkedin, portfolio, …)
+
+candidate_skills(candidate_id, skill_id, level, years)
+
+skills(id, name, slug)
+
+candidate_certificates(id, candidate_id, title, issuer, issued_at, file_key, file_hash, verified:boolean, verifier_id, …)
+
+agencies(id, owner_user_id, name, rc_number, industry_id, size_range, website, domain_verified:boolean, cac_verified:boolean, logo_key, headquarters_state_id, lga_id, …)
+
+agency_members(id, agency_id, user_id, role: enum[owner,manager,recruiter])
+
+roles(id, name) & permissions(id, key) & role_permissions(role_id, permission_id) (optional if you want fine-grained ACLs)
+
+positions(id, agency_id, title, description, employment_type, is_remote, state_id, lga_id, min_salary, max_salary, skills_required jsonb, visibility enum[public,private], status enum[draft,open,closed], …)
+
+applications(id, position_id, candidate_id, status enum[applied,reviewing,interview,offer,rejected,withdrawn], notes, …) (only for public roles)
+
+shortlists(id, agency_id, candidate_id, source enum[search,import,private-role], …)
+
+messages(id, from_user, to_user, subject, body, …) (phase 2)
+
+email_events(id, user_id, type, provider_id, status, …)
+
+verifications(id, user_id, type enum[email,domain,cac,nysc,nin,certificate], status, evidence jsonb, reviewed_by, …)
+
+locations(states, lgas); industries(id, name)
+
+audit_log(id, actor_user_id, action, entity, entity_id, meta jsonb, created_at)
+
+reports_daily(...) materialized views for analytics
+
+Indexes
+
+GIN on skills_required and profiles_candidate.search_vector (Postgres full-text).
+
+btree on state_id, lga_id, is_remote.
+
+pg_trgm extension on title, agency.name for fuzzy search.
+
+5) API Design (Express + TypeScript)
+
+Auth
+
+POST /auth/register (candidate/agency), POST /auth/login, POST /auth/refresh, POST /auth/logout-all
+
+POST /auth/verify-email, POST /auth/request-password-reset, POST /auth/reset-password
+
+Candidate
+
+GET/PUT /me/profile
+
+POST /me/certificates (get presigned URL → client uploads → POST /me/certificates/confirm)
+
+GET /me/matches (ranked results)
+
+POST /applications (public positions)
+
+Agency
+
+POST /agencies (create company), GET/PUT /agencies/:id
+
+POST /agencies/:id/positions (visibility: public/private)
+
+GET /agencies/:id/candidates (search w/ filters)
+
+POST /agencies/:id/shortlists
+
+POST /agencies/:id/verify-domain (init + confirm)
+
+Admin
+
+GET /admin/verifications?status=pending
+
+POST /admin/verifications/:id/approve|reject
+
+GET /admin/audit, GET /admin/metrics
+
+Search/Match
+
+GET /search/candidates?state=…&skills=…&remote=…
+
+GET /positions?visibility=public&state=…
+
+6) Matching logic (v1)
+
+Score = weighted sum: location proximity (state=LGA match), remote fit, skill overlap (Jaccard on normalized skills), required certs presence, experience years, availability window.
+
+Implement as SQL view or server function calling SQL with CTEs + tsvector search.
+
+Store daily top matches per agency in a materialized view for speed.
+
+7) Architecture & Services
+
+Web (React + TS, Vite)
+
+API (Express + TS)
+
+Worker (BullMQ + Redis): email sends, OCR, antivirus scan, image/PDF processing, nightly match refresh.
+
+Postgres (Prisma ORM or Knex; I recommend Prisma for velocity + type safety).
+
+Object storage: S3-compatible (Cloudflare R2/MinIO/S3).
+
+Email: Resend/SES/SendGrid with webhooks for bounces/complaints.
+
+Observability: OpenTelemetry traces → Grafana Tempo/Jaeger, Prometheus metrics, Health checks.
+
+8) Implementation plan (phased)
+
+Phase 0 — Foundations
+
+Repo init (pnpm workspaces), CI (lint/test/build), environments (dev/stage/prod), Docker, .env.example.
+
+Auth, RBAC, rate limits, error shape.
+
+Phase 1 — MVP
+
+Candidate profile + uploads (presigned), email verification.
+
+Agency signup + company profile + domain verification (email/domain).
+
+Positions (public/private), candidate search for agencies.
+
+Matching endpoint (simple rules), email notifications.
+
+Admin verification queues.
+
+Basic analytics dashboard.
+
+Phase 2 — Trust & scale
+
+CAC verification flow, improved fraud detection, certificate verification workflow.
+
+Antivirus + OCR pipeline with keyword extraction to auto-flag mismatches.
+
+Materialized views for hot queries, background refresh.
+
+Export (CSV) & webhooks for agencies.
+
+Phase 3 — Nice-to-haves
+
+In-app messaging, interview scheduling, offer tracking.
+
+Subscription tiers for agencies (role caps, search limits, credits).
+
+9) Frontend UX notes
+
+Onboarding wizards tailored per role.
+
+Filters: state, LGA, remote, role, industry, salary band, skills, certs, availability, NYSC batch/stream.
+
+Badges displayed on profiles and agencies (hover to see verification level).
+
+Accessibility: form validation, keyboard nav, high-contrast support.
+
+10) “Best-practices” tech choices
+
+Server: Express + TS, zod, pino, helmet, cors, rate-limiter-flexible, argon2, jsonwebtoken, multer-s3 (only for generating presigned URLs; actual upload from client).
+
+DB: Postgres 14+, uuid-ossp, pgcrypto, pg_trgm.
+
+ORM: Prisma (schema-first, migrations).
+
+Worker: BullMQ, Redis.
+
+Testing: Vitest/Jest (API), Supertest (e2e), Playwright (UI).
+
+Code style: ESLint + Prettier + Husky + lint-staged, commitlint + conventional commits.
+
+Docs: Swagger (OpenAPI) auto-gen from zod or tsoa.
+
+12) Permissions matrix (sample)
+
+candidate: profile:read/write, certificate:upload, application:create, shortlist:optout
+
+agency: agency:create/update, position:create/update, candidate:search, shortlist:create, contact:candidate
+
+admin: verify:any, user:ban, agency:approve, audit:read, role:assign
+
+13) Matching & notifications (flow)
+
+Agency posts position (public/private).
+
+Nightly job computes candidate matches (materialized view refresh).
+
+For public roles, candidates can apply; for private, agencies shortlist & email via system.
+
+Email webhooks update status dashboards.

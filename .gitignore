@@ -1,0 +1,45 @@
+# =========================
+# ROOT
+# =========================
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+.vscode/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.swp
+
+# =========================
+# BACKEND - ppahire-backend
+# =========================
+ppahire-backend/node_modules/
+ppahire-backend/dist/
+ppahire-backend/.env
+ppahire-backend/prisma/migrations/
+ppahire-backend/.turbo/
+ppahire-backend/.next/
+ppahire-backend/*.log
+
+# =========================
+# FRONTEND - ppahire-frontend
+# =========================
+ppahire-frontend/node_modules/
+ppahire-frontend/dist/
+ppahire-frontend/build/
+ppahire-frontend/.env
+ppahire-frontend/.next/
+ppahire-frontend/*.log
+
+# =========================
+# Tailwind / Vite / Editor
+# =========================
+tailwind.config.js
+vite.config.ts
+*.local
