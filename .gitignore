@@ -4,6 +4,7 @@
 node_modules/
 dist/
 build/
+dev/
 .env
 .env.local
 .env.*.local
@@ -37,9 +38,3 @@ ppahire-frontend/.env
 ppahire-frontend/.next/
 ppahire-frontend/*.log
 
-# =========================
-# Tailwind / Vite / Editor
-# =========================
-tailwind.config.js
-vite.config.ts
-*.local
