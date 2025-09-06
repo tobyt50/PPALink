@@ -4,15 +4,27 @@ import Login from '../pages/auth/Login';
 import RegisterAgency from '../pages/auth/RegisterAgency';
 import RegisterCandidate from '../pages/auth/RegisterCandidate';
 
-// --- 1. Import the new components ---
+// --- Import Layouts and Dashboard Pages ---
+import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
+import CompanyProfilePage from '../pages/agencies/CompanyProfile';
+import CreateJobPage from '../pages/agencies/CreateJob';
+import AgencyDashboard from '../pages/agencies/Dashboard';
+import EditCompanyProfilePage from '../pages/agencies/EditCompanyProfile';
+import EditJobPage from '../pages/agencies/EditJob';
+import JobPostsPage from '../pages/agencies/JobPosts';
+import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
 import CandidateDashboard from '../pages/candidates/Dashboard';
-import DashboardLayout from './Layouts';
+import EditProfilePage from '../pages/candidates/EditProfile';
+import CandidateProfilePage from '../pages/candidates/Profile';
+import PublicProfilePage from '../pages/candidates/PublicProfile';
+import JobDetailsPage from '../pages/jobs/JobDetails';
+import ProtectedRoute from './ProtectedRoute';
 
 const router = createBrowserRouter([
-  // --- Public routes (auth, landing page, etc.) ---
+  // --- Public routes ---
   {
     path: '/',
-    element: <App />, // The basic layout with just the background
+    element: <App />,
     children: [
       { path: '/login', element: <Login /> },
       { path: '/register/candidate', element: <RegisterCandidate /> },
@@ -28,16 +40,65 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // --- 2. Add new protected dashboard routes ---
+  // --- Protected dashboard routes ---
   {
     path: '/dashboard',
-    element: <DashboardLayout />, // All routes inside use the DashboardLayout
+    // 2. Use ProtectedRoute as the main element.
+    // It will handle both auth checking and rendering the DashboardLayout.
+    element: <ProtectedRoute />, 
     children: [
       {
-        path: 'candidate', // Accessible at /dashboard/candidate
+        path: 'candidate',
         element: <CandidateDashboard />,
       },
-      // We will add /dashboard/agency here later
+      {
+        path: 'candidate/profile',
+        element: <CandidateProfilePage />,
+      },
+      {
+        path: 'candidate/profile/edit',
+        element: <EditProfilePage />,
+      },
+      {
+        path: 'agency', // Accessible at /dashboard/agency
+        element: <AgencyDashboard />,
+      },
+      {
+        path: 'agency/profile', // Accessible at /dashboard/agency/profile
+        element: <CompanyProfilePage />,
+      },
+      {
+        path: 'agency/profile/edit',
+        element: <EditCompanyProfilePage />,
+      },
+      {
+        path: 'agency/jobs',
+        element: <JobPostsPage />,
+      },
+      {
+        path: 'agency/jobs/create',
+        element: <CreateJobPage />,
+      },
+      {
+        path: 'agency/:agencyId/jobs/:jobId',
+        element: <JobDetailsPage />,
+      },
+      {
+        path: 'agency/:agencyId/jobs/:jobId/edit',
+        element: <EditJobPage />,
+      },
+      {
+        path: 'agency/candidates/browse',
+        element: <BrowseCandidatesPage />,
+      },
+      {
+        path: 'agency/candidates/shortlisted',
+        element: <ShortlistedCandidatesPage />,
+      },
+      {
+        path: 'agency/candidates/:candidateId/profile',
+        element: <PublicProfilePage />,
+      },
     ],
   },
 ]);

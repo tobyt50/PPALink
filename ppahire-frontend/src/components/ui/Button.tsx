@@ -11,12 +11,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        green: 'bg-green-600 text-white hover:bg-green-700/90 shadow-sm',
+        primary: 'bg-primary-600 text-white hover:bg-primary-700/90 shadow-sm',
         destructive: 'bg-red-500 text-white hover:bg-red-600/90 shadow-sm',
         outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300/80 shadow-sm',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-green-600 underline-offset-4 hover:underline',
+        link: 'text-primary-600 underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -26,7 +26,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'green',
+      variant: 'primary',
       size: 'default',
     },
   }

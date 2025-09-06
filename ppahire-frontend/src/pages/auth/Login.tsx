@@ -2,47 +2,69 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast'; // 2. Import toast
+import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import { z } from 'zod';
 
 import { Input } from '../../components/forms/Input';
 import { Button } from '../../components/ui/Button';
 import { Label } from '../../components/ui/Label';
+import { useAuthStore } from '../../context/AuthContext'; // 4. Import the auth store
+import authService from '../../services/auth.service'; // 3. Import the auth service
 
-// 1. Define the validation schema using Zod
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-// Infer the TypeScript type from the schema
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  // 2. Set up the form hook from React Hook Form
+  // 5. Initialize hooks
+  const navigate = useNavigate();
+  const loginToStore = useAuthStore((state) => state.login); // Get the login action from the store
+
   const {
     register,
     handleSubmit,
+    setError, // We can use this to set server-side errors
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
   });
 
-  // 3. Define the submission handler
+  // 6. UPDATE the onSubmit handler with real API logic
   const onSubmit = async (data: LoginFormValues) => {
-    // Simulate an API call
-    console.log('Form submitted with:', data);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    // In a real app, you would have your API call logic here:
-    // try {
-    //   const response = await authService.login(data);
-    //   // handle success, e.g., redirect, save token
-    // } catch (error) {
-    //   // handle error, e.g., show toast notification
-    // }
+    try {
+      const response = await authService.login(data);
+
+      if (response.success) {
+        toast.success(response.message);
+        const { user, token } = response.data;
+        
+        // Save the user and token to our global store
+        loginToStore(user, token);
+
+        // Redirect based on user role
+        if (user.role === 'CANDIDATE') {
+          navigate('/dashboard/candidate');
+        } else if (user.role === 'AGENCY') {
+          navigate('/dashboard/agency');
+        } else {
+          // Handle admin or other roles
+          navigate('/');
+        }
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'An unexpected error occurred.';
+      toast.error(errorMessage);
+      
+      // Optionally, set a form error if the API provides field-specific feedback
+      setError('root', {
+        type: 'server',
+        message: errorMessage,
+      });
+    }
   };
 
   return (
@@ -53,9 +75,9 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <div className="rounded-xl border border-gray-200 bg-white/50 p-6 shadow-lg backdrop-blur-sm md:p-10">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-10">
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
               Welcome Back
             </h1>
             <p className="mt-2 text-sm text-gray-600">
@@ -63,8 +85,14 @@ const Login = () => {
             </p>
           </div>
 
-          {/* 4. Build the form structure */}
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+            {/* 7. Display root error from the server */}
+            {errors.root && (
+              <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+                {errors.root.message}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -82,12 +110,12 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <a href="#" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-                        Forgot password?
-                    </a>
-                </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <a href="#" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                  Forgot password?
+                </a>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -108,9 +136,9 @@ const Login = () => {
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <a href="#" className="font-semibold text-primary-600 hover:text-primary-500">
-              Register now
+            Don't have an account yet?{' '}
+            <a href="/register/candidate" className="font-semibold text-primary-600 hover:text-primary-500">
+              Register as a Candidate
             </a>
           </p>
         </div>
