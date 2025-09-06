@@ -61,3 +61,24 @@ export async function deleteJobPosition(jobId: string, agencyId: string) {
     where: { id: jobId, agencyId },
   });
 }
+
+/**
+ * Retrieves a single job position by its ID, ensuring it belongs to the correct agency.
+ * Throws an error if the job is not found or does not belong to the agency.
+ * @param jobId The ID of the job position.
+ * @param agencyId The ID of the agency that should own the job.
+ */
+export async function getJobByIdAndAgency(jobId: string, agencyId: string) {
+  const job = await prisma.position.findUnique({
+    where: { 
+      id: jobId,
+      agencyId: agencyId, // This condition is crucial for security
+    },
+  });
+
+  if (!job) {
+    throw new Error('Job not found or you do not have permission to view it.');
+  }
+
+  return job;
+}

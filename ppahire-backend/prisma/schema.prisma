@@ -247,6 +247,7 @@ model Shortlist {
   candidateId String
   candidate   CandidateProfile @relation(fields: [candidateId], references: [id])
   source      ShortlistSource
+  createdAt   DateTime         @default(now())
 }
 
 enum ShortlistSource {

@@ -39,3 +39,28 @@ export async function updateCandidateProfile(userId: string, data: UpdateCandida
 
   return updatedProfile;
 }
+
+/**
+ * Fetches a single candidate profile by its primary key (ID).
+ * This is for public viewing by agencies.
+ * @param profileId - The ID of the CandidateProfile.
+ */
+export async function getCandidateProfileById(profileId: string) {
+  const profile = await prisma.candidateProfile.findUnique({
+    where: { id: profileId },
+    // We include skills here so agencies can see them
+    include: {
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+    },
+  });
+
+  if (!profile) {
+    throw new Error('Candidate profile not found.');
+  }
+
+  return profile;
+}

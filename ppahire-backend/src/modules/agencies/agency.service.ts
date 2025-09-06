@@ -1,4 +1,4 @@
-import { AgencyRole } from '@prisma/client';
+import { AgencyRole, ShortlistSource } from '@prisma/client';
 import prisma from '../../config/db';
 import { UpdateAgencyProfileInput } from './agency.types';
 
@@ -44,4 +44,147 @@ export async function updateAgencyProfile(agencyId: string, data: UpdateAgencyPr
     where: { id: agencyId },
     data,
   });
+}
+
+export async function getAgencyByUserId(userId: string) {
+ const agencyMember
+  = await prisma.agencyMember.findFirst({
+   where: { userId },
+   include: { agency: true }, // Include the full agency details
+ });
+
+ if (!agencyMember) {
+   throw new Error('User is not associated with any agency.');
+ }
+
+ return agencyMember.agency;
+}
+
+/**
+ * Searches for candidate profiles based on a dynamic set of filter criteria.
+ * @param queryParams - An object containing potential filter keys like stateId, skills, etc.
+ */
+export async function searchCandidates(queryParams: any) {
+  const { stateId, nyscBatch, skills, isRemote, isOpenToReloc } = queryParams;
+
+  const where: any = {
+    AND: [], // We use AND to combine all active filters
+  };
+
+  // --- Build the query dynamically ---
+
+  if (stateId) {
+    where.AND.push({ primaryStateId: parseInt(stateId, 10) });
+  }
+
+  if (nyscBatch) {
+    where.AND.push({ nyscBatch: { equals: nyscBatch, mode: 'insensitive' } });
+  }
+  
+  if (isRemote === 'true') {
+    where.AND.push({ isRemote: true });
+  }
+  
+  if (isOpenToReloc === 'true') {
+    where.AND.push({ isOpenToReloc: true });
+  }
+
+  // Handle skills: search for candidates with at least one of the provided skills
+  if (skills) {
+    const skillsArray = skills.split(',').map((skill: string) => skill.trim());
+    if (skillsArray.length > 0) {
+      where.AND.push({
+        skills: {
+          some: {
+            skill: {
+              name: {
+                in: skillsArray,
+                mode: 'insensitive',
+              },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  return prisma.candidateProfile.findMany({
+    where,
+    // Include related data to display on the search result cards
+    include: {
+      user: {
+        select: { email: true }, // Select only non-sensitive fields
+      },
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+    },
+    take: 50, // Add pagination limit to prevent fetching too much data
+  });
+}
+
+/**
+ * Shortlists a candidate for a given agency.
+ * Prevents duplicate entries.
+ * @param agencyId The ID of the agency shortlisting the candidate.
+ * @param candidateProfileId The ID of the candidate's profile to shortlist.
+ */
+export async function shortlistCandidate(agencyId: string, candidateProfileId: string) {
+  // First, check if this candidate is already shortlisted by this agency
+  const existingShortlist = await prisma.shortlist.findFirst({
+    where: {
+      agencyId: agencyId,
+      candidateId: candidateProfileId,
+    },
+  });
+
+  if (existingShortlist) {
+    // If they are already shortlisted, we can just return the existing record.
+    return existingShortlist;
+  }
+
+  // If not, create a new Shortlist entry
+  const newShortlist = await prisma.shortlist.create({
+    data: {
+      agencyId: agencyId,
+      candidateId: candidateProfileId,
+      source: ShortlistSource.SEARCH, // The source is from the search page
+    },
+  });
+
+  return newShortlist;
+}
+
+/**
+ * Fetches all candidate profiles shortlisted by a specific agency.
+ * @param agencyId The ID of the agency.
+ */
+export async function getShortlistedCandidates(agencyId: string) {
+  const shortlists = await prisma.shortlist.findMany({
+    where: {
+      agencyId: agencyId,
+    },
+    // Include the full candidate profile for each shortlist entry
+    include: {
+      candidate: {
+        // Also include the candidate's skills for the card display
+        include: {
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc', // Show the most recently shortlisted first
+    },
+  });
+
+  // The result is an array of Shortlist objects, each containing a 'candidate' property.
+  // We want to return just the array of candidate profiles.
+  return shortlists.map(shortlist => shortlist.candidate);
 }

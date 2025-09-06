@@ -34,6 +34,33 @@ export async function getAgencyJobsHandler(req: AuthRequest, res: Response, next
   }
 }
 
+/**
+ * Handler to get the details of a single job post.
+ */
+export async function getJobDetailsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { agencyId, jobId } = req.params;
+
+    // Although the service layer checks for ownership, it's good practice
+    // to also verify membership for consistency, especially for CUD operations.
+    // For a simple GET, this could be considered optional but adds a layer of security.
+    if (req.user) {
+        await checkAgencyMembership(req.user.id, agencyId);
+    }
+
+    const job = await JobService.getJobByIdAndAgency(jobId, agencyId);
+    return res.status(200).json({ success: true, data: job });
+  } catch (error: any) {
+    if (error.message.includes('Forbidden')) {
+      return res.status(403).json({ success: false, message: error.message });
+    }
+    if (error.message.includes('Job not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
 // Controller to update a job
 export async function updateJobHandler(req: AuthRequest, res: Response, next: NextFunction) {
     try {

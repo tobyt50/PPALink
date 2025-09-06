@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth'; // Import our custom request type
-import { getCandidateProfileByUserId, updateCandidateProfile } from './candidate.service';
+import { getCandidateProfileById, getCandidateProfileByUserId, updateCandidateProfile } from './candidate.service';
 import { UpdateCandidateProfileInput } from './candidate.types';
 
 /**
@@ -42,6 +42,26 @@ export async function updateMyProfileHandler(
       data: updatedProfile,
     });
   } catch (error) {
+    next(error);
+  }
+}
+
+export async function getPublicCandidateProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { candidateId } = req.params;
+    if (!candidateId) {
+      return res.status(400).json({ success: false, message: 'Candidate ID is required.' });
+    }
+
+    const profile = await getCandidateProfileById(candidateId);
+    
+    // In a future step, you could add logic here to hide sensitive info if needed
+    
+    return res.status(200).json({ success: true, data: profile });
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
     next(error);
   }
 }

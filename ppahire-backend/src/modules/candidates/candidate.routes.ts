@@ -1,24 +1,36 @@
-import { NextFunction, Request, Response, Router } from 'express';
-import { z } from 'zod';
-import { registerCandidateHandler } from '../auth/auth.controller';
-import { RegisterCandidateSchema } from '../auth/auth.types';
+import { Role } from '@prisma/client';
+import { Router } from 'express';
+import { authenticate } from '../../middleware/auth';
+import { requireRole } from '../../middleware/rbac';
+import { validate } from '../../middleware/validate';
+import { getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler } from './candidate.controller';
+import { UpdateCandidateProfileSchema } from './candidate.types';
 
 const router = Router();
 
-// Generic Zod validation middleware
-const validate = (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-  try {
-    req.body = schema.parse(req.body); // validate and parse
-    next();
-  } catch (e: any) {
-    return res.status(400).json({ errors: e.errors });
-  }
-};
+// --- Routes for the logged-in candidate's own profile ---
+// Middleware is now applied directly to the routes.
+router.get(
+  '/me', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]), 
+  getMyProfileHandler
+);
+router.put(
+  '/me', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]), 
+  validate(UpdateCandidateProfileSchema), 
+  updateMyProfileHandler
+);
 
-router.post(
-  '/register',
-  validate(RegisterCandidateSchema),
-  registerCandidateHandler
+// --- Route for an agency to view a candidate's profile ---
+// This route now has its own, separate middleware chain.
+router.get(
+  '/:candidateId/profile', 
+  authenticate, 
+  requireRole([Role.AGENCY]), 
+  getPublicCandidateProfileHandler
 );
 
 export default router;

@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 import agencyRoutes from './modules/agencies/agency.routes';
 import authRoutes from './modules/auth/auth.routes';
 import candidateRoutes from './modules/candidates/candidate.routes';
+import utilRoutes from './modules/utils/utils.routes';
 
 const app = express();
 
@@ -21,7 +22,8 @@ app.get('/health', (_req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/candidates', candidateRoutes);
-app.use('/api/agencies', agencyRoutes); // 👈 Use agency routes
+app.use('/api/agencies', agencyRoutes);
+app.use('/api/utils', utilRoutes);
 
 // Error handler
 app.use(errorHandler);
