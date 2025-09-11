@@ -21,7 +21,7 @@ app.use(express.json());
 
 // Health check
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', message: 'ppahire backend running' });
+  res.json({ status: 'ok', message: 'ppalink backend running' });
 });
 
 // API Routes

@@ -34,11 +34,11 @@ const Navbar = () => {
   <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
     <img
       src="/android-chrome-192x192.png"
-      alt="PPAHire Logo"
+      alt="ppalink Logo"
       className="h-7 w-7"
     />
     <span className="text-xl font-bold tracking-tight text-primary-600">
-      PPAHire
+      PPALink
     </span>
   </Link>
 

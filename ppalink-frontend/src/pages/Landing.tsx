@@ -59,7 +59,7 @@ const LandingPage = () => {
             {...fadeInUp(0.2)}
             className="mt-6 max-w-2xl mx-auto text-lg text-gray-200"
           >
-            PPAHire is the dedicated platform for organizations to discover and
+            PPALink is the dedicated platform for organizations to discover and
             hire talented NYSC corps members, and for corps members to launch
             their careers.
           </motion.p>
@@ -110,7 +110,7 @@ const LandingPage = () => {
             {...fadeInUp(0.1)}
             className="text-3xl font-bold sm:text-4xl"
           >
-            Why Choose PPAHire?
+            Why Choose PPALink?
           </motion.h2>
           <motion.p
             {...fadeInUp(0.2)}
@@ -165,7 +165,7 @@ const LandingPage = () => {
             {...fadeInUp(0.2)}
             className="mt-4 max-w-xl mx-auto text-gray-100"
           >
-            Join PPAHire today and connect talent with opportunities that matter.
+            Join PPALink today and connect talent with opportunities that matter.
           </motion.p>
           <motion.div
             {...fadeInUp(0.3)}

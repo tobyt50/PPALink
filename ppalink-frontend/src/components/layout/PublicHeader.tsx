@@ -15,11 +15,11 @@ const PublicHeader = () => {
 <Link to="/" className="flex items-center space-x-2">
   <img
     src="/android-chrome-192x192.png"
-    alt="PPAHire Logo"
+    alt="ppalink Logo"
     className="h-8 w-8"
   />
   <span className="text-xl font-bold tracking-tight text-primary-600">
-    PPAHire
+    PPALink
   </span>
 </Link>
 

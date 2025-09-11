@@ -74,7 +74,7 @@ const Login = () => {
               Welcome Back
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Sign in to access your PPAHire dashboard.
+              Sign in to access your PPALink dashboard.
             </p>
           </div>
 

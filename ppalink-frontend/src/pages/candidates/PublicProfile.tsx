@@ -136,12 +136,11 @@ const PublicProfilePage = () => {
             </div>
             <WorkExperienceSection 
             experiences={profile.workExperiences || []} 
-            isOwner={true} 
-            refetchProfile={refetch} 
+            isOwner={false} 
             />
             <EducationSection 
             educationHistory={profile.education || []} 
-            isOwner={true} 
+            isOwner={false} 
             refetchProfile={refetch} 
           />
           </div>
