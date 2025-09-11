@@ -1,20 +1,31 @@
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../context/AuthContext';
-import DashboardLayout from './Layouts';
+import { useDataStore } from '../context/DataStore';
+import { useShortlistStore } from '../context/ShortlistStore';
 
 const ProtectedRoute = () => {
-  // 1. Get the authentication status from our global store.
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  
+  const fetchLookupData = useDataStore((state) => state.fetchLookupData);
+  const fetchShortlist = useShortlistStore((state) => state.fetchShortlist);
 
-  // 2. Check the status.
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchLookupData();
+      if (user?.role === 'AGENCY') {
+        fetchShortlist();
+      }
+    }
+  }, [isAuthenticated, user?.role, fetchLookupData, fetchShortlist]);
+
   if (!isAuthenticated) {
-    // 3. If the user is not authenticated, redirect them to the login page.
-    // The `replace` prop is used to prevent the user from going "back" to the protected route.
     return <Navigate to="/login" replace />;
   }
-
-  // 4. If the user is authenticated, render the DashboardLayout which in turn renders the requested page via <Outlet />.
-  return <DashboardLayout />;
+  
+  // ProtectedRoute's only job is to guard. The child routes will define their own layouts.
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

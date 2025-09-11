@@ -1,13 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { ChevronDown } from 'lucide-react';
+import { Controller, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { FileUpload } from '../../components/forms/FileUpload';
 import { Input } from '../../components/forms/Input';
 import { Button } from '../../components/ui/Button';
+import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
 import { Label } from '../../components/ui/Label';
+import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
 import type { CandidateProfile } from '../../types/candidate';
-import { NYSC_BATCHES, NYSC_STREAMS } from '../../utils/constants'; // 1. Import from constants
+import { NYSC_BATCHES, NYSC_STREAMS } from '../../utils/constants';
 
-// The Zod schema remains the same
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required.'),
   lastName: z.string().min(2, 'Last name is required.'),
@@ -23,6 +27,8 @@ const profileSchema = z.object({
   nyscBatch: z.string().optional().nullable(),
   nyscStream: z.string().optional().nullable(),
   graduationYear: z.coerce.number().optional().nullable(),
+  cvFileKey: z.string().optional().nullable(),
+  nyscFileKey: z.string().optional().nullable(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -37,6 +43,9 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -55,12 +64,26 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
       nyscBatch: initialData?.nyscBatch || '',
       nyscStream: initialData?.nyscStream || '',
       graduationYear: initialData?.graduationYear || undefined,
+      cvFileKey: initialData?.cvFileKey || null,
+      nyscFileKey: initialData?.nyscFileKey || null,
     },
   });
+  
+  const watchedNyscBatch = watch('nyscBatch');
+  const watchedNyscStream = watch('nyscStream');
+
+  const handleCvUploadSuccess = (fileKey: string, file: File) => {
+    setValue('cvFileKey', fileKey, { shouldDirty: true });
+    toast.success("CV uploaded. Remember to save your changes.");
+  };
+  
+  const handleNyscUploadSuccess = (fileKey: string, file: File) => {
+    setValue('nyscFileKey', fileKey, { shouldDirty: true });
+    toast.success("NYSC document uploaded. Remember to save your changes.");
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      {/* Personal Information Section (unchanged) */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Personal Information</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -95,29 +118,52 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
         <div className="space-y-2">
           <Label htmlFor="summary">Professional Summary</Label>
-          <textarea id="summary" rows={5} className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm" {...register('summary')} />
+          <textarea id="summary" rows={5} className="flex w-full rounded-md border border-gray-300" {...register('summary')} />
         </div>
       </section>
 
-      {/* NYSC & Education Section */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">NYSC & Education</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
             <div className="space-y-2">
-                <Label htmlFor="nyscBatch">NYSC Batch</Label>
-                <select id="nyscBatch" className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm" {...register('nyscBatch')}>
-                    <option value="">Select...</option>
-                    {/* 2. Use the imported constant for batches */}
-                    {NYSC_BATCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
+                <Label>NYSC Batch</Label>
+                <Controller
+                  name="nyscBatch"
+                  control={control}
+                  render={({ field: { onChange } }) => (
+                    <SimpleDropdown
+                      trigger={
+                        <DropdownTrigger>
+                          <span className="truncate">{watchedNyscBatch || 'Select...'}</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </DropdownTrigger>
+                      }
+                    >
+                      <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
+                      {NYSC_BATCHES.map(b => <SimpleDropdownItem key={b} onSelect={() => onChange(b)}>{b}</SimpleDropdownItem>)}
+                    </SimpleDropdown>
+                  )}
+                />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="nyscStream">NYSC Stream</Label>
-                 <select id="nyscStream" className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm" {...register('nyscStream')}>
-                    <option value="">Select...</option>
-                    {/* 3. Use the imported constant for streams */}
-                    {NYSC_STREAMS.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+                <Label>NYSC Stream</Label>
+                 <Controller
+                  name="nyscStream"
+                  control={control}
+                  render={({ field: { onChange } }) => (
+                    <SimpleDropdown
+                      trigger={
+                        <DropdownTrigger>
+                          <span className="truncate">{watchedNyscStream || 'Select...'}</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </DropdownTrigger>
+                      }
+                    >
+                      <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
+                      {NYSC_STREAMS.map(s => <SimpleDropdownItem key={s} onSelect={() => onChange(s)}>{s}</SimpleDropdownItem>)}
+                    </SimpleDropdown>
+                  )}
+                />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="graduationYear">Graduation Year</Label>
@@ -126,7 +172,6 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
       </section>
 
-      {/* Job Preferences Section (unchanged) */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Job Preferences</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -147,8 +192,27 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
       </section>
 
+      <section className="space-y-6">
+        <h3 className="text-lg font-semibold border-b pb-2">Documents</h3>
+        <p className="text-sm text-gray-500">
+          Upload your CV and NYSC Call-up Letter. These will be saved when you click "Save Changes".
+        </p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <FileUpload
+            label="Curriculum Vitae (CV)"
+            uploadType="cv"
+            onUploadSuccess={handleCvUploadSuccess}
+          />
+          <FileUpload
+            label="NYSC Call-up Letter"
+            uploadType="nysc_document"
+            onUploadSuccess={handleNyscUploadSuccess}
+          />
+        </div>
+      </section>
+
       <div className="flex justify-end pt-4">
-        <Button type="submit" isLoading={isSubmitting}>
+        <Button type="submit" isLoading={isSubmitting} className="justify-center">
           {submitButtonText}
         </Button>
       </div>

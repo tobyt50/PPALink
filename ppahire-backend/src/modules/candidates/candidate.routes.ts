@@ -3,7 +3,10 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
-import { getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler } from './candidate.controller';
+import { createCandidateApplicationHandler } from '../applications/application.controller';
+import experienceRoutes from '../experience/experience.routes';
+import { createVerificationSubmissionHandler } from '../verification/verification.controller';
+import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler } from './candidate.controller';
 import { UpdateCandidateProfileSchema } from './candidate.types';
 
 const router = Router();
@@ -16,12 +19,36 @@ router.get(
   requireRole([Role.CANDIDATE]), 
   getMyProfileHandler
 );
+
 router.put(
   '/me', 
   authenticate, 
   requireRole([Role.CANDIDATE]), 
   validate(UpdateCandidateProfileSchema), 
   updateMyProfileHandler
+);
+
+router.get(
+  '/me/applications',
+  authenticate,
+  requireRole([Role.CANDIDATE]),
+  getMyApplicationsHandler
+);
+
+// POST /api/candidates/verifications
+router.post(
+  '/verifications',
+  authenticate,
+  requireRole([Role.CANDIDATE]),
+  createVerificationSubmissionHandler
+);
+
+// POST /api/candidates/applications/apply
+router.post(
+  '/applications/apply',
+  authenticate,
+  requireRole([Role.CANDIDATE]),
+  createCandidateApplicationHandler
 );
 
 // --- Route for an agency to view a candidate's profile ---
@@ -32,5 +59,8 @@ router.get(
   requireRole([Role.AGENCY]), 
   getPublicCandidateProfileHandler
 );
+
+// This will create routes like /api/candidates/me/experience
+router.use('/me', authenticate, requireRole([Role.CANDIDATE]), experienceRoutes);
 
 export default router;

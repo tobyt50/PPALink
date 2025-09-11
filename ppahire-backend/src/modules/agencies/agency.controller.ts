@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth';
-import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, searchCandidates, shortlistCandidate, updateAgencyProfile } from './agency.service';
+import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, removeShortlist, searchCandidates, shortlistCandidate, updateAgencyProfile } from './agency.service';
 import { UpdateAgencyProfileInput } from './agency.types';
 
 export async function getAgencyProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
@@ -129,6 +129,33 @@ export async function getShortlistedCandidatesHandler(req: AuthRequest, res: Res
     return res.status(200).json({
       success: true,
       data: candidates,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Handler for an agency to remove a candidate from their shortlist.
+ */
+export async function removeShortlistHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  try {
+    const { candidateId } = req.params; // Get ID from URL parameter now
+    if (!candidateId) {
+      return res.status(400).json({ success: false, message: 'Candidate ID is required.' });
+    }
+
+    const agency = await getAgencyByUserId(req.user.id);
+    
+    await removeShortlist(agency.id, candidateId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Candidate removed from shortlist.',
     });
   } catch (error) {
     next(error);

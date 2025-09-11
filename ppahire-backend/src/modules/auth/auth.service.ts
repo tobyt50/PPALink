@@ -91,26 +91,28 @@ export async function registerAgency(input: RegisterAgencyInput) {
 
 // --- Login Service ---
 export async function login(input: LoginInput) {
-    const { email, password } = input;
-    
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-        throw new Error('Invalid email or password');
-    }
+  const { email, password } = input;
+  
+  const user = await prisma.user.findUnique({ where: { email } });
+  
+  // Check for user existence AND their status before verifying password
+  if (!user || user.status !== 'ACTIVE') {
+      throw new Error('Invalid email or password');
+  }
 
-    const isPasswordValid = await verifyPassword(user.passwordHash, password);
-    if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
-    }
+  const isPasswordValid = await verifyPassword(user.passwordHash, password);
+  if (!isPasswordValid) {
+      throw new Error('Invalid email or password');
+  }
+  
+  // Generate JWT
+  const token = signToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+  });
+  
+  const { passwordHash: _, ...userWithoutPassword } = user;
 
-    // Generate JWT
-    const token = signToken({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-    });
-    
-    const { passwordHash: _, ...userWithoutPassword } = user;
-
-    return { user: userWithoutPassword, token };
+  return { user: userWithoutPassword, token };
 }

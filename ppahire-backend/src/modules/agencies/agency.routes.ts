@@ -4,7 +4,7 @@ import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
 import jobRoutes from '../jobs/job.routes'; // Import the nested job routes
-import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler } from './agency.controller';
+import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler } from './agency.controller';
 import { updateAgencyProfileSchema } from './agency.types';
 
 const router = Router();
@@ -30,5 +30,8 @@ router.post('/shortlist', shortlistCandidateHandler);
 
 // GET /api/agencies/shortlist
 router.get('/shortlist', getShortlistedCandidatesHandler);
+
+// DELETE /api/agencies/shortlist/:candidateId
+router.delete('/shortlist/:candidateId', removeShortlistHandler);
 
 export default router;

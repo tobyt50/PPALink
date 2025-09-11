@@ -1,4 +1,25 @@
-// This type should mirror the CandidateProfile model in your Prisma schema.
+export interface WorkExperience {
+  id: string;
+  candidateId: string;
+  company: string;
+  title: string;
+  description: string | null;
+  startDate: string;
+  endDate: string | null;
+  isCurrent: boolean;
+}
+
+export interface Education {
+  id: string;
+  candidateId: string;
+  institution: string;
+  degree: string;
+  field: string | null;
+  grade: string | null;
+  startDate: string;
+  endDate: string;
+}
+
 
 // 1. Add types for the nested skill relation
 interface Skill {
@@ -38,7 +59,17 @@ export interface CandidateProfile {
   portfolio: string | null;
   graduationYear: number | null;
   gpaBand: string | null;
+
+  cvFileKey: string | null;
+  nyscFileKey: string | null;
   
-  // 2. Add the skills property to the main type
   skills?: CandidateSkill[]; // Optional because it's not always fetched
+
+  user?: {
+    id: string;
+    email: string;
+  };
+
+  workExperiences?: WorkExperience[];
+  education?: Education[];
 }

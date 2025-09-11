@@ -5,15 +5,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '../../components/ui/Button';
 import { ConfirmationModal } from '../../components/ui/Modal';
+import { useDataStore } from '../../context/DataStore';
 import useFetch from '../../hooks/useFetch';
-import jobService from '../../services/job.service'; // 1. Import jobService
+import jobService from '../../services/job.service';
 import type { Position } from '../../types/job';
-
-const mockStates = [
-  { id: 25, name: 'Lagos' },
-  { id: 1, name: 'Abuja (FCT)' },
-  { id: 33, name: 'Rivers' },
-];
 
 const DetailField = ({ icon: Icon, label, value, children }: { icon: React.ElementType, label: string, value?: string | number | null, children?: React.ReactNode }) => (
     <div className="flex items-start">
@@ -33,6 +28,8 @@ const JobDetailsPage = () => {
   const { data: job, isLoading, error, refetch } = useFetch<Position>(
     agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}` : null
   );
+
+  const { states } = useDataStore();
 
   // 2. Add state to control the delete confirmation modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -62,7 +59,7 @@ const JobDetailsPage = () => {
     return <div className="text-center text-red-500 p-8">Error loading job details.</div>;
   }
 
-  const locationState = mockStates.find(s => s.id === job.stateId)?.name;
+  const locationState = job.stateId ? states.find(s => s.id === job.stateId)?.name : undefined;
 
   return (
     <>

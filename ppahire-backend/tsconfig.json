@@ -1,15 +1,15 @@
 {
     "compilerOptions": {
-      "target": "ES2020",                        // JS version output
-      "module": "commonjs",                      // Node.js module system
-      "rootDir": "src",                          // source files
-      "outDir": "dist",                          // compiled files
-      "strict": true,                            // enable all strict checks
-      "esModuleInterop": true,                   // allows default imports from CJS modules
+      "target": "ES2020",                        
+      "module": "commonjs",                      
+      "rootDir": "src",                          
+      "outDir": "dist",                          
+      "strict": true,                            
+      "esModuleInterop": true,                   
       "forceConsistentCasingInFileNames": true,
-      "skipLibCheck": true,                      // skip type checking of node_modules
-      "moduleResolution": "node",                // helps TS find modules
-      "resolveJsonModule": true                  // allows importing JSON files
+      "skipLibCheck": true,                      
+      "moduleResolution": "node",                
+      "resolveJsonModule": true                  
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist"]

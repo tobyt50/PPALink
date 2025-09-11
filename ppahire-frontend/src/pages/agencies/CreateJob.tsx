@@ -2,23 +2,22 @@ import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
-import jobService from '../../services/job.service'; // 1. Import the real service
+import jobService from '../../services/job.service';
 import type { Agency } from '../../types/agency';
 import JobForm, { type JobFormValues } from './JobForm';
 
 const CreateJobPage = () => {
   const navigate = useNavigate();
-  // 2. Fetch the user's agency profile to get their agencyId
-  const { data: agency, isLoading } = useFetch<Agency>('/agencies/me');
+  // Fetch the user's agency profile to get their agencyId
+  const { data: agency, isLoading, error } = useFetch<Agency>('/agencies/me');
 
   const handleCreateJob = async (data: JobFormValues) => {
     if (!agency?.id) {
-      toast.error("Could not find your agency ID. Please try again.");
+      toast.error("Could not find your agency ID. Please ensure your profile is complete.");
       return;
     }
 
     try {
-      // 3. Call the real service function with the agencyId
       await jobService.createJob(agency.id, data);
       toast.success('Job posting created successfully!');
       navigate('/dashboard/agency/jobs');
@@ -27,13 +26,18 @@ const CreateJobPage = () => {
     }
   };
 
-  // 4. Show a loading state while we fetch the agency ID
+  // Show a loading state while we fetch the agency ID
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
       </div>
     );
+  }
+
+  // Handle case where agency data fails to load
+  if (error || !agency) {
+     return <div className="text-center text-red-500 p-8">Could not load your agency information to create a job.</div>;
   }
 
   return (

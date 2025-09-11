@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllIndustriesHandler, getAllLocationStatesHandler } from './utils.controller';
+import { getAllIndustriesHandler, getAllLocationStatesHandler, getLgasByStateIdHandler } from './utils.controller';
 
 const router = Router();
 
@@ -10,5 +10,8 @@ router.get('/industries', getAllIndustriesHandler);
 // Public route to get all location states
 // GET /api/utils/location-states
 router.get('/location-states', getAllLocationStatesHandler);
+
+// GET /api/utils/location-states/:stateId/lgas
+router.get('/location-states/:stateId/lgas', getLgasByStateIdHandler);
 
 export default router;

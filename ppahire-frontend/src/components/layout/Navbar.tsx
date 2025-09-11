@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Bell, Briefcase, Heart, LogOut, UserCircle2, Users } from 'lucide-react';
+import { Bell, Briefcase, Heart, LogOut, Mail, Package, Search as SearchIcon, User, UserCircle2, Users } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../context/AuthContext';
+import { useShortlistStore } from '../../context/ShortlistStore';
 import { Button } from '../ui/Button';
 
 const Navbar = () => {
@@ -10,11 +11,13 @@ const Navbar = () => {
   // Select each piece of state individually for performance.
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const clearShortlist = useShortlistStore((state) => state.clearShortlist);
 
   const dashboardPath = user?.role === 'AGENCY' ? '/dashboard/agency' : '/dashboard/candidate';
 
   const handleLogout = () => {
     logout();
+    clearShortlist();
     navigate('/login');
   };
 
@@ -27,13 +30,17 @@ const Navbar = () => {
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left side: Logo and main navigation */}
-        <div className="flex items-center space-x-8">
-          <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
-            <div className="h-7 w-7 rounded-full bg-primary-500" />
-            <span className="text-xl font-bold tracking-tight text-primary-600">
-              PPAHire
-            </span>
-          </Link>
+<div className="flex items-center space-x-8">
+  <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
+    <img
+      src="/android-chrome-192x192.png"
+      alt="PPAHire Logo"
+      className="h-7 w-7"
+    />
+    <span className="text-xl font-bold tracking-tight text-primary-600">
+      PPAHire
+    </span>
+  </Link>
 
           {/* Agency-specific navigation links */}
           {user?.role === 'AGENCY' && (
@@ -67,10 +74,50 @@ const Navbar = () => {
               </NavLink>
             </nav>
           )}
+
+          {user?.role === 'CANDIDATE' && (
+            <nav className="hidden md:flex items-center space-x-4">
+              <NavLink
+                to="/dashboard/candidate/profile"
+                className={({ isActive }) =>
+                  `flex items-center text-sm font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-500 hover:text-gray-800'}`
+                }
+              >
+                <User className="mr-2 h-5 w-5" />
+                My Profile
+              </NavLink>
+              <NavLink
+                to="/dashboard/candidate/jobs/browse"
+                className={({ isActive }) =>
+                  `flex items-center text-sm font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-500 hover:text-gray-800'}`
+                }
+              >
+                <SearchIcon className="mr-2 h-5 w-5" />
+                Browse Jobs
+              </NavLink>
+              <NavLink
+                to="/dashboard/candidate/applications"
+                className={({ isActive }) =>
+                  `flex items-center text-sm font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-500 hover:text-gray-800'}`
+                }
+              >
+                <Package className="mr-2 h-5 w-5" />
+                My Applications
+              </NavLink>
+            </nav>
+          )}
         </div>
 
         {/* Right side actions */}
         <div className="flex items-center space-x-2">
+        {(user?.role === 'CANDIDATE' || user?.role === 'AGENCY') && (
+            <Link to="/inbox">
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Mail className="h-5 w-5 text-gray-600" />
+                <span className="sr-only">Inbox</span>
+              </Button>
+            </Link>
+          )}
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <Bell className="h-5 w-5 text-gray-600" />
             <span className="sr-only">Notifications</span>

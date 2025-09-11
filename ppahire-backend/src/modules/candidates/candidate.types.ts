@@ -23,6 +23,9 @@ export const UpdateCandidateProfileSchema = z.object({
   gpaBand: z.string().optional().nullable(),
   primaryStateId: z.number().int().optional().nullable(),
   lgaId: z.number().int().optional().nullable(),
+
+  cvFileKey: z.string().optional().nullable(),
+  nyscFileKey: z.string().optional().nullable(),
 });
 
 // The exported type is now simpler and correctly inferred.

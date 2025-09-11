@@ -1,13 +1,16 @@
 import { AtSign, BadgeCheck, Briefcase, Cake, CheckCircle, Edit, FileText, GraduationCap, Link as LinkIcon, Loader2, MapPin, Phone, User, XCircle } from 'lucide-react'; // 1. Add missing imports
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import DocumentLink from '../../components/ui/DocumentLink';
 import { useAuthStore } from '../../context/AuthContext';
 import useFetch from '../../hooks/useFetch';
 import type { CandidateProfile } from '../../types/candidate';
 import ProfileField from './ProfileField';
+import EducationSection from './sections/EducationSection';
+import WorkExperienceSection from './sections/WorkExperienceSection';
 
 const CandidateProfilePage = () => {
-  const { data: profile, isLoading, error } = useFetch<CandidateProfile>('/candidates/me');
+  const { data: profile, isLoading, error, refetch } = useFetch<CandidateProfile>('/candidates/me');
   const userEmail = useAuthStore((state) => state.user?.email);
 
   if (isLoading) {
@@ -61,12 +64,51 @@ const CandidateProfilePage = () => {
             </div>
           </div>
 
-          {/* Summary */}
+          
+
+          <div className="lg:col-span-1 space-y-8">
+            {/* ... Verification, NYSC, Job Preferences cards ... */}
+            
+            {/* Summary */}
           <div className="rounded-lg border bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800">Professional Summary</h2>
             <ProfileField icon={FileText} label="" value={profile.summary} />
           </div>
+          <WorkExperienceSection 
+            experiences={profile.workExperiences || []} 
+            isOwner={true} 
+            refetchProfile={refetch} 
+          />
+          </div>
+          
+          <EducationSection 
+            educationHistory={profile.education || []} 
+            isOwner={true} 
+            refetchProfile={refetch} 
+          />
+
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-800">Documents</h2>
+          <div className="mt-4 space-y-4">
+            {profile.cvFileKey ? (
+              <DocumentLink fileKey={profile.cvFileKey} fileName="View Curriculum Vitae (CV)" />
+            ) : (
+              <p className="text-sm text-gray-400 flex items-center">
+                <FileText className="h-4 w-4 mr-2" /> CV not yet uploaded.
+              </p>
+            )}
+            {profile.nyscFileKey ? (
+              <DocumentLink fileKey={profile.nyscFileKey} fileName="View NYSC Call-up Letter" />
+            ) : (
+               <p className="text-sm text-gray-400 flex items-center">
+                <FileText className="h-4 w-4 mr-2" /> NYSC document not yet uploaded.
+              </p>
+            )}
+          </div>
         </div>
+      </div>
+
+          
 
         {/* Right Column */}
         <div className="lg:col-span-1 space-y-8">
@@ -78,6 +120,13 @@ const CandidateProfilePage = () => {
                 {profile.verificationLevel.replace('_', ' ')}
               </span>
             </ProfileField>
+            <div className="pt-2">
+                    <Link to="/dashboard/candidate/verifications/submit">
+                        <Button variant="outline" size="sm" className="w-full">
+                            Submit NYSC Documents
+                        </Button>
+                    </Link>
+                </div>
           </div>
 
           {/* 3. ADD new NYSC & Education Card */}
@@ -113,6 +162,7 @@ const CandidateProfilePage = () => {
           </div>
         </div>
       </div>
+      
     </div>
   );
 };

@@ -1,9 +1,11 @@
-import { Briefcase, Loader2, PlusCircle } from 'lucide-react';
+import { Briefcase, Eye, Loader2, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import { EmptyState } from '../../components/ui/EmptyState';
 import useFetch from '../../hooks/useFetch';
 import type { Agency } from '../../types/agency';
 import type { Position } from '../../types/job';
+import { JobCardSkeleton } from './skeletons/JobCardSkeleton';
 
 const JobPostsPage = () => {
   const { data: agency, isLoading: isLoadingAgency } = useFetch<Agency>('/agencies/me');
@@ -34,53 +36,50 @@ const JobPostsPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
           </div>
         )}
-        {error && (
-          <div className="rounded-md border border-red-300 bg-red-50 p-6 text-center text-red-800">
-            <h3 className="text-lg font-semibold">Could Not Load Job Postings</h3>
-            <p className="mt-1 text-sm">{error}</p>
-          </div>
-        )}
-        {!isLoading && !error && jobs && (
+        {error ? (
+           <div className="text-center text-red-500 p-8">Could not load job postings.</div>
+        ) : (
           <div className="rounded-lg border bg-white shadow-sm">
-            <ul>
-              {jobs.length > 0 ? (
-                jobs.map((job, index) => (
-                  <li key={job.id}>
-                    {/* --- THIS IS THE FIX --- */}
-                    {/* The `agencyId` is now correctly included in the link's path, */}
-                    {/* which allows the router and child pages to get it from the URL. */}
-                    <Link
-                      to={`/dashboard/agency/${agencyId}/jobs/${job.id}`}
-                      className={`block p-4 transition-colors hover:bg-gray-50 ${index < jobs.length - 1 ? 'border-b' : ''}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-primary-700">{job.title}</p>
+            {isLoading ? (
+              // Show a list of skeletons while loading
+              <ul>
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+              </ul>
+            ) : jobs && jobs.length > 0 ? (
+              <ul>
+                {jobs.map((job, index) => (
+                  <li key={job.id} className={`${index < jobs.length - 1 ? 'border-b' : ''}`}>
+                    <div className="p-4 flex items-center justify-between">
+                      <Link to={`/dashboard/agency/${agencyId}/jobs/${job.id}`} className="flex-grow">
+                          <p className="font-semibold text-primary-700 hover:underline">{job.title}</p>
                           <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                             <span>{job.employmentType.replace('_', ' ')}</span>
                             <span>&bull;</span>
                             <span>{job.isRemote ? 'Remote' : 'On-site'}</span>
                           </div>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                             job.status === 'OPEN' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                           }`}>
-                             {job.status}
-                           </span>
-                        </div>
+                      </Link>
+                      <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${ job.status === 'OPEN' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }`}>
+                           {job.status}
+                        </span>
+                        <Link to={`/dashboard/agency/${agencyId}/jobs/${job.id}/pipeline`}>
+                           <Button variant="outline" size="sm"><Eye className="h-4 w-4 mr-2" />View Pipeline</Button>
+                        </Link>
                       </div>
-                    </Link>
+                    </div>
                   </li>
-                ))
-              ) : (
-                <div className="p-12 text-center text-gray-500">
-                   <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
-                   <h3 className="mt-2 text-sm font-semibold">No Job Posts</h3>
-                   <p className="mt-1 text-sm">Get started by creating a new job posting.</p>
-                </div>
-              )}
-            </ul>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon={Briefcase}
+                title="No Job Posts Yet"
+                description="Get started by creating your first job posting to attract talent."
+                action={{ text: 'Create New Job', to: '/dashboard/agency/jobs/create' }}
+              />
+            )}
           </div>
         )}
       </div>

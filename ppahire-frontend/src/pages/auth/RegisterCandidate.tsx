@@ -71,7 +71,7 @@ const RegisterCandidate = () => {
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-10">
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
-              Create your Candidate Account
+              Create your Account
             </h1>
             <p className="mt-2 text-sm text-gray-600">
               Join the top network of NYSC talent.

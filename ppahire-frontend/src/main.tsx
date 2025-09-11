@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast'; // 1. Import Toaster here
+import { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import './index.css';
 import AppRouter from './routes';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* 2. Place the Toaster component here, as a sibling to the Router */}
+    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
     <Toaster 
       position="top-center"
       reverseOrder={false}
@@ -18,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         },
       }}
     />
-    <AppRouter />
+      <AppRouter />
+      </SkeletonTheme>
   </React.StrictMode>
 );

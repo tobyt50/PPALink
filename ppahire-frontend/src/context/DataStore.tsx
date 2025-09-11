@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import apiClient from '../config/axios';
 
-// Define the types for our lookup data, which can be shared
 export interface Industry {
   id: number;
   name: string;
@@ -12,29 +11,28 @@ export interface LocationState {
   name: string;
 }
 
-// Define the shape of our store's state and actions
 interface DataState {
   industries: Industry[];
   states: LocationState[];
-  hasFetched: boolean; // To ensure we only fetch once
+  isLoading: boolean; // 1. Add isLoading state
+  hasFetched: boolean;
   fetchLookupData: () => Promise<void>;
 }
 
-// Create the Zustand store
 export const useDataStore = create<DataState>((set, get) => ({
   industries: [],
   states: [],
+  isLoading: false, // 2. Initialize as false
   hasFetched: false,
 
-  // Action to fetch all necessary lookup data
   fetchLookupData: async () => {
-    // If we have already fetched, don't do it again
-    if (get().hasFetched) {
+    if (get().hasFetched || get().isLoading) { // Prevent re-fetch if already fetched or currently loading
       return;
     }
 
+    set({ isLoading: true }); // 3. Set loading to true before the API call
+
     try {
-      // Use Promise.all to fetch both datasets in parallel for efficiency
       const [industriesRes, statesRes] = await Promise.all([
         apiClient.get('/utils/industries'),
         apiClient.get('/utils/location-states')
@@ -43,11 +41,12 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({
         industries: industriesRes.data.data,
         states: statesRes.data.data,
-        hasFetched: true, // Mark as fetched
+        hasFetched: true,
       });
     } catch (error) {
       console.error("Failed to fetch lookup data:", error);
-      // You could set an error state here if needed
+    } finally {
+      set({ isLoading: false }); // 4. Set loading to false after the call finishes (success or fail)
     }
   },
 }));

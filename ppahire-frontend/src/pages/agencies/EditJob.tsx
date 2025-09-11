@@ -8,10 +8,8 @@ import JobForm, { type JobFormValues } from './JobForm';
 
 const EditJobPage = () => {
   const navigate = useNavigate();
-  // --- THIS IS THE FIX ---
-  // Get both agencyId and jobId directly from the URL. This is the correct way.
+  // Get both agencyId and jobId directly from the URL.
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
-  // --- END OF FIX ---
 
   // Fetch the existing job data using the IDs from the URL
   const { data: job, isLoading, error } = useFetch<Position>(
@@ -41,9 +39,9 @@ const EditJobPage = () => {
       </div>
 
       <div className="rounded-lg border bg-white p-6 shadow-sm">
-        {/* The conditional rendering logic remains the same and is correct */}
         {isLoading && <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>}
         {error && <div className="text-center text-red-500 p-8">Failed to load job data.</div>}
+        {/* Render the form only when job data is available */}
         {job && (
           <JobForm
             initialData={job}

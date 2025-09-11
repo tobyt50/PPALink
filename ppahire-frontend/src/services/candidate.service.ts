@@ -2,6 +2,16 @@ import apiClient from '../config/axios';
 import type { CandidateFilterValues } from '../pages/agencies/FilterSidebar';
 import type { ProfileFormValues } from '../pages/candidates/ProfileForm';
 import type { CandidateProfile } from '../types/candidate';
+import type { VerificationRequest, VerificationType } from '../types/user';
+
+// Define the payload shape for the new function
+interface VerificationSubmissionPayload {
+  type: VerificationType;
+  evidence: {
+    fileKey: string;
+    fileName: string;
+  };
+}
 
 class CandidateService {
   async getMyProfile(): Promise<CandidateProfile> {
@@ -10,26 +20,23 @@ class CandidateService {
   }
 
   async updateMyProfile(payload: ProfileFormValues): Promise<CandidateProfile> {
-    // Create a mutable copy to work with.
-    const payloadToSend = { ...payload };
+    const payloadToSend: Record<string, any> = { ...payload };
 
-    // --- GRACEFUL HANDLING LOGIC ---
+    // This list now includes all optional fields from the comprehensive form.
     const keysToNullifyIfFalsy: Array<keyof ProfileFormValues> = [
       'phone', 'dob', 'gender', 'summary', 'linkedin', 'portfolio',
-      'salaryMin', 'nyscBatch', 'nyscStream', 'graduationYear'
+      'salaryMin', 'nyscBatch', 'nyscStream', 'graduationYear',
+      'cvFileKey', 'nyscFileKey'
     ];
 
     keysToNullifyIfFalsy.forEach(key => {
       if (!payloadToSend[key]) {
-        // @ts-ignore
         payloadToSend[key] = null;
       }
     });
 
-    // Ensure date is a Date object if it exists
-    if (payloadToSend.dob) {
-      // @ts-ignore
-      payloadToSend.dob = new Date(payloadToSend.dob);
+    if (payload.dob) {
+      payloadToSend.dob = new Date(payload.dob);
     }
 
     const response = await apiClient.put('/candidates/me', payloadToSend);
@@ -42,13 +49,11 @@ class CandidateService {
    */
    async searchCandidates(filters: CandidateFilterValues | null): Promise<CandidateProfile[]> {
     if (!filters) {
-      return []; // Return an empty array if no filters are applied
+      return [];
     }
 
-    // Use URLSearchParams to easily build the query string
     const params = new URLSearchParams();
 
-    // Append parameters only if they have a value
     if (filters.stateId) params.append('stateId', String(filters.stateId));
     if (filters.nyscBatch) params.append('nyscBatch', filters.nyscBatch);
     if (filters.skills) params.append('skills', filters.skills);
@@ -56,6 +61,15 @@ class CandidateService {
     if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
 
     const response = await apiClient.get(`/agencies/search/candidates?${params.toString()}`);
+    return response.data.data;
+  }
+
+  /**
+   * Submits a new verification request for the logged-in candidate.
+   * @param payload The verification data to submit.
+   */
+  async submitVerification(payload: VerificationSubmissionPayload): Promise<VerificationRequest> {
+    const response = await apiClient.post('/candidates/verifications', payload);
     return response.data.data;
   }
 }

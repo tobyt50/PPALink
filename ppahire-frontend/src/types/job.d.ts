@@ -1,4 +1,5 @@
-// This type should mirror the `Position` model in your Prisma schema.
+import type { Agency } from './agency';
+import type { Application } from './application';
 
 export type EmploymentType = 'INTERN' | 'NYSC' | 'FULLTIME' | 'PARTTIME' | 'CONTRACT';
 export type PositionVisibility = 'PUBLIC' | 'PRIVATE';
@@ -15,9 +16,15 @@ export interface Position {
   lgaId: number | null;
   minSalary: number | null;
   maxSalary: number | null;
-  skillsReq: any | null; // Prisma's Json type maps to `any`
+  skillsReq: any | null;
   visibility: PositionVisibility;
   status: PositionStatus;
-  createdAt: string; // Dates are typically strings in JSON payloads
+  createdAt: string;
   updatedAt: string;
+  
+  // 3. Add the nested applications property
+  // This will only be present when fetching the full pipeline
+  applications?: Application[]; 
+
+  agency?: Pick<Agency, 'name'>;
 }

@@ -57,6 +57,15 @@ class AgencyService {
     const response = await apiClient.get('/agencies/shortlist');
     return response.data.data;
   }
+
+  /**
+   * Removes a candidate from the agency's shortlist.
+   * @param candidateId The ID of the candidate's profile to remove.
+   */
+  async removeShortlist(candidateId: string): Promise<void> {
+    // The endpoint now uses a URL parameter, so we append it to the URL.
+    await apiClient.delete(`/agencies/shortlist/${candidateId}`);
+  }
 }
 
 export default new AgencyService();

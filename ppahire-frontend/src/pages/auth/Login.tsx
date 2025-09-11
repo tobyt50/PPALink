@@ -2,15 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast'; // 2. Import toast
-import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-
 import { Input } from '../../components/forms/Input';
 import { Button } from '../../components/ui/Button';
 import { Label } from '../../components/ui/Label';
-import { useAuthStore } from '../../context/AuthContext'; // 4. Import the auth store
-import authService from '../../services/auth.service'; // 3. Import the auth service
+import { useAuthStore } from '../../context/AuthContext';
+import authService from '../../services/auth.service';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -20,20 +19,18 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  // 5. Initialize hooks
   const navigate = useNavigate();
-  const loginToStore = useAuthStore((state) => state.login); // Get the login action from the store
+  const loginToStore = useAuthStore((state) => state.login);
 
   const {
     register,
     handleSubmit,
-    setError, // We can use this to set server-side errors
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-  // 6. UPDATE the onSubmit handler with real API logic
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await authService.login(data);
@@ -41,29 +38,25 @@ const Login = () => {
       if (response.success) {
         toast.success(response.message);
         const { user, token } = response.data;
-        
-        // Save the user and token to our global store
         loginToStore(user, token);
 
-        // Redirect based on user role
-        if (user.role === 'CANDIDATE') {
+        // The useEffect in ProtectedRoute will now handle all data fetching.
+        // We simply navigate to the correct dashboard.
+        if (user.role === 'ADMIN') {
+          // 👇 ADD THIS REDIRECT LOGIC FOR ADMINS
+          navigate('/admin/dashboard');
+        } else if (user.role === 'CANDIDATE') {
           navigate('/dashboard/candidate');
         } else if (user.role === 'AGENCY') {
           navigate('/dashboard/agency');
         } else {
-          // Handle admin or other roles
           navigate('/');
         }
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'An unexpected error occurred.';
       toast.error(errorMessage);
-      
-      // Optionally, set a form error if the API provides field-specific feedback
-      setError('root', {
-        type: 'server',
-        message: errorMessage,
-      });
+      setError('root', { type: 'server', message: errorMessage });
     }
   };
 
@@ -86,29 +79,19 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
-            {/* 7. Display root error from the server */}
             {errors.root && (
               <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
                 {errors.root.message}
               </div>
             )}
-            
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                icon={Mail}
-                error={!!errors.email}
-                {...register('email')}
-                disabled={isSubmitting}
+                id="email" type="email" placeholder="you@example.com" icon={Mail}
+                error={!!errors.email} {...register('email')} disabled={isSubmitting}
               />
-              {errors.email && (
-                <p className="text-xs text-red-600">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
             </div>
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
@@ -117,24 +100,15 @@ const Login = () => {
                 </a>
               </div>
               <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                icon={Lock}
-                error={!!errors.password}
-                {...register('password')}
-                disabled={isSubmitting}
+                id="password" type="password" placeholder="••••••••" icon={Lock}
+                error={!!errors.password} {...register('password')} disabled={isSubmitting}
               />
-              {errors.password && (
-                <p className="text-xs text-red-600">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>
-            
             <Button type="submit" className="w-full" isLoading={isSubmitting} size="lg">
               Sign In
             </Button>
           </form>
-
           <p className="mt-8 text-center text-sm text-gray-600">
             Don't have an account yet?{' '}
             <a href="/register/candidate" className="font-semibold text-primary-600 hover:text-primary-500">

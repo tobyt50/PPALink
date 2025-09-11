@@ -1,11 +1,13 @@
-import { Loader2, Search, Users } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { EmptyState } from '../../components/ui/EmptyState';
 import candidateService from '../../services/candidate.service';
 import type { CandidateProfile } from '../../types/candidate';
 import CandidateCard from './CandidateCard';
 import FilterSidebar, { type CandidateFilterValues } from './FilterSidebar';
+import { CandidateCardSkeleton } from './skeletons/CandidateCardSkeleton';
 
 const BrowseCandidatesPage = () => {
   const [filters, setFilters] = useState<CandidateFilterValues | null>(null);
@@ -70,26 +72,31 @@ const BrowseCandidatesPage = () => {
 
             {/* Candidate List - Renders different states */}
             {isLoading ? (
-              <div className="flex justify-center p-20">
-                <Loader2 className="h-10 w-10 animate-spin text-primary-500" />
+              // Show a grid of skeletons while loading
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+                <CandidateCardSkeleton />
+                <CandidateCardSkeleton />
+                <CandidateCardSkeleton />
+                <CandidateCardSkeleton />
               </div>
             ) : !hasSearched ? (
-              <div className="p-12 text-center text-gray-500">
-                 <Users className="mx-auto h-12 w-12 text-gray-400" />
-                 <h3 className="mt-2 text-sm font-semibold">Search for Candidates</h3>
-                 <p className="mt-1 text-sm">Apply filters to see a list of matching candidates.</p>
-              </div>
+              <EmptyState
+                icon={Users}
+                title="Search for Candidates"
+                description="Apply filters from the sidebar to see a list of matching candidates."
+              />
             ) : candidates.length === 0 ? (
-               <div className="p-12 text-center text-gray-500">
-                 <h3 className="mt-2 text-sm font-semibold">No Candidates Found</h3>
-                 <p className="mt-1 text-sm">Try adjusting your filters to find more results.</p>
-               </div>
+              <EmptyState
+                icon={Users}
+                title="No Candidates Found"
+                description="Try adjusting your filters to find more results."
+              />
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
                 {candidates.map((candidate) => (
                   <Link key={candidate.id} to={`/dashboard/agency/candidates/${candidate.id}/profile`}>
-                  <CandidateCard candidate={candidate} />
-                </Link>
+                    <CandidateCard candidate={candidate} />
+                  </Link>
                 ))}
               </div>
             )}

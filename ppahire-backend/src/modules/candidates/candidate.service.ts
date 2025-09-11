@@ -9,8 +9,10 @@ import { UpdateCandidateProfileInput } from './candidate.types';
 export async function getCandidateProfileByUserId(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
-    // Optionally include related data in the future, e.g., skills, certificates
-    // include: { skills: true, certificates: true }
+    include: {
+      workExperiences: { orderBy: { startDate: 'desc' } },
+      education: { orderBy: { startDate: 'desc' } },
+    },
   });
 
   if (!profile) {
@@ -55,6 +57,8 @@ export async function getCandidateProfileById(profileId: string) {
           skill: true,
         },
       },
+      workExperiences: { orderBy: { startDate: 'desc' } },
+      education: { orderBy: { startDate: 'desc' } },
     },
   });
 
@@ -63,4 +67,43 @@ export async function getCandidateProfileById(profileId: string) {
   }
 
   return profile;
+}
+
+/**
+ * Fetches all applications for a specific candidate.
+ * @param user The authenticated user object.
+ */
+export async function getMyApplications(userId: string) {
+  // First, we need to find the candidate's PROFILE ID from their USER ID.
+  const candidateProfile = await prisma.candidateProfile.findUnique({
+    where: { userId: userId },
+    select: { id: true }, // We only need the ID
+  });
+
+  if (!candidateProfile) {
+    throw new Error('Candidate profile not found for the current user.');
+  }
+
+  // Now, find all applications linked to that profile ID.
+  return prisma.application.findMany({
+    where: {
+      candidateId: candidateProfile.id,
+    },
+    // Include the details of the position for each application
+    include: {
+      position: {
+        // Also include the agency name for display purposes
+        include: {
+          agency: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc', // Show the most recent applications first
+    },
+  });
 }

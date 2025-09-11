@@ -188,3 +188,25 @@ export async function getShortlistedCandidates(agencyId: string) {
   // We want to return just the array of candidate profiles.
   return shortlists.map(shortlist => shortlist.candidate);
 }
+
+/**
+ * Removes a candidate from an agency's shortlist.
+ * @param agencyId The ID of the agency.
+ * @param candidateProfileId The ID of the candidate's profile to remove.
+ */
+export async function removeShortlist(agencyId: string, candidateProfileId: string) {
+  const result = await prisma.shortlist.deleteMany({
+    where: {
+      agencyId: agencyId,
+      candidateId: candidateProfileId,
+    },
+  });
+
+  // deleteMany returns a count of deleted records.
+  // We can check if any records were actually deleted.
+  if (result.count === 0) {
+    throw new Error('Shortlist entry not found or already removed.');
+  }
+
+  return result;
+}

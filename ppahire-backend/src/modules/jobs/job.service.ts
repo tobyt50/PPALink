@@ -1,3 +1,4 @@
+import { PositionStatus, PositionVisibility } from '@prisma/client';
 import prisma from '../../config/db';
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
@@ -80,5 +81,102 @@ export async function getJobByIdAndAgency(jobId: string, agencyId: string) {
     throw new Error('Job not found or you do not have permission to view it.');
   }
 
+  return job;
+}
+
+/**
+ * Fetches a single job position by its ID, including all associated candidate applications.
+ * Ensures the job belongs to the requesting agency for security.
+ * @param jobId The ID of the job position.
+ * @param agencyId The ID of the agency that owns the job.
+ */
+export async function getJobWithApplicants(jobId: string, agencyId: string) {
+  const job = await prisma.position.findUnique({
+    where: {
+      id: jobId,
+      agencyId: agencyId, // Security check
+    },
+    include: {
+      // This is the key: include all applications for this job
+      applications: {
+        // For each application, include the full candidate profile
+        include: {
+          candidate: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              summary: true,
+              verificationLevel: true, // Include the verification level
+              skills: {
+                include: {
+                  skill: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc', // Show newest applicants first
+        },
+      },
+    },
+  });
+
+  if (!job) {
+    throw new Error('Job not found or you do not have permission to view it.');
+  }
+  return job;
+}
+
+/**
+ * Fetches all publicly visible and open job postings for candidates to browse.
+ * Includes agency name for display.
+ */
+export async function getPublicJobs() {
+  return prisma.position.findMany({
+    where: {
+      visibility: PositionVisibility.PUBLIC,
+      status: PositionStatus.OPEN,
+    },
+    include: {
+      // Include the agency's name to show who posted the job
+      agency: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc', // Show the newest jobs first
+    },
+  });
+}
+
+/**
+ * Fetches a single public job by its ID.
+ * Ensures the job is PUBLIC and OPEN.
+ * @param jobId The ID of the job position.
+ */
+export async function getPublicJobById(jobId: string) {
+  const job = await prisma.position.findFirst({
+    where: {
+      id: jobId,
+      visibility: PositionVisibility.PUBLIC,
+      status: PositionStatus.OPEN,
+    },
+    include: {
+      agency: {
+        select: {
+          name: true,
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!job) {
+    throw new Error('Job not found or is no longer available.');
+  }
   return job;
 }

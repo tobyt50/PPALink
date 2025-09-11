@@ -1,10 +1,17 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import App from '../App';
-import Login from '../pages/auth/Login';
-import RegisterAgency from '../pages/auth/RegisterAgency';
-import RegisterCandidate from '../pages/auth/RegisterCandidate';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
-// --- Import Layouts and Dashboard Pages ---
+// Layouts & Guards
+import Navbar from '../components/layout/Navbar';
+import AdminProtectedRoute from './AdminProtectedRoute';
+import DashboardLayout from './Layouts';
+import ProtectedRoute from './ProtectedRoute';
+import PublicLayout from './PublicLayout';
+
+// Page Imports (assuming these paths are correct)
+import LandingPage from '../pages/Landing';
+import AdminDashboard from '../pages/admin/Dashboard';
+import ManageUsersPage from '../pages/admin/ManageUsers';
+import VerificationQueuePage from '../pages/admin/VerificationQueue';
 import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
 import CompanyProfilePage from '../pages/agencies/CompanyProfile';
 import CreateJobPage from '../pages/agencies/CreateJob';
@@ -13,92 +20,104 @@ import EditCompanyProfilePage from '../pages/agencies/EditCompanyProfile';
 import EditJobPage from '../pages/agencies/EditJob';
 import JobPostsPage from '../pages/agencies/JobPosts';
 import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
+import ApplicationDetailsPage from '../pages/applications/ApplicationDetails';
+import Login from '../pages/auth/Login';
+import RegisterAgency from '../pages/auth/RegisterAgency';
+import RegisterCandidate from '../pages/auth/RegisterCandidate';
+import BrowseJobsPage from '../pages/candidates/BrowseJobs';
 import CandidateDashboard from '../pages/candidates/Dashboard';
 import EditProfilePage from '../pages/candidates/EditProfile';
+import MyApplicationsPage from '../pages/candidates/MyApplications';
 import CandidateProfilePage from '../pages/candidates/Profile';
 import PublicProfilePage from '../pages/candidates/PublicProfile';
+import SubmitVerificationPage from '../pages/candidates/SubmitVerification';
 import JobDetailsPage from '../pages/jobs/JobDetails';
-import ProtectedRoute from './ProtectedRoute';
+import JobPipelinePage from '../pages/jobs/JobPipeline';
+import PublicJobDetailsPage from '../pages/jobs/PublicJobDetails';
+import InboxPage from '../pages/messaging/Inbox';
+
 
 const router = createBrowserRouter([
-  // --- Public routes ---
+  // --- Group 1: Public Routes ---
   {
     path: '/',
-    element: <App />,
+    element: <PublicLayout />,
     children: [
+      { index: true, element: <LandingPage /> },
       { path: '/login', element: <Login /> },
       { path: '/register/candidate', element: <RegisterCandidate /> },
       { path: '/register/agency', element: <RegisterAgency /> },
-      {
-        index: true,
-        element: (
-          <div className="text-center p-10">
-            <h1 className="text-2xl font-bold">Home Page</h1>
-            <a href="/login" className="text-primary-600 hover:underline">Go to Login Page</a>
-          </div>
-        ),
-      },
     ],
   },
-  // --- Protected dashboard routes ---
+  
+  // --- Group 2: All Authenticated Routes ---
   {
-    path: '/dashboard',
-    // 2. Use ProtectedRoute as the main element.
-    // It will handle both auth checking and rendering the DashboardLayout.
-    element: <ProtectedRoute />, 
+    path: '/',
+    element: <ProtectedRoute />, // The master guard for all children
     children: [
+      // Sub-Group for pages using the standard DashboardLayout
       {
-        path: 'candidate',
-        element: <CandidateDashboard />,
+        element: <DashboardLayout />,
+        children: [
+          // Candidate Dashboard Routes
+          { path: 'dashboard/candidate', element: <CandidateDashboard /> },
+          { path: 'dashboard/candidate/profile', element: <CandidateProfilePage /> },
+          { path: 'dashboard/candidate/profile/edit', element: <EditProfilePage /> },
+          { path: 'dashboard/candidate/applications', element: <MyApplicationsPage /> },
+          { path: 'dashboard/candidate/verifications/submit', element: <SubmitVerificationPage /> },
+          { path: 'dashboard/candidate/jobs/browse', element: <BrowseJobsPage /> },
+          // Agency Dashboard Routes
+          { path: 'dashboard/agency', element: <AgencyDashboard /> },
+          { path: 'dashboard/agency/profile', element: <CompanyProfilePage /> },
+          { path: 'dashboard/agency/profile/edit', element: <EditCompanyProfilePage /> },
+          { path: 'dashboard/agency/jobs', element: <JobPostsPage /> },
+          { path: 'dashboard/agency/jobs/create', element: <CreateJobPage /> },
+          { path: 'dashboard/agency/:agencyId/jobs/:jobId/edit', element: <EditJobPage /> },
+          { path: 'dashboard/agency/:agencyId/jobs/:jobId', element: <JobDetailsPage /> },
+          { path: 'dashboard/agency/:agencyId/jobs/:jobId/pipeline', element: <JobPipelinePage /> },
+          { path: 'dashboard/agency/candidates/browse', element: <BrowseCandidatesPage /> },
+          { path: 'dashboard/agency/candidates/shortlisted', element: <ShortlistedCandidatesPage /> },
+          { path: 'dashboard/agency/candidates/:candidateId/profile', element: <PublicProfilePage /> }, // This was the agency-facing public profile
+          { path: 'dashboard/agency/applications/:applicationId', element: <ApplicationDetailsPage /> },
+        ]
       },
+      // Sub-Group for the full-page Inbox Layout
       {
-        path: 'candidate/profile',
-        element: <CandidateProfilePage />,
+        path: 'inbox',
+        element: (
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow"><Outlet /></main>
+          </div>
+        ),
+        children: [
+          { index: true, element: <InboxPage /> },
+        ]
       },
+      // Sub-Group for candidate-facing public job details (uses a simpler layout)
       {
-        path: 'candidate/profile/edit',
-        element: <EditProfilePage />,
-      },
-      {
-        path: 'agency', // Accessible at /dashboard/agency
-        element: <AgencyDashboard />,
-      },
-      {
-        path: 'agency/profile', // Accessible at /dashboard/agency/profile
-        element: <CompanyProfilePage />,
-      },
-      {
-        path: 'agency/profile/edit',
-        element: <EditCompanyProfilePage />,
-      },
-      {
-        path: 'agency/jobs',
-        element: <JobPostsPage />,
-      },
-      {
-        path: 'agency/jobs/create',
-        element: <CreateJobPage />,
-      },
-      {
-        path: 'agency/:agencyId/jobs/:jobId',
-        element: <JobDetailsPage />,
-      },
-      {
-        path: 'agency/:agencyId/jobs/:jobId/edit',
-        element: <EditJobPage />,
-      },
-      {
-        path: 'agency/candidates/browse',
-        element: <BrowseCandidatesPage />,
-      },
-      {
-        path: 'agency/candidates/shortlisted',
-        element: <ShortlistedCandidatesPage />,
-      },
-      {
-        path: 'agency/candidates/:candidateId/profile',
-        element: <PublicProfilePage />,
-      },
+        path: 'jobs/:jobId/details',
+        element: (
+          <div className="min-h-screen flex flex-col main-background">
+            <Navbar />
+            <main className="flex-grow p-4 sm:p-6 lg:p-8"><Outlet /></main>
+          </div>
+        ),
+        children: [
+          { index: true, element: <PublicJobDetailsPage /> }
+        ]
+      }
+    ]
+  },
+  
+  // --- Group 3: Admin Routes ---
+  {
+    path: '/admin',
+    element: <AdminProtectedRoute />, // This guard also provides the AdminLayout
+    children: [
+      { index: true, path: 'dashboard', element: <AdminDashboard /> },
+      { path: 'users', element: <ManageUsersPage /> },
+      { path: 'verifications', element: <VerificationQueuePage /> },
     ],
   },
 ]);

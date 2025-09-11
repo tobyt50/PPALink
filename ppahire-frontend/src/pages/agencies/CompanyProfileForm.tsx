@@ -1,9 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { ChevronDown } from 'lucide-react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '../../components/forms/Input';
 import { Button } from '../../components/ui/Button';
+import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
 import { Label } from '../../components/ui/Label';
+import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
 import { useDataStore } from '../../context/DataStore';
 import type { Agency } from '../../types/agency';
 
@@ -25,12 +28,13 @@ interface CompanyProfileFormProps {
 }
 
 const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) => {
-  // Get industries and states from the global store
   const { industries, states } = useDataStore();
 
   const {
     register,
     handleSubmit,
+    control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CompanyProfileFormValues>({
     resolver: zodResolver(companyProfileSchema),
@@ -44,6 +48,12 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
       lgaId: initialData?.lgaId || undefined,
     },
   });
+
+  const watchedIndustryId = watch('industryId');
+  const watchedStateId = watch('headquartersStateId');
+
+  const selectedIndustryName = industries.find(i => i.id === watchedIndustryId)?.name || 'Select an industry...';
+  const selectedStateName = states.find(s => s.id === watchedStateId)?.name || 'Select a state...';
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -72,35 +82,57 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
 
       <div className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="industryId">Industry</Label>
-          <select
-            id="industryId"
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
-            {...register('industryId')}
-          >
-            <option value="">Select an industry...</option>
-            {industries.map((industry) => (
-              <option key={industry.id} value={industry.id}>{industry.name}</option>
-            ))}
-          </select>
+          <Label>Industry</Label>
+          <Controller
+            name="industryId"
+            control={control}
+            render={({ field: { onChange } }) => (
+              <SimpleDropdown
+                trigger={
+                  <DropdownTrigger>
+                    <span className="truncate">{selectedIndustryName}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </DropdownTrigger>
+                }
+              >
+                <SimpleDropdownItem onSelect={() => onChange(null)}>Select an industry...</SimpleDropdownItem>
+                {industries.map((industry) => (
+                  <SimpleDropdownItem key={industry.id} onSelect={() => onChange(industry.id)}>
+                    {industry.name}
+                  </SimpleDropdownItem>
+                ))}
+              </SimpleDropdown>
+            )}
+          />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="headquartersStateId">Headquarters State</Label>
-           <select
-            id="headquartersStateId"
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
-            {...register('headquartersStateId')}
-          >
-            <option value="">Select a state...</option>
-             {states.map((state) => (
-              <option key={state.id} value={state.id}>{state.name}</option>
-            ))}
-          </select>
+          <Label>Headquarters State</Label>
+           <Controller
+            name="headquartersStateId"
+            control={control}
+            render={({ field: { onChange } }) => (
+              <SimpleDropdown
+                trigger={
+                  <DropdownTrigger>
+                    <span className="truncate">{selectedStateName}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </DropdownTrigger>
+                }
+              >
+                <SimpleDropdownItem onSelect={() => onChange(null)}>Select a state...</SimpleDropdownItem>
+                {states.map((state) => (
+                  <SimpleDropdownItem key={state.id} onSelect={() => onChange(state.id)}>
+                    {state.name}
+                  </SimpleDropdownItem>
+                ))}
+              </SimpleDropdown>
+            )}
+          />
         </div>
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button type="submit" isLoading={isSubmitting}>
+        <Button type="submit" isLoading={isSubmitting} className="justify-center">
           Save Changes
         </Button>
       </div>

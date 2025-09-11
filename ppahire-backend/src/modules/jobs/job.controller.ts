@@ -1,7 +1,19 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth';
 import { checkAgencyMembership } from '../agencies/agency.service';
-import * as JobService from './job.service';
+
+// Direct imports from job.service
+import {
+  createJobPosition,
+  deleteJobPosition,
+  getJobByIdAndAgency,
+  getJobsByAgencyId,
+  getJobWithApplicants,
+  getPublicJobById,
+  getPublicJobs,
+  updateJobPosition,
+} from './job.service';
+
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
 // Controller to create a new job
@@ -13,11 +25,11 @@ export async function createJobHandler(req: AuthRequest, res: Response, next: Ne
 
     await checkAgencyMembership(userId, agencyId);
 
-    const job = await JobService.createJobPosition(agencyId, data);
+    const job = await createJobPosition(agencyId, data);
     return res.status(201).json({ success: true, data: job });
   } catch (error: any) {
     if (error.message.includes('Forbidden')) {
-        return res.status(403).json({ success: false, message: error.message });
+      return res.status(403).json({ success: false, message: error.message });
     }
     next(error);
   }
@@ -27,7 +39,7 @@ export async function createJobHandler(req: AuthRequest, res: Response, next: Ne
 export async function getAgencyJobsHandler(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { agencyId } = req.params;
-    const jobs = await JobService.getJobsByAgencyId(agencyId);
+    const jobs = await getJobsByAgencyId(agencyId);
     return res.status(200).json({ success: true, data: jobs });
   } catch (error) {
     next(error);
@@ -45,10 +57,10 @@ export async function getJobDetailsHandler(req: AuthRequest, res: Response, next
     // to also verify membership for consistency, especially for CUD operations.
     // For a simple GET, this could be considered optional but adds a layer of security.
     if (req.user) {
-        await checkAgencyMembership(req.user.id, agencyId);
+      await checkAgencyMembership(req.user.id, agencyId);
     }
 
-    const job = await JobService.getJobByIdAndAgency(jobId, agencyId);
+    const job = await getJobByIdAndAgency(jobId, agencyId);
     return res.status(200).json({ success: true, data: job });
   } catch (error: any) {
     if (error.message.includes('Forbidden')) {
@@ -63,37 +75,93 @@ export async function getJobDetailsHandler(req: AuthRequest, res: Response, next
 
 // Controller to update a job
 export async function updateJobHandler(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-        const { agencyId, jobId } = req.params;
-        const userId = req.user!.id;
-        const data: UpdateJobPositionInput = req.body;
+  try {
+    const { agencyId, jobId } = req.params;
+    const userId = req.user!.id;
+    const data: UpdateJobPositionInput = req.body;
 
-        await checkAgencyMembership(userId, agencyId);
+    await checkAgencyMembership(userId, agencyId);
 
-        const updatedJob = await JobService.updateJobPosition(jobId, agencyId, data);
-        return res.status(200).json({ success: true, data: updatedJob });
-    } catch (error: any) {
-        if (error.message.includes('Forbidden')) {
-            return res.status(403).json({ success: false, message: error.message });
-        }
-        next(error);
+    const updatedJob = await updateJobPosition(jobId, agencyId, data);
+    return res.status(200).json({ success: true, data: updatedJob });
+  } catch (error: any) {
+    if (error.message.includes('Forbidden')) {
+      return res.status(403).json({ success: false, message: error.message });
     }
+    next(error);
+  }
 }
 
 // Controller to delete a job
 export async function deleteJobHandler(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-        const { agencyId, jobId } = req.params;
-        const userId = req.user!.id;
+  try {
+    const { agencyId, jobId } = req.params;
+    const userId = req.user!.id;
 
-        await checkAgencyMembership(userId, agencyId);
-        
-        await JobService.deleteJobPosition(jobId, agencyId);
-        return res.status(204).send(); // 204 No Content for successful deletion
-    } catch (error: any) {
-        if (error.message.includes('Forbidden')) {
-            return res.status(403).json({ success: false, message: error.message });
-        }
-        next(error);
+    await checkAgencyMembership(userId, agencyId);
+
+    await deleteJobPosition(jobId, agencyId);
+    return res.status(204).send(); // 204 No Content for successful deletion
+  } catch (error: any) {
+    if (error.message.includes('Forbidden')) {
+      return res.status(403).json({ success: false, message: error.message });
     }
+    next(error);
+  }
+}
+
+/**
+ * Handler to get a single job post along with all its applicants (pipeline).
+ */
+export async function getJobPipelineHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { agencyId, jobId } = req.params;
+
+    // Security check: ensure the logged-in user is a member of the agency
+    if (req.user) {
+      await checkAgencyMembership(req.user.id, agencyId);
+    }
+
+    const jobWithPipeline = await getJobWithApplicants(jobId, agencyId);
+
+    return res.status(200).json({ success: true, data: jobWithPipeline });
+  } catch (error: any) {
+    if (error.message.includes('Forbidden')) {
+      return res.status(403).json({ success: false, message: error.message });
+    }
+    if (error.message.includes('Job not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
+/**
+ * Handler for fetching all public, open job postings.
+ * This is accessible by any authenticated user (e.g., candidates).
+ */
+export async function getPublicJobsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const jobs = await getPublicJobs();
+    return res.status(200).json({ success: true, data: jobs });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Handler for fetching a single public job by ID.
+ * Accessible by any authenticated user.
+ */
+export async function getPublicJobByIdHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { jobId } = req.params;
+    const job = await getPublicJobById(jobId);
+    return res.status(200).json({ success: true, data: job });
+  } catch (error: any) {
+    if (error.message.includes('Job not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
 }
