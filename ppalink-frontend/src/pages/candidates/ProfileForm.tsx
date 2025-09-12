@@ -72,12 +72,12 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
   const watchedNyscBatch = watch('nyscBatch');
   const watchedNyscStream = watch('nyscStream');
 
-  const handleCvUploadSuccess = (fileKey: string, file: File) => {
+  const handleCvUploadSuccess = (fileKey: string, _file: File) => {
     setValue('cvFileKey', fileKey, { shouldDirty: true });
     toast.success("CV uploaded. Remember to save your changes.");
   };
   
-  const handleNyscUploadSuccess = (fileKey: string, file: File) => {
+  const handleNyscUploadSuccess = (fileKey: string, _file: File) => {
     setValue('nyscFileKey', fileKey, { shouldDirty: true });
     toast.success("NYSC document uploaded. Remember to save your changes.");
   };

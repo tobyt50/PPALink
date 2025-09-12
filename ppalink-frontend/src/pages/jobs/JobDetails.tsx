@@ -25,7 +25,7 @@ const JobDetailsPage = () => {
   const navigate = useNavigate();
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
   
-  const { data: job, isLoading, error, refetch } = useFetch<Position>(
+  const { data: job, isLoading, error } = useFetch<Position>(
     agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}` : null
   );
 

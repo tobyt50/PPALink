@@ -15,9 +15,9 @@ const companyProfileSchema = z.object({
   rcNumber: z.string().optional().nullable(),
   website: z.string().url('Must be a valid URL').or(z.literal('')).optional().nullable(),
   sizeRange: z.string().optional().nullable(),
-  industryId: z.coerce.number().optional().nullable(),
-  headquartersStateId: z.coerce.number().optional().nullable(),
-  lgaId: z.coerce.number().optional().nullable(),
+  industryId: z.number().optional().nullable(),
+  headquartersStateId: z.number().optional().nullable(),
+  lgaId: z.number().optional().nullable(),
 });
 
 export type CompanyProfileFormValues = z.infer<typeof companyProfileSchema>;

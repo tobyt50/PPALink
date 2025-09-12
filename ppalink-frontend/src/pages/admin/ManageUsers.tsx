@@ -76,10 +76,10 @@ const ManageUsersPage = () => {
         isOpen={modalState.isOpen}
         onClose={closeConfirmationModal}
         onConfirm={handleUpdateStatus}
-        title={modalState.action === 'SUSPEND' ? 'Suspend User' : 'Activate User'}
+        title={modalState.action === 'SUSPENDED' ? 'Suspend User' : 'Activate User'}
         description={`Are you sure you want to ${modalState.action?.toLowerCase()} the account for ${modalState.user?.email}?`}
-        confirmButtonText={modalState.action === 'SUSPEND' ? 'Suspend' : 'Activate'}
-        isDestructive={modalState.action === 'SUSPEND'}
+        confirmButtonText={modalState.action === 'SUSPENDED' ? 'Suspend' : 'Activate'}
+        isDestructive={modalState.action === 'SUSPENDED'}
       />
 
       <div className="mx-auto max-w-7xl">
