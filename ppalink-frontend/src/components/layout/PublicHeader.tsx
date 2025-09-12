@@ -14,13 +14,10 @@ const PublicHeader = () => {
         {/* Logo and Brand Name */}
 <Link to="/" className="flex items-center space-x-2">
   <img
-    src="/android-chrome-192x192.png"
+    src="/header.png"
     alt="ppalink Logo"
-    className="h-8 w-8"
+    className="h-8 w-32"
   />
-  <span className="text-xl font-bold tracking-tight text-primary-600">
-    PPALink
-  </span>
 </Link>
 
         {/* Action Buttons */}

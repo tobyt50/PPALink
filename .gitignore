@@ -18,23 +18,23 @@ pnpm-debug.log*
 *.swp
 
 # =========================
-# BACKEND - ppahire-backend
+# BACKEND - ppalink-backend
 # =========================
-ppahire-backend/node_modules/
-ppahire-backend/dist/
-ppahire-backend/.env
-ppahire-backend/prisma/migrations/
-ppahire-backend/.turbo/
-ppahire-backend/.next/
-ppahire-backend/*.log
+ppalink-backend/node_modules/
+ppalink-backend/dist/
+ppalink-backend/.env
+ppalink-backend/prisma/migrations/
+ppalink-backend/.turbo/
+ppalink-backend/.next/
+ppalink-backend/*.log
 
 # =========================
-# FRONTEND - ppahire-frontend
+# FRONTEND - ppalink-frontend
 # =========================
-ppahire-frontend/node_modules/
-ppahire-frontend/dist/
-ppahire-frontend/build/
-ppahire-frontend/.env
-ppahire-frontend/.next/
-ppahire-frontend/*.log
+ppalink-frontend/node_modules/
+ppalink-frontend/dist/
+ppalink-frontend/build/
+ppalink-frontend/.env
+ppalink-frontend/.next/
+ppalink-frontend/*.log
 

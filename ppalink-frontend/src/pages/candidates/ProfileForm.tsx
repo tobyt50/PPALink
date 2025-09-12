@@ -12,6 +12,7 @@ import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDr
 import type { CandidateProfile } from '../../types/candidate';
 import { NYSC_BATCHES, NYSC_STREAMS } from '../../utils/constants';
 
+// --- Schema ---
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required.'),
   lastName: z.string().min(2, 'Last name is required.'),
@@ -21,8 +22,8 @@ const profileSchema = z.object({
   summary: z.string().optional().nullable(),
   linkedin: z.string().url('Must be a valid URL').or(z.literal('')).optional().nullable(),
   portfolio: z.string().url('Must be a valid URL').or(z.literal('')).optional().nullable(),
-  isRemote: z.boolean().optional(),
-  isOpenToReloc: z.boolean().optional(),
+  isRemote: z.boolean().default(false),
+  isOpenToReloc: z.boolean().default(false),
   salaryMin: z.coerce.number().optional().nullable(),
   nyscBatch: z.string().optional().nullable(),
   nyscStream: z.string().optional().nullable(),
@@ -32,6 +33,9 @@ const profileSchema = z.object({
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
+
+// Explicitly type resolver
+const resolver = zodResolver(profileSchema);
 
 interface ProfileFormProps {
   initialData?: CandidateProfile | null;
@@ -47,8 +51,8 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
     control,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
+  } = useForm<z.input<typeof profileSchema>, any, ProfileFormValues>({
+    resolver,
     defaultValues: {
       firstName: initialData?.firstName || '',
       lastName: initialData?.lastName || '',
@@ -58,17 +62,17 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
       summary: initialData?.summary || '',
       linkedin: initialData?.linkedin || '',
       portfolio: initialData?.portfolio || '',
-      isRemote: initialData?.isRemote || false,
-      isOpenToReloc: initialData?.isOpenToReloc || false,
-      salaryMin: initialData?.salaryMin || undefined,
+      isRemote: initialData?.isRemote ?? false,
+      isOpenToReloc: initialData?.isOpenToReloc ?? false,
+      salaryMin: initialData?.salaryMin ?? undefined,
       nyscBatch: initialData?.nyscBatch || '',
       nyscStream: initialData?.nyscStream || '',
-      graduationYear: initialData?.graduationYear || undefined,
-      cvFileKey: initialData?.cvFileKey || null,
-      nyscFileKey: initialData?.nyscFileKey || null,
+      graduationYear: initialData?.graduationYear ?? undefined,
+      cvFileKey: initialData?.cvFileKey ?? null,
+      nyscFileKey: initialData?.nyscFileKey ?? null,
     },
   });
-  
+
   const watchedNyscBatch = watch('nyscBatch');
   const watchedNyscStream = watch('nyscStream');
 
@@ -76,7 +80,7 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
     setValue('cvFileKey', fileKey, { shouldDirty: true });
     toast.success("CV uploaded. Remember to save your changes.");
   };
-  
+
   const handleNyscUploadSuccess = (fileKey: string, _file: File) => {
     setValue('nyscFileKey', fileKey, { shouldDirty: true });
     toast.success("NYSC document uploaded. Remember to save your changes.");
@@ -84,25 +88,26 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      {/* Personal Info */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Personal Information</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" error={!!errors.firstName} {...register('firstName')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" error={!!errors.lastName} {...register('lastName')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" type="tel" error={!!errors.phone} {...register('phone')} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="dob">Date of Birth</Label>
-              <Input id="dob" type="date" error={!!errors.dob} {...register('dob')} />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input id="firstName" error={!!errors.firstName} {...register('firstName')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input id="lastName" error={!!errors.lastName} {...register('lastName')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input id="phone" type="tel" error={!!errors.phone} {...register('phone')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dob">Date of Birth</Label>
+            <Input id="dob" type="date" error={!!errors.dob} {...register('dob')} />
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
@@ -122,56 +127,60 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
       </section>
 
+      {/* NYSC & Education */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">NYSC & Education</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <div className="space-y-2">
-                <Label>NYSC Batch</Label>
-                <Controller
-                  name="nyscBatch"
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <SimpleDropdown
-                      trigger={
-                        <DropdownTrigger>
-                          <span className="truncate">{watchedNyscBatch || 'Select...'}</span>
-                          <ChevronDown className="h-4 w-4" />
-                        </DropdownTrigger>
-                      }
-                    >
-                      <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
-                      {NYSC_BATCHES.map(b => <SimpleDropdownItem key={b} onSelect={() => onChange(b)}>{b}</SimpleDropdownItem>)}
-                    </SimpleDropdown>
-                  )}
-                />
-            </div>
-            <div className="space-y-2">
-                <Label>NYSC Stream</Label>
-                 <Controller
-                  name="nyscStream"
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <SimpleDropdown
-                      trigger={
-                        <DropdownTrigger>
-                          <span className="truncate">{watchedNyscStream || 'Select...'}</span>
-                          <ChevronDown className="h-4 w-4" />
-                        </DropdownTrigger>
-                      }
-                    >
-                      <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
-                      {NYSC_STREAMS.map(s => <SimpleDropdownItem key={s} onSelect={() => onChange(s)}>{s}</SimpleDropdownItem>)}
-                    </SimpleDropdown>
-                  )}
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="graduationYear">Graduation Year</Label>
-                <Input id="graduationYear" type="number" {...register('graduationYear')} />
-            </div>
+          <div className="space-y-2">
+            <Label>NYSC Batch</Label>
+            <Controller
+              name="nyscBatch"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <SimpleDropdown
+                  trigger={
+                    <DropdownTrigger>
+                      <span className="truncate">{watchedNyscBatch || 'Select...'}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownTrigger>
+                  }
+                >
+                  <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
+                  {NYSC_BATCHES.map(b => <SimpleDropdownItem key={b} onSelect={() => onChange(b)}>{b}</SimpleDropdownItem>)}
+                </SimpleDropdown>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>NYSC Stream</Label>
+            <Controller
+              name="nyscStream"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <SimpleDropdown
+                  trigger={
+                    <DropdownTrigger>
+                      <span className="truncate">{watchedNyscStream || 'Select...'}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownTrigger>
+                  }
+                >
+                  <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
+                  {NYSC_STREAMS.map(s => <SimpleDropdownItem key={s} onSelect={() => onChange(s)}>{s}</SimpleDropdownItem>)}
+                </SimpleDropdown>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="graduationYear">Graduation Year</Label>
+            <Input id="graduationYear" type="number" {...register('graduationYear')} />
+          </div>
         </div>
       </section>
 
+      {/* Job Preferences */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Job Preferences</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -192,22 +201,15 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
       </section>
 
+      {/* Documents */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Documents</h3>
         <p className="text-sm text-gray-500">
           Upload your CV and NYSC Call-up Letter. These will be saved when you click "Save Changes".
         </p>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <FileUpload
-            label="Curriculum Vitae (CV)"
-            uploadType="cv"
-            onUploadSuccess={handleCvUploadSuccess}
-          />
-          <FileUpload
-            label="NYSC Call-up Letter"
-            uploadType="nysc_document"
-            onUploadSuccess={handleNyscUploadSuccess}
-          />
+          <FileUpload label="Curriculum Vitae (CV)" uploadType="cv" onUploadSuccess={handleCvUploadSuccess} />
+          <FileUpload label="NYSC Call-up Letter" uploadType="nysc_document" onUploadSuccess={handleNyscUploadSuccess} />
         </div>
       </section>
 

@@ -21,14 +21,14 @@ const jobFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
   employmentType: z.enum(['INTERN', 'NYSC', 'FULLTIME', 'PARTTIME', 'CONTRACT']),
-  isRemote: z.boolean().default(false),
+  isRemote: z.boolean(),
   stateId: z.number().int().positive().optional().nullable(),
   lgaId: z.number().int().positive().optional().nullable(),
   minSalary: z.number().int().positive().optional().nullable(),
   maxSalary: z.number().int().positive().optional().nullable(),
   skillsReq: z.any().optional().nullable(),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
-  status: z.enum(['DRAFT', 'OPEN', 'CLOSED']).default('OPEN'),
+  status: z.enum(['DRAFT', 'OPEN', 'CLOSED']),
 }).refine(
   (data) => {
     if (data.maxSalary && data.minSalary) {

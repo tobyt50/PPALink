@@ -32,15 +32,12 @@ const Navbar = () => {
         {/* Left side: Logo and main navigation */}
 <div className="flex items-center space-x-8">
   <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
-    <img
-      src="/android-chrome-192x192.png"
-      alt="ppalink Logo"
-      className="h-7 w-7"
-    />
-    <span className="text-xl font-bold tracking-tight text-primary-600">
-      PPALink
-    </span>
-  </Link>
+  <img
+    src="/header.png"
+    alt="ppalink Logo"
+    className="h-8 w-32"
+  />
+</Link>
 
           {/* Agency-specific navigation links */}
           {user?.role === 'AGENCY' && (
