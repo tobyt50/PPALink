@@ -106,6 +106,7 @@ const RegisterCandidate = () => {
                     error={!!errors.firstName}
                     {...register('firstName')}
                     disabled={isSubmitting}
+                    className="text-gray-900 placeholder-gray-400 bg-white"
                   />
                   {errors.firstName && <p className="text-xs text-red-600">{errors.firstName.message}</p>}
                 </div>
@@ -117,6 +118,7 @@ const RegisterCandidate = () => {
                     error={!!errors.lastName}
                     {...register('lastName')}
                     disabled={isSubmitting}
+                    className="text-gray-900 placeholder-gray-400 bg-white"
                   />
                   {errors.lastName && <p className="text-xs text-red-600">{errors.lastName.message}</p>}
                 </div>
@@ -131,6 +133,7 @@ const RegisterCandidate = () => {
                   error={!!errors.email}
                   {...register('email')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
               </div>
@@ -144,6 +147,7 @@ const RegisterCandidate = () => {
                   error={!!errors.password}
                   {...register('password')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
               </div>
@@ -157,6 +161,7 @@ const RegisterCandidate = () => {
                   error={!!errors.confirmPassword}
                   {...register('confirmPassword')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.confirmPassword && (
                   <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>

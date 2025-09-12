@@ -109,6 +109,7 @@ const Login = () => {
                 error={!!errors.email}
                 {...register('email')}
                 disabled={isSubmitting}
+                className="text-gray-900 placeholder-gray-400 bg-white"
               />
               {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
             </div>
@@ -127,6 +128,7 @@ const Login = () => {
                 error={!!errors.password}
                 {...register('password')}
                 disabled={isSubmitting}
+                className="text-gray-900 placeholder-gray-400 bg-white"
               />
               {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>

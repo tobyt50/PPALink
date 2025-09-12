@@ -104,6 +104,7 @@ const RegisterAgency = () => {
                   error={!!errors.agencyName}
                   {...register('agencyName')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.agencyName && <p className="text-xs text-red-600">{errors.agencyName.message}</p>}
               </div>
@@ -117,6 +118,7 @@ const RegisterAgency = () => {
                   error={!!errors.email}
                   {...register('email')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
               </div>
@@ -130,6 +132,7 @@ const RegisterAgency = () => {
                   error={!!errors.password}
                   {...register('password')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
               </div>
@@ -143,6 +146,7 @@ const RegisterAgency = () => {
                   error={!!errors.confirmPassword}
                   {...register('confirmPassword')}
                   disabled={isSubmitting}
+                  className="text-gray-900 placeholder-gray-400 bg-white"
                 />
                 {errors.confirmPassword && (
                   <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>
