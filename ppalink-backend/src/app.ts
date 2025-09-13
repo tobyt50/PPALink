@@ -8,6 +8,7 @@ import applicationRoutes from './modules/applications/application.routes';
 import authRoutes from './modules/auth/auth.routes';
 import candidateRoutes from './modules/candidates/candidate.routes';
 import messageRoutes from './modules/messaging/message.routes';
+import passwordRoutes from './modules/password/password.routes';
 import publicRoutes from './modules/public/public.routes';
 import uploadRoutes from './modules/uploads/upload.routes';
 import utilRoutes from './modules/utils/utils.routes';
@@ -34,6 +35,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/password', passwordRoutes);
 
 // Error handler
 app.use(errorHandler);

@@ -13,6 +13,7 @@ const envSchema = z.object({
   SMTP_PORT: z.string().default("587"),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
+  SMTP_FROM_EMAIL: z.string().email().optional(),
 
   AWS_ACCESS_KEY_ID: z.string().min(1),
   AWS_SECRET_ACCESS_KEY: z.string().min(1),

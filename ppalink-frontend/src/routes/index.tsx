@@ -21,9 +21,11 @@ import EditJobPage from '../pages/agencies/EditJob';
 import JobPostsPage from '../pages/agencies/JobPosts';
 import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
 import ApplicationDetailsPage from '../pages/applications/ApplicationDetails';
+import ForgotPasswordPage from '../pages/auth/ForgotPassword';
 import Login from '../pages/auth/Login';
 import RegisterAgency from '../pages/auth/RegisterAgency';
 import RegisterCandidate from '../pages/auth/RegisterCandidate';
+import ResetPasswordPage from '../pages/auth/ResetPassword';
 import BrowseJobsPage from '../pages/candidates/BrowseJobs';
 import CandidateDashboard from '../pages/candidates/Dashboard';
 import EditProfilePage from '../pages/candidates/EditProfile';
@@ -36,7 +38,6 @@ import JobPipelinePage from '../pages/jobs/JobPipeline';
 import PublicJobDetailsPage from '../pages/jobs/PublicJobDetails';
 import InboxPage from '../pages/messaging/Inbox';
 
-
 const router = createBrowserRouter([
   // --- Group 1: Public Routes ---
   {
@@ -47,6 +48,8 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/register/candidate', element: <RegisterCandidate /> },
       { path: '/register/agency', element: <RegisterAgency /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
     ],
   },
   
