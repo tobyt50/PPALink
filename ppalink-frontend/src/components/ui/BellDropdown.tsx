@@ -56,7 +56,8 @@ export const BellDropdown = ({
       let newPositionClass = 'right-0';
 
       if (viewportWidth < 640) {
-        newPositionClass = 'left-1/2 -translate-x-1/2';
+        newPositionClass = 'left-1/2 -translate-x-3/4';
+
       } else {
         if (spaceOnLeft < menuWidth && spaceOnRight > menuWidth) {
           newPositionClass = 'left-0';

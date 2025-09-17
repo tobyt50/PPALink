@@ -116,7 +116,7 @@ export const SimpleDropdown = ({
             >
               <div
                 className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${
-                  isIndustryDropdown ? 'max-h-80' : 'max-h-50'
+                  isIndustryDropdown ? 'max-h-80' : 'max-h-60'
                 }`}
                 role="menu"
                 aria-orientation="vertical"
