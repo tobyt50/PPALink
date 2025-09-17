@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
-import { getConversationHandler, getConversationsHandler, sendMessageHandler } from './message.controller';
+import { getConversationHandler, getConversationsHandler, markAsReadHandler, sendMessageHandler } from './message.controller';
 
 const router = Router();
 
@@ -24,6 +24,9 @@ router.get('/conversation/:otherUserId', getConversationHandler);
 
 // POST /api/messages
 router.post('/', validate(sendMessageSchema), sendMessageHandler);
+
+// POST /api/messages/conversation/:otherUserId/read
+router.post('/conversation/:otherUserId/read', markAsReadHandler);
 
 
 export default router;

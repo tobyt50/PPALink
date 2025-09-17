@@ -3,14 +3,14 @@ import { ChevronDown } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
-import { FileUpload } from '../../components/forms/FileUpload';
-import { Input } from '../../components/forms/Input';
-import { Button } from '../../components/ui/Button';
-import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
-import { Label } from '../../components/ui/Label';
-import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
-import type { CandidateProfile } from '../../types/candidate';
-import { NYSC_BATCHES, NYSC_STREAMS } from '../../utils/constants';
+import { FileUpload } from '../../../components/forms/FileUpload';
+import { Input } from '../../../components/forms/Input';
+import { Button } from '../../../components/ui/Button';
+import { DropdownTrigger } from '../../../components/ui/DropdownTrigger';
+import { Label } from '../../../components/ui/Label';
+import { SimpleDropdown, SimpleDropdownItem } from '../../../components/ui/SimpleDropdown';
+import type { CandidateProfile } from '../../../types/candidate';
+import { NYSC_BATCHES, NYSC_STREAMS } from '../../../utils/constants';
 
 // --- Schema ---
 const profileSchema = z.object({

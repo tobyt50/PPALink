@@ -51,7 +51,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
       <motion.div /* ... */ className="w-full max-w-md">
-        <div className="rounded-xl border bg-white p-6 shadow-lg md:p-10">
+        <div className="rounded-xl border bg-white/90 p-6 shadow-lg md:p-10">
           {isSuccess ? (
              <div className="text-center">
               <CheckCircle className="mx-auto h-12 w-12 text-primary-600" />

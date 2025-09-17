@@ -31,6 +31,12 @@ export async function checkAgencyMembership(userId: string, agencyId: string) {
 export async function getAgencyById(agencyId: string) {
   return prisma.agency.findUniqueOrThrow({
     where: { id: agencyId },
+    include: {
+      industry: true,
+      subscriptions: {
+        include: { plan: true },
+      },
+    },
   });
 }
 
@@ -50,7 +56,35 @@ export async function getAgencyByUserId(userId: string) {
  const agencyMember
   = await prisma.agencyMember.findFirst({
    where: { userId },
-   include: { agency: true }, // Include the full agency details
+    include:
+    {
+      agency: {
+    include: {
+      industry: true,
+      subscriptions: {
+        include: {
+          plan: true,
+        },
+          },
+          members: {
+            include: {
+              user: { // Include user details for each member
+                select: {
+                  id: true,
+                  email: true,
+                  status: true,
+                  candidateProfile: { select: { firstName: true, lastName: true } }
+                }
+              }
+            }
+          },
+          invitations: { // Include pending invitations
+            where: { status: 'PENDING' },
+            orderBy: { createdAt: 'desc' }
+          }
+    },
+      },
+    }, // Include the full agency details
  });
 
  if (!agencyMember) {
@@ -64,15 +98,38 @@ export async function getAgencyByUserId(userId: string) {
  * Searches for candidate profiles based on a dynamic set of filter criteria.
  * @param queryParams - An object containing potential filter keys like stateId, skills, etc.
  */
-export async function searchCandidates(queryParams: any) {
-  const { stateId, nyscBatch, skills, isRemote, isOpenToReloc } = queryParams;
+export async function searchCandidates(userId: string, queryParams: any) {
+  const {
+    stateId,
+    nyscBatch,
+    skills,
+    isRemote,
+    isOpenToReloc,
+    gpaBand,
+    graduationYear,
+    university,
+    courseOfStudy,
+    degree,
+    q,
+  } = queryParams;
+
+  // --- Subscription check ---
+  const agency = await getAgencyByUserId(userId);
+  const activeSub = agency.subscriptions?.[0];
+  const isPaid = activeSub && activeSub.plan.name.toUpperCase() !== 'BASIC';
+
+  // Free tier: block advanced filters
+  if (!isPaid && (university || courseOfStudy || degree)) {
+    throw new Error(
+      'Upgrade required: University, Course of Study, and Degree filters are only available on paid plans.'
+    );
+  }
 
   const where: any = {
-    AND: [], // We use AND to combine all active filters
+    AND: [], // combine all filters
   };
 
   // --- Build the query dynamically ---
-
   if (stateId) {
     where.AND.push({ primaryStateId: parseInt(stateId, 10) });
   }
@@ -80,16 +137,61 @@ export async function searchCandidates(queryParams: any) {
   if (nyscBatch) {
     where.AND.push({ nyscBatch: { equals: nyscBatch, mode: 'insensitive' } });
   }
-  
+
   if (isRemote === 'true') {
     where.AND.push({ isRemote: true });
   }
-  
+
   if (isOpenToReloc === 'true') {
     where.AND.push({ isOpenToReloc: true });
   }
 
-  // Handle skills: search for candidates with at least one of the provided skills
+  // Map alternative GPA inputs to standard grades
+  const gpaInputMap: Record<string, string> = {
+    '1st': 'First Class',
+    'first': 'First Class',
+    '2:1': 'Second Class Upper',
+    '2i': 'Second Class Upper',
+    '2nd': 'Second Class Upper',
+    '2:2': 'Second Class Lower',
+    '2ii': 'Second Class Lower',
+    'third': 'Third Class',
+    '3rd': 'Third Class',
+  };
+
+  if (gpaBand) {
+    const normalizedGpa = gpaInputMap[gpaBand.toLowerCase()] || gpaBand;
+    where.AND.push({
+      education: {
+        some: {
+          grade: { equals: normalizedGpa, mode: 'insensitive' },
+        },
+      },
+    });
+  }
+
+  if (graduationYear) {
+    where.AND.push({ graduationYear: parseInt(graduationYear, 10) });
+  }
+
+  if (university && isPaid) {
+    where.AND.push({
+      education: { some: { institution: { contains: university, mode: 'insensitive' } } },
+    });
+  }
+
+  if (courseOfStudy && isPaid) {
+    where.AND.push({
+      education: { some: { field: { contains: courseOfStudy, mode: 'insensitive' } } },
+    });
+  }
+
+  if (degree && isPaid) {
+    where.AND.push({
+      education: { some: { degree: { contains: degree, mode: 'insensitive' } } },
+    });
+  }
+
   if (skills) {
     const skillsArray = skills.split(',').map((skill: string) => skill.trim());
     if (skillsArray.length > 0) {
@@ -97,10 +199,7 @@ export async function searchCandidates(queryParams: any) {
         skills: {
           some: {
             skill: {
-              name: {
-                in: skillsArray,
-                mode: 'insensitive',
-              },
+              name: { in: skillsArray, mode: 'insensitive' },
             },
           },
         },
@@ -108,21 +207,76 @@ export async function searchCandidates(queryParams: any) {
     }
   }
 
-  return prisma.candidateProfile.findMany({
-    where,
-    // Include related data to display on the search result cards
-    include: {
-      user: {
-        select: { email: true }, // Select only non-sensitive fields
-      },
-      skills: {
-        include: {
-          skill: true,
+  if (q) {
+    const searchQuery = String(q).trim();
+    where.AND.push({
+      OR: [
+        // Basic profile fields
+        { firstName: { contains: searchQuery, mode: 'insensitive' } },
+        { lastName: { contains: searchQuery, mode: 'insensitive' } },
+        { phone: { contains: searchQuery, mode: 'insensitive' } },
+        { gender: { contains: searchQuery, mode: 'insensitive' } },
+        { nyscBatch: { contains: searchQuery, mode: 'insensitive' } },
+        { nyscStream: { contains: searchQuery, mode: 'insensitive' } },
+        { stateCode: { contains: searchQuery, mode: 'insensitive' } },
+        { gpaBand: { contains: searchQuery, mode: 'insensitive' } },
+        { summary: { contains: searchQuery, mode: 'insensitive' } },
+        { linkedin: { contains: searchQuery, mode: 'insensitive' } },
+        { portfolio: { contains: searchQuery, mode: 'insensitive' } },
+
+        // Related user
+        { user: { email: { contains: searchQuery, mode: 'insensitive' } } },
+
+        // Skills
+        { skills: { some: { skill: { name: { contains: searchQuery, mode: 'insensitive' } } } } },
+
+        // Education (paid)
+        ...(isPaid
+          ? [
+              {
+                education: {
+                  some: {
+                    OR: [
+                      { institution: { contains: searchQuery, mode: 'insensitive' } },
+                      { degree: { contains: searchQuery, mode: 'insensitive' } },
+                      { field: { contains: searchQuery, mode: 'insensitive' } },
+                    ],
+                  },
+                },
+              },
+            ]
+          : []),
+
+        // Work experiences
+        {
+          workExperiences: {
+            some: {
+              OR: [
+                { company: { contains: searchQuery, mode: 'insensitive' } },
+                { title: { contains: searchQuery, mode: 'insensitive' } },
+                { description: { contains: searchQuery, mode: 'insensitive' } },
+              ],
+            },
+          },
         },
+      ],
+    });
+  }
+
+  return prisma.candidateProfile.findMany({
+    where: {
+      ...where,
+      user: {
+        role: 'CANDIDATE', // ✅ only users with candidate role
       },
     },
-    take: 50, // Add pagination limit to prevent fetching too much data
-  });
+    include: {
+      user: { select: { email: true, role: true } }, // role included for debugging/verification
+      skills: { include: { skill: true } },
+      education: true,
+    },
+    take: 50,
+  });  
 }
 
 /**
@@ -210,3 +364,4 @@ export async function removeShortlist(agencyId: string, candidateProfileId: stri
 
   return result;
 }
+

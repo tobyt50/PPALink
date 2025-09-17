@@ -80,7 +80,7 @@ const RegisterCandidate = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-lg"
         >
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-10">
+          <div className="rounded-xl border border-gray-200 bg-white/90 p-6 shadow-lg md:p-10">
             <div className="text-center">
               <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
                 Create your Account

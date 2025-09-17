@@ -1,25 +1,49 @@
+import type { User } from '@prisma/client';
+import { NotificationType } from '@prisma/client';
+import type { Server } from 'socket.io';
 import prisma from '../../config/db';
+import { onlineUsers } from '../../config/socket';
+import { createNotification } from '../notifications/notification.service';
 
 interface SendMessageInput {
-  fromId: string; // The ID of the User sending the message
-  toId: string;   // The ID of the User receiving the message
+  fromId: string;
+  toId: string;
   body: string;
-  // We can add context later, e.g., applicationId
+  fromUser: Pick<User, 'id'> & { candidateProfile?: { firstName: string | null } | null; ownedAgencies?: { name: string }[] };
 }
 
 /**
  * Creates a new message record in the database.
  */
-export async function sendMessage(data: SendMessageInput) {
-  // In a real app, you'd have more complex logic here, e.g., checking if
-  // these two users are allowed to communicate (e.g., connected via an application).
-  return prisma.message.create({
+export async function sendMessage(data: SendMessageInput, io: Server) {
+  const newMessage = await prisma.message.create({
     data: {
       fromId: data.fromId,
       toId: data.toId,
       body: data.body,
     },
   });
+
+  const recipientSocketId = onlineUsers.get(data.toId);
+
+  if (recipientSocketId) {
+    io.to(recipientSocketId).emit('new_message', newMessage);
+  }
+
+  const senderName = data.fromUser.candidateProfile?.firstName || data.fromUser.ownedAgencies?.[0]?.name || 'A user';
+  await createNotification(
+    {
+      userId: data.toId,
+      message: `You have a new message from ${senderName}.`,
+      link: `/inbox?with=${data.fromId}`,
+      type: NotificationType.MESSAGE,
+      meta: {
+        lastMessage: data.body,
+      }
+    },
+    io
+  );
+  return newMessage;
 }
 
 /**
@@ -48,35 +72,95 @@ export async function getConversation(userOneId: string, userTwoId: string) {
  * This involves finding the last message for each unique conversation partner.
  */
 export async function getConversations(userId: string) {
-    // This is a more advanced Prisma query.
-    // 1. Get all messages sent to or from the user.
-    const messages = await prisma.message.findMany({
+  // This query is now more complex to also fetch the latest message body
+  const conversations = await prisma.user.findMany({
       where: {
-        OR: [{ fromId: userId }, { toId: userId }],
+          OR: [
+              { messagesSent: { some: { toId: userId } } },
+              { messagesReceived: { some: { fromId: userId } } },
+          ],
+          NOT: { id: userId }
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        from: { select: { id: true, email: true, candidateProfile: { select: { firstName: true, lastName: true } }, ownedAgencies: { select: { name: true } } } },
-        to: { select: { id: true, email: true, candidateProfile: { select: { firstName: true, lastName: true } }, ownedAgencies: { select: { name: true } } } },
-      },
-    });
-  
-    // 2. Group messages by the "other user" in the conversation.
-    const conversations = new Map<string, { otherUser: any; lastMessage: any }>();
-    messages.forEach(msg => {
-      const otherUserId = msg.fromId === userId ? msg.toId : msg.fromId;
-      const otherUser = msg.fromId === userId ? msg.to : msg.from;
-  
-      // 3. If we haven't seen this conversation yet, add it with the latest message.
-      if (!conversations.has(otherUserId)) {
-        conversations.set(otherUserId, {
-          otherUser: otherUser,
-          lastMessage: msg,
-        });
+      select: {
+          id: true,
+          email: true,
+          candidateProfile: { select: { firstName: true, lastName: true } },
+          ownedAgencies: { select: { name: true } },
+          messagesSent: {
+              where: { toId: userId },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+          },
+          messagesReceived: {
+              where: { fromId: userId },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+          }
       }
+  });
+
+  // Process the results to create the Conversation[] structure
+  const processedConversations = conversations.map(user => {
+      const lastSent = user.messagesReceived[0];
+      const lastReceived = user.messagesSent[0];
+      const lastMessage = (!lastSent || (lastReceived && lastReceived.createdAt > lastSent.createdAt)) ? lastReceived : lastSent;
+      
+      // Sanitize the other user object
+      const otherUser = {
+          id: user.id,
+          email: user.email,
+          candidateProfile: user.candidateProfile,
+          ownedAgencies: user.ownedAgencies,
+      };
+
+      return { otherUser, lastMessage };
+  }).sort((a, b) => new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime());
+
+  return processedConversations;
+}
+
+/**
+ * Marks all messages in a conversation as read by a specific user.
+ * @param readerId The ID of the user who is reading the messages.
+ * @param otherUserId The ID of the other user in the conversation.
+ */
+export async function markConversationAsRead(readerId: string, otherUserId: string, io: Server) {
+  const messagesToUpdate = await prisma.message.findMany({
+    where: {
+      fromId: otherUserId,
+      toId: readerId,
+      readAt: null,
+    },
+    select: {
+      id: true, // We only need their IDs
+    },
+  });
+  if (messagesToUpdate.length === 0) {
+    return;
+  }
+
+  const messageIdsToUpdate = messagesToUpdate.map(msg => msg.id);
+
+  await prisma.message.updateMany({
+    where: {
+      id: {
+        in: messageIdsToUpdate,
+      },
+    },
+    data: {
+      readAt: new Date(),
+    },
+  });
+
+  // 3. Emit a more specific event with the IDs of the messages that were just updated.
+  const readerSocketId = onlineUsers.get(readerId);
+  const otherUserSocketId = onlineUsers.get(otherUserId);
+  const conversationUsers = [readerSocketId, otherUserSocketId].filter(Boolean) as string[];
+
+  if (conversationUsers.length > 0) {
+    io.to(conversationUsers).emit('messages_read', {
+      conversationPartnerId: otherUserId,
+      readMessageIds: messageIdsToUpdate,
     });
-  
-    return Array.from(conversations.values());
+  }
 }

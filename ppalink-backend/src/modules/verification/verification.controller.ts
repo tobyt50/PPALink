@@ -1,7 +1,7 @@
 import { VerificationStatus, VerificationType } from '@prisma/client';
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '../../middleware/auth';
-import { createVerificationSubmission, getPendingVerifications, updateVerificationStatus } from './verification.service';
+import { createVerificationSubmission, getPendingVerifications, getVerificationDetails, updateVerificationStatus, } from './verification.service';
 
 /**
  * Handler to get all pending verification requests.
@@ -73,6 +73,22 @@ export async function createVerificationSubmissionHandler(req: AuthRequest, res:
   } catch (error: any) {
     if (error.message.includes('already have a pending')) {
       return res.status(409).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
+/**
+ * Handler to get the full details of a single verification request.
+ */
+export async function getVerificationDetailsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { verificationId } = req.params;
+    const details = await getVerificationDetails(verificationId);
+    return res.status(200).json({ success: true, data: details });
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return res.status(404).json({ success: false, message: error.message });
     }
     next(error);
   }

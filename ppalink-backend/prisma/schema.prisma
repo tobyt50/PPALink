@@ -30,9 +30,10 @@ model User {
 
   auditLogs        AuditLog[]
 
-  // 🔥 New relations
   verifiedCertificates CandidateCertificate[] @relation("UserVerifiedCertificates")
   ownedAgencies Agency[]
+  notifications Notification[]
+  sentInvitations Invitation[] @relation("SentInvitations")
 }
 
 
@@ -182,7 +183,8 @@ model Agency {
   owner         User           @relation(fields: [ownerUserId], references: [id])
   name          String
   rcNumber      String?
-  industryId    Int?
+  industryId         Int?
+  industry           Industry?            @relation(fields: [industryId], references: [id])
   website       String?
   sizeRange     String?
   domainVerified Boolean       @default(false)
@@ -196,6 +198,7 @@ model Agency {
   positions     Position[]
   shortlists    Shortlist[]
   subscriptions AgencySubscription[]
+  invitations   Invitation[]
 }
 
 model AgencyMember {
@@ -303,6 +306,28 @@ model Message {
   subject   String?
   body      String
   createdAt DateTime @default(now())
+  readAt    DateTime?
+}
+
+enum NotificationType {
+  GENERIC
+  MESSAGE
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String    // The ID of the User who should receive the notification
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      NotificationType @default(GENERIC)
+  message   String    // The content of the notification (e.g., "Your application for Software Engineer was updated.")
+  link      String?   // An optional link to navigate to when the notification is clicked (e.g., "/dashboard/candidate/applications")
+  read      Boolean   @default(false)
+  meta      Json?
+  
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model Interview {
@@ -350,24 +375,61 @@ model SubscriptionPlan {
   price       Int
   currency    String    @default("NGN")
   features    Json
+
+  stripePriceId String  @unique // The ID of the price object in Stripe
+  
+  jobPostLimit Int      @default(1)
+  memberLimit  Int @default(1)
+
   agencies    AgencySubscription[]
 }
 
 model AgencySubscription {
   id           String     @id @default(uuid())
-  agencyId     String
+  agencyId     String     @unique
   agency       Agency     @relation(fields: [agencyId], references: [id])
   planId       String
   plan         SubscriptionPlan @relation(fields: [planId], references: [id])
-  startDate    DateTime
   endDate      DateTime?
+
+  stripeSubscriptionId String   @unique
+  stripeCustomerId     String   @unique
+  stripeCurrentPeriodEnd DateTime?
+
   status       SubscriptionStatus @default(ACTIVE)
+  createdAt    DateTime @default(now())
 }
 
 enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELED
+  INCOMPLETE
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String   // Email of the person being invited
+  agencyId  String   // The agency they are being invited to
+  agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  inviterId String   // The user ID of the person who sent the invite
+  inviter   User     @relation("SentInvitations", fields: [inviterId], references: [id])
+  
+  token     String   @unique // A secure, single-use token for accepting the invite
+  expiresAt DateTime
+  
+  status    InvitationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@unique([email, agencyId]) // A user can only be invited to the same agency once
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
 }
 
 model Verification {
@@ -427,6 +489,12 @@ model LocationLGA {
 }
 
 model Industry {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isHeading Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  agencies  Agency[]
 }

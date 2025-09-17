@@ -1,15 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Lock, Mail } from 'lucide-react';
+import { Info, Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Input } from '../../components/forms/Input';
 import { Button } from '../../components/ui/Button';
 import { Label } from '../../components/ui/Label';
 import { useAuthStore } from '../../context/AuthContext';
 import authService from '../../services/auth.service';
+import invitationService from '../../services/invitation.service';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -20,7 +21,11 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const loginToStore = useAuthStore((state) => state.login);
+
+  const inviteMessage = location.state?.message;
+  const inviteError = location.state?.error;
 
   const {
     register,
@@ -39,6 +44,18 @@ const Login = () => {
         toast.success(response.message);
         const { user, token } = response.data;
         loginToStore(user, token);
+
+        if (location.state?.from?.pathname === '/handle-invite') {
+          const token = new URLSearchParams(location.state.from.search).get('token');
+          if (token) {
+              try {
+                  await invitationService.acceptInviteAsLoggedInUser(token);
+                  toast.success("Invitation accepted successfully!");
+              } catch (inviteError: any) {
+                  toast.error(inviteError.response?.data?.message || "Failed to accept invitation.");
+              }
+          }
+      }
 
         if (user.role === 'ADMIN') {
           navigate('/admin/dashboard');
@@ -83,7 +100,7 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="relative w-full max-w-md"
       >
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-10">
+        <div className="rounded-xl border border-gray-200 bg-white/90 p-6 shadow-lg md:p-10">
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
               Welcome Back
@@ -92,6 +109,17 @@ const Login = () => {
               Sign in to access your PPALink dashboard.
             </p>
           </div>
+
+          {inviteMessage && (
+            <div className="mt-6 rounded-md bg-blue-50 p-4 text-center text-sm text-blue-700">
+              <Info className="inline-block h-5 w-5 mr-2" /> {inviteMessage}
+            </div>
+          )}
+          {inviteError && (
+            <div className="mt-6 rounded-md bg-red-50 p-4 text-center text-sm text-red-700">
+              {inviteError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
             {errors.root && (

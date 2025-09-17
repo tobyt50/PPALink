@@ -5,6 +5,7 @@ import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
 import { createCandidateApplicationHandler } from '../applications/application.controller';
 import experienceRoutes from '../experience/experience.routes';
+import { acceptInvitationLoggedInHandler } from '../invitations/invitation.controller';
 import { createVerificationSubmissionHandler } from '../verification/verification.controller';
 import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler } from './candidate.controller';
 import { UpdateCandidateProfileSchema } from './candidate.types';
@@ -58,6 +59,15 @@ router.get(
   authenticate, 
   requireRole([Role.AGENCY]), 
   getPublicCandidateProfileHandler
+);
+
+// This route is guarded only by `authenticate`, allowing any logged-in user to attempt it.
+// The handler will perform the role-specific logic.
+// POST /api/candidates/invitations/accept
+router.post(
+  '/invitations/accept',
+  authenticate,
+  acceptInvitationLoggedInHandler
 );
 
 // This will create routes like /api/candidates/me/experience

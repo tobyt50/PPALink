@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { Bell, Briefcase, Heart, LogOut, Mail, Package, Search as SearchIcon, User, UserCircle2, Users } from 'lucide-react';
+import { Briefcase, Building, CreditCard, Heart, LogOut, Package, Search as SearchIcon, User, UserCircle2, Users } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../context/AuthContext';
 import { useShortlistStore } from '../../context/ShortlistStore';
-import { Button } from '../ui/Button';
+import { SimpleDropdown, SimpleDropdownItem } from '../ui/SimpleDropdown';
+import { InboxBell } from './InboxBell';
+import { NotificationBell } from './NotificationBell';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -107,28 +109,43 @@ const Navbar = () => {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-2">
-        {(user?.role === 'CANDIDATE' || user?.role === 'AGENCY') && (
-            <Link to="/inbox">
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Mail className="h-5 w-5 text-gray-600" />
-                <span className="sr-only">Inbox</span>
-              </Button>
-            </Link>
-          )}
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="sr-only">Notifications</span>
-          </Button>
+          <InboxBell />
+          <NotificationBell />
 
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <UserCircle2 className="h-6 w-6 text-gray-600" />
-              <span className="sr-only">User Menu</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
+          <SimpleDropdown
+              trigger={
+                <button className="p-2 rounded-full hover:bg-gray-100">
+                  <UserCircle2 className="h-6 w-6 text-gray-600" />
+                </button>
+              }
+            >
+              <div className="p-2 text-sm border-b">
+                <p className="font-semibold">Signed in as</p>
+                <p className="text-gray-500 truncate">{user?.email}</p>
+              </div>
+              {user?.role === 'AGENCY' && (
+                <>
+                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/profile')}>
+                    <Building className="mr-2 h-4 w-4" /> Company Profile
+                  </SimpleDropdownItem>
+                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/team')}>
+                    <Users className="mr-2 h-4 w-4" /> Manage Team
+                  </SimpleDropdownItem>
+                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/billing')}>
+                    <CreditCard className="mr-2 h-4 w-4" /> Billing
+                  </SimpleDropdownItem>
+                </>
+              )}
+               {user?.role === 'CANDIDATE' && (
+                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/candidate/profile')}>
+                    <User className="mr-2 h-4 w-4" /> My Profile
+                  </SimpleDropdownItem>
+               )}
+              <SimpleDropdownItem onSelect={handleLogout} className="text-red-600">
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </SimpleDropdownItem>
+            </SimpleDropdown>
           </div>
         </div>
       </div>

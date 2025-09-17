@@ -1,4 +1,4 @@
-import { UserStatus } from '@prisma/client';
+import { Role, UserStatus, VerificationStatus } from '@prisma/client';
 import prisma from '../../config/db';
 
 /**
@@ -70,4 +70,59 @@ export async function updateUserStatus(userId: string, newStatus: UserStatus) {
       emailVerifiedAt: true, createdAt: true, updatedAt: true,
     },
   });
+}
+
+/**
+ * Fetches aggregated analytics for the admin dashboard.
+ */
+export async function getAdminDashboardAnalytics() {
+  // Use Prisma's interactive transactions to run all queries concurrently
+  const [
+    // 1. Get total user count
+    totalUsers,
+    // 2. Get user counts grouped by role
+    userCountsByRole,
+    // 3. Get total job postings
+    totalJobs,
+    // 4. Get total applications
+    totalApplications,
+    // 5. Get count of pending verifications
+    pendingVerifications,
+  ] = await prisma.$transaction([
+    prisma.user.count(),
+    prisma.user.groupBy({
+      by: ['role'],
+      _count: {
+        _all: true, // count all users in each role group
+      },
+      orderBy: {
+        role: 'asc', // Required for deterministic results
+      },
+    }),
+    prisma.position.count(),
+    prisma.application.count(),
+    prisma.verification.count({
+      where: { status: VerificationStatus.PENDING },
+    }),
+  ]);
+
+  // 6. Process the grouped data into a more friendly format
+  const roles = userCountsByRole.reduce((acc, group) => {
+    const count = group._count as { _all: number };
+    acc[group.role] = count._all;
+    return acc;
+  }, {} as Record<Role, number>);
+
+  // 7. Return structured analytics
+  return {
+    totalUsers,
+    userDistribution: {
+      candidates: roles.CANDIDATE || 0,
+      agencies: roles.AGENCY || 0,
+      admins: roles.ADMIN || 0,
+    },
+    totalJobs,
+    totalApplications,
+    pendingVerifications,
+  };
 }

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import candidateService from '../../services/candidate.service';
 import type { CandidateProfile } from '../../types/candidate';
-import ProfileForm, { type ProfileFormValues } from './ProfileForm';
+import ProfileForm, { type ProfileFormValues } from './forms/ProfileForm';
 
 const EditProfilePage = () => {
   const navigate = useNavigate();

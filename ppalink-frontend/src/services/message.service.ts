@@ -1,5 +1,6 @@
 import apiClient from '../config/axios';
 import type { Message } from '../types/message';
+import type { Notification } from '../types/notification';
 
 interface OtherUser {
     id: string;
@@ -43,6 +44,22 @@ class MessageService {
    */
   async getMyConversations(): Promise<Conversation[]> {
     const response = await apiClient.get('/messages/conversations');
+    return response.data.data;
+  }
+
+  /**
+   * Notifies the backend that the current user has read messages in a conversation.
+   * @param otherUserId The ID of the other user in the conversation.
+   */
+  async markConversationAsRead(otherUserId: string): Promise<void> {
+    await apiClient.post(`/messages/conversation/${otherUserId}/read`);
+  }
+
+  /**
+   * Fetches the list of unread message notifications for the logged-in user.
+   */
+  async getMyMessageNotifications(): Promise<Notification[]> {
+    const response = await apiClient.get('/notifications/messages');
     return response.data.data;
   }
 }

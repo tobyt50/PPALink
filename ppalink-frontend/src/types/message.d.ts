@@ -6,7 +6,8 @@ export interface Message {
   toId: string;
   subject: string | null;
   body: string;
-  createdAt: string; // Dates are typically strings in JSON payloads
+  createdAt: string;
+  readAt: string | null;
 
   // Optional nested relations for context
   from?: Pick<User, 'id' | 'role'>;

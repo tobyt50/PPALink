@@ -89,3 +89,30 @@ export async function createVerificationSubmission(
     },
   });
 }
+
+/**
+ * Fetches a single verification request by its ID, including the full user profile.
+ * @param verificationId The ID of the verification request.
+ */
+export async function getVerificationDetails(verificationId: string) {
+  const verification = await prisma.verification.findUnique({
+    where: {
+      id: verificationId,
+    },
+    include: {
+      // Include the full user object
+      user: {
+        include: {
+          // And within the user, include their full candidate profile
+          candidateProfile: true,
+        },
+      },
+    },
+  });
+
+  if (!verification) {
+    throw new Error('Verification request not found.');
+  }
+
+  return verification;
+}

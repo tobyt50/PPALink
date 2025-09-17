@@ -1,6 +1,6 @@
 import apiClient from '../config/axios';
-import type { CompanyProfileFormValues } from '../pages/agencies/CompanyProfileForm';
-import type { Agency } from '../types/agency';
+import type { CompanyProfileFormValues } from '../pages/agencies/forms/CompanyProfileForm';
+import type { Agency, Invitation } from '../types/agency';
 import type { CandidateProfile } from '../types/candidate';
 
 class AgencyService {
@@ -12,8 +12,6 @@ class AgencyService {
   async updateMyAgency(payload: CompanyProfileFormValues): Promise<Agency> {
     const payloadToSend = { ...payload };
 
-    // --- ROBUST DATA TRANSFORMATION LOGIC ---
-    // This is the definitive fix. It handles all cases for the dropdowns.
     const keysToProcess: Array<keyof CompanyProfileFormValues> = [
       'industryId',
       'headquartersStateId',
@@ -33,7 +31,6 @@ class AgencyService {
         payloadToSend[key] = null;
       }
     });
-    // --- END OF FIX ---
 
     const response = await apiClient.put('/agencies/me', payloadToSend);
     return response.data.data;
@@ -65,6 +62,23 @@ class AgencyService {
   async removeShortlist(candidateId: string): Promise<void> {
     // The endpoint now uses a URL parameter, so we append it to the URL.
     await apiClient.delete(`/agencies/shortlist/${candidateId}`);
+  }
+
+  /**
+   * Sends an invitation to a new team member.
+   * @param email The email address of the invitee.
+   */
+  async sendInvitation(email: string): Promise<Invitation> {
+    const response = await apiClient.post('/agencies/invitations', { email });
+    return response.data.data;
+  }
+
+  /**
+   * Deletes/revokes a pending team member invitation.
+   * @param invitationId The ID of the invitation to delete.
+   */
+  async deleteInvitation(invitationId: string): Promise<void> {
+    await apiClient.delete(`/agencies/invitations/${invitationId}`);
   }
 }
 

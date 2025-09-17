@@ -1,4 +1,4 @@
-import { Briefcase, Eye, Loader2, PlusCircle } from 'lucide-react';
+import { Briefcase, Eye, PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -10,43 +10,54 @@ import { JobCardSkeleton } from './skeletons/JobCardSkeleton';
 const JobPostsPage = () => {
   const { data: agency, isLoading: isLoadingAgency } = useFetch<Agency>('/agencies/me');
   const agencyId = agency?.id;
-  const { data: jobs, isLoading: isLoadingJobs, error } = useFetch<Position[]>(agencyId ? `/agencies/${agencyId}/jobs` : null);
+  
+  const { data: jobs, isLoading: isLoadingJobs, error } = useFetch<Position[]>(
+    agencyId ? `/agencies/${agencyId}/jobs` : null
+  );
+
   const isLoading = isLoadingAgency || isLoadingJobs;
+  
+  // Determine the current plan and job limits
+  const currentPlan = agency?.subscriptions?.[0]?.plan;
+  const jobPostLimit = currentPlan?.jobPostLimit ?? 2; // Default to Free plan limit
+  const openJobsCount = jobs?.filter(job => job.status === 'OPEN').length ?? 0;
+  const canPostNewJob = jobPostLimit === -1 || openJobsCount < jobPostLimit;
 
   return (
     <div className="mx-auto max-w-7xl">
-      {/* Page Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary-600">Job Postings</h1>
           <p className="mt-1 text-gray-500">Create and manage your open positions.</p>
         </div>
-        <Link to="/dashboard/agency/jobs/create">
-          <Button>
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Create New Job
-          </Button>
-        </Link>
-      </div>
-
-      {/* Job List section */}
-      <div className="mt-8">
-        {isLoading && (
-          <div className="flex justify-center p-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+        
+        {/* Conditionally render the "Create Job" button or an "Upgrade" message */}
+        {isLoadingAgency ? (
+          <div className="h-10 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+        ) : canPostNewJob ? (
+          <Link to="/dashboard/agency/jobs/create">
+            <Button>
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Create New Job
+            </Button>
+          </Link>
+        ) : (
+          <div className="text-right">
+            <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
+            <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 hover:underline">
+              Upgrade to post more jobs
+            </Link>
           </div>
         )}
+      </div>
+
+      <div className="mt-8">
         {error ? (
            <div className="text-center text-red-500 p-8">Could not load job postings.</div>
         ) : (
           <div className="rounded-lg border bg-white shadow-sm">
             {isLoading ? (
-              // Show a list of skeletons while loading
-              <ul>
-                <JobCardSkeleton />
-                <JobCardSkeleton />
-                <JobCardSkeleton />
-              </ul>
+              <ul><JobCardSkeleton /><JobCardSkeleton /><JobCardSkeleton /></ul>
             ) : jobs && jobs.length > 0 ? (
               <ul>
                 {jobs.map((job, index) => (

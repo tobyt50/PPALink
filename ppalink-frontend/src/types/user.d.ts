@@ -1,5 +1,4 @@
-// This interface defines the shape of a single verification request
-// as it comes from our new backend endpoint.
+import type { CandidateProfile } from './candidate';
 
 export type VerificationType = 'EMAIL' | 'DOMAIN' | 'CAC' | 'NYSC' | 'NIN' | 'CERTIFICATE';
 export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -16,6 +15,7 @@ export interface VerificationRequest {
   createdAt: string;
   user: {
     email: string;
+    candidateProfile: CandidateProfile | null;
     candidateProfile: {
       firstName: string;
       lastName: string;
@@ -23,6 +23,20 @@ export interface VerificationRequest {
   };
 }
 
+export interface AgencyMember {
+  id: string;
+  userId: string;
+  role: 'OWNER' | 'MANAGER' | 'RECRUITER';
+  user: { // The nested user object
+      id: string;
+      email: string;
+      status: User['status'];
+      candidateProfile?: {
+          firstName: string;
+          lastName: string;
+      } | null;
+  }
+}
 
 // This type should mirror the User model from Prisma, excluding sensitive fields.
 export interface User {

@@ -1,12 +1,20 @@
-import { ChevronLeft, Loader2, MessageSquare, Send } from 'lucide-react';
+import { format } from 'date-fns';
+import { Check, CheckCheck, ChevronLeft, Loader2, MessageSquare, Send } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useAuthStore } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 import useFetch from '../../hooks/useFetch';
 import messageService, { type Conversation } from '../../services/message.service';
 import type { Message } from '../../types/message';
+
+// Helper to check if a new day has started between messages
+const isNewDay = (date1: string, date2: string | undefined) => {
+  if (!date2) return true;
+  return new Date(date1).toDateString() !== new Date(date2).toDateString();
+};
 
 const getUserName = (user: Conversation['otherUser']) => {
   if (user.candidateProfile) {
@@ -29,15 +37,55 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (fetchedMessages) {
       setMessages(fetchedMessages);
+      if (otherUserId) {
+        const hasUnread = fetchedMessages.some(m => m.fromId === otherUserId && !m.readAt);
+        if (hasUnread) {
+          messageService.markConversationAsRead(otherUserId);
+        }
+      }
     }
-  }, [fetchedMessages]);
+  }, [fetchedMessages, otherUserId]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!socket || !otherUserId) return;
+
+    const handleNewMessage = (receivedMessage: Message) => {
+      if (receivedMessage.fromId === otherUserId) {
+        setMessages((prev) => [...prev, receivedMessage]);
+        messageService.markConversationAsRead(otherUserId);
+      }
+    };
+
+    // Listen for the new, more specific 'messages_read' event
+    const handleMessagesRead = ({ conversationPartnerId, readMessageIds }: { conversationPartnerId: string, readMessageIds: string[] }) => {
+      // Check if the update is for the sender in our current conversation
+      if (conversationPartnerId === currentUserId) {
+        // Update the local state directly without a refetch
+        const now = new Date().toISOString();
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            readMessageIds.includes(msg.id) ? { ...msg, readAt: now } : msg
+          )
+        );
+      }
+    };
+
+    socket.on('new_message', handleNewMessage);
+    socket.on('messages_read', handleMessagesRead); // Use the new event
+    
+    return () => {
+      socket.off('new_message', handleNewMessage);
+      socket.off('messages_read', handleMessagesRead); // Clean up the new event
+    };
+  }, [socket, otherUserId, currentUserId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -47,7 +95,7 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
     const tempId = `temp-${Date.now()}`;
     const optimisticMessage: Message = {
       id: tempId, fromId: currentUserId!, toId: otherUserId,
-      body: newMessage, createdAt: new Date().toISOString(), subject: null,
+      body: newMessage, createdAt: new Date().toISOString(), subject: null, readAt: null
     };
     
     setMessages(prev => [...prev, optimisticMessage]);
@@ -73,31 +121,70 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <div className="p-4 border-b flex-shrink-0 flex items-center">
-        <button onClick={onGoBack} className="md:hidden mr-3 p-1 rounded-full hover:bg-gray-100">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <p className="font-semibold">{getUserName(activeConversation.otherUser)}</p>
-      </div>
-      <div className="flex-grow p-4 space-y-4 overflow-y-auto">
-        {messages?.map(msg => (
-          <div key={msg.id} className={`flex ${msg.fromId === currentUserId ? 'justify-end' : 'justify-start'}`}>
-            <div className={`${msg.fromId === currentUserId ? 'bg-primary-600 text-white' : 'bg-gray-200'} rounded-lg p-3 max-w-sm`}>
-              {msg.body}
-            </div>
-          </div>
-        ))}
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-50 to-green-100">
+      <div className="h-14 flex items-center px-4 border-b flex-shrink-0 bg-white">
+  <button onClick={onGoBack} className="md:hidden mr-3 p-1 rounded-full hover:bg-gray-100">
+    <ChevronLeft className="h-5 w-5" />
+  </button>
+  <p className="font-semibold">{getUserName(activeConversation.otherUser)}</p>
+</div>
+<div className="flex-grow p-6 space-y-3 overflow-y-auto bg-transparent">
+        {messages?.map((msg, index) => {
+          const prevMsg = messages[index - 1];
+          const showDateSeparator = isNewDay(msg.createdAt, prevMsg?.createdAt);
+          const isMyMessage = msg.fromId === currentUserId;
+
+          return (
+            <React.Fragment key={msg.id}>
+              {showDateSeparator && (
+                <div className="text-center text-xs text-gray-400 py-2">
+                  {format(new Date(msg.createdAt), 'MMMM d, yyyy')}
+                </div>
+              )}
+              <div className={`flex items-end gap-2 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
+              <div
+  className={`${
+    isMyMessage
+      ? 'bg-primary-600 text-white rounded-2xl rounded-br-sm shadow-md'
+      : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm shadow-sm'
+  } py-2 px-4 max-w-[75%] text-sm`}
+>
+
+                  <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+                  <div className={`flex items-center gap-1 mt-1 ${isMyMessage ? 'justify-end' : ''}`}>
+                    <p className="text-xs opacity-70">{format(new Date(msg.createdAt), 'h:mm a')}</p>
+                    {isMyMessage && (
+                      msg.readAt 
+                        ? <CheckCheck className="h-4 w-4 text-blue-300" />
+                        : <Check className="h-4 w-4 opacity-70" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
       <div className="p-4 border-t bg-gray-50 flex-shrink-0">
         <form onSubmit={handleSendMessage} className="relative">
-          <textarea
-            rows={1} value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e); } }}
-            placeholder="Type your message..."
-            className="w-full rounded-full border-gray-300 pr-12 py-2 px-4 text-sm focus:ring-primary-500 focus:border-primary-500 resize-none"
-          />
+        <textarea
+  rows={1}
+  value={newMessage}
+  onChange={(e) => setNewMessage(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  }}
+  placeholder="Type your message..."
+  className={`w-full bg-transparent border-0 focus:ring-0 focus:outline-none pr-12 py-2 px-0 text-sm resize-none placeholder-gray-400 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent focus:shadow-inner`}
+  style={{ direction: 'ltr', textAlign: 'left' }}
+/>
+
+
+
           <button
             type="submit"
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300"
@@ -114,20 +201,30 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
 const ConversationList = ({ conversations, onSelect, activeConversationId }: { conversations: Conversation[], onSelect: (conv: Conversation) => void, activeConversationId: string | null }) => {
   return (
     <div className="border-r h-full bg-white flex flex-col">
-      <div className="p-4 border-b flex-shrink-0"><h2 className="font-semibold text-lg">Conversations</h2></div>
-      <ul className="divide-y h-[calc(100%-61px)] overflow-y-auto">
-        {conversations.map((conv) => (
-          <li
-            key={conv.otherUser.id}
-            onClick={() => onSelect(conv)}
-            className={`p-4 cursor-pointer hover:bg-gray-50 ${conv.otherUser.id === activeConversationId ? 'bg-primary-50 border-r-2 border-primary-600' : ''}`}
-          >
-            <p className="font-semibold text-sm">{getUserName(conv.otherUser)}</p>
-            <p className="text-sm text-gray-500 truncate">{conv.lastMessage?.body}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+  {/* Header */}
+  <div className="h-14 flex items-center px-4 border-b flex-shrink-0">
+  <h2 className="font-semibold text-lg">Conversations</h2>
+</div>
+
+  {/* Scrollable list */}
+  <ul className="divide-y flex-1 overflow-y-auto">
+    {conversations.map((conv) => (
+      <li
+        key={conv.otherUser.id}
+        onClick={() => onSelect(conv)}
+        className={`p-4 cursor-pointer hover:bg-gray-50 ${
+          conv.otherUser.id === activeConversationId
+            ? 'bg-primary-50 border-r-2 border-primary-600'
+            : ''
+        }`}
+      >
+        <p className="font-semibold text-sm">{getUserName(conv.otherUser)}</p>
+        <p className="text-sm text-gray-500 truncate">{conv.lastMessage?.body}</p>
+      </li>
+    ))}
+  </ul>
+</div>
+
   );
 };
 

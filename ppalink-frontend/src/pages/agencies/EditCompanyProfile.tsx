@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import agencyService from '../../services/agency.service';
 import type { Agency } from '../../types/agency';
-import CompanyProfileForm, { type CompanyProfileFormValues } from './CompanyProfileForm';
+import CompanyProfileForm, { type CompanyProfileFormValues } from './forms/CompanyProfileForm';
 
 const EditCompanyProfilePage = () => {
   const navigate = useNavigate();

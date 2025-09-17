@@ -1,37 +1,34 @@
 import { PrismaClient } from '@prisma/client';
+import { industries } from './industries.data';
 import { statesAndLgas } from './seed-data';
 
-// Initialize Prisma Client
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding database with states and LGAs...');
+  console.log('💧 Starting database seeding...');
 
-  // 1. Clear existing data to prevent duplicates on re-seeding
-  // The order is important due to foreign key constraints (delete LGAs before States)
+  // -----------------------------
+  // Seed States & LGAs
+  // -----------------------------
+  console.log('\n🌍 Seeding states and LGAs...');
+
+  // Delete LGAs first due to foreign key constraints
   await prisma.locationLGA.deleteMany({});
   await prisma.locationState.deleteMany({});
   console.log('Cleared existing location data.');
 
-  // 2. Iterate over each state in our seed data
   for (const stateData of statesAndLgas) {
-    // 3. Create the state in the database
     const state = await prisma.locationState.create({
-      data: {
-        name: stateData.state,
-      },
+      data: { name: stateData.state },
     });
-
     console.log(`Created state: ${state.name}`);
 
-    // 4. If the state has LGAs, prepare them for creation
     if (stateData.lgas && stateData.lgas.length > 0) {
       const lgasToCreate = stateData.lgas.map((lgaName) => ({
         name: lgaName,
-        stateId: state.id, // Link each LGA to the state we just created
+        stateId: state.id,
       }));
 
-      // 5. Create all LGAs for the current state in a single batch transaction
       await prisma.locationLGA.createMany({
         data: lgasToCreate,
       });
@@ -40,16 +37,33 @@ async function main() {
     }
   }
 
-  console.log('✅ Seeding completed successfully.');
+  // -----------------------------
+  // Seed Industries
+  // -----------------------------
+  console.log('\n🏭 Seeding industries...');
+
+  await prisma.industry.deleteMany({});
+  console.log('Cleared existing industries.');
+
+  await prisma.industry.createMany({
+    data: industries.map((i) => ({
+      name: i.name.trim(),
+      isHeading: i.isHeading ?? false,
+      order: i.order,
+    })),
+  });
+
+  console.log(`Created ${industries.length} industries with headings + order.`);
+
+  console.log('\n✅ Database seeding completed successfully.');
 }
 
-// Execute the main function and handle potential errors
+// Execute main and ensure Prisma disconnects
 main()
   .catch((e) => {
-    console.error('❌ An error occurred while seeding the database:', e);
+    console.error('❌ An error occurred during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {
-    // 6. Close the Prisma Client connection
     await prisma.$disconnect();
   });

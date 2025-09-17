@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPendingVerificationsHandler, updateVerificationStatusHandler } from './verification.controller';
+import { getPendingVerificationsHandler, getVerificationDetailsHandler, updateVerificationStatusHandler, } from './verification.controller';
 
 const router = Router();
 
@@ -8,6 +8,9 @@ const router = Router();
 
 // GET /api/admin/verifications/pending
 router.get('/pending', getPendingVerificationsHandler);
+
+// GET /api/admin/verifications/:verificationId
+router.get('/:verificationId', getVerificationDetailsHandler);
 
 // PATCH /api/admin/verifications/:verificationId/status
 router.patch('/:verificationId/status', updateVerificationStatusHandler);

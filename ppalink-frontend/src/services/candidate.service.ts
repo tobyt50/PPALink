@@ -1,6 +1,6 @@
 import apiClient from '../config/axios';
 import type { CandidateFilterValues } from '../pages/agencies/FilterSidebar';
-import type { ProfileFormValues } from '../pages/candidates/ProfileForm';
+import type { ProfileFormValues } from '../pages/candidates/forms/ProfileForm';
 import type { CandidateProfile } from '../types/candidate';
 import type { VerificationRequest, VerificationType } from '../types/user';
 
@@ -12,6 +12,9 @@ interface VerificationSubmissionPayload {
     fileName: string;
   };
 }
+
+// Extend filters to also allow keyword search
+export type CandidateSearchParams = CandidateFilterValues & { q?: string };
 
 class CandidateService {
   async getMyProfile(): Promise<CandidateProfile> {
@@ -43,11 +46,10 @@ class CandidateService {
     return response.data.data;
   }
 
-   /**
-   * Searches for candidates based on filter criteria.
-   * @param filters - The filter object from our FilterSidebar.
+  /**
+   * Searches for candidates based on filter criteria + optional keyword (q).
    */
-   async searchCandidates(filters: CandidateFilterValues | null): Promise<CandidateProfile[]> {
+  async searchCandidates(filters: CandidateSearchParams | null): Promise<CandidateProfile[]> {
     if (!filters) {
       return [];
     }
@@ -59,6 +61,18 @@ class CandidateService {
     if (filters.skills) params.append('skills', filters.skills);
     if (filters.isRemote) params.append('isRemote', 'true');
     if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
+    if (filters.university) params.append('university', filters.university);
+    if (filters.courseOfStudy) params.append('courseOfStudy', filters.courseOfStudy);
+    if (filters.degree) params.append('degree', filters.degree);
+    if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
+    if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
+
+
+    // Include search query if present
+    if (filters.q) params.append('q', filters.q);
+
+    // Debug log (can remove later)
+    console.log('searchCandidates -> GET', `/agencies/search/candidates?${params.toString()}`);
 
     const response = await apiClient.get(`/agencies/search/candidates?${params.toString()}`);
     return response.data.data;
@@ -66,7 +80,6 @@ class CandidateService {
 
   /**
    * Submits a new verification request for the logged-in candidate.
-   * @param payload The verification data to submit.
    */
   async submitVerification(payload: VerificationSubmissionPayload): Promise<VerificationRequest> {
     const response = await apiClient.post('/candidates/verifications', payload);

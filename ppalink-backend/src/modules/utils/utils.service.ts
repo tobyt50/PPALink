@@ -28,3 +28,39 @@ export async function getLgasByStateId(stateId: number) {
     orderBy: { name: 'asc' },
   });
 }
+
+/**
+ * Fetches all distinct universities (institutions) from candidate education.
+ */
+export async function getAllUniversities() {
+  const universities = await prisma.education.findMany({
+    distinct: ['institution'],
+    select: { institution: true },
+    orderBy: { institution: 'asc' },
+  });
+  return universities.map(u => ({ name: u.institution }));
+}
+
+/**
+ * Fetches all distinct courses of study (fields) from candidate education.
+ */
+export async function getAllCourses() {
+  const courses = await prisma.education.findMany({
+    distinct: ['field'],
+    select: { field: true },
+    orderBy: { field: 'asc' },
+  });
+  return courses.map(c => ({ name: c.field }));
+}
+
+/**
+ * Fetches all distinct degrees from candidate education.
+ */
+export async function getAllDegrees() {
+  const degrees = await prisma.education.findMany({
+    distinct: ['degree'],
+    select: { degree: true },
+    orderBy: { degree: 'asc' },
+  });
+  return degrees.map(d => ({ name: d.degree }));
+}

@@ -41,3 +41,39 @@ export async function getLgasByStateIdHandler(req: Request, res: Response, next:
     next(error);
   }
 }
+
+/**
+ * Handler to get all universities (institutions).
+ */
+export async function getAllUniversitiesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const universities = await utilsService.getAllUniversities();
+    return res.status(200).json({ success: true, data: universities });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Handler to get all courses of study (fields).
+ */
+export async function getAllCoursesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const courses = await utilsService.getAllCourses();
+    return res.status(200).json({ success: true, data: courses });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Handler to get all degrees.
+ */
+export async function getAllDegreesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const degrees = await utilsService.getAllDegrees();
+    return res.status(200).json({ success: true, data: degrees });
+  } catch (error) {
+    next(error);
+  }
+}

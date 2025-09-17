@@ -3,13 +3,16 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import verificationRoutes from '../verification/verification.routes';
-import { getAllUsersHandler, updateUserStatusHandler } from './admin.controller';
+import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler } from './admin.controller';
 
 const router = Router();
 
 // This is a master guard for the entire admin module.
 // Every route defined here will require the user to be an authenticated ADMIN.
 router.use(authenticate, requireRole([Role.ADMIN]));
+
+// GET /api/admin/analytics
+router.get('/analytics', getAdminDashboardAnalyticsHandler);
 
 // GET /api/admin/users
 router.get('/users', getAllUsersHandler);

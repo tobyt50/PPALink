@@ -1,12 +1,43 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+export interface Industry {
+  id: number;
+  name: string;
+  isHeading?: boolean;
+  order: number;
+}
 
 interface SimpleDropdownProps {
   trigger: React.ReactNode;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  isIndustryDropdown?: boolean;
+  industries?: Industry[];
+  onSelectIndustry?: (industryId: number | null) => void;
 }
 
-export const SimpleDropdown = ({ trigger, children }: SimpleDropdownProps) => {
+// 1. Create a Context to share the `setIsOpen` function.
+// This is a cleaner way to allow child components to control the state of the parent.
+const DropdownContext = createContext<{
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+} | null>(null);
+
+// Custom hook for easy access to the context
+const useDropdown = () => {
+  const context = useContext(DropdownContext);
+  if (!context) {
+    throw new Error('useDropdown must be used within a SimpleDropdown provider');
+  }
+  return context;
+};
+
+export const SimpleDropdown = ({
+  trigger,
+  children,
+  isIndustryDropdown = false,
+  industries = [],
+  onSelectIndustry,
+}: SimpleDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -14,15 +45,12 @@ export const SimpleDropdown = ({ trigger, children }: SimpleDropdownProps) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -31,50 +59,94 @@ export const SimpleDropdown = ({ trigger, children }: SimpleDropdownProps) => {
       const menuHeight = menuRef.current.offsetHeight;
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
+      setDropUp(spaceBelow < menuHeight && spaceAbove > menuHeight);
+      
+      const timer = setTimeout(() => {
+        const searchInput = menuRef.current?.querySelector('input[type="text"]');
+        if (searchInput) {
+          (searchInput as HTMLInputElement).focus();
+        }
+      }, 50);
 
-      // If not enough space below but enough space above → drop up
-      if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
-        setDropUp(true);
-      } else {
-        setDropUp(false);
-      }
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
-  return (
-    <div className="relative w-full text-left" ref={dropdownRef}>
-      {/* Wrap trigger in a generic div to handle clicks */}
-      <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
-        {trigger}
-      </div>
+  const groupedIndustries = useMemo(() => {
+    if (!isIndustryDropdown || industries.length === 0) return [];
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            ref={menuRef}
-            initial={{ opacity: 0, scale: 0.95, y: dropUp ? 10 : -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: dropUp ? 10 : -10 }}
-            transition={{ duration: 0.1, ease: "easeOut" }}
-            className={`origin-top-right absolute right-0 ${
-              dropUp ? "bottom-full mb-2" : "mt-2"
-            } min-w-full w-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1`}
-          >
-            <div
-              className="py-1 max-h-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400"
-              role="menu"
-              aria-orientation="vertical"
+    const groups: { heading: Industry; children: Industry[] }[] = [];
+    let currentHeading: Industry | null = null;
+    const sortedByOrder = [...industries].sort((a, b) => a.order - b.order);
+
+    for (const item of sortedByOrder) {
+      if (item.isHeading) {
+        currentHeading = item;
+        groups.push({ heading: item, children: [] });
+      } else if (currentHeading) {
+        groups[groups.length - 1].children.push(item);
+      }
+    }
+
+    groups.sort((a, b) => a.heading.name.localeCompare(b.heading.name));
+    groups.forEach((g) => g.children.sort((a, b) => a.name.localeCompare(b.name)));
+
+    return groups;
+  }, [industries, isIndustryDropdown]);
+
+  return (
+    // 2. Provide the context value to all children.
+    <DropdownContext.Provider value={{ setIsOpen }}>
+      <div className="relative w-full text-left" ref={dropdownRef}>
+        <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
+          {trigger}
+        </div>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              ref={menuRef}
+              initial={{ opacity: 0, scale: 0.95, y: dropUp ? 10 : -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: dropUp ? 10 : -10 }}
+              transition={{ duration: 0.1, ease: 'easeOut' }}
+              className={`origin-top-right absolute right-0 ${
+                dropUp ? 'bottom-full mb-2' : 'mt-2'
+              } min-w-full w-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1`}
             >
-              {React.Children.map(children, (child) =>
-                React.isValidElement(child)
-                  ? React.cloneElement(child, { setIsOpen } as any)
-                  : child
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+              <div
+                className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${
+                  isIndustryDropdown ? 'max-h-80' : 'max-h-50'
+                }`}
+                role="menu"
+                aria-orientation="vertical"
+              >
+                {groupedIndustries.length > 0 && isIndustryDropdown
+                  ? groupedIndustries.map(({ heading, children: industryChildren }) => (
+                      <div key={heading.id}>
+                        <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">
+                          {heading.name}
+                        </div>
+                        {industryChildren.map((child) => (
+                          <SimpleDropdownItem
+                            key={child.id}
+                            onSelect={() => {
+                              onSelectIndustry && onSelectIndustry(child.id);
+                              setIsOpen(false);
+                            }}
+                          >
+                            {child.name}
+                          </SimpleDropdownItem>
+                        ))}
+                      </div>
+                    ))
+                  : children}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </DropdownContext.Provider>
   );
 };
 
@@ -82,15 +154,17 @@ interface SimpleDropdownItemProps {
   children: React.ReactNode;
   onSelect?: () => void;
   className?: string;
-  setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  // `setIsOpen` is no longer needed as a prop.
 }
 
 export const SimpleDropdownItem = ({
   children,
   onSelect,
   className,
-  setIsOpen,
 }: SimpleDropdownItemProps) => {
+  // 3. Consume the context to get the `setIsOpen` function.
+  const { setIsOpen } = useDropdown();
+
   return (
     <a
       href="#"
@@ -98,15 +172,12 @@ export const SimpleDropdownItem = ({
       role="menuitem"
       onClick={(e) => {
         e.preventDefault();
-        if (onSelect) {
-          onSelect();
-        }
-        if (setIsOpen) {
-          setIsOpen(false);
-        }
+        if (onSelect) onSelect();
+        setIsOpen(false); // Close the dropdown on any item click.
       }}
     >
       {children}
     </a>
   );
 };
+

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import jobService from '../../services/job.service';
 import type { Position } from '../../types/job';
-import JobForm, { type JobFormValues } from './JobForm';
+import JobForm, { type JobFormValues } from './forms/JobForm';
 
 const EditJobPage = () => {
   const navigate = useNavigate();

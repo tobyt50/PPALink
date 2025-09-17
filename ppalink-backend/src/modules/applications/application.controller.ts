@@ -63,7 +63,7 @@ export async function updateApplicationHandler(req: AuthRequest, res: Response, 
     const agency = await getAgencyByUserId(req.user.id);
     
     // 3. Pass the data object to the service
-    const updatedApplication = await updateApplication(applicationId, agency.id, { status, notes });
+    const updatedApplication = await updateApplication(applicationId, agency.id, { status, notes }, req.app.io);
 
     return res.status(200).json({
       success: true,

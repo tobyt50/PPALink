@@ -3,15 +3,55 @@ import prisma from '../../config/db';
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
 /**
- * Creates a new job position for a given agency.
+ * Creates a new job position for a given agency after verifying subscription limits.
  * @param agencyId The ID of the agency creating the job.
  * @param data The job position details.
  */
 export async function createJobPosition(agencyId: string, data: CreateJobPositionInput) {
+  // 1. Fetch the agency's current active subscription and its plan details
+  const agencySub = await prisma.agencySubscription.findFirst({
+    where: {
+      agencyId: agencyId,
+      status: 'ACTIVE',
+    },
+    include: {
+      plan: true, // Eagerly load the plan to get the jobPostLimit
+    },
+  });
+
+  // If there's no active subscription, find the default "Free" plan
+  const plan = agencySub?.plan || await prisma.subscriptionPlan.findFirst({
+      where: { price: 0 }
+  });
+
+  if (!plan) {
+    throw new Error('Could not determine your subscription plan. Please contact support.');
+  }
+
+  // 2. Check the plan's limit
+  const { jobPostLimit } = plan;
+
+  // A limit of -1 means unlimited
+  if (jobPostLimit !== -1) {
+    // 3. Count the number of currently OPEN jobs for the agency
+    const currentOpenJobs = await prisma.position.count({
+      where: {
+        agencyId: agencyId,
+        status: PositionStatus.OPEN,
+      },
+    });
+
+    // 4. Enforce the limit
+    if (currentOpenJobs >= jobPostLimit) {
+      throw new Error(`Your "${plan.name}" plan is limited to ${jobPostLimit} open job(s). Please upgrade to post more.`);
+    }
+  }
+
+  // 5. If the check passes, create the job position
   return prisma.position.create({
     data: {
       ...data,
-      agencyId, // Link the position to the agency
+      agencyId,
     },
   });
 }

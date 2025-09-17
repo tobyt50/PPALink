@@ -1,5 +1,5 @@
 import apiClient from '../config/axios';
-import type { JobFormValues } from '../pages/agencies/JobForm';
+import type { JobFormValues } from '../pages/agencies/forms/JobForm';
 import type { Position } from '../types/job';
 
 /**

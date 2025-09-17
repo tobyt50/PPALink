@@ -75,7 +75,7 @@ export async function searchCandidatesHandler(req: AuthRequest, res: Response, n
     const queryParams = req.query;
 
     // In the next step, our service will contain the logic to process these queries
-    const candidates = await searchCandidates(queryParams);
+    const candidates = await searchCandidates(req.user.id, queryParams);
     
     return res.status(200).json({ success: true, data: candidates });
   } catch (error) {

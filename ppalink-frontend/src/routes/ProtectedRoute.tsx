@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../context/AuthContext';
 import { useDataStore } from '../context/DataStore';
 import { useShortlistStore } from '../context/ShortlistStore';
+import { SocketProvider } from '../context/SocketContext';
 
 const ProtectedRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -24,8 +25,11 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
   
-  // ProtectedRoute's only job is to guard. The child routes will define their own layouts.
-  return <Outlet />;
+  return (
+    <SocketProvider>
+      <Outlet />
+    </SocketProvider>
+  );
 };
 
 export default ProtectedRoute;

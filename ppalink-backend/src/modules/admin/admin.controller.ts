@@ -1,6 +1,6 @@
 import { UserStatus } from '@prisma/client';
 import type { NextFunction, Request, Response } from 'express';
-import { getAllUsers, updateUserStatus } from './admin.service';
+import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus } from './admin.service';
 
 /**
  * Handler for an admin to get a list of all users.
@@ -41,6 +41,18 @@ export async function updateUserStatusHandler(req: Request, res: Response, next:
      if (error.message.includes('Cannot change the status of an admin')) {
       return res.status(403).json({ success: false, message: error.message });
     }
+    next(error);
+  }
+}
+
+/**
+ * Handler for fetching admin dashboard analytics.
+ */
+export async function getAdminDashboardAnalyticsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const analytics = await getAdminDashboardAnalytics();
+    res.status(200).json({ success: true, data: analytics });
+  } catch (error) {
     next(error);
   }
 }

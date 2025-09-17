@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
+import invitationRoutes from '../invitations/invitation.routes';
 import jobRoutes from '../jobs/job.routes'; // Import the nested job routes
 import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler } from './agency.controller';
 import { updateAgencyProfileSchema } from './agency.types';
@@ -33,5 +34,8 @@ router.get('/shortlist', getShortlistedCandidatesHandler);
 
 // DELETE /api/agencies/shortlist/:candidateId
 router.delete('/shortlist/:candidateId', removeShortlistHandler);
+
+// This will create routes like POST /api/agencies/invitations
+router.use('/invitations', invitationRoutes);
 
 export default router;

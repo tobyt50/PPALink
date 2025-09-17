@@ -26,7 +26,7 @@ export async function sendPasswordResetEmail(email: string) {
   const msg = {
     to: user.email,
     from: env.SMTP_FROM_EMAIL!,
-    subject: 'Your PPAHire Password Reset Request',
+    subject: 'Your PPALink Password Reset Request',
     html: `
       <p>Hello,</p>
       <p>You requested a password reset. Please click the link below to set a new password:</p>

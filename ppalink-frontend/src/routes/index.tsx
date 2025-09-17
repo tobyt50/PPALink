@@ -2,16 +2,16 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
 // Layouts & Guards
 import Navbar from '../components/layout/Navbar';
-import AdminProtectedRoute from './AdminProtectedRoute';
-import DashboardLayout from './Layouts';
 import ProtectedRoute from './ProtectedRoute';
 import PublicLayout from './PublicLayout';
+import RoleBasedLayout from './RoleBasedLayout';
 
 // Page Imports (assuming these paths are correct)
-import LandingPage from '../pages/Landing';
 import AdminDashboard from '../pages/admin/Dashboard';
 import ManageUsersPage from '../pages/admin/ManageUsers';
+import VerificationDetailsPage from '../pages/admin/VerificationDetails';
 import VerificationQueuePage from '../pages/admin/VerificationQueue';
+import BillingPage from '../pages/agencies/Billing';
 import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
 import CompanyProfilePage from '../pages/agencies/CompanyProfile';
 import CreateJobPage from '../pages/agencies/CreateJob';
@@ -20,8 +20,12 @@ import EditCompanyProfilePage from '../pages/agencies/EditCompanyProfile';
 import EditJobPage from '../pages/agencies/EditJob';
 import JobPostsPage from '../pages/agencies/JobPosts';
 import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
+import TeamManagementPage from '../pages/agencies/TeamManagement';
 import ApplicationDetailsPage from '../pages/applications/ApplicationDetails';
+import AcceptInvitePage from '../pages/auth/AcceptInvite';
+import AcceptInviteLoggedInPage from '../pages/auth/AcceptInviteLoggedIn';
 import ForgotPasswordPage from '../pages/auth/ForgotPassword';
+import HandleInvitePage from '../pages/auth/HandleInvite';
 import Login from '../pages/auth/Login';
 import RegisterAgency from '../pages/auth/RegisterAgency';
 import RegisterCandidate from '../pages/auth/RegisterCandidate';
@@ -36,6 +40,7 @@ import SubmitVerificationPage from '../pages/candidates/SubmitVerification';
 import JobDetailsPage from '../pages/jobs/JobDetails';
 import JobPipelinePage from '../pages/jobs/JobPipeline';
 import PublicJobDetailsPage from '../pages/jobs/PublicJobDetails';
+import LandingPage from '../pages/Landing';
 import InboxPage from '../pages/messaging/Inbox';
 
 const router = createBrowserRouter([
@@ -50,6 +55,9 @@ const router = createBrowserRouter([
       { path: '/register/agency', element: <RegisterAgency /> },
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
       { path: '/reset-password', element: <ResetPasswordPage /> },
+      { path: '/handle-invite', element: <HandleInvitePage /> },
+      { path: '/accept-invite', element: <AcceptInvitePage /> },
+      { path: '/accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
     ],
   },
   
@@ -60,7 +68,7 @@ const router = createBrowserRouter([
     children: [
       // Sub-Group for pages using the standard DashboardLayout
       {
-        element: <DashboardLayout />,
+        element: <RoleBasedLayout />,
         children: [
           // Candidate Dashboard Routes
           { path: 'dashboard/candidate', element: <CandidateDashboard /> },
@@ -69,10 +77,13 @@ const router = createBrowserRouter([
           { path: 'dashboard/candidate/applications', element: <MyApplicationsPage /> },
           { path: 'dashboard/candidate/verifications/submit', element: <SubmitVerificationPage /> },
           { path: 'dashboard/candidate/jobs/browse', element: <BrowseJobsPage /> },
+
           // Agency Dashboard Routes
           { path: 'dashboard/agency', element: <AgencyDashboard /> },
           { path: 'dashboard/agency/profile', element: <CompanyProfilePage /> },
           { path: 'dashboard/agency/profile/edit', element: <EditCompanyProfilePage /> },
+          { path: 'dashboard/agency/billing', element: <BillingPage /> },
+          { path: 'dashboard/agency/team', element: <TeamManagementPage /> },
           { path: 'dashboard/agency/jobs', element: <JobPostsPage /> },
           { path: 'dashboard/agency/jobs/create', element: <CreateJobPage /> },
           { path: 'dashboard/agency/:agencyId/jobs/:jobId/edit', element: <EditJobPage /> },
@@ -82,6 +93,12 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/candidates/shortlisted', element: <ShortlistedCandidatesPage /> },
           { path: 'dashboard/agency/candidates/:candidateId/profile', element: <PublicProfilePage /> }, // This was the agency-facing public profile
           { path: 'dashboard/agency/applications/:applicationId', element: <ApplicationDetailsPage /> },
+          
+          //Admin Dashboard Routes
+          { path: 'admin/dashboard', element: <AdminDashboard /> },
+          { path: 'admin/users', element: <ManageUsersPage /> },
+          { path: 'admin/verifications', element: <VerificationQueuePage /> },
+          { path: 'admin/verifications/:verificationId', element: <VerificationDetailsPage /> },
         ]
       },
       // Sub-Group for the full-page Inbox Layout
@@ -111,17 +128,6 @@ const router = createBrowserRouter([
         ]
       }
     ]
-  },
-  
-  // --- Group 3: Admin Routes ---
-  {
-    path: '/admin',
-    element: <AdminProtectedRoute />, // This guard also provides the AdminLayout
-    children: [
-      { index: true, path: 'dashboard', element: <AdminDashboard /> },
-      { path: 'users', element: <ManageUsersPage /> },
-      { path: 'verifications', element: <VerificationQueuePage /> },
-    ],
   },
 ]);
 

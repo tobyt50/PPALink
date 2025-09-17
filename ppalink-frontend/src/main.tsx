@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Toaster } from 'react-hot-toast'; // 1. Import Toaster here
+import { Toaster } from 'react-hot-toast';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './index.css';
@@ -12,11 +12,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <Toaster 
       position="top-center"
       reverseOrder={false}
+      gutter={8}
       toastOptions={{
-        duration: 3500, // Slightly longer duration
         style: {
-          background: '#1e293b', // bg-slate-800
-          color: '#fff',
+          background: '#ffffff', // White background
+          color: '#1e293b',      // Dark text (slate-800)
+          border: '1px solid #e2e8f0', // Light border (slate-200)
+          borderRadius: '8px',   // Slightly rounded corners
+          fontSize: '14px',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', // Subtle shadow
+        },
+        success: {
+          duration: 3000,
+        },
+        error: {
+          duration: 4000,
         },
       }}
     />

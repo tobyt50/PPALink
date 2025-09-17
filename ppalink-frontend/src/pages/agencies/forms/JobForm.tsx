@@ -3,14 +3,14 @@ import { ChevronDown, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Input } from '../../components/forms/Input';
-import { Button } from '../../components/ui/Button';
-import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
-import { Label } from '../../components/ui/Label';
-import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
-import apiClient from '../../config/axios';
-import { useDataStore } from '../../context/DataStore';
-import type { Position } from '../../types/job';
+import { Input } from '../../../components/forms/Input';
+import { Button } from '../../../components/ui/Button';
+import { DropdownTrigger } from '../../../components/ui/DropdownTrigger';
+import { Label } from '../../../components/ui/Label';
+import { SimpleDropdown, SimpleDropdownItem } from '../../../components/ui/SimpleDropdown';
+import apiClient from '../../../config/axios';
+import { useDataStore } from '../../../context/DataStore';
+import type { Position } from '../../../types/job';
 
 interface Lga {
   id: number;
@@ -189,11 +189,11 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
           </div>
           <div className="space-y-2">
             <Label htmlFor="minSalary">Minimum Salary (₦)</Label>
-            <Input id="minSalary" type="number" {...register('minSalary')} />
+            <Input id="minSalary" type="number" {...register('minSalary', { valueAsNumber: true })} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="maxSalary">Maximum Salary (₦)</Label>
-            <Input id="maxSalary" type="number" {...register('maxSalary')} />
+            <Input id="maxSalary" type="number" {...register('maxSalary', { valueAsNumber: true })} />
             {errors.maxSalary && <p className="text-xs text-red-600">{errors.maxSalary.message}</p>}
           </div>
           <div className="space-y-2">

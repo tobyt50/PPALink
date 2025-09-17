@@ -1,12 +1,23 @@
 import { create } from 'zustand';
 import apiClient from '../config/axios';
+import type { Industry } from '../types/agency';
 
-export interface Industry {
+export interface LocationState {
   id: number;
   name: string;
 }
 
-export interface LocationState {
+export interface University {
+  id: number;
+  name: string;
+}
+
+export interface Course {
+  id: number;
+  name: string;
+}
+
+export interface Degree {
   id: number;
   name: string;
 }
@@ -14,7 +25,10 @@ export interface LocationState {
 interface DataState {
   industries: Industry[];
   states: LocationState[];
-  isLoading: boolean; // 1. Add isLoading state
+  universities: University[];
+  courses: Course[];
+  degrees: Degree[];
+  isLoading: boolean;
   hasFetched: boolean;
   fetchLookupData: () => Promise<void>;
 }
@@ -22,31 +36,40 @@ interface DataState {
 export const useDataStore = create<DataState>((set, get) => ({
   industries: [],
   states: [],
-  isLoading: false, // 2. Initialize as false
+  universities: [],
+  courses: [],
+  degrees: [],
+  isLoading: false,
   hasFetched: false,
 
   fetchLookupData: async () => {
-    if (get().hasFetched || get().isLoading) { // Prevent re-fetch if already fetched or currently loading
+    if (get().hasFetched || get().isLoading) {
       return;
     }
 
-    set({ isLoading: true }); // 3. Set loading to true before the API call
+    set({ isLoading: true });
 
     try {
-      const [industriesRes, statesRes] = await Promise.all([
+      const [industriesRes, statesRes, unisRes, coursesRes, degreesRes] = await Promise.all([
         apiClient.get('/utils/industries'),
-        apiClient.get('/utils/location-states')
+        apiClient.get('/utils/location-states'),
+        apiClient.get('/utils/universities'),
+        apiClient.get('/utils/courses'),
+        apiClient.get('/utils/degrees'),
       ]);
 
       set({
         industries: industriesRes.data.data,
         states: statesRes.data.data,
+        universities: unisRes.data.data,
+        courses: coursesRes.data.data,
+        degrees: degreesRes.data.data,
         hasFetched: true,
       });
     } catch (error) {
       console.error("Failed to fetch lookup data:", error);
     } finally {
-      set({ isLoading: false }); // 4. Set loading to false after the call finishes (success or fail)
+      set({ isLoading: false });
     }
   },
 }));

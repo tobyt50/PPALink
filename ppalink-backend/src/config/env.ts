@@ -20,6 +20,10 @@ const envSchema = z.object({
   AWS_S3_REGION: z.string().min(1),
   AWS_S3_BUCKET_NAME: z.string().min(1),
   AWS_S3_ENDPOINT: z.string().url().optional(),
+
+  STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_"),
+  STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
 });
 
 const env = envSchema.parse(process.env);
