@@ -23,6 +23,7 @@ pnpm-debug.log*
 ppalink-backend/node_modules/
 ppalink-backend/dist/
 ppalink-backend/.env
+ppalink-backend/.env.production
 ppalink-backend/prisma/migrations/
 ppalink-backend/.turbo/
 ppalink-backend/.next/

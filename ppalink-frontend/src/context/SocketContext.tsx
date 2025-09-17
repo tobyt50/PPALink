@@ -2,7 +2,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import { useAuthStore } from './AuthContext';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+// Use Vercel env for prod, fallback for local dev
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -25,34 +27,29 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
-    // Only connect if the user is authenticated (has a token)
     if (token) {
-      // Create a new socket connection, passing the auth token
       const newSocket = io(API_URL, {
-        auth: {
-          token,
-        },
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
+        auth: { token },
       });
 
       newSocket.on('connect', () => {
-        console.log('Socket connected:', newSocket.id);
+        console.log('✅ Socket connected:', newSocket.id);
       });
 
-      // Listen for the list of online users from the server
       newSocket.on('online_users', (users: string[]) => {
         setOnlineUsers(users);
       });
 
       setSocket(newSocket);
 
-      // Cleanup on component unmount or when the token changes (logout)
       return () => {
         newSocket.off('online_users');
         newSocket.disconnect();
-        console.log('Socket disconnected');
+        console.log('❌ Socket disconnected');
       };
     } else {
-      // If there's no token, ensure any existing socket is disconnected
       if (socket) {
         socket.disconnect();
         setSocket(null);
