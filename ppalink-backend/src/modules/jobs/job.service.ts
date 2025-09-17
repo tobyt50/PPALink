@@ -178,16 +178,33 @@ export async function getPublicJobs() {
     where: {
       visibility: PositionVisibility.PUBLIC,
       status: PositionStatus.OPEN,
+      agency: {
+        // 2. The agency must have at least one active subscription
+        subscriptions: {
+          some: {
+            status: 'ACTIVE',
+            // 3. That subscription's plan must NOT be the "Free" plan (price > 0)
+            plan: {
+              price: {
+                gt: 0,
+              },
+            },
+          },
+        },
+      },
     },
     include: {
       // Include the agency's name to show who posted the job
       agency: {
         select: {
           name: true,
+          domainVerified: true,
+          cacVerified: true,
         },
       },
     },
     orderBy: {
+      // We can add logic here later to boost "Enterprise" (CAC Verified) jobs
       createdAt: 'desc', // Show the newest jobs first
     },
   });

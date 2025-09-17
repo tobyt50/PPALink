@@ -37,8 +37,6 @@ const BillingPage = () => {
     }
   };
 
-  // --- THIS IS THE FIX ---
-  // This handler will now correctly call the billing service.
   const handleManageSubscription = async () => {
     setIsProcessing('manage');
     try {
@@ -49,9 +47,7 @@ const BillingPage = () => {
       setIsProcessing(null);
     }
   };
-  // --- END OF FIX ---
-
-
+  
   if (status === 'success') {
     return <SubscriptionSuccessPage />;
   }

@@ -75,7 +75,7 @@ app.post(
   }
 );
 
-// Stripe Webhook Route (your main handler)
+// Stripe Webhook Route (main handler)
 app.post(
   '/api/billing/webhook',
   bodyParser.raw({ type: 'application/json' }),

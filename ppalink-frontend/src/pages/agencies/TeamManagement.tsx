@@ -10,38 +10,94 @@ import type { AgencyMember } from '../../types/user';
 import { InviteMemberFormModal, type InviteFormValues } from './forms/InviteMemberForm';
 
 const MemberRow = ({ member }: { member: AgencyMember }) => (
-    <tr>
-        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{member.user.candidateProfile?.firstName || member.user.email}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{member.user.email}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{member.role}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{member.user.status}</td>
-        <td className="relative whitespace-nowrap py-4 pr-6 text-right text-sm font-medium">
-            {/* Placeholder for future member actions like 'Remove' */}
-        </td>
-    </tr>
+  <tr>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-gray-900">
+      {member.user.candidateProfile?.firstName || member.user.email}
+    </td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">{member.user.email}</td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">{member.role}</td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">{member.user.status}</td>
+    <td className="relative whitespace-nowrap py-3 sm:py-4 pr-4 sm:pr-6 text-right text-sm font-medium" />
+  </tr>
 );
 
-const InvitationRow = ({ invitation, onRevoke }: { invitation: Invitation; onRevoke: () => void; }) => (
-    <tr>
-        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 italic">{invitation.email}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{invitation.email}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-            <span className="flex items-center"><Clock className="h-4 w-4 mr-2" /> Pending</span>
-        </td>
-        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Expires on {new Date(invitation.expiresAt).toLocaleDateString()}</td>
-        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={onRevoke}>
-                <Trash2 className="h-4 w-4 mr-1" />
-                Revoke
-            </Button>
-        </td>
-    </tr>
+const InvitationRow = ({ invitation, onRevoke }: { invitation: Invitation; onRevoke: () => void }) => (
+  <tr>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-gray-900 italic">
+      {invitation.email}
+    </td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">{invitation.email}</td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">
+      <span className="flex items-center">
+        <Clock className="h-4 w-4 mr-2" /> Pending
+      </span>
+    </td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">
+      Expires on {new Date(invitation.expiresAt).toLocaleDateString()}
+    </td>
+    <td className="whitespace-nowrap px-4 sm:px-6 py-3 sm:py-4 text-right text-sm font-medium">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-red-600 hover:text-red-700"
+        onClick={onRevoke}
+      >
+        <Trash2 className="h-4 w-4 mr-1" />
+        Revoke
+      </Button>
+    </td>
+  </tr>
+);
+
+const MemberCard = ({ member }: { member: AgencyMember }) => (
+  <div className="w-full rounded-lg border bg-white shadow-sm p-3">
+    <div className="flex items-center justify-between">
+      {/* Left side: name + email */}
+      <div className="space-y-1">
+        <p className="font-medium text-gray-900">
+          {member.user.candidateProfile?.firstName || member.user.email}
+        </p>
+        <p className="text-sm text-gray-500">{member.user.email}</p>
+      </div>
+
+      {/* Right side: role + status */}
+      <div className="text-right space-y-1">
+        <p className="text-sm text-gray-500">Role: {member.role}</p>
+        <p className="text-sm text-gray-500">Status: {member.user.status}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const InvitationCard = ({ invitation, onRevoke }: { invitation: Invitation; onRevoke: () => void }) => (
+  <div className="rounded-lg border p-4 shadow-sm bg-white">
+    <p className="font-medium text-gray-900 italic">{invitation.email}</p>
+    <p className="text-sm text-gray-500">Email: {invitation.email}</p>
+    <p className="text-sm text-gray-500 flex items-center">
+      <Clock className="h-4 w-4 mr-1" /> Pending
+    </p>
+    <p className="text-sm text-gray-500">
+      Expires on {new Date(invitation.expiresAt).toLocaleDateString()}
+    </p>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="mt-2 text-red-600 hover:text-red-700"
+      onClick={onRevoke}
+    >
+      <Trash2 className="h-4 w-4 mr-1" />
+      Revoke
+    </Button>
+  </div>
 );
 
 const TeamManagementPage = () => {
   const { data: agency, isLoading, error, refetch } = useFetch<Agency>('/agencies/me');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; invitation: Invitation | null }>({ isOpen: false, invitation: null });
+  const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; invitation: Invitation | null }>({
+    isOpen: false,
+    invitation: null,
+  });
 
   const handleSendInvite = async (data: InviteFormValues) => {
     const invitePromise = agencyService.sendInvitation(data.email);
@@ -58,14 +114,14 @@ const TeamManagementPage = () => {
   const openDeleteModal = (invitation: Invitation) => {
     setDeleteModalState({ isOpen: true, invitation });
   };
-  
+
   const closeDeleteModal = () => {
     setDeleteModalState({ isOpen: false, invitation: null });
   };
 
   const handleDeleteInvitation = async () => {
     if (!deleteModalState.invitation) return;
-    
+
     const deletePromise = agencyService.deleteInvitation(deleteModalState.invitation.id);
 
     await toast.promise(deletePromise, {
@@ -73,17 +129,25 @@ const TeamManagementPage = () => {
       success: () => {
         refetch();
         closeDeleteModal();
-        return "Invitation has been revoked.";
+        return 'Invitation has been revoked.';
       },
       error: (err) => {
         closeDeleteModal();
         return err.response?.data?.message || 'Failed to revoke invitation.';
-      }
+      },
     });
   };
 
-  if (isLoading) { return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>; }
-  if (error) { return <div className="text-center text-red-500 p-8">Could not load team data.</div>; }
+  if (isLoading) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  if (error) {
+    return <div className="text-center text-red-500 p-8">Could not load team data.</div>;
+  }
 
   const members = agency?.members || [];
   const invitations = agency?.invitations || [];
@@ -104,10 +168,10 @@ const TeamManagementPage = () => {
         confirmButtonText="Revoke"
         isDestructive={true}
       />
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-2 sm:px-4">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary-600">Team Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-primary-600">Team Management</h1>
             <p className="mt-1 text-gray-500">Invite and manage members of your agency.</p>
           </div>
           <Button onClick={() => setIsInviteModalOpen(true)}>
@@ -116,24 +180,76 @@ const TeamManagementPage = () => {
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+        {/* Desktop Table */}
+        <div className="hidden sm:block overflow-x-auto rounded-lg border bg-white shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Member</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Email</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Role</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Member
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Email
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Role
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Status
+                </th>
+                <th scope="col" className="relative px-4 sm:px-6 py-3">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {members.map((member) => <MemberRow key={member.id} member={member} />)}
-              {invitations.map((invitation) => <InvitationRow key={invitation.id} invitation={invitation} onRevoke={() => openDeleteModal(invitation)} />)}
+              {members.map((member) => (
+                <MemberRow key={member.id} member={member} />
+              ))}
+              {invitations.map((invitation) => (
+                <InvitationRow
+                  key={invitation.id}
+                  invitation={invitation}
+                  onRevoke={() => openDeleteModal(invitation)}
+                />
+              ))}
             </tbody>
           </table>
           {members.length === 0 && invitations.length === 0 && (
-               <div className="p-12 text-center text-gray-500">No team members or pending invitations found.</div>
+            <div className="p-12 text-center text-gray-500">
+              No team members or pending invitations found.
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="sm:hidden space-y-4">
+          {members.map((member) => (
+            <MemberCard key={member.id} member={member} />
+          ))}
+          {invitations.map((invitation) => (
+            <InvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              onRevoke={() => openDeleteModal(invitation)}
+            />
+          ))}
+          {members.length === 0 && invitations.length === 0 && (
+            <div className="p-6 text-center text-gray-500 rounded-lg border bg-white shadow-sm">
+              No team members or pending invitations found.
+            </div>
           )}
         </div>
       </div>

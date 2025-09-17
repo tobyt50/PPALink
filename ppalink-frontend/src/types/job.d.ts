@@ -22,9 +22,8 @@ export interface Position {
   createdAt: string;
   updatedAt: string;
   
-  // 3. Add the nested applications property
   // This will only be present when fetching the full pipeline
   applications?: Application[]; 
 
-  agency?: Pick<Agency, 'name'>;
+  agency?: Pick<Agency, 'id' | 'name' | 'domainVerified' | 'cacVerified'>;
 }

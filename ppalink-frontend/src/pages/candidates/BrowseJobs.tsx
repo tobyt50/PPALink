@@ -1,29 +1,48 @@
-import { Briefcase, Building, Loader2, Search } from 'lucide-react';
+import { Briefcase, Building, CheckCircle, Loader2, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import useFetch from '../../hooks/useFetch';
 import type { Position } from '../../types/job';
 
 // A reusable card to display a single job posting
-const JobCard = ({ job }: { job: Position }) => (
-  <Link to={`/jobs/${job.id}/details`} className="block p-4 border border-gray-200 bg-white rounded-lg transition-shadow hover:shadow-md">
-    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="flex-grow">
-            <p className="font-semibold text-primary-700">{job.title}</p>
-            <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                <span className="flex items-center"><Building className="h-4 w-4 mr-1.5" />{job.agency?.name}</span>
-                <span className="flex items-center"><Briefcase className="h-4 w-4 mr-1.5" />{job.employmentType}</span>
-            </div>
-        </div>
-        <div className="flex-shrink-0">
-             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${job.isRemote ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                {job.isRemote ? 'Remote' : 'On-site'}
-             </span>
-        </div>
-    </div>
-  </Link>
-);
+const JobCard = ({ job }: { job: Position }) => {
+  const agency = job.agency;
 
+  return (
+      <Link to={`/jobs/${job.id}/details`} className="block p-4 border border-gray-200 bg-white rounded-lg transition-shadow hover:shadow-md">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="flex-grow">
+                  <p className="font-semibold text-primary-700">{job.title}</p>
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                      <Building className="h-4 w-4" />
+                      <span>{agency?.name}</span>
+                      {/* 2. Add the verification badges */}
+                      {agency?.cacVerified && (
+                          <span className="flex items-center text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              CAC Verified
+                          </span>
+                      )}
+                      {agency?.domainVerified && !agency.cacVerified && (
+                           <span className="flex items-center text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Verified Domain
+                          </span>
+                      )}
+                  </div>
+              </div>
+              <div className="flex-shrink-0">
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${job.isRemote ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {job.isRemote ? 'Remote' : 'On-site'}
+                  </span>
+              </div>
+          </div>
+          <div className="flex items-center space-x-4 text-sm text-gray-500 mt-3 pt-3 border-t">
+              <span>{job.employmentType}</span>
+          </div>
+      </Link>
+  );
+};
 
 const BrowseJobsPage = () => {
   const { data: jobs, isLoading, error } = useFetch<Position[]>('/public/jobs');
