@@ -16,18 +16,14 @@ interface SimpleDropdownProps {
   onSelectIndustry?: (industryId: number | null) => void;
 }
 
-// 1. Create a Context to share the `setIsOpen` function.
-// This is a cleaner way to allow child components to control the state of the parent.
+// Context to allow child items to close the dropdown
 const DropdownContext = createContext<{
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 } | null>(null);
 
-// Custom hook for easy access to the context
 const useDropdown = () => {
   const context = useContext(DropdownContext);
-  if (!context) {
-    throw new Error('useDropdown must be used within a SimpleDropdown provider');
-  }
+  if (!context) throw new Error('useDropdown must be used within a SimpleDropdown provider');
   return context;
 };
 
@@ -43,6 +39,7 @@ export const SimpleDropdown = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -53,6 +50,7 @@ export const SimpleDropdown = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Determine drop-up or drop-down based on viewport space
   useEffect(() => {
     if (isOpen && dropdownRef.current && menuRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
@@ -60,12 +58,11 @@ export const SimpleDropdown = ({
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
       setDropUp(spaceBelow < menuHeight && spaceAbove > menuHeight);
-      
+
+      // Optional: auto-focus input in dropdown
       const timer = setTimeout(() => {
-        const searchInput = menuRef.current?.querySelector('input[type="text"]');
-        if (searchInput) {
-          (searchInput as HTMLInputElement).focus();
-        }
+        const input = menuRef.current?.querySelector('input[type="text"]');
+        if (input) (input as HTMLInputElement).focus();
       }, 50);
 
       return () => clearTimeout(timer);
@@ -95,12 +92,9 @@ export const SimpleDropdown = ({
   }, [industries, isIndustryDropdown]);
 
   return (
-    // 2. Provide the context value to all children.
     <DropdownContext.Provider value={{ setIsOpen }}>
       <div className="relative w-full text-left" ref={dropdownRef}>
-        <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
-          {trigger}
-        </div>
+        <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">{trigger}</div>
 
         <AnimatePresence>
           {isOpen && (
@@ -112,7 +106,7 @@ export const SimpleDropdown = ({
               transition={{ duration: 0.1, ease: 'easeOut' }}
               className={`origin-top-right absolute right-0 ${
                 dropUp ? 'bottom-full mb-2' : 'mt-2'
-              } min-w-full w-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1`}
+              } min-w-full w-auto rounded-2xl shadow-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1`}
             >
               <div
                 className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${
@@ -154,30 +148,23 @@ interface SimpleDropdownItemProps {
   children: React.ReactNode;
   onSelect?: () => void;
   className?: string;
-  // `setIsOpen` is no longer needed as a prop.
 }
 
-export const SimpleDropdownItem = ({
-  children,
-  onSelect,
-  className,
-}: SimpleDropdownItemProps) => {
-  // 3. Consume the context to get the `setIsOpen` function.
+export const SimpleDropdownItem = ({ children, onSelect, className }: SimpleDropdownItemProps) => {
   const { setIsOpen } = useDropdown();
 
   return (
     <a
       href="#"
-      className={`flex items-center px-3 py-2 text-sm rounded-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 whitespace-nowrap ${className}`}
+      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900 whitespace-nowrap ${className}`}
       role="menuitem"
       onClick={(e) => {
         e.preventDefault();
         if (onSelect) onSelect();
-        setIsOpen(false); // Close the dropdown on any item click.
+        setIsOpen(false);
       }}
     >
       {children}
     </a>
   );
 };
-

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth'; // Import our custom request type
-import { getCandidateProfileById, getCandidateProfileByUserId, getMyApplications, updateCandidateProfile } from './candidate.service';
+import { getCandidateProfileById, getCandidateProfileByUserId, getMyApplications, updateCandidateProfile, getCandidateDashboardData } from './candidate.service';
 import { UpdateCandidateProfileInput } from './candidate.types';
 
 /**
@@ -77,6 +77,19 @@ export async function getMyApplicationsHandler(req: AuthRequest, res: Response, 
   try {
     const applications = await getMyApplications(req.user.id);
     return res.status(200).json({ success: true, data: applications });
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function getCandidateDashboardDataHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const dashboardData = await getCandidateDashboardData(req.user.id);
+    res.status(200).json({ success: true, data: dashboardData });
   } catch (error: any) {
     if (error.message.includes('not found')) {
       return res.status(404).json({ success: false, message: error.message });

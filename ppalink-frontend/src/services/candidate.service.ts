@@ -25,6 +25,10 @@ class CandidateService {
   async updateMyProfile(payload: ProfileFormValues): Promise<CandidateProfile> {
     const payloadToSend: Record<string, any> = { ...payload };
 
+    // Since `ProfileFormValues` now sends `skills` as a simple string array (`string[]`),
+    // no special transformation is needed here. The payload can be sent directly,
+    // as the backend service has also been updated to handle an array of skill names.
+
     // This list now includes all optional fields from the comprehensive form.
     const keysToNullifyIfFalsy: Array<keyof ProfileFormValues> = [
       'phone', 'dob', 'gender', 'summary', 'linkedin', 'portfolio',
@@ -70,9 +74,6 @@ class CandidateService {
 
     // Include search query if present
     if (filters.q) params.append('q', filters.q);
-
-    // Debug log (can remove later)
-    console.log('searchCandidates -> GET', `/agencies/search/candidates?${params.toString()}`);
 
     const response = await apiClient.get(`/agencies/search/candidates?${params.toString()}`);
     return response.data.data;

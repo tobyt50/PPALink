@@ -1,38 +1,44 @@
-import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import * as React from 'react';
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
+import * as React from "react";
 
-// 1. Define the styling variants for the button using CVA
+// Reduced lift: hover:-translate-y-0.5 (instead of -translate-y-1)
 const buttonVariants = cva(
-  // Base classes applied to all buttons
-  'inline-flex items-center justify-center rounded-md text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  "inline-flex items-center justify-center font-semibold transition-transform transform hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none",
   {
     variants: {
       variant: {
-        primary: 'bg-primary-600 text-white hover:bg-primary-700/90 shadow-sm',
-        destructive: 'bg-red-500 text-white hover:bg-red-600/90 shadow-sm',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300/80 shadow-sm',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary-600 underline-offset-4 hover:underline',
+        primary:
+          "rounded-xl bg-gradient-to-r from-primary-600 to-green-500 text-white shadow-md hover:opacity-90 focus-visible:ring-primary-500",
+        destructive:
+          "rounded-xl bg-red-500 text-white shadow-md hover:bg-red-600/90 focus-visible:ring-red-400",
+        secondary:
+          "rounded-xl bg-gray-100 text-gray-800 hover:bg-gray-200 shadow-sm focus-visible:ring-gray-400",
+        outline:
+          "rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus-visible:ring-gray-400",
+        ghost:
+          "rounded-xl hover:bg-gray-100 text-gray-700 focus-visible:ring-gray-300",
+        link:
+          "text-primary-600 underline-offset-4 hover:underline focus-visible:ring-primary-400",
+        outlineTransparent: 
+          "rounded-xl border border-white bg-transparent text-white hover:bg-white hover:text-primary-600 focus-visible:ring-white"
+
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
+        sm: "h-9 px-3 text-sm",
+        default: "h-10 px-4 text-sm",
+        lg: "h-11 px-6 text-sm",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
-      variant: 'primary',
-      size: 'default',
+      variant: "primary",
+      size: "default",
     },
   }
 );
 
-// 2. Define the props interface for type safety
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -40,38 +46,41 @@ export interface ButtonProps
   isLoading?: boolean;
 }
 
-// 3. Create the component with forwardRef for accessibility and composition
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, isLoading = false, children, ...props }, ref) => {
-    
-    // Use Slot if asChild is true, allowing us to wrap other components
-    const Comp = asChild ? (Slot as React.ElementType) : 'button';
-    
-    // Wrap with framer-motion for animations
-    const MotionComp = motion(Comp);
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const Comp = asChild ? (Slot as React.ElementType) : "button";
 
     return (
-      <MotionComp
-        className={buttonVariants({ variant, size, className })}
+      <Comp
         ref={ref}
         disabled={isLoading || props.disabled}
-        // Framer Motion animation for a satisfying click effect
-        whileTap={{ scale: 0.97 }}
-        {...props}
+        className={buttonVariants({ variant, size, className })}
+        {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       >
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Please wait
+            Loading...
           </>
         ) : (
           children
         )}
-      </MotionComp>
+      </Comp>
     );
   }
 );
-Button.displayName = 'Button';
+
+Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

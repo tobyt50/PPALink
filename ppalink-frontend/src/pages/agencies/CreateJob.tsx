@@ -1,32 +1,35 @@
-import { Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import useFetch from '../../hooks/useFetch';
-import jobService from '../../services/job.service';
-import type { Agency } from '../../types/agency';
-import JobForm, { type JobFormValues } from './forms/JobForm';
+import { Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import useFetch from "../../hooks/useFetch";
+import jobService from "../../services/job.service";
+import type { Agency } from "../../types/agency";
+import JobForm, { type JobFormValues } from "./forms/JobForm";
 
 const CreateJobPage = () => {
   const navigate = useNavigate();
-  // Fetch the user's agency profile to get their agencyId
-  const { data: agency, isLoading, error } = useFetch<Agency>('/agencies/me');
+  const { data: agency, isLoading, error } = useFetch<Agency>("/agencies/me");
 
   const handleCreateJob = async (data: JobFormValues) => {
     if (!agency?.id) {
-      toast.error("Could not find your agency ID. Please ensure your profile is complete.");
+      toast.error(
+        "Could not find your agency ID. Please ensure your profile is complete."
+      );
       return;
     }
 
     try {
       await jobService.createJob(agency.id, data);
-      toast.success('Job posting created successfully!');
-      navigate('/dashboard/agency/jobs');
+      toast.success("Job posting created successfully!");
+      navigate("/dashboard/agency/jobs");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to create job posting.');
+      toast.error(
+        err.response?.data?.message || "Failed to create job posting."
+      );
     }
   };
 
-  // Show a loading state while we fetch the agency ID
+  // Loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-10">
@@ -35,18 +38,33 @@ const CreateJobPage = () => {
     );
   }
 
-  // Handle case where agency data fails to load
+  // Error state
   if (error || !agency) {
-     return <div className="text-center text-red-500 p-8">Could not load your agency information to create a job.</div>;
+    return (
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-8 text-center">
+          <p className="text-sm text-red-500 font-medium">
+            Could not load your agency information to create a job.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-primary-600">Create a New Job Posting</h1>
-        <p className="mt-1 text-gray-500">Describe the role and the ideal candidate you're looking for.</p>
+    <div className="mx-auto max-w-5xl space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          Create a New Job Posting
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Describe the role and the ideal candidate you're looking for.
+        </p>
       </div>
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
+
+      {/* Form Card */}
+      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
         <JobForm onSubmit={handleCreateJob} />
       </div>
     </div>

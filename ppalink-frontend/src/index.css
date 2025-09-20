@@ -1,89 +1,87 @@
 /* 1. Import fonts FIRST */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* 2. Then import Tailwind */
+
 @import "tailwindcss";
 
 /* 3. Define custom theme variables */
+
 @theme {
-  --color-primary-50: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #86efac;
-  --color-primary-400: #4ade80;
-  --color-primary-500: #22c55e;
-  --color-primary-600: #16a34a;
-  --color-primary-700: #15803d;
-  --color-primary-800: #166534;
-  --color-primary-900: #14532d;
-  --color-primary-950: #052e16;
-
-  --color-gray-50: #f8fafc;
-  --color-gray-100: #f1f5f9;
-  --color-gray-200: #e2e8f0;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-gray-500: #64748b;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1e293b;
-  --color-gray-900: #0f172a;
-
-  --font-sans: "Inter", system-ui, sans-serif;
+    --color-primary-50: #f0fdf4;
+    --color-primary-100: #dcfce7;
+    --color-primary-200: #bbf7d0;
+    --color-primary-300: #86efac;
+    --color-primary-400: #4ade80;
+    --color-primary-500: #22c55e;
+    --color-primary-600: #16a34a;
+    --color-primary-700: #15803d;
+    --color-primary-800: #166534;
+    --color-primary-900: #14532d;
+    --color-primary-950: #052e16;
+    --color-gray-50: #f8fafc;
+    --color-gray-100: #f1f5f9;
+    --color-gray-200: #e2e8f0;
+    --color-gray-300: #cbd5e1;
+    --color-gray-400: #94a3b8;
+    --color-gray-500: #64748b;
+    --color-gray-600: #475569;
+    --color-gray-700: #334155;
+    --color-gray-800: #1e293b;
+    --color-gray-900: #0f172a;
+    --font-sans: "Inter", system-ui, sans-serif;
 }
+
 
 /* 4. Base layer */
-@layer base {
-  body {
-    background-color: #f8fafc;
-    /* Tailwind bg-gray-50 */
-    color: #1f2937;
-    /* Tailwind text-gray-800 */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-sans);
-    /* Use the custom font family variable */
-  }
 
-  /* Ensure all links and buttons have pointer cursor */
-  a,
-  button {
-    @apply cursor-pointer;
-  }
+@layer base {
+    body {
+        background-color: #f8fafc;
+        /* Tailwind bg-gray-50 */
+        color: #1f2937;
+        /* Tailwind text-gray-800 */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: var(--font-sans);
+        /* Use the custom font family variable */
+    }
+    /* Ensure all links and buttons have pointer cursor */
+    a,
+    button {
+        @apply cursor-pointer;
+    }
 }
 
+
 /* 5. Utilities */
+
 @layer utilities {
-  .main-background {
-    background-color: #f8fafc;
-    background-image: radial-gradient(at 20% 10%, #f0fdf4 0px, transparent 50%),
-      radial-gradient(at 80% 90%, #f1f5f9 0px, transparent 50%);
-  }
-
-  /* Custom scrollbar styling (fallback if plugin not available) */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    /* gray-300 */
-    border-radius: 9999px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: #94a3b8;
-    /* gray-400 */
-  }
-
-  /* Firefox support */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-  }
+    .main-background {
+        background-color: #f8fafc;
+        background-image: radial-gradient(at 20% 10%, #f0fdf4 0px, transparent 50%), radial-gradient(at 80% 90%, #f1f5f9 0px, transparent 50%);
+    }
+    /* Custom scrollbar styling (fallback if plugin not available) */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        /* gray-300 */
+        border-radius: 9999px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+        /* gray-400 */
+    }
+    /* Firefox support */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
 }

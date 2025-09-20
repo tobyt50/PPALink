@@ -1,4 +1,4 @@
-import { GraduationCap, PlusCircle, Trash2 } from 'lucide-react';
+import { GraduationCap, Edit, PlusCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../../../components/ui/Button';
@@ -36,7 +36,7 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
       : experienceService.addEducation(data);
 
     await toast.promise(action, {
-      loading: selectedEducation ? 'Updating...' : 'Adding...',
+      loading: selectedEducation ? 'Updating record...' : 'Adding record...',
       success: () => {
         refetchProfile?.();
         setIsFormOpen(false);
@@ -50,7 +50,7 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
     if (!selectedEducation) return;
 
     await toast.promise(experienceService.deleteEducation(selectedEducation.id), {
-      loading: 'Deleting...',
+      loading: 'Deleting record...',
       success: () => {
         refetchProfile?.();
         setIsDeleteModalOpen(false);
@@ -73,45 +73,55 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="Delete Education Record"
-        description="Are you sure you want to delete this education record? This action cannot be undone."
+        description="Are you sure you want to delete this record? This action cannot be undone."
       />
 
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">Education</h2>
+      {/* Replicated Card Styling */}
+      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+        {/* Card Header */}
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Education</h2>
           {isOwner && (
-            <Button variant="ghost" size="sm" onClick={() => openFormModal()}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Education
+             <Button
+              variant="outline"
+              size="sm"
+              className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+              onClick={() => openFormModal()}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" /> Add
             </Button>
           )}
         </div>
-        <div className="mt-4 space-y-6">
+        
+        {/* Card Body */}
+        <div className="p-6">
           {educationHistory && educationHistory.length > 0 ? (
-            educationHistory.map((edu) => (
-              <div key={edu.id} className="flex">
-                <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <GraduationCap className="h-5 w-5 text-gray-500" />
+            <ul className="space-y-6">
+              {educationHistory.map((edu) => (
+                <li key={edu.id} className="relative flex items-start pr-16">
+                  <div className="flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center ring-4 ring-white">
+                      <GraduationCap className="h-6 w-6 text-primary-600" />
+                    </div>
                   </div>
-                </div>
-                <div className="ml-4 flex-grow">
-                  <p className="font-semibold text-gray-900">{edu.institution}</p>
-                  <p className="text-sm text-gray-600">{edu.degree}{edu.field ? `, ${edu.field}` : ''}</p>
-                  <p className="text-sm text-gray-400">{formatDate(edu.startDate)} - {formatDate(edu.endDate)}</p>
-                  {edu.grade && <p className="mt-1 text-sm text-gray-500">Grade: {edu.grade}</p>}
-                </div>
-                {isOwner && (
-                  <div className="flex-shrink-0 space-x-1">
-                    <Button variant="ghost" size="sm" onClick={() => openFormModal(edu)}>Edit</Button>
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => openDeleteModal(edu)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="ml-4 flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800">{edu.institution}</p>
+                    <p className="text-sm text-gray-600">{edu.degree}{edu.field ? `, ${edu.field}` : ''}</p>
+                    <p className="text-sm text-gray-400 mt-0.5">{formatDate(edu.startDate)} - {formatDate(edu.endDate)}</p>
+                    {edu.grade && <p className="mt-1 text-sm text-gray-500">Grade: {edu.grade}</p>}
                   </div>
-                )}
-              </div>
-            ))
+                  {isOwner && (
+                    // Removed opacity and hover classes to make buttons always visible
+                    <div className="absolute top-0 right-0 flex items-center -space-x-1">
+                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary-600" onClick={() => openFormModal(edu)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-red-600" onClick={() => openDeleteModal(edu)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
           ) : (
-            <p className="text-sm text-gray-400">No education history has been added yet.</p>
+            <p className="text-sm text-center text-gray-500 py-4">No education history has been added yet.</p>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { AlertCircle, CheckCircle, File as FileIcon, UploadCloud } from 'lucide-react';
 import React, { useRef, useState, type DragEvent } from 'react';
 import uploadService from '../../services/upload.service';
+import { Label } from '../ui/Label'; // Assuming a styled Label component exists
 
 interface FileUploadProps {
   uploadType: 'cv' | 'certificate' | 'nysc_document';
@@ -15,19 +16,12 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  
-  // --- DRAG AND DROP STATE ---
   const [isDragging, setIsDragging] = useState(false);
-  // ---
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reusable function to handle the file upload logic
   const handleFileUpload = async (file: File | null) => {
     if (!file) return;
-
-    // Optional: Add file type/size validation here
-    // if (file.size > 5 * 1024 * 1024) { ... } 
 
     setUploadStatus('uploading');
     setFileName(file.name);
@@ -60,9 +54,8 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
     handleFileUpload(event.target.files?.[0] || null);
   };
   
-  // --- DRAG AND DROP EVENT HANDLERS ---
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault(); // This is crucial to allow dropping
+    event.preventDefault();
     setIsDragging(true);
   };
 
@@ -76,64 +69,65 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
     setIsDragging(false);
     handleFileUpload(event.dataTransfer.files?.[0] || null);
   };
-  // ---
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      {/* Add the drag-and-drop event handlers to the dropzone div */}
+    <div className="space-y-2">
+      <Label htmlFor={`file-upload-${uploadType}`}>{label}</Label>
+      {/* Polished Dropzone */}
       <div 
-        className={`mt-1 flex justify-center rounded-md border-2 border-dashed px-6 pt-5 pb-6 transition-colors
-          ${isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300'}
-        `}
+        className={`relative flex w-full flex-col items-center justify-center rounded-xl border border-dashed p-8 transition-all
+          ${isDragging 
+            ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200' 
+            : 'border-gray-300 bg-white hover:border-primary-400'
+          }`
+        }
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()} // Make the whole area clickable
       >
-        <div className="space-y-1 text-center">
-          <UploadCloud className={`mx-auto h-12 w-12 ${isDragging ? 'text-primary-500' : 'text-gray-400'}`} />
-          <div className="flex text-sm text-gray-600">
-            <label
-              htmlFor={`file-upload-${uploadType}`}
-              className="relative cursor-pointer rounded-md bg-transparent font-medium text-primary-600 focus-within:outline-none hover:text-primary-500"
-            >
-              <span>Upload a file</span>
-              <input 
-                id={`file-upload-${uploadType}`} 
-                ref={fileInputRef}
-                name={`file-upload-${uploadType}`} 
-                type="file" 
-                className="sr-only" 
-                onChange={handleFileChange}
-              />
-            </label>
-            <p className="pl-1">or drag and drop</p>
-          </div>
-          <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 5MB</p>
+        <div className="text-center">
+          <UploadCloud className={`mx-auto h-10 w-10 transition-colors ${isDragging ? 'text-primary-500' : 'text-gray-400'}`} />
+          <p className="mt-3 text-sm text-gray-600">
+            <span className="font-semibold text-primary-600">Click to upload</span> or drag and drop
+          </p>
+          <p className="mt-1 text-xs text-gray-500">PDF, DOC, DOCX up to 5MB</p>
+          <input 
+            id={`file-upload-${uploadType}`} 
+            ref={fileInputRef}
+            name={`file-upload-${uploadType}`} 
+            type="file" 
+            className="sr-only" 
+            onChange={handleFileChange}
+            accept=".pdf,.doc,.docx" // Specify accepted file types
+          />
         </div>
       </div>
       
-      {/* The Upload Status Display remains unchanged */}
+      {/* Polished Upload Status Display */}
       {uploadStatus !== 'idle' && (
-         <div className="mt-4">
-          <div className="flex items-center text-sm">
-            <FileIcon className="h-5 w-5 text-gray-400 mr-2" />
-            <span className="truncate">{fileName}</span>
+         <div className="mt-4 rounded-lg bg-gray-50 p-3">
+          <div className="flex items-center text-sm font-medium text-gray-800">
+            <FileIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+            <span className="truncate flex-grow">{fileName}</span>
           </div>
           {uploadStatus === 'uploading' && (
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${progress}%` }}></div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+              <div 
+                className="bg-gradient-to-r from-primary-600 to-green-500 h-1.5 rounded-full transition-all duration-300" 
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
           )}
           {uploadStatus === 'success' && (
-             <div className="flex items-center text-green-600 mt-2">
-                <CheckCircle className="h-4 w-4 mr-1"/>
-                <span>Upload successful!</span>
+             <div className="flex items-center text-sm text-green-700 font-semibold mt-2">
+                <CheckCircle className="h-4 w-4 mr-1.5"/>
+                <span>Upload successful</span>
             </div>
           )}
            {uploadStatus === 'error' && (
-             <div className="flex items-center text-red-600 mt-2">
-                <AlertCircle className="h-4 w-4 mr-1"/>
+             <div className="flex items-center text-sm text-red-700 font-semibold mt-2">
+                <AlertCircle className="h-4 w-4 mr-1.5"/>
                 <span>{error}</span>
             </div>
           )}

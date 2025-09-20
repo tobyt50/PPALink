@@ -142,7 +142,7 @@ export async function getJobPipelineHandler(req: AuthRequest, res: Response, nex
  */
 export async function getPublicJobsHandler(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const jobs = await getPublicJobs();
+    const jobs = await getPublicJobs(req.query);
     return res.status(200).json({ success: true, data: jobs });
   } catch (error) {
     next(error);

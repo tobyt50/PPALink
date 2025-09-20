@@ -150,6 +150,7 @@ model Skill {
   name      String             @unique
   slug      String             @unique
   candidates CandidateSkill[]
+  positions PositionSkill[]
 }
 
 model CandidateCertificate {
@@ -186,6 +187,7 @@ model Agency {
   industryId         Int?
   industry           Industry?            @relation(fields: [industryId], references: [id])
   website       String?
+  domain        String?        @unique
   sizeRange     String?
   domainVerified Boolean       @default(false)
   cacVerified    Boolean       @default(false)
@@ -235,6 +237,7 @@ model Position {
   updatedAt    DateTime       @updatedAt
 
   applications Application[]
+  skills       PositionSkill[]
 }
 
 enum EmploymentType {
@@ -497,4 +500,13 @@ model Industry {
   updatedAt DateTime @updatedAt @default(now())
 
   agencies  Agency[]
+}
+
+model PositionSkill {
+  positionId String
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  skillId    Int
+  skill      Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([positionId, skillId]) // Composite primary key
 }

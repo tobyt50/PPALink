@@ -53,7 +53,7 @@ const AdminLayout = () => {
       <Navbar />
       <div className="flex flex-grow">
         <AdminSidebar />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50">
+        <main className="flex-1 p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5 bg-gray-50">
           <Outlet />
         </main>
       </div>

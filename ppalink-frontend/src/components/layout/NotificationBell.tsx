@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Bell } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -25,14 +25,13 @@ export const NotificationBell = () => {
     }
   };
 
-  // Initial fetch and real-time listener setup
   useEffect(() => {
-    refetch(); // Fetch on component mount
+    refetch();
 
     if (!socket) return;
 
     const handleNewNotification = (newNotification: Notification) => {
-      refetch(); // Refetch the list to include the new notification
+      refetch();
       toast.custom((t) => (
         <InteractiveToast
           t={t}
@@ -51,13 +50,13 @@ export const NotificationBell = () => {
     return () => {
       socket.off('new_notification', handleNewNotification);
     };
-  }, [socket]);
+  }, [socket, navigate]);
 
   const handleMarkAllAsRead = async () => {
     if (unreadCount === 0) return;
     try {
       await notificationService.markAllAsRead('GENERIC');
-      refetch(); // Refetch to show the updated "read" state
+      refetch();
     } catch (error) {
       toast.error('Failed to mark notifications as read.');
     }
@@ -67,6 +66,7 @@ export const NotificationBell = () => {
     if (!notif.read) {
       try {
         await notificationService.markOneAsRead(notif.id);
+        // Optimistically update the UI
         setNotifications((prev) =>
           prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
         );
@@ -77,11 +77,12 @@ export const NotificationBell = () => {
     navigate(notif.link || '#');
   };
 
+  // Polished Dropdown Trigger
   const DropdownTrigger = (
-    <button className="relative p-2 rounded-full hover:bg-gray-100">
+    <button className="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100/80 transition-colors focus:outline-none">
       <Bell className="h-5 w-5 text-gray-600" />
       {unreadCount > 0 && (
-        <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
+        <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
       )}
     </button>
   );
@@ -89,41 +90,51 @@ export const NotificationBell = () => {
   return (
     <BellDropdown
       trigger={DropdownTrigger}
-      widthClass="w-[16rem] md:w-[20rem]"
-      maxHeight="max-h-[16rem]"
+      widthClass="w-[22rem] sm:w-[24rem]"
+      maxHeight="max-h-[28rem]"
     >
-      <div className="p-3 flex justify-between items-center border-b">
-        <h3 className="font-semibold text-gray-800">Notifications</h3>
+      {/* Polished and Compact Header */}
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
+        <h3 className="font-semibold text-gray-900">Notifications</h3>
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="text-xs text-primary-600 hover:underline"
+            className="flex items-center text-xs font-medium text-primary-600 hover:text-primary-700 hover:underline"
           >
+            <Check className="h-3 w-3 mr-1" />
             Mark all as read
           </button>
         )}
       </div>
       {notifications.length > 0 ? (
         notifications.map((notif) => (
+          // Polished Item with reduced padding via className override
           <BellDropdownItem
             key={notif.id}
             onSelect={() => handleNotificationClick(notif)}
+            className="!px-3 !py-2.5" // Reduced padding
           >
-            <div
-              className={`block w-full p-1 ${
-                !notif.read ? 'bg-primary-50 rounded-md' : ''
-              }`}
-            >
-              <p className="text-sm text-gray-700">{notif.message}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                {formatDistanceToNow(new Date(notif.createdAt))} ago
-              </p>
+            <div className="flex items-start gap-3 w-full">
+              {/* Polished Unread Indicator */}
+              {!notif.read && (
+                 <div className="h-2 w-2 rounded-full bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
+              )}
+              {/* Read items have a placeholder for alignment */}
+              {notif.read && <div className="w-2 flex-shrink-0" />}
+
+              <div className="flex-grow">
+                <p className={`text-sm ${!notif.read ? 'font-semibold text-gray-800' : 'text-gray-600'}`}>{notif.message}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {formatDistanceToNow(new Date(notif.createdAt))} ago
+                </p>
+              </div>
             </div>
           </BellDropdownItem>
         ))
       ) : (
-        <div className="p-4 text-center text-sm text-gray-500">
-          You have no notifications.
+        // Polished Empty State
+        <div className="px-4 py-8 text-center text-sm text-gray-500">
+          You're all caught up!
         </div>
       )}
     </BellDropdown>

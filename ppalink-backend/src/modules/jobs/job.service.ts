@@ -2,58 +2,79 @@ import { PositionStatus, PositionVisibility } from '@prisma/client';
 import prisma from '../../config/db';
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
+async function connectOrCreateSkills(skillNames: string[]) {
+  // Use a transaction to find all skills at once
+  const skills = await prisma.skill.findMany({
+    where: { name: { in: skillNames, mode: 'insensitive' } },
+  });
+  
+  // Find which skills are new
+  const existingSkillNames = new Set(skills.map(s => s.name.toLowerCase()));
+  const newSkillsToCreate = skillNames
+    .filter(name => !existingSkillNames.has(name.toLowerCase()))
+    .map(name => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+
+  // Create new skills if any
+  if (newSkillsToCreate.length > 0) {
+      await prisma.skill.createMany({
+          data: newSkillsToCreate,
+          skipDuplicates: true,
+      });
+  }
+
+  // Get all skill IDs (both existing and newly created)
+  const allSkills = await prisma.skill.findMany({
+      where: { name: { in: skillNames, mode: 'insensitive' } }
+  });
+
+  // Note: PositionSkill doesn't have extra fields like `level`, so this is correct.
+  return allSkills.map(skill => ({ skillId: skill.id }));
+}
+
 /**
  * Creates a new job position for a given agency after verifying subscription limits.
  * @param agencyId The ID of the agency creating the job.
  * @param data The job position details.
  */
 export async function createJobPosition(agencyId: string, data: CreateJobPositionInput) {
-  // 1. Fetch the agency's current active subscription and its plan details
+  // ... (Subscription check logic remains the same)
   const agencySub = await prisma.agencySubscription.findFirst({
-    where: {
-      agencyId: agencyId,
-      status: 'ACTIVE',
-    },
-    include: {
-      plan: true, // Eagerly load the plan to get the jobPostLimit
-    },
+    where: { agencyId, status: 'ACTIVE' },
+    include: { plan: true },
   });
 
-  // If there's no active subscription, find the default "Free" plan
-  const plan = agencySub?.plan || await prisma.subscriptionPlan.findFirst({
-      where: { price: 0 }
-  });
+  const plan = agencySub?.plan || await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
 
   if (!plan) {
     throw new Error('Could not determine your subscription plan. Please contact support.');
   }
 
-  // 2. Check the plan's limit
   const { jobPostLimit } = plan;
 
-  // A limit of -1 means unlimited
   if (jobPostLimit !== -1) {
-    // 3. Count the number of currently OPEN jobs for the agency
     const currentOpenJobs = await prisma.position.count({
-      where: {
-        agencyId: agencyId,
-        status: PositionStatus.OPEN,
-      },
+      where: { agencyId, status: PositionStatus.OPEN },
     });
 
-    // 4. Enforce the limit
     if (currentOpenJobs >= jobPostLimit) {
       throw new Error(`Your "${plan.name}" plan is limited to ${jobPostLimit} open job(s). Please upgrade to post more.`);
     }
   }
 
-  // 5. If the check passes, create the job position
-  return prisma.position.create({
+  // Create the job position
+  const { skills: skillNames, ...positionData } = data;
+  
+  const position = await prisma.position.create({
     data: {
-      ...data,
+      ...positionData,
       agencyId,
+      skills: skillNames && skillNames.length > 0
+        ? { create: await connectOrCreateSkills(skillNames) }
+        : undefined,
     },
   });
+
+  return position;
 }
 
 /**
@@ -64,6 +85,8 @@ export async function getJobsByAgencyId(agencyId: string) {
   return prisma.position.findMany({
     where: { agencyId },
     orderBy: { createdAt: 'desc' },
+     // Note: Skills are not included here for performance on list views.
+     // If a list view needs skills, add the include block.
   });
 }
 
@@ -74,7 +97,15 @@ export async function getJobsByAgencyId(agencyId: string) {
  */
 export async function getJobById(jobId: string, agencyId: string) {
   return prisma.position.findUniqueOrThrow({
-    where: { id: jobId, agencyId }, // CRITICAL: Ensures agency owns the job
+    where: { id: jobId, agencyId },
+    // --- FIX: Include skills when fetching a job to edit ---
+    include: {
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+    },
   });
 }
 
@@ -85,11 +116,21 @@ export async function getJobById(jobId: string, agencyId: string) {
  * @param data The data to update.
  */
 export async function updateJobPosition(jobId: string, agencyId: string, data: UpdateJobPositionInput) {
-  // The where clause ensures an agency can't update another agency's job
-  return prisma.position.update({
+  const { skills: skillNames, ...positionData } = data;
+
+  const position = await prisma.position.update({
     where: { id: jobId, agencyId },
-    data,
+    data: {
+      ...positionData,
+      skills: skillNames
+        ? {
+            deleteMany: {},
+            create: await connectOrCreateSkills(skillNames),
+          }
+        : undefined,
+    },
   });
+  return position;
 }
 
 /**
@@ -105,7 +146,7 @@ export async function deleteJobPosition(jobId: string, agencyId: string) {
 
 /**
  * Retrieves a single job position by its ID, ensuring it belongs to the correct agency.
- * Throws an error if the job is not found or does not belong to the agency.
+ * This is the primary function for fetching a job to edit.
  * @param jobId The ID of the job position.
  * @param agencyId The ID of the agency that should own the job.
  */
@@ -113,7 +154,15 @@ export async function getJobByIdAndAgency(jobId: string, agencyId: string) {
   const job = await prisma.position.findUnique({
     where: { 
       id: jobId,
-      agencyId: agencyId, // This condition is crucial for security
+      agencyId: agencyId,
+    },
+    // --- FIX: Include skills when fetching a job to edit ---
+    include: {
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
     },
   });
 
@@ -126,7 +175,6 @@ export async function getJobByIdAndAgency(jobId: string, agencyId: string) {
 
 /**
  * Fetches a single job position by its ID, including all associated candidate applications.
- * Ensures the job belongs to the requesting agency for security.
  * @param jobId The ID of the job position.
  * @param agencyId The ID of the agency that owns the job.
  */
@@ -134,12 +182,16 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
   const job = await prisma.position.findUnique({
     where: {
       id: jobId,
-      agencyId: agencyId, // Security check
+      agencyId: agencyId,
     },
     include: {
-      // This is the key: include all applications for this job
+      // --- FIX: Also include the skills required for the job itself ---
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
       applications: {
-        // For each application, include the full candidate profile
         include: {
           candidate: {
             select: {
@@ -147,7 +199,7 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
               firstName: true,
               lastName: true,
               summary: true,
-              verificationLevel: true, // Include the verification level
+              verificationLevel: true,
               skills: {
                 include: {
                   skill: true,
@@ -157,7 +209,7 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
           },
         },
         orderBy: {
-          createdAt: 'desc', // Show newest applicants first
+          createdAt: 'desc',
         },
       },
     },
@@ -171,48 +223,37 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
 
 /**
  * Fetches all publicly visible and open job postings for candidates to browse.
- * Includes agency name for display.
+ * @param queryParams - An object containing potential search/filter keys like 'q'.
  */
-export async function getPublicJobs() {
+// job.service.ts (backend)
+export async function getPublicJobs(queryParams: any) {
+  const { q } = queryParams;
+  
+  const where: any = {
+    visibility: PositionVisibility.PUBLIC,
+    status: PositionStatus.OPEN,
+  };
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' } },
+      { agency: { name: { contains: q, mode: 'insensitive' } } },
+      { skills: { some: { skill: { name: { contains: q, mode: 'insensitive' } } } } },
+    ];
+  }
+
   return prisma.position.findMany({
-    where: {
-      visibility: PositionVisibility.PUBLIC,
-      status: PositionStatus.OPEN,
-      agency: {
-        // 2. The agency must have at least one active subscription
-        subscriptions: {
-          some: {
-            status: 'ACTIVE',
-            // 3. That subscription's plan must NOT be the "Free" plan (price > 0)
-            plan: {
-              price: {
-                gt: 0,
-              },
-            },
-          },
-        },
-      },
-    },
+    where,
     include: {
-      // Include the agency's name to show who posted the job
-      agency: {
-        select: {
-          name: true,
-          domainVerified: true,
-          cacVerified: true,
-        },
-      },
+      agency: { select: { name: true, domainVerified: true, cacVerified: true } },
+      skills: { include: { skill: true } },
     },
-    orderBy: {
-      // We can add logic here later to boost "Enterprise" (CAC Verified) jobs
-      createdAt: 'desc', // Show the newest jobs first
-    },
+    orderBy: { createdAt: 'desc' },
   });
 }
 
 /**
  * Fetches a single public job by its ID.
- * Ensures the job is PUBLIC and OPEN.
  * @param jobId The ID of the job position.
  */
 export async function getPublicJobById(jobId: string) {
@@ -224,9 +265,16 @@ export async function getPublicJobById(jobId: string) {
     },
     include: {
       agency: {
-        select: {
-          name: true,
-          id: true,
+        select: { 
+          id: true, 
+          name: true, 
+          domainVerified: true, 
+          cacVerified: true 
+        },
+      },
+      skills: {
+        include: {
+          skill: true,
         },
       },
     },

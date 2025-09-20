@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             background: '#ffffff', // White background
             color: '#1e293b',      // Dark text (slate-800)
             border: '1px solid #e2e8f0', // Light border (slate-200)
-            borderRadius: '8px',   // Slightly rounded corners
+            borderRadius: '12px',   // Slightly rounded corners
             fontSize: '14px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', // Subtle shadow
           },

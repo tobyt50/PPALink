@@ -5,6 +5,7 @@ import { requireRole } from '../../middleware/rbac';
 import { getSubscriptionPlansHandler } from '../billing/billing.controller';
 import { acceptInvitationSignUpHandler, verifyInvitationTokenHandler } from '../invitations/invitation.controller';
 import { getPublicJobByIdHandler, getPublicJobsHandler } from '../jobs/job.controller';
+import { finalizeDomainVerificationHandler } from '../verifications/domain.controller';
 
 const router = Router();
 
@@ -23,4 +24,8 @@ router.get('/invitations/verify/:token', verifyInvitationTokenHandler);
 
 // POST /api/public/invitations/accept
 router.post('/invitations/accept', acceptInvitationSignUpHandler);
+
+// POST /api/public/verify-domain-token
+router.post('/verify-domain-token', finalizeDomainVerificationHandler);
+
 export default router;

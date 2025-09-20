@@ -1,4 +1,4 @@
-import { Prisma, VerificationStatus, VerificationType } from '@prisma/client';
+import { Prisma, VerificationStatus, VerificationType, VerificationLevel } from '@prisma/client';
 import prisma from '../../config/db';
 
 /**
@@ -14,11 +14,17 @@ export async function getPendingVerifications() {
       user: {
         select: {
           email: true,
+          role: true,
           candidateProfile: {
             select: {
               firstName: true,
               lastName: true,
             },
+          },
+          ownedAgencies: {
+            select: {
+                name: true,
+            }
           },
         },
       },
@@ -31,6 +37,7 @@ export async function getPendingVerifications() {
 
 /**
  * Updates the status of a specific verification request.
+ * If the request is a CAC approval, it also updates the agency's status.
  * @param verificationId The ID of the verification to update.
  * @param newStatus The new status ('APPROVED' or 'REJECTED').
  * @param adminUserId The ID of the admin performing the action.
@@ -44,14 +51,51 @@ export async function updateVerificationStatus(
     throw new Error('Cannot set verification status back to PENDING.');
   }
 
-  return prisma.verification.update({
-    where: {
-      id: verificationId,
-    },
-    data: {
-      status: newStatus,
-      reviewedBy: adminUserId, // Record which admin reviewed the request
-    },
+  // Use a transaction to ensure both updates happen or neither do
+  return prisma.$transaction(async (tx) => {
+    // 1. Update the verification record itself
+    const verification = await tx.verification.update({
+      where: { id: verificationId },
+      data: {
+        status: newStatus,
+        reviewedBy: adminUserId,
+      },
+      include: {
+        user: { include: { ownedAgencies: true, candidateProfile: true } }
+      }
+    });
+
+    // 2. THIS IS THE NEW LOGIC: If a CAC request was approved, update the agency
+    if (verification.type === 'CAC' && newStatus === 'APPROVED' && verification.user.ownedAgencies.length > 0) {
+      const agencyId = verification.user.ownedAgencies[0].id;
+      await tx.agency.update({
+        where: { id: agencyId },
+        data: { cacVerified: true },
+      });
+    }
+
+    if (verification.user.candidateProfile) {
+        let newLevel = verification.user.candidateProfile.verificationLevel;
+
+        // You can create a hierarchy of verification here.
+        // For example, NYSC verification is a higher level than email.
+        if (verification.type === 'NYSC' && newLevel !== 'NYSC_VERIFIED') {
+          newLevel = VerificationLevel.NYSC_VERIFIED;
+        } else if (verification.type === 'CERTIFICATE' && newLevel !== 'CERTS_VERIFIED') {
+           // Add more levels as needed
+        }
+
+        // Update the candidate's main profile with the new status
+        await tx.candidateProfile.update({
+          where: { id: verification.user.candidateProfile.id },
+          data: {
+            isVerified: true, // Set the general verified flag
+            verificationLevel: newLevel,
+          },
+        });
+      }
+
+    return verification;
   });
 }
 
@@ -103,8 +147,8 @@ export async function getVerificationDetails(verificationId: string) {
       // Include the full user object
       user: {
         include: {
-          // And within the user, include their full candidate profile
-          candidateProfile: true,
+        candidateProfile: true,
+        ownedAgencies: true,
         },
       },
     },

@@ -1,6 +1,14 @@
 import type { Agency } from './agency';
 import type { Application } from './application';
 
+interface Skill {
+  id: number;
+  name: string;
+}
+interface PositionSkill {
+  skill: Skill;
+}
+
 export type EmploymentType = 'INTERN' | 'NYSC' | 'FULLTIME' | 'PARTTIME' | 'CONTRACT';
 export type PositionVisibility = 'PUBLIC' | 'PRIVATE';
 export type PositionStatus = 'DRAFT' | 'OPEN' | 'CLOSED';
@@ -16,13 +24,12 @@ export interface Position {
   lgaId: number | null;
   minSalary: number | null;
   maxSalary: number | null;
-  skillsReq: any | null;
   visibility: PositionVisibility;
   status: PositionStatus;
   createdAt: string;
   updatedAt: string;
   
-  // This will only be present when fetching the full pipeline
+  skills?: PositionSkill[];
   applications?: Application[]; 
 
   agency?: Pick<Agency, 'id' | 'name' | 'domainVerified' | 'cacVerified'>;

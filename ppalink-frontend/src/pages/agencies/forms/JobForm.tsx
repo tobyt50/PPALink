@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '../../../components/forms/Input';
 import { Button } from '../../../components/ui/Button';
@@ -17,6 +17,9 @@ interface Lga {
   name: string;
 }
 
+// --- THIS IS THE FIX ---
+// 1. We change `skillsReq` to `skills` to match the new model.
+// 2. The type is now `z.array(z.string())` as the backend expects an array of skill names.
 const jobFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
@@ -24,14 +27,14 @@ const jobFormSchema = z.object({
   isRemote: z.boolean(),
   stateId: z.number().int().positive().optional().nullable(),
   lgaId: z.number().int().positive().optional().nullable(),
-  minSalary: z.number().int().positive().optional().nullable(),
-  maxSalary: z.number().int().positive().optional().nullable(),
-  skillsReq: z.any().optional().nullable(),
+  minSalary: z.coerce.number().int().positive().optional().nullable(),
+  maxSalary: z.coerce.number().int().positive().optional().nullable(),
+  skills: z.array(z.string()), // Make skills required and always an array
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
   status: z.enum(['DRAFT', 'OPEN', 'CLOSED']),
 }).refine(
   (data) => {
-    if (data.maxSalary && data.minSalary) {
+    if (typeof data.maxSalary === 'number' && typeof data.minSalary === 'number') {
       return data.maxSalary >= data.minSalary;
     }
     return true;
@@ -41,6 +44,7 @@ const jobFormSchema = z.object({
     path: ['maxSalary'],
   }
 );
+// --- END OF FIX ---
 
 export type JobFormValues = z.infer<typeof jobFormSchema>;
 
@@ -66,7 +70,8 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<JobFormValues>({
-    resolver: zodResolver(jobFormSchema),
+    resolver: zodResolver(jobFormSchema) as any,
+    // 3. Update the default values to use the new `skills` field.
     defaultValues: {
       title: initialData?.title || '',
       description: initialData?.description || '',
@@ -74,18 +79,20 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
       isRemote: initialData?.isRemote || false,
       stateId: initialData?.stateId || undefined,
       lgaId: initialData?.lgaId || undefined,
-      minSalary: initialData?.minSalary || undefined,
-      maxSalary: initialData?.maxSalary || undefined,
-      skillsReq: Array.isArray(initialData?.skillsReq) ? initialData.skillsReq : [],
+      minSalary: initialData?.minSalary ?? undefined,
+      maxSalary: initialData?.maxSalary ?? undefined,
+      // Convert the array of skill objects into a simple array of strings.
+      skills: initialData?.skills?.map(s => s.skill.name) || [],
       visibility: initialData?.visibility || 'PUBLIC',
       status: initialData?.status || 'OPEN',
     },
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "skillsReq" });
+  // 4. Update the `useFieldArray` to point to the new `skills` field name.
+  const skills = watch("skills");
+
   const [skillInput, setSkillInput] = useState('');
   
-  const watchedSkills = watch('skillsReq');
   const watchedStateId = watch('stateId');
   const watchedLgaId = watch('lgaId');
   const watchedEmploymentType = watch('employmentType');
@@ -96,13 +103,19 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
   const selectedLgaName = lgas.find(l => l.id === watchedLgaId)?.name || 'Select an LGA...';
   
   const addSkill = () => {
-    if (skillInput.trim() === '' || (watchedSkills && watchedSkills.includes(skillInput.trim()))) {
+    const normalized = skillInput.trim();
+    if (!normalized || (skills || []).includes(normalized)) {
       setSkillInput('');
       return;
     }
-    append(skillInput.trim());
+    setValue("skills", [...(skills || []), normalized]);
     setSkillInput('');
   };
+  
+  const removeSkill = (index: number) => {
+    setValue("skills", skills.filter((_, i) => i !== index));
+  };
+  
 
   useEffect(() => {
     if (initialData) {
@@ -112,7 +125,8 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
         maxSalary: initialData.maxSalary || undefined,
         stateId: initialData.stateId || undefined,
         lgaId: initialData.lgaId || undefined,
-        skillsReq: Array.isArray(initialData.skillsReq) ? initialData.skillsReq as string[] : [],
+        // 5. Ensure the reset function also uses the new `skills` field.
+        skills: initialData.skills?.map(s => s.skill.name) || [],
       });
     }
   }, [initialData, reset]);
@@ -242,28 +256,48 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
       </section>
       
       <section className="space-y-2">
-        <h3 className="text-lg font-semibold border-b pb-2">Skills Required</h3>
-        <div className="flex gap-2 pt-4">
-          <Input
-            value={skillInput}
-            onChange={(e) => setSkillInput(e.target.value)}
-            placeholder="Type a skill and press Enter"
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); }}}
-          />
-          <Button type="button" onClick={addSkill} variant="outline" className="justify-center">Add</Button>
-        </div>
-        <div className="flex flex-wrap gap-2 pt-2 min-h-[2.5rem]">
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-800">
-              <span>{watchedSkills[index]}</span>
-              <button type="button" onClick={() => remove(index)} className="text-primary-600 hover:text-primary-800">
-                <XCircle size={16} />
-              </button>
-            </div>
-          ))}
-        </div>
-        {errors.skillsReq && <p className="text-xs text-red-600">{errors.skillsReq.message || (errors.skillsReq as any)?.root?.message}</p>}
-      </section>
+  <h3 className="text-lg font-semibold border-b pb-2">Skills Required</h3>
+  <div className="flex gap-2 pt-4">
+    <Input
+      value={skillInput}
+      onChange={(e) => setSkillInput(e.target.value)}
+      placeholder="Type a skill and press Enter"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addSkill();
+        }
+      }}
+    />
+    <Button type="button" onClick={addSkill} variant="outline" className="justify-center">
+      Add
+    </Button>
+  </div>
+
+  <div className="flex flex-wrap gap-2 pt-2 min-h-[2.5rem]">
+    {skills?.map((skill, index) => (
+      <div
+        key={index}
+        className="flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-800"
+      >
+        <span>{skill}</span>
+        <button
+          type="button"
+          onClick={() => removeSkill(index)}
+          className="text-primary-600 hover:text-primary-800"
+        >
+          <XCircle size={16} />
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {errors.skills && (
+    <p className="text-xs text-red-600">
+      {errors.skills.message || (errors.skills as any)?.root?.message}
+    </p>
+  )}
+</section>
 
       <div className="flex justify-end pt-4">
         <Button type="submit" isLoading={isSubmitting} className="justify-center">

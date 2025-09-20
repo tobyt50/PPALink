@@ -5,27 +5,28 @@ import { Button } from '../../components/ui/Button';
 import { useDataStore } from '../../context/DataStore';
 import useFetch from '../../hooks/useFetch';
 import type { Agency } from '../../types/agency';
+import VerificationSection from './sections/VerificationSection';
 
+// Refined ProfileField for better alignment and readability
 const ProfileField = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value?: string | null }) => (
-  <div>
+  <div className="flex flex-col">
     <dt className="flex items-center text-sm font-medium text-gray-500">
       <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-2" />
       <span>{label}</span>
     </dt>
-    <dd className="mt-1 text-sm text-gray-900">
-      {value || <span className="text-gray-400">Not provided</span>}
+    <dd className="mt-1.5 text-sm font-medium text-gray-900 ml-7">
+      {value || <span className="text-gray-400 italic">Not provided</span>}
     </dd>
   </div>
 );
 
 const CompanyProfilePage = () => {
-  const { data: agency, isLoading, error } = useFetch<Agency>('/agencies/me');
-  // Get industries and states from the global store
+  const { data: agency, isLoading, error, refetch } = useFetch<Agency>('/agencies/me');
   const { industries, states } = useDataStore();
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
+      <div className="flex h-80 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
       </div>
     );
@@ -33,43 +34,71 @@ const CompanyProfilePage = () => {
 
   if (error || !agency) {
     return (
-      <div className="rounded-lg border border-red-300 bg-red-50 p-6 text-center text-red-800">
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">
         <h3 className="text-lg font-semibold">Could Not Load Agency Profile</h3>
-        <p className="mt-1 text-sm">{error || 'An unexpected error occurred.'}</p>
+        <p className="mt-2 text-sm">{error?.toString() || 'An unexpected error occurred.'}</p>
       </div>
     );
   }
 
-  // Perform the lookup using data from the global store
   const industryName = industries.find(ind => ind.id === agency.industryId)?.name;
   const stateName = states.find(st => st.id === agency.headquartersStateId)?.name;
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="space-y-5">
+      {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary-600">{agency.name}</h1>
-          <p className="mt-1 text-gray-500">View and manage your company's details.</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            {agency.name}
+          </h1>
+          <p className="mt-2 text-gray-600">
+            View and manage your company's details.
+          </p>
         </div>
         <Link to="/dashboard/agency/profile/edit">
-          <Button size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Profile
           </Button>
         </Link>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-lg border bg-white shadow-sm">
-        <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-800">Company Information</h2>
-          <dl className="mt-6 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-            <ProfileField icon={Building2} label="Legal Name" value={agency.name} />
-            <ProfileField icon={Hash} label="RC Number" value={agency.rcNumber} />
-            <ProfileField icon={Briefcase} label="Industry" value={industryName} />
-            <ProfileField icon={Globe} label="Website" value={agency.website} />
-            <ProfileField icon={Users} label="Company Size" value={agency.sizeRange} />
-            <ProfileField icon={MapPin} label="Headquarters" value={stateName} />
-          </dl>
+      {/* Main Content Area with replicated card styling */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Left Column: Company Info */}
+        <div className="lg:col-span-2">
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900">Company Information</h2>
+                </div>
+                <div className="p-6">
+                    <dl className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                        <ProfileField icon={Building2} label="Legal Name" value={agency.name} />
+                        <ProfileField icon={Hash} label="RC Number" value={agency.rcNumber} />
+                        <ProfileField icon={Briefcase} label="Industry" value={industryName} />
+                        <ProfileField icon={Globe} label="Website" value={agency.website} />
+                        <ProfileField icon={Users} label="Company Size" value={agency.sizeRange} />
+                        <ProfileField icon={MapPin} label="Headquarters" value={stateName} />
+                    </dl>
+                </div>
+            </div>
+        </div>
+        
+        {/* Right Column: Verification */}
+        <div className="lg:col-span-1">
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900">Verification Status</h2>
+                </div>
+                <div className="p-6">
+                    <VerificationSection agency={agency} refetch={refetch} />
+                </div>
+            </div>
         </div>
       </div>
     </div>

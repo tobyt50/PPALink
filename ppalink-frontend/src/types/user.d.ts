@@ -1,4 +1,5 @@
 import type { CandidateProfile } from './candidate';
+import type { Agency } from './agency';
 
 export type VerificationType = 'EMAIL' | 'DOMAIN' | 'CAC' | 'NYSC' | 'NIN' | 'CERTIFICATE';
 export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -15,11 +16,9 @@ export interface VerificationRequest {
   createdAt: string;
   user: {
     email: string;
+    role: 'ADMIN' | 'CANDIDATE' | 'AGENCY';
     candidateProfile: CandidateProfile | null;
-    candidateProfile: {
-      firstName: string;
-      lastName: string;
-    } | null;
+    ownedAgencies?: Agency[];
   };
 }
 

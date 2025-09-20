@@ -1,87 +1,151 @@
-import { Briefcase, Building, CheckCircle, Loader2, Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { EmptyState } from '../../components/ui/EmptyState';
-import useFetch from '../../hooks/useFetch';
-import type { Position } from '../../types/job';
+import { Briefcase, Building, CheckCircle, Globe, Loader2, MapPin, Search } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { useDataStore } from "../../context/DataStore";
+import { useDebounce } from "../../hooks/useDebounce";
+import useFetch from "../../hooks/useFetch";
+import type { Position } from "../../types/job";
+import { Input } from "../../components/forms/Input"; // ✅ using your styled Input
 
-// A reusable card to display a single job posting
 const JobCard = ({ job }: { job: Position }) => {
   const agency = job.agency;
+  const { states } = useDataStore();
+  const locationState = job.stateId ? states.find((s) => s.id === job.stateId)?.name : null;
 
   return (
-      <Link to={`/jobs/${job.id}/details`} className="block p-4 border border-gray-200 bg-white rounded-lg transition-shadow hover:shadow-md">
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-              <div className="flex-grow">
-                  <p className="font-semibold text-primary-700">{job.title}</p>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
-                      <Building className="h-4 w-4" />
-                      <span>{agency?.name}</span>
-                      {/* 2. Add the verification badges */}
-                      {agency?.cacVerified && (
-                          <span className="flex items-center text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              CAC Verified
-                          </span>
-                      )}
-                      {agency?.domainVerified && !agency.cacVerified && (
-                           <span className="flex items-center text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Verified Domain
-                          </span>
-                      )}
-                  </div>
-              </div>
-              <div className="flex-shrink-0">
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${job.isRemote ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {job.isRemote ? 'Remote' : 'On-site'}
-                  </span>
-              </div>
+    <Link
+      to={`/jobs/${job.id}/details`}
+      className="group block rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex-grow">
+          <p className="font-semibold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">
+            {job.title}
+          </p>
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-2 text-sm text-gray-600 mt-2">
+            <span className="flex items-center">
+              <Building className="h-4 w-4 mr-1.5 text-gray-400" />
+              {agency?.name}
+            </span>
+            {agency?.cacVerified && (
+              <span className="flex items-center text-xs font-medium text-green-800 bg-green-100 px-2.5 py-1 rounded-full">
+                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                CAC Verified
+              </span>
+            )}
+            {agency?.domainVerified && (
+              <span className="flex items-center text-xs font-medium text-blue-800 bg-blue-100 px-2.5 py-1 rounded-full">
+                <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                Verified Domain
+              </span>
+            )}
           </div>
-          <div className="flex items-center space-x-4 text-sm text-gray-500 mt-3 pt-3 border-t">
-              <span>{job.employmentType}</span>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 mt-4 pt-4 border-t border-gray-100">
+        <span className="flex items-center">
+          <Briefcase className="h-4 w-4 mr-1.5 text-gray-400" />
+          {job.employmentType}
+        </span>
+        <span className="flex items-center">
+          {job.isRemote ? (
+            <>
+              <Globe className="h-4 w-4 mr-1.5 text-gray-400" />
+              Remote
+            </>
+          ) : (
+            <>
+              <MapPin className="h-4 w-4 mr-1.5 text-gray-400" />
+              {locationState || "On-site"}
+            </>
+          )}
+        </span>
+
+        {job.skills && job.skills.length > 0 && (
+          <div className="flex items-center flex-wrap gap-2 pt-1">
+            {job.skills.slice(0, 2).map((positionSkill) => (
+              <span
+                key={positionSkill.skill.id}
+                className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700"
+              >
+                {positionSkill.skill.name}
+              </span>
+            ))}
+            {job.skills.length > 2 && (
+              <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                + {job.skills.length - 2} more
+              </span>
+            )}
           </div>
-      </Link>
+        )}
+      </div>
+    </Link>
   );
 };
 
 const BrowseJobsPage = () => {
-  const { data: jobs, isLoading, error } = useFetch<Position[]>('/public/jobs');
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const searchUrl = debouncedSearchQuery
+    ? `/public/jobs?q=${encodeURIComponent(debouncedSearchQuery)}`
+    : "/public/jobs";
+
+  const { data: jobs, isLoading, error } = useFetch<Position[]>(searchUrl);
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-primary-600">Browse Open Jobs</h1>
-        <p className="mt-1 text-gray-500">Find your next opportunity.</p>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          Browse Open Jobs
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Find your next opportunity from our verified network of companies.
+        </p>
       </div>
 
-      {/* Search Bar - Future Enhancement */}
-      <div className="mb-6">
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="search"
-            placeholder="Search by title, company, or skill (coming soon)..."
-            className="block w-full rounded-md border-gray-300 pl-10 shadow-sm sm:text-sm"
-            disabled
-          />
+      {/* ✅ Polished search input using Input component */}
+      <div>
+        <Input
+          type="search"
+          placeholder="Search by title, company, or skill..."
+          icon={Search}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {isLoading && (
+        <div className="flex justify-center p-20">
+          <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
         </div>
-      </div>
-
-      {isLoading && <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-      {error && <div className="text-center text-red-500 p-8">Could not load job listings.</div>}
+      )}
+      {error && (
+        <div className="text-center text-red-600 p-10 bg-red-50 rounded-lg">
+          Could not load job listings. Please try again.
+        </div>
+      )}
 
       {!isLoading && !error && jobs && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {jobs.length > 0 ? (
-            jobs.map(job => <JobCard key={job.id} job={job} />)
+            jobs.map((job) => <JobCard key={job.id} job={job} />)
           ) : (
-            <EmptyState
-              icon={Briefcase}
-              title="No Open Jobs at the Moment"
-              description="There are currently no public job postings available. Please check back later!"
-            />
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-8">
+              <EmptyState
+                icon={Briefcase}
+                title={
+                  debouncedSearchQuery ? "No Jobs Found" : "No Open Jobs at the Moment"
+                }
+                description={
+                  debouncedSearchQuery
+                    ? "Your search did not match any job postings. Try a different keyword."
+                    : "There are currently no public job postings available. Please check back later!"
+                }
+              />
+            </div>
           )}
         </div>
       )}

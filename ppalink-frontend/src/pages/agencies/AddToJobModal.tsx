@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Briefcase, ChevronDown, Loader2 } from 'lucide-react';
+import { Briefcase, ChevronDown, Loader2, PlusCircle } from 'lucide-react';
 import { Fragment, useMemo, useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
@@ -24,9 +24,9 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
     agencyId ? `/agencies/${agencyId}/jobs` : null
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedPositionId) {
-      onSubmit(selectedPositionId);
+      await onSubmit(selectedPositionId);
     }
   };
   
@@ -48,7 +48,8 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
+          {/* Updated backdrop for a more polished feel */}
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
@@ -61,34 +62,48 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 border-b pb-2 flex items-center">
-                  <Briefcase className="h-5 w-5 mr-2 text-primary-600" />
-                  Add Candidate to Job Pipeline
-                </Dialog.Title>
+              {/* Replicated card styling for the Dialog Panel */}
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+                {/* Modal Header */}
+                <div className="p-5 border-b border-gray-100 flex items-center">
+                   <Briefcase className="h-5 w-5 mr-3 text-primary-600" />
+                   <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">
+                    Add to Job Pipeline
+                  </Dialog.Title>
+                </div>
                 
-                <div className="mt-4">
+                {/* Modal Body */}
+                <div className="p-6">
                   {isLoadingJobs ? (
-                     <div className="flex justify-center items-center h-24">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
+                     <div className="flex justify-center items-center h-28">
+                        <Loader2 className="h-7 w-7 animate-spin text-primary-500" />
                      </div>
                   ) : !openJobs || openJobs.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      You have no open job postings. Please create one first.
-                    </p>
+                    <div className="text-center py-6">
+                        <p className="text-sm text-gray-600">
+                        You have no open job postings.
+                        </p>
+                        {/* Optionally, add a link to create a job */}
+                    </div>
                   ) : (
                     <div className="space-y-2">
-                      <label htmlFor="position" className="text-sm font-medium text-gray-700">Select an open position:</label>
+                      <label htmlFor="position" className="text-sm font-medium text-gray-700">Select an open position</label>
                       <SimpleDropdown
                         trigger={
-                          <DropdownTrigger>
+                          // Polished dropdown trigger
+                          <DropdownTrigger className="w-full rounded-lg border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-100">
                             <span className="truncate">{selectedJobTitle}</span>
-                            <ChevronDown className="h-4 w-4 opacity-50" />
+                            <ChevronDown className="h-4 w-4 text-gray-500" />
                           </DropdownTrigger>
                         }
                       >
                         {openJobs.map(job => (
-                          <SimpleDropdownItem key={job.id} onSelect={() => setSelectedPositionId(job.id)}>
+                          // Polished dropdown item with hover effect
+                          <SimpleDropdownItem 
+                            key={job.id} 
+                            onSelect={() => setSelectedPositionId(job.id)}
+                            className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 text-gray-700 group-hover:text-primary-600"
+                          >
                             {job.title}
                           </SimpleDropdownItem>
                         ))}
@@ -97,15 +112,19 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                   )}
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-2">
-                  <Button variant="outline" onClick={onClose}>
+                {/* Modal Footer */}
+                <div className="flex justify-end space-x-3 p-4 bg-gray-50 border-t border-gray-100">
+                  <Button variant="outline" size="sm" className="rounded-lg" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button
+                    size="sm"
                     onClick={handleSubmit}
                     disabled={!selectedPositionId || isLoadingJobs}
-                    className="justify-center"
+                    // Replicated primary button style
+                    className="rounded-lg shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition disabled:opacity-50"
                   >
+                    <PlusCircle className="mr-2 h-4 w-4" />
                     Add to Pipeline
                   </Button>
                 </div>

@@ -1,19 +1,23 @@
-import { Search, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { useDebounce } from '../../hooks/useDebounce';
-import useFetch from '../../hooks/useFetch';
-import candidateService, { type CandidateSearchParams } from '../../services/candidate.service';
-import type { Agency } from '../../types/agency';
-import type { CandidateProfile } from '../../types/candidate';
-import CandidateCard from './CandidateCard';
-import FilterSidebar, { type CandidateFilterValues } from './FilterSidebar';
-import { CandidateCardSkeleton } from './skeletons/CandidateCardSkeleton';
+import { Search, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { useDebounce } from "../../hooks/useDebounce";
+import useFetch from "../../hooks/useFetch";
+import candidateService, {
+  type CandidateSearchParams,
+} from "../../services/candidate.service";
+import type { Agency } from "../../types/agency";
+import type { CandidateProfile } from "../../types/candidate";
+import CandidateCard from "./CandidateCard";
+import FilterSidebar, {
+  type CandidateFilterValues,
+} from "./FilterSidebar";
+import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
 
 const BrowseCandidatesPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<CandidateFilterValues | null>(null);
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +27,8 @@ const BrowseCandidatesPage = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   // fetch current agency (to know plan type)
-  const { data: agency, isLoading: isLoadingAgency } = useFetch<Agency>('/agencies/me');
+  const { data: agency, isLoading: isLoadingAgency } =
+    useFetch<Agency>("/agencies/me");
 
   useEffect(() => {
     const performSearch = async () => {
@@ -37,7 +42,8 @@ const BrowseCandidatesPage = () => {
       setHasSearched(true);
 
       try {
-        const isPaid = agency?.subscriptions?.[0]?.plan?.name?.toUpperCase() !== 'BASIC';
+        const isPaid =
+          agency?.subscriptions?.[0]?.plan?.name?.toUpperCase() !== "BASIC";
 
         const combinedFilters: CandidateSearchParams = {
           stateId: filters?.stateId ?? null,
@@ -54,13 +60,14 @@ const BrowseCandidatesPage = () => {
           q: debouncedSearchQuery?.trim() || undefined,
         };
 
-        // eslint-disable-next-line no-console
-        console.log('BrowseCandidates -> combinedFilters', combinedFilters);
-
-        const results = await candidateService.searchCandidates(combinedFilters);
+        const results =
+          await candidateService.searchCandidates(combinedFilters);
         setCandidates(results);
       } catch (error: any) {
-        toast.error(error.response?.data?.message || 'An error occurred while searching.');
+        toast.error(
+          error.response?.data?.message ||
+            "An error occurred while searching."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -74,28 +81,46 @@ const BrowseCandidatesPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-primary-600">Browse Candidates</h1>
-        <p className="mt-1 text-gray-500">Find the best talent for your open positions.</p>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            Browse Candidates
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Find the best talent for your open positions.
+          </p>
+        </div>
       </div>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-        <aside className="md:col-span-1">
-          <div className="sticky top-20 rounded-lg border bg-white p-4 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Filters</h2>
+
+      {/* Layout */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+        {/* Sidebar */}
+        <aside className="lg:col-span-1">
+          <div className="sticky top-20 rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5">
+            <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3 mb-4">
+              Filters
+            </h2>
             {isLoadingAgency ? (
               <div className="space-y-4">
-                <div className="h-10 bg-gray-200 rounded-md" />
-                <div className="h-20 bg-gray-200 rounded-md" />
+                <div className="h-10 bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-20 bg-gray-200 rounded-md animate-pulse" />
               </div>
             ) : (
-              <FilterSidebar onFilterChange={handleFilterChange} agency={agency} />
+              <FilterSidebar
+                onFilterChange={handleFilterChange}
+                agency={agency}
+              />
             )}
           </div>
         </aside>
-        <main className="md:col-span-3">
-          <div className="rounded-lg border bg-white shadow-sm">
-            <div className="border-b p-4">
+
+        {/* Main */}
+        <main className="lg:col-span-3">
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            {/* Search bar */}
+            <div className="p-5 border-b border-gray-100 bg-gray-50">
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <Search className="h-5 w-5 text-gray-400" />
@@ -103,35 +128,45 @@ const BrowseCandidatesPage = () => {
                 <input
                   type="search"
                   placeholder="Search by name, skill, university, or keyword..."
-                  className="block w-full rounded-md pl-10 sm:text-sm focus:ring-0 focus:outline-none"
+                  className="block w-full rounded-lg bg-transparent pl-10 pr-3 text-sm placeholder-gray-400 focus:ring-0 focus:outline-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
+
+            {/* Results */}
             {isLoading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 <CandidateCardSkeleton />
                 <CandidateCardSkeleton />
                 <CandidateCardSkeleton />
                 <CandidateCardSkeleton />
               </div>
             ) : !hasSearched ? (
-              <EmptyState
-                icon={Users}
-                title="Search for Candidates"
-                description="Use the keyword search or apply filters (state, batch, GPA, university, etc.) to find talent."
-              />
+              <div className="p-6">
+                <EmptyState
+                  icon={Users}
+                  title="Search for Candidates"
+                  description="Use the keyword search or apply filters (state, batch, GPA, university, etc.) to find talent."
+                />
+              </div>
             ) : candidates.length === 0 ? (
-              <EmptyState
-                icon={Users}
-                title="No Candidates Found"
-                description="Try a different search term or adjusting your filters."
-              />
+              <div className="p-6">
+                <EmptyState
+                  icon={Users}
+                  title="No Candidates Found"
+                  description="Try a different search term or adjusting your filters."
+                />
+              </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 {candidates.map((candidate) => (
-                  <Link key={candidate.id} to={`/dashboard/agency/candidates/${candidate.id}/profile`}>
+                  <Link
+                    key={candidate.id}
+                    to={`/dashboard/agency/candidates/${candidate.id}/profile`}
+                    className="block hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all rounded-xl"
+                  >
                     <CandidateCard candidate={candidate} />
                   </Link>
                 ))}

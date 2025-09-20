@@ -1,11 +1,23 @@
-import { Briefcase, ChevronLeft, Loader2, MapPin, Wallet } from 'lucide-react';
+import { Briefcase, Building, Calendar, CheckCircle, ChevronLeft, Globe, Loader2, MapPin, Tag, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
+import { useDataStore } from '../../context/DataStore';
 import useFetch from '../../hooks/useFetch';
 import applicationService from '../../services/application.service';
 import type { Position } from '../../types/job';
+
+// A small component for consistent key detail display
+const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string }) => (
+    <div>
+        <dt className="flex items-center text-sm font-medium text-gray-500">
+            <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-2" />
+            <span>{label}</span>
+        </dt>
+        <dd className="mt-1.5 text-sm font-medium text-gray-900 ml-7">{value}</dd>
+    </div>
+);
 
 const PublicJobDetailsPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -15,6 +27,7 @@ const PublicJobDetailsPage = () => {
     jobId ? `/public/jobs/${jobId}` : null
   );
 
+  const { states } = useDataStore();
   const [isApplying, setIsApplying] = useState(false);
 
   const handleApply = async () => {
@@ -23,72 +36,120 @@ const PublicJobDetailsPage = () => {
     setIsApplying(true);
     try {
       await applicationService.applyForJob(jobId);
-      toast.success("Your application has been submitted!");
-      // Redirect to the "My Applications" page to see the new entry
+      toast.success("Your application has been submitted successfully!");
       navigate('/dashboard/candidate/applications');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to submit application.");
+      toast.error(err.response?.data?.message || "Failed to submit your application.");
     } finally {
       setIsApplying(false);
     }
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
   }
   if (error || !job) {
-    return <div className="text-center text-red-500 p-8">Error loading job details. This job may no longer be available.</div>;
+    return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Error loading job details. This job may no longer be available.</div>;
   }
 
+  const locationState = job.isRemote ? 'Remote' : (job.stateId ? states.find(s => s.id === job.stateId)?.name : 'On-site');
+  const salaryDisplay = job.minSalary && job.maxSalary
+    ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}`
+    : job.minSalary
+    ? `From ₦${job.minSalary.toLocaleString()}`
+    : 'Not specified';
+
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <Link to="/dashboard/candidate/jobs/browse" className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700">
-          <ChevronLeft className="h-5 w-5 mr-1" />
+    <div className="mx-auto max-w-5xl space-y-5">
+      <div className="flex items-center justify-between">
+        <Link to="/dashboard/candidate/jobs/browse" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+          <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to All Jobs
         </Link>
       </div>
 
-      <div className="rounded-lg border bg-white shadow-sm">
-        <div className="p-6 border-b">
+      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+        {/* Card Header */}
+        <div className="p-6 border-b border-gray-100">
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-primary-600">{job.title}</h1>
-              <p className="mt-1 text-lg text-gray-700">{job.agency?.name}</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+                {job.title}
+              </h1>
+              {/* Polished Subtitle with Agency Name and Verification Badges */}
+              <div className="mt-2 flex items-center flex-wrap gap-x-3 gap-y-2 text-gray-600">
+                <span className="flex items-center text-sm">
+                  <Building className="h-4 w-4 mr-1.5 text-gray-400" />
+                  {job.agency?.name}
+                </span>
+                {/* --- THIS IS THE FIX: Verification Badges Restored --- */}
+                {job.agency?.cacVerified && (
+                  <span className="flex items-center text-xs font-medium text-green-800 bg-green-100 px-2.5 py-1 rounded-full">
+                    <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                    CAC Verified
+                  </span>
+                )}
+                {job.agency?.domainVerified && (
+                  <span className="flex items-center text-xs font-medium text-blue-800 bg-blue-100 px-2.5 py-1 rounded-full">
+                    <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                    Verified Domain
+                  </span>
+                )}
+                {/* --- END OF FIX --- */}
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              {/* 6. Wire up the button state */}
-              <Button size="lg" onClick={handleApply} isLoading={isApplying} disabled={isApplying}>
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <Button
+                size="lg"
+                onClick={handleApply}
+                isLoading={isApplying}
+                disabled={isApplying}
+                className="w-full rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+              >
                 Apply Now
               </Button>
             </div>
           </div>
         </div>
         
-        <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Left Column for Key Details */}
-            <div className="md:col-span-1 space-y-6 border-r-0 md:border-r pr-0 md:pr-6">
-                 <div className="flex items-start">
-                    <MapPin className="h-5 w-5 flex-shrink-0 text-gray-400 mt-1" />
-                    <div className="ml-3"><p className="text-sm font-medium text-gray-500">Location</p><p className="mt-1 text-base text-gray-800">{job.isRemote ? 'Remote' : 'On-site'}</p></div>
-                </div>
-                 <div className="flex items-start">
-                    <Briefcase className="h-5 w-5 flex-shrink-0 text-gray-400 mt-1" />
-                    <div className="ml-3"><p className="text-sm font-medium text-gray-500">Type</p><p className="mt-1 text-base text-gray-800">{job.employmentType}</p></div>
-                </div>
-                <div className="flex items-start">
-                    <Wallet className="h-5 w-5 flex-shrink-0 text-gray-400 mt-1" />
-                    <div className="ml-3"><p className="text-sm font-medium text-gray-500">Salary</p><p className="mt-1 text-base text-gray-800">{job.minSalary ? `₦${job.minSalary.toLocaleString()}` : 'Not specified'}</p></div>
-                </div>
+        {/* Card Body */}
+        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column for Key Details */}
+          <div className="lg:col-span-1 space-y-6">
+            <DetailItem icon={job.isRemote ? Globe : MapPin} label="Location" value={locationState || 'N/A'} />
+            <DetailItem icon={Briefcase} label="Type" value={job.employmentType} />
+            <DetailItem icon={Wallet} label="Salary" value={salaryDisplay} />
+            <DetailItem icon={Calendar} label="Date Posted" value={new Date(job.createdAt).toLocaleDateString()} />
+          </div>
+
+          {/* Right Column for Description & Skills */}
+          <div className="lg:col-span-2 space-y-8">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Full Job Description</h2>
+              <div className="prose prose-sm max-w-none mt-2 text-gray-600 whitespace-pre-wrap">
+                {job.description}
+              </div>
             </div>
 
-            {/* Right Column for Description */}
-            <div className="md:col-span-3">
-                 <h2 className="text-lg font-semibold text-gray-800">Full Job Description</h2>
-                 <div className="prose prose-sm max-w-none mt-2 text-gray-600 whitespace-pre-wrap">
-                    {job.description}
-                 </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Skills Required</h2>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {Array.isArray(job.skills) && job.skills.length > 0 ? (
+                  job.skills.map((positionSkill) => (
+                    <span
+                      key={positionSkill.skill.id}
+                      className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800"
+                    >
+                      <Tag className="h-4 w-4 mr-1.5" />
+                      {positionSkill.skill.name}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No specific skills listed.</p>
+                )}
+              </div>
             </div>
+          </div>
         </div>
       </div>
     </div>

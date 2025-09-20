@@ -9,17 +9,20 @@ interface ProfileFieldProps {
 }
 
 const ProfileField: React.FC<ProfileFieldProps> = ({ icon: Icon, label, value, children }) => {
-  const displayValue = value || <span className="text-gray-400">Not provided</span>;
+  const displayValue = value || <span className="text-gray-400 italic">Not provided</span>;
 
   return (
-    <div className="flex items-start">
-      <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 mt-0.5" />
-      <div className="ml-3">
-        <p className="text-sm font-medium text-gray-500">{label}</p>
-        <div className="mt-1 text-sm text-gray-800">
-          {children || displayValue}
-        </div>
-      </div>
+    // Uses a flex-col layout for better structure
+    <div className="flex flex-col">
+      {/* dt holds the icon and label on one line */}
+      <dt className="flex items-center text-sm font-medium text-gray-500">
+        <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-2" />
+        <span>{label}</span>
+      </dt>
+      {/* dd holds the value, indented to align with the label */}
+      <dd className="mt-1.5 text-sm font-medium text-gray-900 ml-7">
+        {children || displayValue}
+      </dd>
     </div>
   );
 };

@@ -1,5 +1,6 @@
-import type { LucideIcon } from 'lucide-react';
+import { X } from 'lucide-react';
 import { toast, type Toast } from 'react-hot-toast';
+import type { LucideIcon } from 'lucide-react';
 
 interface InteractiveToastProps {
   t: Toast;
@@ -8,7 +9,7 @@ interface InteractiveToastProps {
   title: string;
   message: string;
   link: string;
-  navigate: (to: string) => void; // navigate is now passed as a prop
+  navigate: (to: string) => void;
 }
 
 export const InteractiveToast = ({
@@ -26,33 +27,40 @@ export const InteractiveToast = ({
   };
 
   return (
+    // Polished Container: Rounded, Shadow, Ring, and Hover Effect
     <div
-      onClick={handleNavigate} // Make the whole toast clickable
+      onClick={handleNavigate}
       className={`${
         t.visible ? 'animate-enter' : 'animate-leave'
-      } max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 cursor-pointer`}
+      } w-full max-w-sm transform-gpu rounded-2xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all hover:bg-gray-50/70 cursor-pointer`}
     >
-      <div className="flex-1 w-0 p-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0 pt-0.5">
+      <div className="flex items-start p-4">
+        {/* Polished Icon Container */}
+        <div className="flex-shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <Icon className={`h-6 w-6 ${iconColorClass}`} aria-hidden="true" />
           </div>
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900">{title}</p>
-            <p className="mt-1 text-sm text-gray-500">{message}</p>
-          </div>
         </div>
-      </div>
-      <div className="flex border-l border-gray-200">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toast.dismiss(t.id);
-          }}
-          className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-primary-600 hover:text-primary-500"
-        >
-          Dismiss
-        </button>
+        
+        {/* Polished Typography and Layout */}
+        <div className="ml-4 flex-1">
+          <p className="text-sm font-semibold text-gray-900">{title}</p>
+          <p className="mt-1 text-sm text-gray-600">{message}</p>
+        </div>
+
+        {/* Polished Dismiss Button */}
+        <div className="ml-4 flex flex-shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.dismiss(t.id);
+            }}
+            className="inline-flex rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <span className="sr-only">Close</span>
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
   );

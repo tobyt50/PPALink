@@ -6,6 +6,6 @@ export interface SubscriptionPlan {
     currency: string;
     features: string[];
     stripePriceId: string;
-    
+    memberLimit: number;
     jobPostLimit: number;
   }

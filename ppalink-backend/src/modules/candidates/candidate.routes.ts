@@ -6,8 +6,8 @@ import { validate } from '../../middleware/validate';
 import { createCandidateApplicationHandler } from '../applications/application.controller';
 import experienceRoutes from '../experience/experience.routes';
 import { acceptInvitationLoggedInHandler } from '../invitations/invitation.controller';
-import { createVerificationSubmissionHandler } from '../verification/verification.controller';
-import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler } from './candidate.controller';
+import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
+import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler, getCandidateDashboardDataHandler } from './candidate.controller';
 import { UpdateCandidateProfileSchema } from './candidate.types';
 
 const router = Router();
@@ -68,6 +68,14 @@ router.post(
   '/invitations/accept',
   authenticate,
   acceptInvitationLoggedInHandler
+);
+
+// GET /api/candidates/me/dashboard
+router.get(
+  '/me/dashboard', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]), 
+  getCandidateDashboardDataHandler
 );
 
 // This will create routes like /api/candidates/me/experience

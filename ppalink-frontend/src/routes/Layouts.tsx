@@ -22,7 +22,7 @@ const DashboardLayout = () => {
           - 'flex-1': This makes the main content take up all available space.
           - 'p-4 sm:p-6 lg:p-8': Provides responsive padding for the content.
         */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5">
           {/* Outlet is where the specific dashboard pages will be rendered */}
           <Outlet />
         </main>

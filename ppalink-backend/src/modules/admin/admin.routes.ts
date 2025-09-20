@@ -2,7 +2,7 @@ import { Role } from '@prisma/client';
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
-import verificationRoutes from '../verification/verification.routes';
+import verificationRoutes from '../verifications/verification.routes';
 import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler } from './admin.controller';
 
 const router = Router();

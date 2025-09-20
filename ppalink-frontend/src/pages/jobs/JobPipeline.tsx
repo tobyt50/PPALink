@@ -10,6 +10,7 @@ import applicationService from '../../services/application.service';
 import type { Application, ApplicationStatus } from '../../types/application';
 import type { Position } from '../../types/job';
 
+// Replicated the polished styling for the Applicant Card
 const ApplicantCard = ({ application }: { application: Application }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: application.id });
 
@@ -17,33 +18,34 @@ const ApplicantCard = ({ application }: { application: Application }) => {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 10 : 'auto',
-    boxShadow: isDragging ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
+    boxShadow: isDragging ? '0 10px 20px -5px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)' : 'none',
   };
-  
+
   const { candidate } = application;
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="bg-white p-3 rounded-md border shadow-sm touch-none">
-      <Link to={`/dashboard/agency/applications/${application.id}`} className="block">
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
+      <Link 
+        to={`/dashboard/agency/applications/${application.id}`} 
+        className="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+      >
         <div className="flex items-start">
-            <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
-            <div className="ml-3">
-                <p className="font-semibold text-sm text-gray-800 hover:text-primary-600 transition-colors">
-                  {candidate.firstName} {candidate.lastName}
-                </p>
-                {/* --- THIS IS THE FIX: Verification Level Display --- */}
-                <div className="flex items-center text-xs text-gray-500 mt-1">
-                    <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
-                    {candidate.verificationLevel.replace('_', ' ')}
-                </div>
+          <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
+          <div className="ml-3">
+            <p className="font-semibold text-sm text-gray-800 group-hover:text-primary-600 transition-colors">
+              {candidate.firstName} {candidate.lastName}
+            </p>
+            <div className="flex items-center text-xs text-gray-500 mt-1">
+              <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+              {candidate.verificationLevel.replace('_', ' ')}
             </div>
+          </div>
         </div>
         
-        {/* --- THIS IS THE FIX: Top Skills Display --- */}
         <div className="mt-3 flex flex-wrap gap-1.5">
           {candidate.skills && candidate.skills.length > 0 ? (
             candidate.skills.slice(0, 2).map((skillInfo) => (
-              <span key={skillInfo.skill.id} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+              <span key={skillInfo.skill.id} className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
                 {skillInfo.skill.name}
               </span>
             ))
@@ -56,28 +58,40 @@ const ApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
+// Replicated the polished styling for the Pipeline Column
 const PipelineColumn = ({ title, status, applications }: { title: string; status: ApplicationStatus; applications: Application[] }) => {
   const applicationIds = useMemo(() => applications.map(app => app.id), [applications]);
   const { setNodeRef } = useSortable({ id: status });
 
   return (
-    <div ref={setNodeRef} className="bg-gray-100/70 rounded-lg p-3 flex-1 min-h-[400px] flex flex-col">
-      <h3 className="font-semibold text-gray-600 text-sm px-1 pb-2 border-b flex-shrink-0">{title} ({applications.length})</h3>
-      <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
-        <div className="space-y-2.5 mt-3 h-full overflow-y-auto p-1">
-          {applications.length > 0 ? (
-            applications.map(app => <ApplicantCard application={app} />)
-          ) : (
-             <div className="flex items-center justify-center h-full">
-                <p className="text-xs text-gray-400 text-center pt-4">Drop applicants here</p>
-             </div>
-          )}
+    <div
+  ref={setNodeRef}
+  className="rounded-2xl bg-gray-100 shadow-md ring-1 ring-gray-100 flex-1 min-h-[500px] flex flex-col overflow-hidden"
+>
+  <div className="p-5 border-b border-gray-200 flex-shrink-0">
+    <h2 className="text-lg font-semibold text-gray-900">
+      {title} ({applications.length})
+    </h2>
+  </div>
+  <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
+    <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto">
+      {applications.length > 0 ? (
+        applications.map((app) => (
+          <ApplicantCard key={app.id} application={app} />
+        ))
+      ) : (
+        <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200">
+          <p className="text-sm text-gray-500">Drop applicants here</p>
         </div>
-      </SortableContext>
+      )}
     </div>
+  </SortableContext>
+</div>
+
   );
 };
 
+// Main page component with updated layout and styling
 const JobPipelinePage = () => {
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
   const { data: job, isLoading, error } = useFetch<Position>(
@@ -95,7 +109,7 @@ const JobPipelinePage = () => {
       APPLIED: [], REVIEWING: [], INTERVIEW: [], OFFER: [], REJECTED: [], WITHDRAWN: [],
     };
     return applications.reduce((acc, app) => {
-      if (acc[app.status]) {
+      if (acc[app.status]) { 
         acc[app.status].push(app);
       }
       return acc;
@@ -129,10 +143,10 @@ const JobPipelinePage = () => {
             applicationService.updateApplicationStatus(applicationId, newStatus),
             {
                 loading: 'Updating status...',
-                success: 'Status updated!',
+                success: 'Status updated successfully!',
                 error: (err) => {
                     setApplications(job?.applications || []);
-                    return err.response?.data?.message || "Failed to update.";
+                    return err.response?.data?.message || "Failed to update status.";
                 }
             }
         );
@@ -141,28 +155,31 @@ const JobPipelinePage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    return <div className="flex items-center justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary-600" /></div>;
   }
   if (error || !job) {
-    return <div className="text-center text-red-500 p-8">Error loading job pipeline.</div>;
+    return <div className="text-center text-red-600 p-10 bg-red-50 rounded-lg">Error loading job pipeline. Please try again later.</div>;
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
-       <div className="mb-6">
-        <Link to="/dashboard/agency/jobs" className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700">
+    <div className="space-y-5">
+      <div className="mb-4">
+        <Link to="/dashboard/agency/jobs" className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700 transition-colors">
           <ChevronLeft className="h-5 w-5 mr-1" />
           Back to All Jobs
         </Link>
       </div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-primary-600">{job.title}</h1>
-        <p className="mt-1 text-gray-500">Applicant Pipeline</p>
+
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          {job.title}
+        </h1>
+        <p className="mt-2 text-gray-600">Drag and drop to manage your applicant pipeline.</p>
       </div>
     
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <SortableContext items={allApplicationIds}>
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 pt-2">
               <PipelineColumn title="Applied" status="APPLIED" applications={categorizedApps.APPLIED} />
               <PipelineColumn title="Reviewing" status="REVIEWING" applications={categorizedApps.REVIEWING} />
               <PipelineColumn title="Interview" status="INTERVIEW" applications={categorizedApps.INTERVIEW} />

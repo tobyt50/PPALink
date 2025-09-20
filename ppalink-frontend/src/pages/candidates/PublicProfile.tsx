@@ -1,4 +1,4 @@
-import { BadgeCheck, Briefcase, CheckCircle, ChevronDown, ChevronLeft, GraduationCap, Heart, Loader2, MapPin, Trash2, XCircle } from 'lucide-react';
+import { BadgeCheck, Briefcase, CheckCircle, ChevronDown, ChevronLeft, GraduationCap, Heart, Loader2, MapPin, Tag, Trash2, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
@@ -42,7 +42,7 @@ const PublicProfilePage = () => {
     try {
       await toast.promise(actionPromise, {
         loading: 'Processing...',
-        success: () => {
+        success: (_res) => {
           if (isShortlisted) {
             removeShortlistId(candidateId);
             return "Removed from shortlist.";
@@ -53,8 +53,6 @@ const PublicProfilePage = () => {
         },
         error: (err: any) => err.response?.data?.message || "An error occurred.",
       });
-    } catch (err: any) {
-      // Errors are handled by toast
     } finally {
       setIsProcessing(false);
     }
@@ -75,10 +73,10 @@ const PublicProfilePage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
   }
   if (error || !profile) {
-    return <div className="text-center text-red-500 p-8">Could not load candidate profile.</div>;
+    return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load candidate profile.</div>;
   }
   
   const locationState = states.find(s => s.id === profile.primaryStateId)?.name;
@@ -91,83 +89,99 @@ const PublicProfilePage = () => {
         onSubmit={handleAddToJob}
       />
 
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-6">
-          <Link to="/dashboard/agency/candidates/browse" className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700">
-            <ChevronLeft className="h-5 w-5 mr-1" />
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+           <Link to="/dashboard/agency/candidates/browse" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+            <ChevronLeft className="h-4 w-4 mr-1.5" />
             Back to Search Results
           </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="rounded-lg border bg-white p-6 shadow-sm flex items-center">
-              <div className="h-20 w-20 rounded-full bg-gray-200 flex-shrink-0" />
-              <div className="ml-5">
-                <h1 className="text-2xl font-bold text-primary-600">{profile.firstName} {profile.lastName}</h1>
-                <p className="text-gray-500">{locationState || 'Location not specified'}</p>
-              </div>
-              <div className="ml-auto">
-                <SimpleDropdown 
-                    trigger={
-                        <Button disabled={isProcessing}>
-                            {isProcessing ? 'Processing...' : 'Actions'}
-                            <ChevronDown className="h-4 w-4 ml-2" />
-                        </Button>
-                    }
-                >
-                    <SimpleDropdownItem onSelect={handleToggleShortlist}>
-                        {isShortlisted ? (
-                          <><Trash2 className="mr-2 h-4 w-4 text-red-500" /> Remove from Shortlist</>
-                        ) : (
-                          <><Heart className="mr-2 h-4 w-4 text-primary-500" /> Shortlist Candidate</>
-                        )}
-                    </SimpleDropdownItem>
-                    <SimpleDropdownItem onSelect={() => setIsAddToJobModalOpen(true)}>
-                        <Briefcase className="mr-2 h-4 w-4" /> Add to Job Pipeline
-                    </SimpleDropdownItem>
-                </SimpleDropdown>
+            {/* Profile Header Card */}
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
+              <div className="flex items-center">
+                <div className="h-24 w-24 rounded-full bg-gray-200 flex-shrink-0" />
+                <div className="ml-6">
+                  <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+                    {profile.firstName} {profile.lastName}
+                  </h1>
+                  <p className="mt-1 text-gray-600">{locationState || 'Location not specified'}</p>
+                </div>
+                <div className="ml-auto">
+                  <SimpleDropdown 
+                      trigger={
+                          <Button variant="outline" size="sm" className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50" disabled={isProcessing}>
+                              {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : 'Actions'}
+                              <ChevronDown className="h-4 w-4 ml-2" />
+                          </Button>
+                      }
+                  >
+                      <SimpleDropdownItem onSelect={handleToggleShortlist} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
+                          {isShortlisted ? (
+                            <><Trash2 className="mr-2 h-4 w-4 text-red-500" /> <span className="group-hover:text-primary-600">Remove from Shortlist</span></>
+                          ) : (
+                            <><Heart className="mr-2 h-4 w-4 text-primary-500" /> <span className="group-hover:text-primary-600">Shortlist Candidate</span></>
+                          )}
+                      </SimpleDropdownItem>
+                      <SimpleDropdownItem onSelect={() => setIsAddToJobModalOpen(true)} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
+                          <Briefcase className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600">Add to Job Pipeline</span>
+                      </SimpleDropdownItem>
+                  </SimpleDropdown>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-800">Professional Summary</h2>
-              <p className="mt-2 text-gray-600 whitespace-pre-wrap">{profile.summary || 'No summary provided.'}</p>
+            {/* Other sections in polished cards */}
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Professional Summary</h2></div>
+              <div className="p-6"><p className="text-gray-600 whitespace-pre-wrap">{profile.summary || 'No summary provided.'}</p></div>
             </div>
-            <WorkExperienceSection 
-            experiences={profile.workExperiences || []} 
-            isOwner={false} 
-            />
-            <EducationSection 
-            educationHistory={profile.education || []} 
-            isOwner={false} 
-            refetchProfile={refetch} 
-          />
+            
+            <WorkExperienceSection experiences={profile.workExperiences || []} isOwner={false} />
+            <EducationSection educationHistory={profile.education || []} isOwner={false} refetchProfile={refetch} />
           </div>
 
+          {/* Right Column */}
           <div className="lg:col-span-1 space-y-8">
-             <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-800">Details</h2>
-              <div className="mt-4 space-y-4">
+             <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Details</h2></div>
+              <div className="p-6 space-y-5">
                 <ProfileField icon={GraduationCap} label="Graduation Year" value={profile.graduationYear} />
                 <ProfileField icon={BadgeCheck} label="NYSC Batch" value={`${profile.nyscBatch || ''} ${profile.nyscStream || ''}`.trim()} />
                 <ProfileField icon={Briefcase} label="Minimum Salary" value={profile.salaryMin ? `₦${profile.salaryMin.toLocaleString()}` : null} />
                 <ProfileField icon={MapPin} label="Work Preferences">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col space-y-2 mt-1">
                     <span className={`inline-flex items-center text-sm font-medium ${profile.isRemote ? 'text-green-700' : 'text-gray-500'}`}>
-                      <CheckCircle className={`mr-1.5 h-4 w-4 ${profile.isRemote ? '' : 'hidden'}`} />
-                      <XCircle className={`mr-1.5 h-4 w-4 ${profile.isRemote ? 'hidden' : ''}`} />
+                      {profile.isRemote ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
                       Remote
                     </span>
                     <span className={`inline-flex items-center text-sm font-medium ${profile.isOpenToReloc ? 'text-green-700' : 'text-gray-500'}`}>
-                      <CheckCircle className={`mr-1.5 h-4 w-4 ${profile.isOpenToReloc ? '' : 'hidden'}`} />
-                      <XCircle className={`mr-1.5 h-4 w-4 ${profile.isOpenToReloc ? 'hidden' : ''}`} />
+                      {profile.isOpenToReloc ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
                       Relocation
                     </span>
                   </div>
                 </ProfileField>
               </div>
              </div>
+
+            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Skills</h2></div>
+                <div className="p-6 flex flex-wrap gap-2">
+                    {profile.skills && profile.skills.length > 0 ? (
+                        profile.skills.map(({ skill }) => (
+                        <span key={skill.id} className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                            <Tag className="h-4 w-4 mr-1.5" />
+                            {skill.name}
+                        </span>
+                        ))
+                    ) : (
+                        <p className="text-sm text-gray-500">No skills listed by the candidate.</p>
+                    )}
+                </div>
+            </div>
           </div>
         </div>
       </div>

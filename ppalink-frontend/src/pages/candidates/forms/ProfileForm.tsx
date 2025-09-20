@@ -1,18 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, XCircle } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { useState } from 'react';
 import { FileUpload } from '../../../components/forms/FileUpload';
 import { Input } from '../../../components/forms/Input';
 import { Button } from '../../../components/ui/Button';
 import { DropdownTrigger } from '../../../components/ui/DropdownTrigger';
 import { Label } from '../../../components/ui/Label';
 import { SimpleDropdown, SimpleDropdownItem } from '../../../components/ui/SimpleDropdown';
+import { useDataStore } from '../../../context/DataStore';
 import type { CandidateProfile } from '../../../types/candidate';
 import { NYSC_BATCHES, NYSC_STREAMS } from '../../../utils/constants';
 
 // --- Schema ---
+// 1. Changed skills to be an array of strings, like in JobForm.
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required.'),
   lastName: z.string().min(2, 'Last name is required.'),
@@ -30,11 +33,12 @@ const profileSchema = z.object({
   graduationYear: z.coerce.number().optional().nullable(),
   cvFileKey: z.string().optional().nullable(),
   nyscFileKey: z.string().optional().nullable(),
+  primaryStateId: z.coerce.number().optional().nullable(),
+  skills: z.array(z.string()).optional(), // Changed from z.array(z.object({ name: z.string() }))
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
-// Explicitly type resolver
 const resolver = zodResolver(profileSchema);
 
 interface ProfileFormProps {
@@ -44,6 +48,8 @@ interface ProfileFormProps {
 }
 
 const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' }: ProfileFormProps) => {
+  const { states } = useDataStore();
+
   const {
     register,
     handleSubmit,
@@ -51,8 +57,8 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
     control,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<z.input<typeof profileSchema>, any, ProfileFormValues>({
-    resolver,
+  } = useForm<ProfileFormValues>({
+    resolver: resolver as any,
     defaultValues: {
       firstName: initialData?.firstName || '',
       lastName: initialData?.lastName || '',
@@ -70,20 +76,52 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
       graduationYear: initialData?.graduationYear ?? undefined,
       cvFileKey: initialData?.cvFileKey ?? null,
       nyscFileKey: initialData?.nyscFileKey ?? null,
+      primaryStateId: initialData?.primaryStateId ?? undefined,
+      // 2. Updated default values to map to a simple string array.
+      skills: initialData?.skills?.map(s => s.skill.name) || [],
     },
   });
 
   const watchedNyscBatch = watch('nyscBatch');
   const watchedNyscStream = watch('nyscStream');
+  const watchedStateId = watch('primaryStateId');
+  const watchedSkills = watch('skills');
+
+  const selectedStateName = states.find(s => s.id === watchedStateId)?.name || 'Select State...';
+
+  // 3. Replaced `useFieldArray` with the same state management as JobForm.
+  const [skillInput, setSkillInput] = useState('');
+
+  const addSkill = () => {
+    const normalized = skillInput.trim();
+    if (!normalized) return;
+
+    // Prevent duplicates
+    if ((watchedSkills || []).includes(normalized)) {
+      setSkillInput('');
+      return;
+    }
+
+    setValue('skills', [...(watchedSkills || []), normalized], { shouldDirty: true });
+    setSkillInput('');
+  };
+
+  const removeSkill = (index: number) => {
+    setValue(
+      'skills',
+      watchedSkills?.filter((_, i) => i !== index) || [],
+      { shouldDirty: true }
+    );
+  };
 
   const handleCvUploadSuccess = (fileKey: string, _file: File) => {
     setValue('cvFileKey', fileKey, { shouldDirty: true });
-    toast.success("CV uploaded. Remember to save your changes.");
+    toast.success('CV uploaded. Remember to save your changes.');
   };
 
   const handleNyscUploadSuccess = (fileKey: string, _file: File) => {
     setValue('nyscFileKey', fileKey, { shouldDirty: true });
-    toast.success("NYSC document uploaded. Remember to save your changes.");
+    toast.success('NYSC document uploaded. Remember to save your changes.');
   };
 
   return (
@@ -146,7 +184,11 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
                   }
                 >
                   <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
-                  {NYSC_BATCHES.map(b => <SimpleDropdownItem key={b} onSelect={() => onChange(b)}>{b}</SimpleDropdownItem>)}
+                  {NYSC_BATCHES.map(b => (
+                    <SimpleDropdownItem key={b} onSelect={() => onChange(b)}>
+                      {b}
+                    </SimpleDropdownItem>
+                  ))}
                 </SimpleDropdown>
               )}
             />
@@ -167,7 +209,11 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
                   }
                 >
                   <SimpleDropdownItem onSelect={() => onChange('')}>Select...</SimpleDropdownItem>
-                  {NYSC_STREAMS.map(s => <SimpleDropdownItem key={s} onSelect={() => onChange(s)}>{s}</SimpleDropdownItem>)}
+                  {NYSC_STREAMS.map(s => (
+                    <SimpleDropdownItem key={s} onSelect={() => onChange(s)}>
+                      {s}
+                    </SimpleDropdownItem>
+                  ))}
                 </SimpleDropdown>
               )}
             />
@@ -180,13 +226,37 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
       </section>
 
-      {/* Job Preferences */}
+      {/* Job Preferences and Location */}
       <section className="space-y-6">
-        <h3 className="text-lg font-semibold border-b pb-2">Job Preferences</h3>
+        <h3 className="text-lg font-semibold border-b pb-2">Job Preferences & Location</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="salaryMin">Minimum Monthly Salary (₦)</Label>
             <Input id="salaryMin" type="number" placeholder="e.g., 150000" {...register('salaryMin')} />
+          </div>
+          <div className="space-y-2">
+            <Label>Primary State of Residence</Label>
+            <Controller
+              name="primaryStateId"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <SimpleDropdown
+                  trigger={
+                    <DropdownTrigger>
+                      <span className="truncate">{selectedStateName}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownTrigger>
+                  }
+                >
+                  <SimpleDropdownItem onSelect={() => onChange(null)}>Select State...</SimpleDropdownItem>
+                  {states.map(state => (
+                    <SimpleDropdownItem key={state.id} onSelect={() => onChange(state.id)}>
+                      {state.name}
+                    </SimpleDropdownItem>
+                  ))}
+                </SimpleDropdown>
+              )}
+            />
           </div>
         </div>
         <div className="flex items-center space-x-8">
@@ -197,6 +267,39 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
           <div className="flex items-center space-x-2">
             <input id="isOpenToReloc" type="checkbox" className="h-4 w-4 rounded" {...register('isOpenToReloc')} />
             <Label htmlFor="isOpenToReloc">Open to Relocation</Label>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Skills</h4>
+          <div className="flex gap-2">
+            <Input
+              value={skillInput}
+              onChange={e => setSkillInput(e.target.value)}
+              placeholder="Type a skill and press Enter"
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addSkill();
+                }
+              }}
+            />
+            <Button type="button" onClick={addSkill} variant="outline">
+              Add
+            </Button>
+          </div>
+          {/* 4. Updated skill rendering logic. */}
+          <div className="flex flex-wrap gap-2 pt-2 min-h-[2.5rem]">
+            {watchedSkills?.map((skill, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-800"
+              >
+                <span>{skill}</span>
+                <button type="button" onClick={() => removeSkill(index)}>
+                  <XCircle size={16} />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </section>

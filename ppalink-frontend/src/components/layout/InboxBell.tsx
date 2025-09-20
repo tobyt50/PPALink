@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Mail } from 'lucide-react';
+import { Mail, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -77,64 +77,69 @@ export const InboxBell = () => {
     navigate(notif.link || '/inbox');
   };
 
+  // Polished Dropdown Trigger
   const DropdownTrigger = (
-    <button className="relative p-2 rounded-full hover:bg-gray-100">
-      <Mail className="h-5 w-5 text-gray-600" />
-      {unreadMessageCount > 0 && (
-        <span className="absolute top-1.5 right-1.5 h-4 w-4 text-xs flex items-center justify-center rounded-full bg-red-500 text-white">
-          {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
-        </span>
-      )}
-    </button>
-  );
+  <button className="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100/80 transition-colors focus:outline-none">
+    <Mail className="h-5 w-5 text-gray-600" />
+    {unreadMessageCount > 0 && (
+      <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 text-white font-bold border-2 border-white">
+        {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+      </span>
+    )}
+  </button>
+);
 
   return (
-    // The onOpenChange prop is removed from the BellDropdown
     <BellDropdown
       trigger={DropdownTrigger}
-      widthClass="w-[16rem] md:w-[20rem]"
-      maxHeight="max-h-[16rem]"
+      widthClass="w-[22rem] sm:w-[24rem]"
+      maxHeight="max-h-[28rem]"
     >
-      <div className="p-3 border-b flex justify-between items-center">
-        <h3 className="font-semibold text-gray-800">Messages</h3>
+      {/* Polished and Compact Header */}
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
+        <h3 className="font-semibold text-gray-900">Messages</h3>
         {unreadMessageCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="text-xs text-primary-600 hover:underline"
+            className="flex items-center text-xs font-medium text-primary-600 hover:text-primary-700 hover:underline"
           >
+             <Check className="h-3 w-3 mr-1" />
             Mark all as read
           </button>
         )}
       </div>
       {notifications.length > 0 ? (
         notifications.map((notif) => (
+          // Polished Item with reduced padding
           <BellDropdownItem
             key={notif.id}
             onSelect={() => handleNotificationClick(notif)}
+            className="!px-3 !py-2.5"
           >
-            <div
-              className={`block w-full p-2 ${
-                !notif.read ? 'bg-primary-50 rounded-md' : ''
-              }`}
-            >
-              <p className={`text-sm truncate ${
-                !notif.read ? 'font-bold text-gray-900' : 'font-semibold text-gray-800'
-              }`}>
-                {notif.message.replace('You have a new message from ', '')}
-              </p>
-              <p className={`text-sm truncate ${
-                !notif.read ? 'font-semibold text-gray-700' : 'text-gray-600'
-              }`}>
-                {notif.meta?.lastMessage || 'Click to view message...'}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {formatDistanceToNow(new Date(notif.createdAt))} ago
-              </p>
+            <div className="flex items-start gap-3 w-full">
+               {/* Polished Unread Indicator */}
+              {!notif.read && (
+                 <div className="h-2 w-2 rounded-full bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
+              )}
+              {notif.read && <div className="w-2 flex-shrink-0" />}
+
+              <div className="flex-grow overflow-hidden">
+                <p className={`text-sm truncate ${!notif.read ? 'font-semibold text-gray-800' : 'font-medium text-gray-700'}`}>
+                  {notif.message.replace('You have a new message from ', '')}
+                </p>
+                <p className={`text-sm truncate mt-0.5 ${!notif.read ? 'text-gray-600' : 'text-gray-500'}`}>
+                  {notif.meta?.lastMessage || 'Click to view message...'}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {formatDistanceToNow(new Date(notif.createdAt))} ago
+                </p>
+              </div>
             </div>
           </BellDropdownItem>
         ))
       ) : (
-        <div className="p-4 text-center text-sm text-gray-500">
+        // Polished Empty State
+        <div className="px-4 py-8 text-center text-sm text-gray-500">
           You have no new messages.
         </div>
       )}

@@ -32,6 +32,7 @@ export interface Agency {
   industry?: Industry | null;
   website: string | null;
   sizeRange: string | null;
+  domain: string | null;
   domainVerified: boolean;
   cacVerified: boolean;
   logoKey: string | null;

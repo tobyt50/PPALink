@@ -2,6 +2,15 @@ import apiClient from '../config/axios';
 import type { CompanyProfileFormValues } from '../pages/agencies/forms/CompanyProfileForm';
 import type { Agency, Invitation } from '../types/agency';
 import type { CandidateProfile } from '../types/candidate';
+import type { VerificationRequest, VerificationType } from '../types/user';
+
+interface VerificationSubmissionPayload {
+  type: VerificationType;
+  evidence: {
+    fileKey: string;
+    fileName: string;
+  };
+}
 
 class AgencyService {
   async getMyAgency(): Promise<Agency> {
@@ -79,6 +88,28 @@ class AgencyService {
    */
   async deleteInvitation(invitationId: string): Promise<void> {
     await apiClient.delete(`/agencies/invitations/${invitationId}`);
+  }
+
+   /**
+   * Initiates the domain verification process for the logged-in agency.
+   * @param domain The domain name to verify.
+   */
+  async initiateDomainVerification(domain: string): Promise<{ message: string }> {
+    const response = await apiClient.post('/agencies/verify-domain', { domain });
+    return response.data;
+  }
+
+  async finalizeDomainVerification(token: string): Promise<void> {
+    await apiClient.post('/public/verify-domain-token', { token });
+  }
+
+  /**
+   * Submits a new verification request for the logged-in agency.
+   * @param payload The verification data to submit (e.g., for CAC).
+   */
+  async submitVerification(payload: VerificationSubmissionPayload): Promise<VerificationRequest> {
+    const response = await apiClient.post('/agencies/verifications', payload);
+    return response.data.data;
   }
 }
 

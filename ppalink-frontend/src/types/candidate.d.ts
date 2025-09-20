@@ -63,7 +63,7 @@ export interface CandidateProfile {
   cvFileKey: string | null;
   nyscFileKey: string | null;
   
-  skills?: CandidateSkill[]; // Optional because it's not always fetched
+  skills?: CandidateSkill[];
 
   user?: {
     id: string;

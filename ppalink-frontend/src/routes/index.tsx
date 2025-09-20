@@ -21,9 +21,12 @@ import EditJobPage from '../pages/agencies/EditJob';
 import JobPostsPage from '../pages/agencies/JobPosts';
 import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
 import TeamManagementPage from '../pages/agencies/TeamManagement';
+import AnalyticsPage from '../pages/agencies/Analytics';
 import ApplicationDetailsPage from '../pages/applications/ApplicationDetails';
 import AcceptInvitePage from '../pages/auth/AcceptInvite';
 import AcceptInviteLoggedInPage from '../pages/auth/AcceptInviteLoggedIn';
+import VerifyDomainPage from '../pages/agencies/VerifyDomain';
+import DomainVerificationResultPage from '../pages/agencies/DomainVerificationResult';
 import ForgotPasswordPage from '../pages/auth/ForgotPassword';
 import HandleInvitePage from '../pages/auth/HandleInvite';
 import Login from '../pages/auth/Login';
@@ -58,6 +61,8 @@ const router = createBrowserRouter([
       { path: '/handle-invite', element: <HandleInvitePage /> },
       { path: '/accept-invite', element: <AcceptInvitePage /> },
       { path: '/accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
+      { path: '/verify-domain', element: <VerifyDomainPage /> },
+      { path: '/verify-domain-result', element: <DomainVerificationResultPage /> },
     ],
   },
   
@@ -84,6 +89,7 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/profile/edit', element: <EditCompanyProfilePage /> },
           { path: 'dashboard/agency/billing', element: <BillingPage /> },
           { path: 'dashboard/agency/team', element: <TeamManagementPage /> },
+          { path: 'dashboard/agency/analytics', element: <AnalyticsPage /> },
           { path: 'dashboard/agency/jobs', element: <JobPostsPage /> },
           { path: 'dashboard/agency/jobs/create', element: <CreateJobPage /> },
           { path: 'dashboard/agency/:agencyId/jobs/:jobId/edit', element: <EditJobPage /> },
@@ -120,7 +126,7 @@ const router = createBrowserRouter([
         element: (
           <div className="min-h-screen flex flex-col main-background">
             <Navbar />
-            <main className="flex-grow p-4 sm:p-6 lg:p-8"><Outlet /></main>
+            <main className="flex-grow p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5"><Outlet /></main>
           </div>
         ),
         children: [

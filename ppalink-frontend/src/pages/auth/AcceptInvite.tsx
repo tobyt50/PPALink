@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -37,7 +37,7 @@ const AcceptInvitePage = () => {
   useEffect(() => {
     const verifyToken = async () => {
       if (!token) {
-        setError("Invitation token is missing.");
+        setError("Invitation token is missing or invalid.");
         setIsLoading(false);
         return;
       }
@@ -45,7 +45,7 @@ const AcceptInvitePage = () => {
         const { email: invitedEmail } = await invitationService.verifyToken(token);
         setEmail(invitedEmail);
       } catch (err: any) {
-        setError(err.response?.data?.message || "Invalid or expired invitation.");
+        setError(err.response?.data?.message || "This invitation is invalid or has expired.");
       } finally {
         setIsLoading(false);
       }
@@ -65,14 +65,15 @@ const AcceptInvitePage = () => {
       await invitationService.acceptInvite({ token, ...data });
       setIsSuccess(true);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to create account.");
+      toast.error(err.response?.data?.message || "Failed to create your account. Please try again.");
     }
   };
 
+  // Polished Page Wrapper
   const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-md">
-        <div className="rounded-xl border bg-white p-6 shadow-lg md:p-10">{children}</div>
+    <div className="flex min-h-[calc(100vh-150px)] items-center justify-center bg-gray-50 px-4 py-12">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
+        <div className="rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-black/5">{children}</div>
       </motion.div>
     </div>
   );
@@ -80,8 +81,8 @@ const AcceptInvitePage = () => {
   if (isLoading) {
     return (
       <PageWrapper>
-        <div className="flex justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex justify-center p-8">
+          <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
         </div>
       </PageWrapper>
     );
@@ -90,7 +91,13 @@ const AcceptInvitePage = () => {
   if (error) {
     return (
       <PageWrapper>
-        <div className="text-center text-red-500">{error}</div>
+        <div className="text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <h1 className="mt-4 text-xl font-semibold text-gray-900">Invitation Error</h1>
+            <p className="mt-2 text-sm text-red-600">{error}</p>
+        </div>
       </PageWrapper>
     );
   }
@@ -99,14 +106,18 @@ const AcceptInvitePage = () => {
     return (
       <PageWrapper>
         <div className="text-center">
-          <CheckCircle className="mx-auto h-12 w-12 text-primary-600" />
-          <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">Welcome Aboard!</h1>
+          <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
+          <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            Welcome Aboard!
+          </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Your account has been created. You can now log in and join your team.
+            Your account has been created successfully. You can now log in to join your team.
           </p>
-          <div className="mt-6">
+          <div className="mt-8">
             <Link to="/login">
-              <Button className="w-full">Proceed to Login</Button>
+              <Button size="lg" className="w-full rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition">
+                Proceed to Login
+              </Button>
             </Link>
           </div>
         </div>
@@ -117,41 +128,43 @@ const AcceptInvitePage = () => {
   return (
     <PageWrapper>
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-primary-600">Join Your Team</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          Join Your Team
+        </h1>
         <p className="mt-2 text-sm text-gray-600">Create your account to accept the invitation.</p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
-        <div className="space-y-1">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+        <div>
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" type="email" value={email || ''} disabled className="bg-gray-100" />
+          <Input id="email" type="email" value={email || ''} disabled className="mt-1 bg-gray-100 cursor-not-allowed" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
             <Label htmlFor="firstName">First Name</Label>
-            <Input id="firstName" {...register('firstName')} />
-            <p className="text-xs text-red-500 h-3">{errors.firstName?.message}</p>
+            <Input id="firstName" {...register('firstName')} className="mt-1" />
+            <p className="text-xs text-red-500 h-3 mt-1">{errors.firstName?.message}</p>
           </div>
-          <div className="space-y-1">
+          <div>
             <Label htmlFor="lastName">Last Name</Label>
-            <Input id="lastName" {...register('lastName')} />
-            <p className="text-xs text-red-500 h-3">{errors.lastName?.message}</p>
+            <Input id="lastName" {...register('lastName')} className="mt-1" />
+            <p className="text-xs text-red-500 h-3 mt-1">{errors.lastName?.message}</p>
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" {...register('password')} />
-          <p className="text-xs text-red-500 h-3">{errors.password?.message}</p>
+          <Input id="password" type="password" {...register('password')} className="mt-1" />
+          <p className="text-xs text-red-500 h-3 mt-1">{errors.password?.message}</p>
         </div>
 
-        <div className="space-y-1">
+        <div>
           <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input id="confirmPassword" type="password" {...register('confirmPassword')} />
-          <p className="text-xs text-red-500 h-3">{errors.confirmPassword?.message}</p>
+          <Input id="confirmPassword" type="password" {...register('confirmPassword')} className="mt-1" />
+          <p className="text-xs text-red-500 h-3 mt-1">{errors.confirmPassword?.message}</p>
         </div>
 
-        <Button type="submit" className="w-full" isLoading={isSubmitting} size="lg">
+        <Button type="submit" className="w-full rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition" isLoading={isSubmitting} size="lg">
           Create Account & Join
         </Button>
       </form>

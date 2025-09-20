@@ -11,7 +11,7 @@ export const createJobPositionSchema = z.object({
   lgaId: z.number().int().positive().optional().nullable(),
   minSalary: z.number().int().positive().optional().nullable(),
   maxSalary: z.number().int().positive().optional().nullable(),
-  skillsReq: z.any().optional().nullable(), // For JSON fields, `any` is a practical start
+  skills: z.any().optional().nullable(),
   visibility: z.nativeEnum(PositionVisibility),
   status: z.nativeEnum(PositionStatus).default(PositionStatus.OPEN),
 }).refine(data => {

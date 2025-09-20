@@ -1,17 +1,324 @@
+import {
+  ArrowRight,
+  Briefcase,
+  CheckCircle,
+  Eye,
+  Package,
+  PlusCircle,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { StatCard } from "../../components/ui/StatCard";
+import useFetch from "../../hooks/useFetch";
+import type { Agency } from "../../types/agency";
+import type { AgencyAnalyticsData, AgencyDashboardData } from "../../types/analytics";
+
+// Reusable TodoItem with hover transition
+const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
+  <li>
+    <Link
+      to={linkTo}
+      className="group block rounded-xl px-4 py-3 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-700 group-hover:text-primary-600">
+          {text}
+        </p>
+        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary-500" />
+      </div>
+    </Link>
+  </li>
+);
 
 const AgencyDashboard = () => {
+  const { data: dashboardData, isLoading: isLoadingDashboard } =
+    useFetch<AgencyDashboardData>("/agencies/dashboard");
+  const { data: analytics, isLoading: isLoadingAnalytics } =
+    useFetch<AgencyAnalyticsData>("/agencies/analytics");
+  const { data: agency, isLoading: isLoadingAgency } =
+    useFetch<Agency>("/agencies/me");
+
+  const isLoading = isLoadingDashboard || isLoadingAnalytics || isLoadingAgency;
+  const isPaidUser = analytics && analytics.planName !== "Free";
+  const stats = dashboardData?.stats;
+  const verification = dashboardData?.verificationStatus;
+  const memberCount = agency?.members?.length ?? 0;
+  const memberLimit = agency?.subscriptions?.[0]?.plan.memberLimit ?? 1;
+ 
   return (
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight text-primary-600">
-        Agency Dashboard
-      </h1>
-      <p className="mt-2 text-gray-600">Welcome! Manage your job postings and candidates here.</p>
-      
-      <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-800">Quick Stats</h2>
-        <p className="mt-2 text-gray-500">
-          Dashboard widgets for job posts and applicants will be displayed here.
-        </p>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            Agency Dashboard
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Welcome back 👋 — here’s a summary of your activity.
+          </p>
+        </div>
+        <Link to="/dashboard/agency/jobs/create">
+          <Button
+            size="lg"
+            className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+          >
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Post a New Job
+          </Button>
+        </Link>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+        <StatCard
+          icon={Briefcase}
+          label="Open Jobs"
+          value={stats?.openJobs ?? 0}
+          isLoading={isLoading}
+          linkTo="/dashboard/agency/jobs"
+          color="green"
+        />
+        <StatCard
+          icon={Package}
+          label="Total Applications"
+          value={isPaidUser ? stats?.totalApps ?? 0 : "N/A"}
+          isLoading={isLoading}
+          linkTo={isPaidUser ? "/dashboard/agency/jobs" : "/dashboard/agency/billing"}
+          color="green"
+        />
+        <StatCard
+          icon={Users}
+          label="Shortlisted Candidates"
+          value={isPaidUser ? stats?.totalShortlisted ?? 0 : "N/A"}
+          isLoading={isLoading}
+          linkTo={
+            isPaidUser
+              ? "/dashboard/agency/candidates/shortlisted"
+              : "/dashboard/agency/billing"
+          }
+          color="green"
+        />
+        <StatCard
+          icon={Eye}
+          label="Job Views"
+          value={isPaidUser ? (analytics as any).totalJobViews ?? "N/A" : "N/A"}
+          isLoading={isLoading}
+          linkTo={isPaidUser ? "/dashboard/agency/analytics" : "/dashboard/agency/billing"}
+          color="green"
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Left column */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Recent Applications */}
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Recent Applications
+              </h2>
+            </div>
+            {isLoading ? (
+              <div className="p-6 space-y-4">
+                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ) : dashboardData?.recentApplications.length === 0 ? (
+              <p className="p-6 text-sm text-gray-500">No new applications yet.</p>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {dashboardData?.recentApplications.map((app) => (
+                  <li key={app.id}>
+                    <Link
+                      to={`/dashboard/agency/applications/${app.id}`}
+                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-primary-600">
+                            {app.candidate.firstName} {app.candidate.lastName}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            for {app.position.title}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400" />
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Active Jobs */}
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Active Jobs</h2>
+            </div>
+            {isLoading ? (
+              <div className="p-6 space-y-4">
+                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ) : dashboardData?.activeJobs.length === 0 ? (
+              <p className="p-6 text-sm text-gray-500">You have no open jobs.</p>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {dashboardData?.activeJobs.map((job) => (
+                  <li key={job.id}>
+                    <Link
+                      to={`/dashboard/agency/${job.agencyId}/jobs/${job.id}/pipeline`}
+                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-primary-600">{job.title}</p>
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-sm font-medium text-primary-600">
+                          {job._count.applications}
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="lg:col-span-1 space-y-8">
+          {/* Next Steps */}
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Recommended Next Steps
+              </h2>
+            </div>
+            {isLoading ? (
+              <div className="p-6 h-24 bg-gray-200 animate-pulse rounded-b-lg"></div>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {!verification?.domainVerified && isPaidUser && (
+                  <TodoItem
+                    text="Verify your company domain"
+                    linkTo="/dashboard/agency/profile"
+                  />
+                )}
+                {!verification?.cacVerified && isPaidUser && (
+                  <TodoItem
+                    text="Submit CAC for verification"
+                    linkTo="/dashboard/agency/profile"
+                  />
+                )}
+                {dashboardData && dashboardData.activeJobs.length === 0 && (
+                  <TodoItem
+                    text="Post your first job"
+                    linkTo="/dashboard/agency/jobs/create"
+                  />
+                )}
+                {memberLimit > 1 && memberCount < memberLimit && (
+                  <TodoItem
+                    text="Invite a team member"
+                    linkTo="/dashboard/agency/team"
+                  />
+                )}
+                {!verification?.cacVerified &&
+                  !verification?.domainVerified &&
+                  !isPaidUser && (
+                    <TodoItem
+                      text="Upgrade to a Pro plan"
+                      linkTo="/dashboard/agency/billing"
+                    />
+                  )}
+                {verification?.domainVerified &&
+                  verification?.cacVerified &&
+                  dashboardData &&
+                  dashboardData.activeJobs.length > 0 &&
+                  (memberCount >= memberLimit || memberLimit === -1) && (
+                    <li className="flex items-center p-5 text-sm text-gray-500">
+                      <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> You’re
+                      all set up!
+                    </li>
+                  )}
+              </ul>
+            )}
+          </div>
+
+          {/* Team */}
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
+            <div className="p-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Your Team</h2>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {Array.from({ length: Math.min(memberCount, 3) }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-300"
+                    ></div>
+                  ))}
+                </div>
+                {isLoading ? (
+                  <div className="h-5 w-20 animate-pulse rounded-md bg-gray-200"></div>
+                ) : (
+                  <p className="text-sm font-medium">
+                    <span className="text-gray-900">{memberCount}</span>
+                    <span className="text-gray-500">
+                      {" "}
+                      / {memberLimit === -1 ? "Unlimited" : memberLimit} members
+                    </span>
+                  </p>
+                )}
+              </div>
+              <div className="mt-4">
+                <Link to="/dashboard/agency/team">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Manage & Invite
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Plan */}
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
+            <h2 className="text-lg font-semibold text-gray-900">Your Plan</h2>
+            {isPaidUser ? (
+              <p className="mt-2 text-gray-500">
+                You are on the{" "}
+                <span className="font-semibold text-primary-600">
+                  {analytics?.planName}
+                </span>{" "}
+                plan.
+              </p>
+            ) : (
+              <p className="mt-2 text-gray-500">
+                You are on the{" "}
+                <span className="font-semibold text-primary-600">Free</span> plan.
+                Upgrade to unlock powerful analytics.
+              </p>
+            )}
+            <div className="mt-4">
+              <Link to="/dashboard/agency/analytics">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+                >
+                  View Full Analytics
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

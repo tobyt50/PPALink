@@ -7,6 +7,9 @@ import invitationRoutes from '../invitations/invitation.routes';
 import jobRoutes from '../jobs/job.routes'; // Import the nested job routes
 import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler } from './agency.controller';
 import { updateAgencyProfileSchema } from './agency.types';
+import { getAgencyAnalyticsHandler, getAgencyDashboardDataHandler } from '../analytics/analytics.controller';
+import { initiateDomainVerificationHandler } from '../verifications/domain.controller';
+import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
 
 const router = Router();
 // All routes below require the user to be an authenticated AGENCY user
@@ -37,5 +40,17 @@ router.delete('/shortlist/:candidateId', removeShortlistHandler);
 
 // This will create routes like POST /api/agencies/invitations
 router.use('/invitations', invitationRoutes);
+
+// GET /api/agencies/analytics
+router.get('/analytics', getAgencyAnalyticsHandler);
+
+// GET /api/agencies/dashboard
+router.get('/dashboard', getAgencyDashboardDataHandler);
+
+// POST /api/agencies/verify-domain
+router.post('/verify-domain', initiateDomainVerificationHandler);
+
+// POST /api/agencies/verifications
+router.post('/verifications', createVerificationSubmissionHandler);
 
 export default router;

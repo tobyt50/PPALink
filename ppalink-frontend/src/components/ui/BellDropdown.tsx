@@ -12,8 +12,9 @@ interface BellDropdownProps {
 export const BellDropdown = ({
   trigger,
   children,
-  widthClass = 'w-[calc(40vw-0.8rem)] sm:w-[8rem] md:w-[9.6rem] lg:w-[12.8rem]',
-  maxHeight = 'max-h-[4.8rem]',
+  // Polished: Updated to more sensible defaults
+  widthClass = 'w-screen max-w-sm sm:w-96',
+  maxHeight = 'max-h-96',
   onOpenChange,
 }: BellDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +28,6 @@ export const BellDropdown = ({
     onOpenChange?.(nextState);
   };
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -44,7 +44,6 @@ export const BellDropdown = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, onOpenChange]);
 
-  // Flip horizontally if overflowing viewport
   useEffect(() => {
     if (isOpen && dropdownRef.current && menuRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
@@ -56,7 +55,8 @@ export const BellDropdown = ({
       let newPositionClass = 'right-0';
 
       if (viewportWidth < 640) {
-        newPositionClass = 'left-1/2 -translate-x-3/4';
+        // A more centered approach for mobile
+        newPositionClass = 'left-[35%] -translate-x-[75%]';
 
       } else {
         if (spaceOnLeft < menuWidth && spaceOnRight > menuWidth) {
@@ -82,10 +82,12 @@ export const BellDropdown = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -8 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className={`absolute ${positionClass} mt-2 origin-top rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${widthClass}`}
+            // Polished: Updated shadow, border radius, and ring
+            className={`absolute ${positionClass} mt-2 origin-top rounded-2xl shadow-2xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${widthClass}`}
           >
             <div
-              className={`overflow-y-auto ${maxHeight} divide-y divide-gray-100 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400`}
+              // Polished: Updated scrollbar style
+              className={`overflow-y-auto ${maxHeight} divide-y divide-gray-100 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full`}
             >
               {children}
             </div>
@@ -110,7 +112,8 @@ export const BellDropdownItem = ({
   return (
     <button
       type="button"
-      className={`w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 ${className}`}
+      // Polished: Replicated the gradient hover effect and typography from AgencyDashboard
+      className={`group w-full text-left px-4 py-3 text-sm text-gray-700 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 hover:text-primary-600 ${className}`}
       onClick={onSelect}
     >
       {children}

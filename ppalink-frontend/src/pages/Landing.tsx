@@ -88,13 +88,11 @@ const LandingPage = () => {
                 whileHover={{ y: -3, scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600 transition"
-                >
-                  Find a Job
-                </Button>
+                <Button size="lg" variant="outlineTransparent" className="w-full sm:w-auto">
+  Find a Job
+</Button>
+
+
               </motion.div>
             </Link>
           </motion.div>
