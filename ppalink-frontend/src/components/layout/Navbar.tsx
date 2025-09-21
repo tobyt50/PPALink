@@ -54,7 +54,7 @@ const Navbar = () => {
             <Menu className="h-6 w-6" />
           </button>
           <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
-            <img src="/header.png" alt="ppalink Logo" className="h-10 w-32" />
+            <img src="/header.png" alt="ppalink Logo" className="h-9 w-28" />
           </Link>
         </div>
 

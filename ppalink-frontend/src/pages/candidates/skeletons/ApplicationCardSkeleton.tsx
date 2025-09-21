@@ -1,16 +1,19 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export const ApplicationCardSkeleton = () => {
   return (
-    <div className="p-4 border-b">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="flex-grow">
-          <Skeleton width="40%" />
-          <Skeleton width="60%" className="mt-2" />
+    // Replicated the polished card container style
+    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
+      <div className="flex items-center justify-between">
+        <div>
+          {/* Mimics candidate name and job title */}
+          <Skeleton width={180} height={20} />
+          <Skeleton width={150} height={16} className="mt-1.5" />
         </div>
-        <div className="flex flex-col sm:items-end flex-shrink-0 w-full sm:w-auto">
-          <Skeleton width={80} height={24} borderRadius="999px" />
-          <Skeleton width={120} height={16} className="mt-2" />
+        <div className="flex-shrink-0">
+          {/* Mimics the status badge */}
+          <Skeleton width={90} height={28} borderRadius="999px" />
         </div>
       </div>
     </div>

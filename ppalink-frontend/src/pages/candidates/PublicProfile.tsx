@@ -98,54 +98,94 @@ const PublicProfilePage = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Left Column */}
+          {/* Main Content Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Profile Header Card */}
             <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
-              <div className="flex items-center">
+              <div className="flex items-start">
                 <div className="h-24 w-24 rounded-full bg-gray-200 flex-shrink-0" />
-                <div className="ml-6">
+                <div className="ml-6 flex-grow">
                   <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
                     {profile.firstName} {profile.lastName}
                   </h1>
                   <p className="mt-1 text-gray-600">{locationState || 'Location not specified'}</p>
-                </div>
-                <div className="ml-auto">
-                  <SimpleDropdown 
-                      trigger={
-                          <Button variant="outline" size="sm" className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50" disabled={isProcessing}>
-                              {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : 'Actions'}
-                              <ChevronDown className="h-4 w-4 ml-2" />
-                          </Button>
-                      }
-                  >
-                      <SimpleDropdownItem onSelect={handleToggleShortlist} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
-                          {isShortlisted ? (
-                            <><Trash2 className="mr-2 h-4 w-4 text-red-500" /> <span className="group-hover:text-primary-600">Remove from Shortlist</span></>
-                          ) : (
-                            <><Heart className="mr-2 h-4 w-4 text-primary-500" /> <span className="group-hover:text-primary-600">Shortlist Candidate</span></>
-                          )}
-                      </SimpleDropdownItem>
-                      <SimpleDropdownItem onSelect={() => setIsAddToJobModalOpen(true)} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
-                          <Briefcase className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600">Add to Job Pipeline</span>
-                      </SimpleDropdownItem>
-                  </SimpleDropdown>
+                  <div className="mt-4">
+                    <SimpleDropdown 
+                        trigger={
+                            <Button variant="outline" size="sm" className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50" disabled={isProcessing}>
+                                {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : 'Actions'}
+                                <ChevronDown className="h-4 w-4 ml-2" />
+                            </Button>
+                        }
+                    >
+                        <SimpleDropdownItem onSelect={handleToggleShortlist} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
+                            {isShortlisted ? (
+                              <><Trash2 className="mr-2 h-4 w-4 text-red-500" /> <span className="group-hover:text-primary-600">Remove from Shortlist</span></>
+                            ) : (
+                              <><Heart className="mr-2 h-4 w-4 text-primary-500" /> <span className="group-hover:text-primary-600">Shortlist Candidate</span></>
+                            )}
+                        </SimpleDropdownItem>
+                        <SimpleDropdownItem onSelect={() => setIsAddToJobModalOpen(true)} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50">
+                            <Briefcase className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600">Add to Job Pipeline</span>
+                        </SimpleDropdownItem>
+                    </SimpleDropdown>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Other sections in polished cards */}
+            {/* Professional Summary */}
             <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Professional Summary</h2></div>
               <div className="p-6"><p className="text-gray-600 whitespace-pre-wrap">{profile.summary || 'No summary provided.'}</p></div>
+            </div>
+
+            {/* Details & Skills for Mobile View */}
+            <div className="space-y-8 lg:hidden">
+              <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Details</h2></div>
+                <div className="p-6 space-y-5">
+                  <ProfileField icon={GraduationCap} label="Graduation Year" value={profile.graduationYear} />
+                  <ProfileField icon={BadgeCheck} label="NYSC Batch" value={`${profile.nyscBatch || ''} ${profile.nyscStream || ''}`.trim()} />
+                  <ProfileField icon={Briefcase} label="Minimum Salary" value={profile.salaryMin ? `₦${profile.salaryMin.toLocaleString()}` : null} />
+                  <ProfileField icon={MapPin} label="Work Preferences">
+                    <div className="flex flex-col space-y-2 mt-1">
+                      <span className={`inline-flex items-center text-sm font-medium ${profile.isRemote ? 'text-green-700' : 'text-gray-500'}`}>
+                        {profile.isRemote ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
+                        Remote
+                      </span>
+                      <span className={`inline-flex items-center text-sm font-medium ${profile.isOpenToReloc ? 'text-green-700' : 'text-gray-500'}`}>
+                        {profile.isOpenToReloc ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
+                        Relocation
+                      </span>
+                    </div>
+                  </ProfileField>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+                  <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Skills</h2></div>
+                  <div className="p-6 flex flex-wrap gap-2">
+                      {profile.skills && profile.skills.length > 0 ? (
+                          profile.skills.map(({ skill }) => (
+                          <span key={skill.id} className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                              <Tag className="h-4 w-4 mr-1.5" />
+                              {skill.name}
+                          </span>
+                          ))
+                      ) : (
+                          <p className="text-sm text-gray-500">No skills listed by the candidate.</p>
+                      )}
+                  </div>
+              </div>
             </div>
             
             <WorkExperienceSection experiences={profile.workExperiences || []} isOwner={false} />
             <EducationSection educationHistory={profile.education || []} isOwner={false} refetchProfile={refetch} />
           </div>
 
-          {/* Right Column */}
-          <div className="lg:col-span-1 space-y-8">
+          {/* Sidebar Column (Desktop) */}
+          <div className="hidden lg:block lg:col-span-1 space-y-8">
              <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Details</h2></div>
               <div className="p-6 space-y-5">

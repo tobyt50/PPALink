@@ -1,17 +1,22 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export const JobCardSkeleton = () => {
   return (
-    <div className="p-4 border-b">
-      <div className="flex items-center justify-between">
+    // Replicated the polished card container style
+    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex-grow">
-          <Skeleton width="50%" />
-          <Skeleton width="30%" className="mt-2" />
+          {/* Mimics job title and company name */}
+          <Skeleton width="70%" height={24} />
+          <Skeleton width="50%" height={16} className="mt-2" />
         </div>
-        <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
-            <Skeleton width={60} height={20} borderRadius="999px" />
-            <Skeleton width={120} height={32} borderRadius="6px" />
-        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 pt-4 border-t border-gray-100">
+        {/* Mimics location, type, and skill tags */}
+        <Skeleton width={80} height={20} />
+        <Skeleton width={100} height={20} />
+        <Skeleton width={70} height={24} borderRadius="999px" />
       </div>
     </div>
   );

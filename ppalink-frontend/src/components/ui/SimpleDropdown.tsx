@@ -156,7 +156,7 @@ export const SimpleDropdownItem = ({ children, onSelect, className }: SimpleDrop
   return (
     <a
       href="#"
-      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900 whitespace-nowrap ${className}`}
+      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900 ${className}`}
       role="menuitem"
       onClick={(e) => {
         e.preventDefault();

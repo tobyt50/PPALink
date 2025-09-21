@@ -1,22 +1,23 @@
 import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export const CandidateCardSkeleton = () => {
   return (
-    <div className="border border-gray-200 bg-white rounded-lg p-4">
+    // Replicated the polished card container style
+    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
       <div className="flex items-start">
+        {/* Mimics the avatar */}
         <Skeleton circle width={48} height={48} />
         <div className="ml-4 flex-grow">
-          <Skeleton width="60%" />
-          <Skeleton count={2} className="mt-1" />
+          {/* Mimics name and location */}
+          <Skeleton width="60%" height={20} />
+          <Skeleton width="40%" height={16} className="mt-1.5" />
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2 text-xs">
-        <Skeleton width={70} height={20} borderRadius="999px" />
-        <Skeleton width={90} height={20} borderRadius="999px" />
-      </div>
-      <div className="mt-4 border-t pt-3 flex items-center justify-between">
-        <Skeleton width="50%" />
-        <Skeleton width="30%" />
+      <div className="mt-4 flex flex-wrap gap-2">
+        {/* Mimics skill tags */}
+        <Skeleton width={70} height={24} borderRadius="999px" />
+        <Skeleton width={90} height={24} borderRadius="999px" />
       </div>
     </div>
   );

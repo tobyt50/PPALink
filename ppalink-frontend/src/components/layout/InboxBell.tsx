@@ -69,7 +69,7 @@ export const InboxBell = () => {
     if (!notif.read) {
       try {
         await notificationService.markOneAsRead(notif.id);
-        refetch(); 
+        refetch();
       } catch (error) {
         console.error('Failed to mark notification as read');
       }
@@ -92,8 +92,8 @@ export const InboxBell = () => {
   return (
     <BellDropdown
       trigger={DropdownTrigger}
-      widthClass="w-[22rem] sm:w-[24rem]"
-      maxHeight="max-h-[28rem]"
+      widthClass="w-[16rem] sm:w-[24rem]"
+      maxHeight="max-h-[16rem] sm:max-h-[28rem]"
     >
       {/* Polished and Compact Header */}
       <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">

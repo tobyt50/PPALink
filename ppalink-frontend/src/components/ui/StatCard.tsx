@@ -33,7 +33,7 @@ export const StatCard = ({
       <div className="flex items-center gap-3">
         <div
           className={clsx(
-            "inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-md",
+            "inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-md",
             colorMap[color]
           )}
         >

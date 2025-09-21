@@ -1,58 +1,76 @@
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { BadgeCheck, ChevronLeft, Loader2 } from 'lucide-react';
+import { BadgeCheck, ChevronLeft, Filter, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
+import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
 import useFetch from '../../hooks/useFetch';
 import applicationService from '../../services/application.service';
 import type { Application, ApplicationStatus } from '../../types/application';
 import type { Position } from '../../types/job';
 
-// Replicated the polished styling for the Applicant Card
+// A purely presentational card, stripped of dnd-kit hooks, for the DragOverlay
+const StaticApplicantCard = ({ application }: { application: Application }) => {
+  const { candidate } = application;
+  return (
+    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
+      <div className="flex items-start">
+        <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
+        <div className="ml-3 flex-1 min-w-0">
+          <div className="relative group">
+  <p
+    className=" 
+      font-semibold text-sm text-gray-800
+      truncate
+      transition-all
+      group-hover:text-primary-600
+      group-hover:whitespace-normal
+      group-hover:break-words
+    "
+  >
+    {candidate.firstName} {candidate.lastName}
+  </p>
+</div>
+
+          <div className="flex items-center text-xs text-gray-500 mt-1">
+            <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+            {candidate.verificationLevel.replace('_', ' ')}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {candidate.skills && candidate.skills.length > 0 ? (
+          candidate.skills.slice(0, 3).map((skillInfo) => (
+            <span key={skillInfo.skill.id} className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+              {skillInfo.skill.name}
+            </span>
+          ))
+        ) : (
+          <p className="text-xs text-gray-400 italic">No skills listed</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// The sortable card which will now be hidden during drag
 const ApplicantCard = ({ application }: { application: Application }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: application.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 10 : 'auto',
-    boxShadow: isDragging ? '0 10px 20px -5px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)' : 'none',
+    opacity: isDragging ? 0 : 1,
+    zIndex: isDragging ? -1 : 'auto',
   };
 
-  const { candidate } = application;
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
-      <Link 
-        to={`/dashboard/agency/applications/${application.id}`} 
-        className="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
-      >
-        <div className="flex items-start">
-          <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
-          <div className="ml-3">
-            <p className="font-semibold text-sm text-gray-800 group-hover:text-primary-600 transition-colors">
-              {candidate.firstName} {candidate.lastName}
-            </p>
-            <div className="flex items-center text-xs text-gray-500 mt-1">
-              <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
-              {candidate.verificationLevel.replace('_', ' ')}
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {candidate.skills && candidate.skills.length > 0 ? (
-            candidate.skills.slice(0, 2).map((skillInfo) => (
-              <span key={skillInfo.skill.id} className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-                {skillInfo.skill.name}
-              </span>
-            ))
-          ) : (
-            <p className="text-xs text-gray-400 italic">No skills listed</p>
-          )}
-        </div>
+    // Added 'relative group' to establish positioning context and hover target for the tooltip
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none relative group">
+      <Link to={`/dashboard/agency/applications/${application.id}`}>
+        <StaticApplicantCard application={application} />
       </Link>
     </div>
   );
@@ -65,29 +83,28 @@ const PipelineColumn = ({ title, status, applications }: { title: string; status
 
   return (
     <div
-  ref={setNodeRef}
-  className="rounded-2xl bg-gray-100 shadow-md ring-1 ring-gray-100 flex-1 min-h-[500px] flex flex-col overflow-hidden"
->
-  <div className="p-5 border-b border-gray-200 flex-shrink-0">
-    <h2 className="text-lg font-semibold text-gray-900">
-      {title} ({applications.length})
-    </h2>
-  </div>
-  <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
-    <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto">
-      {applications.length > 0 ? (
-        applications.map((app) => (
-          <ApplicantCard key={app.id} application={app} />
-        ))
-      ) : (
-        <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200">
-          <p className="text-sm text-gray-500">Drop applicants here</p>
+      ref={setNodeRef}
+      className="rounded-2xl bg-gray-100 shadow-md ring-1 ring-gray-100 w-full flex flex-col min-h-[500px] overflow-hidden"
+    >
+      <div className="p-5 border-b border-gray-200 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {title} ({applications.length})
+        </h2>
+      </div>
+      <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
+        <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto">
+          {applications.length > 0 ? (
+            applications.map((app) => (
+              <ApplicantCard key={app.id} application={app} />
+            ))
+          ) : (
+            <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200">
+              <p className="text-sm text-gray-500">Drop applicants here</p>
+            </div>
+          )}
         </div>
-      )}
+      </SortableContext>
     </div>
-  </SortableContext>
-</div>
-
   );
 };
 
@@ -99,17 +116,37 @@ const JobPipelinePage = () => {
   );
 
   const [applications, setApplications] = useState<Application[]>([]);
+  const [activeApplication, setActiveApplication] = useState<Application | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, {
+  const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
-  }));
+  });
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+
+  const sensors = useSensors(pointerSensor, touchSensor);
+
+  const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
+    { title: 'Applied', status: 'APPLIED' },
+    { title: 'Reviewing', status: 'REVIEWING' },
+    { title: 'Interview', status: 'INTERVIEW' },
+    { title: 'Offer', status: 'OFFER' },
+    { title: 'Rejected', status: 'REJECTED' },
+  ];
 
   const categorizedApps = useMemo(() => {
     const initialCategories: Record<ApplicationStatus, Application[]> = {
       APPLIED: [], REVIEWING: [], INTERVIEW: [], OFFER: [], REJECTED: [], WITHDRAWN: [],
     };
     return applications.reduce((acc, app) => {
-      if (acc[app.status]) { 
+      if (acc[app.status]) {
         acc[app.status].push(app);
       }
       return acc;
@@ -123,8 +160,19 @@ const JobPipelinePage = () => {
       setApplications(job.applications);
     }
   }, [job]);
+  
+  const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
+    const { active } = event;
+    const app = applications.find(app => app.id === active.id);
+    if (app) {
+      setActiveApplication(app);
+    }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setIsDragging(false);
+    setActiveApplication(null);
     const { active, over } = event;
     if (over && active.id) {
       const sourceContainerId = active.data.current?.sortable.containerId;
@@ -163,30 +211,73 @@ const JobPipelinePage = () => {
 
   return (
     <div className="space-y-5">
-      <div className="mb-4">
-        <Link to="/dashboard/agency/jobs" className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-700 transition-colors">
-          <ChevronLeft className="h-5 w-5 mr-1" />
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            {job.title}
+          </h1>
+          <p className="mt-2 text-gray-600">Drag and drop to manage your applicant pipeline.</p>
+        </div>
+        <Link to="/dashboard/agency/profile" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+            <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to All Jobs
         </Link>
       </div>
 
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
-          {job.title}
-        </h1>
-        <p className="mt-2 text-gray-600">Drag and drop to manage your applicant pipeline.</p>
+      <div className="md:hidden">
+        <SimpleDropdown
+          isIndustryDropdown={false}
+          trigger={
+            <button className="flex items-center gap-2 rounded-2xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+              <Filter className="h-4 w-4" />
+              <span>Filter</span>
+            </button>
+          }
+        >
+          <SimpleDropdownItem onSelect={() => setActiveFilter(null)}>
+            {activeFilter === null && <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />}
+            Show All
+          </SimpleDropdownItem>
+          {pipelineColumns.map(col => (
+            <SimpleDropdownItem key={col.status} onSelect={() => setActiveFilter(col.status)}>
+              {activeFilter === col.status && <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />}
+              {col.title}
+            </SimpleDropdownItem>
+          ))}
+        </SimpleDropdown>
       </div>
     
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <SortableContext items={allApplicationIds}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 pt-2">
-              <PipelineColumn title="Applied" status="APPLIED" applications={categorizedApps.APPLIED} />
-              <PipelineColumn title="Reviewing" status="REVIEWING" applications={categorizedApps.REVIEWING} />
-              <PipelineColumn title="Interview" status="INTERVIEW" applications={categorizedApps.INTERVIEW} />
-              <PipelineColumn title="Offer" status="OFFER" applications={categorizedApps.OFFER} />
-              <PipelineColumn title="Rejected" status="REJECTED" applications={categorizedApps.REJECTED} />
-            </div>
+          <div
+            className={
+              'pt-2 transition-all duration-300 ease-in-out ' +
+              (isDragging
+                ? 'flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:scale-95 md:gap-2'
+                : 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5')
+            }
+          >
+            {pipelineColumns.map(col => {
+              const isVisible = !activeFilter || activeFilter === col.status;
+              return (
+                <div
+                  key={col.status}
+                  style={{ display: isVisible ? 'flex' : 'none' }}
+                  className={isDragging ? 'w-64 flex-shrink-0 md:w-auto' : ''}
+                >
+                  <PipelineColumn
+                    title={col.title}
+                    status={col.status}
+                    applications={categorizedApps[col.status]}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </SortableContext>
+        <DragOverlay>
+            {activeApplication ? <StaticApplicantCard application={activeApplication} /> : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
