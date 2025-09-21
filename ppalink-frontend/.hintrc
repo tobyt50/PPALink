@@ -17,6 +17,14 @@
     ],
     "no-inline-styles": "off",
     "axe/aria": "off",
-    "axe/forms": "off"
+    "axe/forms": "off",
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "meta[name=theme-color]"
+        ]
+      }
+    ]
   }
 }

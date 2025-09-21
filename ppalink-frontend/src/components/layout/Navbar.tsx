@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Building, CreditCard, LogOut, Menu, User, UserCircle2, Users } from 'lucide-react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../context/AuthContext';
 import { useShortlistStore } from '../../context/ShortlistStore';
 import { SimpleDropdown, SimpleDropdownItem } from '../ui/SimpleDropdown';
@@ -8,21 +8,21 @@ import { InboxBell } from './InboxBell';
 import { NotificationBell } from './NotificationBell';
 import { useUIStore } from '../../context/UISlice';
 
-const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.ElementType; children: React.ReactNode }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
-        isActive 
-        ? 'bg-primary-50 text-primary-600' 
-        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-      }`
-    }
-  >
-    <Icon className="mr-2 h-5 w-5" />
-    {children}
-  </NavLink>
-);
+// const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.ElementType; children: React.ReactNode }) => (
+//   <NavLink
+//     to={to}
+//     className={({ isActive }) =>
+//       `flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
+//         isActive 
+//         ? 'bg-primary-50 text-primary-600' 
+//         : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+//       }`
+//     }
+//   >
+//     <Icon className="mr-2 h-5 w-5" />
+//     {children}
+//   </NavLink>
+// );
 
 const Navbar = () => {
   const navigate = useNavigate();
