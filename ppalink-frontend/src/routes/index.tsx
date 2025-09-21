@@ -45,6 +45,9 @@ import JobPipelinePage from '../pages/jobs/JobPipeline';
 import PublicJobDetailsPage from '../pages/jobs/PublicJobDetails';
 import LandingPage from '../pages/Landing';
 import InboxPage from '../pages/messaging/Inbox';
+import AboutPage from '../pages/misc/About';
+import TermsPage from '../pages/misc/Terms';
+import PrivacyPolicyPage from '../pages/misc/Privacy';
 
 const router = createBrowserRouter([
   // --- Group 1: Public Routes ---
@@ -63,6 +66,9 @@ const router = createBrowserRouter([
       { path: '/accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
       { path: '/verify-domain', element: <VerifyDomainPage /> },
       { path: '/verify-domain-result', element: <DomainVerificationResultPage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'terms', element: <TermsPage /> },
+      { path: 'privacy', element: <PrivacyPolicyPage /> },
     ],
   },
   

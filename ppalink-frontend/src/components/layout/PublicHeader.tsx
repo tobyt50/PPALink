@@ -25,7 +25,7 @@ const PublicHeader = () => {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/header.png" alt="ppalink Logo" className="h-8 w-32" />
+            <img src="/header.png" alt="ppalink Logo" className="h-10 w-32" />
           </Link>
 
           {/* Buttons */}

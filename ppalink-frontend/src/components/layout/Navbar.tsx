@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
-import { BarChart2, Briefcase, Building, CreditCard, Heart, LogOut, Package, Search as SearchIcon, User, UserCircle2, Users } from 'lucide-react';
+import { Building, CreditCard, LogOut, Menu, User, UserCircle2, Users } from 'lucide-react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../context/AuthContext';
 import { useShortlistStore } from '../../context/ShortlistStore';
 import { SimpleDropdown, SimpleDropdownItem } from '../ui/SimpleDropdown';
 import { InboxBell } from './InboxBell';
 import { NotificationBell } from './NotificationBell';
+import { useUIStore } from '../../context/UISlice';
 
-// --- THIS IS THE FIX: Polished Styling ---
 const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.ElementType; children: React.ReactNode }) => (
   <NavLink
     to={to}
@@ -26,7 +26,7 @@ const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.Element
 
 const Navbar = () => {
   const navigate = useNavigate();
-  
+  const { toggleSidebar } = useUIStore();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const clearShortlist = useShortlistStore((state) => state.clearShortlist);
@@ -44,33 +44,18 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      // Updated background for a modern, blurred effect
       className="sticky top-0 z-40 w-full border-b border-gray-100 bg-white/95 backdrop-blur-sm"
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left side: Logo and main navigation */}
         <div className="flex items-center space-x-8">
+          {/* Mobile Sidebar Toggle */}
+          <button onClick={toggleSidebar} className="md:hidden p-1">
+            <Menu className="h-6 w-6" />
+          </button>
           <Link to={dashboardPath} className="flex flex-shrink-0 items-center space-x-2">
-            <img src="/header.png" alt="ppalink Logo" className="h-8 w-32" />
+            <img src="/header.png" alt="ppalink Logo" className="h-10 w-32" />
           </Link>
-          
-          <nav className="hidden md:flex items-center space-x-2">
-            {user?.role === 'AGENCY' && (
-              <>
-                <NavItem to="/dashboard/agency/jobs" icon={Briefcase}>My Jobs</NavItem>
-                <NavItem to="/dashboard/agency/candidates/browse" icon={Users}>Find Candidates</NavItem>
-                <NavItem to="/dashboard/agency/candidates/shortlisted" icon={Heart}>Shortlist</NavItem>
-                <NavItem to="/dashboard/agency/analytics" icon={BarChart2}>Analytics</NavItem>
-              </>
-            )}
-            {user?.role === 'CANDIDATE' && (
-              <>
-                <NavItem to="/dashboard/candidate/profile" icon={User}>My Profile</NavItem>
-                <NavItem to="/dashboard/candidate/jobs/browse" icon={SearchIcon}>Browse Jobs</NavItem>
-                <NavItem to="/dashboard/candidate/applications" icon={Package}>My Applications</NavItem>
-              </>
-            )}
-          </nav>
         </div>
 
         {/* Right side actions */}
@@ -119,6 +104,5 @@ const Navbar = () => {
     </motion.header>
   );
 };
-// --- END OF FIX ---
 
 export default Navbar;

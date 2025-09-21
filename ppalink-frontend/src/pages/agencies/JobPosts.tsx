@@ -82,40 +82,39 @@ const JobPostsPage = () => {
                       index < jobs.length - 1 ? "border-b border-gray-100" : ""
                     }`}
                   >
-                    <div className="p-5 flex items-center justify-between hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all">
-                      <Link
-                        to={`/dashboard/agency/${agencyId}/jobs/${job.id}`}
-                        className="flex-grow"
-                      >
-                        <p className="font-semibold text-gray-800 hover:underline">
-                          {job.title}
-                        </p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span>{job.employmentType.replace("_", " ")}</span>
-                          <span>&bull;</span>
-                          <span>{job.isRemote ? "Remote" : "On-site"}</span>
-                        </div>
-                      </Link>
-                      <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            job.status === "OPEN"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {job.status}
-                        </span>
-                        <Link
-                          to={`/dashboard/agency/${agencyId}/jobs/${job.id}/pipeline`}
-                        >
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Pipeline
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
+                    <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all">
+  <Link
+    to={`/dashboard/agency/${agencyId}/jobs/${job.id}`}
+    className="flex-grow min-w-0"
+  >
+    <p className="font-semibold text-gray-800 hover:underline truncate">
+      {job.title}
+    </p>
+    <div className="flex flex-wrap items-center space-x-2 text-sm text-gray-500 mt-1">
+      <span>{job.employmentType.replace("_", " ")}</span>
+      <span>&bull;</span>
+      <span>{job.isRemote ? "Remote" : "On-site"}</span>
+    </div>
+  </Link>
+  <div className="flex flex-shrink-0 mt-2 sm:mt-0 items-center space-x-2 sm:space-x-4">
+    <span
+      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+        job.status === "OPEN"
+          ? "bg-green-100 text-green-800"
+          : "bg-gray-100 text-gray-800"
+      }`}
+    >
+      {job.status}
+    </span>
+    <Link to={`/dashboard/agency/${agencyId}/jobs/${job.id}/pipeline`}>
+      <Button variant="outline" size="sm">
+        <Eye className="h-4 w-4 mr-2" />
+        View Pipeline
+      </Button>
+    </Link>
+  </div>
+</div>
+
                   </li>
                 ))}
               </ul>
