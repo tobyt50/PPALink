@@ -91,6 +91,12 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [setSidebarOpen]);
 
+  useEffect(() => {
+    if (location.pathname.startsWith('/inbox')) {
+      setSidebarOpen(false); // collapsed state
+    }
+  }, [location.pathname, setSidebarOpen]);
+
   return (
     <>
       {/* Desktop Sidebar */}

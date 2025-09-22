@@ -4,12 +4,16 @@ import PublicHeader from '../components/layout/PublicHeader';
 
 const PublicLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col main-background">
+    <div className="h-screen flex flex-col main-background">
       <PublicHeader />
-      <main className="flex-grow">
-        <Outlet />
-      </main>
-      <PublicFooter />
+
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
+        <main className="pb-4">
+          <Outlet />
+        </main>
+
+        <PublicFooter />
+      </div>
     </div>
   );
 };

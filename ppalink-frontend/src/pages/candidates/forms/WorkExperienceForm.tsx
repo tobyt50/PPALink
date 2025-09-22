@@ -94,7 +94,7 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
           <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
+        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
               as={Fragment}

@@ -88,14 +88,14 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
   if (error) return <div className="p-8 text-center text-red-600">Failed to load messages.</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gray-50/50">
+    <div className="flex flex-col h-full bg-gray-50/50"> 
       <div className="h-14 px-4 flex items-center border-b border-gray-100 flex-shrink-0 bg-white">
         <button onClick={onGoBack} className="md:hidden mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors">
           <ChevronLeft className="h-5 w-5 text-gray-600" />
         </button>
-        <p className="font-semibold text-gray-800">{getUserName(activeConversation.otherUser)}</p>
+        <p className="font-semibold text-primary-600">{getUserName(activeConversation.otherUser)}</p>
       </div>
-      <div className="flex-grow p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="flex-grow p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {messages?.map((msg, index) => {
           const prevMsg = messages[index - 1];
           const showDateSeparator = isNewDay(msg.createdAt, prevMsg?.createdAt);
@@ -158,7 +158,7 @@ const ConversationList = ({ conversations, onSelect, activeConversationId }: { c
       <div className="h-14 px-5 flex items-center border-b border-gray-100 flex-shrink-0">
         <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
       </div>
-      <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         {conversations.map((conv) => {
           const isActive = conv.otherUser.id === activeConversationId;
           const hasUnread = conv.lastMessage && conv.lastMessage.fromId !== useAuthStore.getState().user?.id && !conv.lastMessage.readAt;

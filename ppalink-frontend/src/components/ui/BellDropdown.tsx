@@ -87,7 +87,7 @@ export const BellDropdown = ({
           >
             <div
               // Polished: Updated scrollbar style
-              className={`overflow-y-auto ${maxHeight} divide-y divide-gray-100 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full`}
+              className={`overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${maxHeight} divide-y divide-gray-100 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full`}
             >
               {children}
             </div>

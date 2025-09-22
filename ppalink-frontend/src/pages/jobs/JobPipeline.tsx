@@ -92,7 +92,7 @@ const PipelineColumn = ({ title, status, applications }: { title: string; status
         </h2>
       </div>
       <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
-        <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto">
+        <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
           {applications.length > 0 ? (
             applications.map((app) => (
               <ApplicantCard key={app.id} application={app} />

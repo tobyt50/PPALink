@@ -1,7 +1,6 @@
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Layouts & Guards
-import Navbar from '../components/layout/Navbar';
 import ProtectedRoute from './ProtectedRoute';
 import PublicLayout from './PublicLayout';
 import RoleBasedLayout from './RoleBasedLayout';
@@ -50,22 +49,22 @@ import TermsPage from '../pages/misc/Terms';
 import PrivacyPolicyPage from '../pages/misc/Privacy';
 
 const router = createBrowserRouter([
-  // --- Group 1: Public Routes ---
+  // --- Group 1: Public Routes (Unchanged) ---
   {
     path: '/',
     element: <PublicLayout />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: '/login', element: <Login /> },
-      { path: '/register/candidate', element: <RegisterCandidate /> },
-      { path: '/register/agency', element: <RegisterAgency /> },
-      { path: '/forgot-password', element: <ForgotPasswordPage /> },
-      { path: '/reset-password', element: <ResetPasswordPage /> },
-      { path: '/handle-invite', element: <HandleInvitePage /> },
-      { path: '/accept-invite', element: <AcceptInvitePage /> },
-      { path: '/accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
-      { path: '/verify-domain', element: <VerifyDomainPage /> },
-      { path: '/verify-domain-result', element: <DomainVerificationResultPage /> },
+      { path: 'login', element: <Login /> },
+      { path: 'register/candidate', element: <RegisterCandidate /> },
+      { path: 'register/agency', element: <RegisterAgency /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
+      { path: 'handle-invite', element: <HandleInvitePage /> },
+      { path: 'accept-invite', element: <AcceptInvitePage /> },
+      { path: 'accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
+      { path: 'verify-domain', element: <VerifyDomainPage /> },
+      { path: 'domain-verified', element: <DomainVerificationResultPage /> }, // Corrected path
       { path: 'about', element: <AboutPage /> },
       { path: 'terms', element: <TermsPage /> },
       { path: 'privacy', element: <PrivacyPolicyPage /> },
@@ -77,7 +76,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <ProtectedRoute />, // The master guard for all children
     children: [
-      // Sub-Group for pages using the standard DashboardLayout
+      // Sub-Group for pages using the standard DashboardLayout or AdminLayout
       {
         element: <RoleBasedLayout />,
         children: [
@@ -103,42 +102,18 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/:agencyId/jobs/:jobId/pipeline', element: <JobPipelinePage /> },
           { path: 'dashboard/agency/candidates/browse', element: <BrowseCandidatesPage /> },
           { path: 'dashboard/agency/candidates/shortlisted', element: <ShortlistedCandidatesPage /> },
-          { path: 'dashboard/agency/candidates/:candidateId/profile', element: <PublicProfilePage /> }, // This was the agency-facing public profile
+          { path: 'dashboard/agency/candidates/:candidateId/profile', element: <PublicProfilePage /> },
           { path: 'dashboard/agency/applications/:applicationId', element: <ApplicationDetailsPage /> },
           
-          //Admin Dashboard Routes
+          // Admin Dashboard Routes
           { path: 'admin/dashboard', element: <AdminDashboard /> },
           { path: 'admin/users', element: <ManageUsersPage /> },
           { path: 'admin/verifications', element: <VerificationQueuePage /> },
           { path: 'admin/verifications/:verificationId', element: <VerificationDetailsPage /> },
+          { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },
+          { path: 'inbox', element: <InboxPage /> }
         ]
       },
-      // Sub-Group for the full-page Inbox Layout
-      {
-        path: 'inbox',
-        element: (
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-grow"><Outlet /></main>
-          </div>
-        ),
-        children: [
-          { index: true, element: <InboxPage /> },
-        ]
-      },
-      // Sub-Group for candidate-facing public job details (uses a simpler layout)
-      {
-        path: 'jobs/:jobId/details',
-        element: (
-          <div className="min-h-screen flex flex-col main-background">
-            <Navbar />
-            <main className="flex-grow p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5"><Outlet /></main>
-          </div>
-        ),
-        children: [
-          { index: true, element: <PublicJobDetailsPage /> }
-        ]
-      }
     ]
   },
 ]);
