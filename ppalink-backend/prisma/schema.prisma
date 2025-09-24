@@ -19,7 +19,8 @@ model User {
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
-
+  auditLogs       AuditLog[] @relation("AdminActions")
+  activityLogs    ActivityLog[]
   candidateProfile CandidateProfile?
   agencyMembers    AgencyMember[]
   messagesSent     Message[] @relation("MessageFromUser")
@@ -27,8 +28,6 @@ model User {
 
   verifications    Verification[] @relation("UserVerifications")
   reviewsDone      Verification[] @relation("UserReviewedVerifications")
-
-  auditLogs        AuditLog[]
 
   verifiedCertificates CandidateCertificate[] @relation("UserVerifiedCertificates")
   ownedAgencies Agency[]
@@ -467,17 +466,6 @@ enum VerificationStatus {
   REJECTED
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  actorId   String
-  actor     User     @relation(fields: [actorId], references: [id])
-  action    String
-  entity    String
-  entityId  String
-  meta      Json?
-  createdAt DateTime @default(now())
-}
-
 model LocationState {
   id   Int     @id @default(autoincrement())
   name String  @unique
@@ -509,4 +497,43 @@ model PositionSkill {
   skill      Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([positionId, skillId]) // Composite primary key
+}
+
+model AuditLog {
+  id        String    @id @default(uuid())
+  actorId   String    // ID of the admin user who performed the action
+  actor     User      @relation("AdminActions", fields: [actorId], references: [id])
+  action    String    // e.g., "user.suspend", "verification.approve", "plan.edit"
+  targetId  String?   // The ID of the entity that was acted upon (e.g., a UserId, AgencyId, JobId)
+  metadata  Json?     // Store before/after values or other context
+  createdAt DateTime  @default(now())
+
+  @@index([actorId])
+  @@index([targetId])
+}
+
+model ActivityLog {
+  id        String    @id @default(uuid())
+  userId    String    // The ID of the User who performed the action
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  action    String    // A machine-readable action name, e.g., "user.login", "job.create"
+  details   Json?     // Optional context, e.g., { "jobId": "...", "jobTitle": "..." }
+  
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Setting {
+  key         String @id // e.g., "maintenanceMode", "freeJobLimit"
+  value       Json
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model FeatureFlag {
+  name        String  @id // e.g., "enableAiRecommendations"
+  description String?
+  isEnabled   Boolean @default(false)
 }

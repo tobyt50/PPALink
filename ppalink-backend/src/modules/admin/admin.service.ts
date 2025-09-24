@@ -1,17 +1,52 @@
-import { Role, UserStatus, VerificationStatus } from '@prisma/client';
+import { NotificationType, Prisma, PositionVisibility, PositionStatus, Role, UserStatus, VerificationStatus } from '@prisma/client';
+import { subDays, startOfDay } from 'date-fns';
 import prisma from '../../config/db';
+import env from '../../config/env';
+import { onlineUsers, ioInstance } from '../../config/socket';
+import { createNotification } from '../notifications/notification.service';
 
 /**
  * Fetches a paginated list of all users.
  * Excludes sensitive information like password hashes.
  * @returns A list of all users.
  */
-export async function getAllUsers() {
+/**
+ * Fetches all users on the platform with filtering, searching, and sorting.
+ * This version is built upon your superior, secure implementation.
+ */
+export async function getAllUsers(queryParams: {
+  q?: string;
+  role?: Role;
+  status?: UserStatus;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}) {
+  const { q, role, status, sortBy = 'createdAt', sortOrder = 'desc' } = queryParams;
+
+  const where: Prisma.UserWhereInput = {};
+
+  if (role) { where.role = role; }
+  if (status) { where.status = status; }
+
+  if (q) {
+    where.OR = [
+      { email: { contains: q, mode: 'insensitive' } },
+      { candidateProfile: { firstName: { contains: q, mode: 'insensitive' } } },
+      { candidateProfile: { lastName: { contains: q, mode: 'insensitive' } } },
+      { ownedAgencies: { some: { name: { contains: q, mode: 'insensitive' } } } },
+    ];
+  }
+
+  const orderBy: Prisma.UserOrderByWithRelationInput = {};
+  if (sortBy === 'email') {
+    orderBy.email = sortOrder;
+  } else {
+    orderBy.createdAt = sortOrder;
+  }
+
   return prisma.user.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-    // Explicitly select the fields to return, omitting the passwordHash
+    where,
+    orderBy,
     select: {
       id: true,
       email: true,
@@ -21,7 +56,6 @@ export async function getAllUsers() {
       emailVerifiedAt: true,
       createdAt: true,
       updatedAt: true,
-      // We can also include profile names for context
       candidateProfile: {
         select: {
           firstName: true,
@@ -30,7 +64,16 @@ export async function getAllUsers() {
       },
       ownedAgencies: {
         select: {
+          id: true,
           name: true,
+          domainVerified: true,
+          cacVerified: true,
+          subscriptions: {
+            include: {
+              plan: true,
+            },
+          },
+          members: true,
         },
       },
     },
@@ -126,3 +169,256 @@ export async function getAdminDashboardAnalytics() {
     pendingVerifications,
   };
 }
+
+/**
+ * Fetches time-series analytics for the main admin dashboard.
+ */
+export async function getAdminTimeSeriesAnalytics() {
+  const thirtyDaysAgo = startOfDay(subDays(new Date(), 30));
+
+  // Run all time-series queries in parallel
+  const [
+    userSignups,
+    jobsPosted,
+    applicationsSubmitted
+  ] = await prisma.$transaction([
+    // Get daily user signups (grouped by role) for the last 30 days
+    prisma.user.groupBy({
+      by: ['createdAt', 'role'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+    // Get daily job postings for the last 30 days
+    prisma.position.groupBy({
+      by: ['createdAt'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+    // Get daily applications for the last 30 days
+    prisma.application.groupBy({
+      by: ['createdAt'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+  ]);
+
+  // We will process this raw data in the controller or frontend
+  // to format it correctly for the charting library.
+  return {
+    userSignups,
+    jobsPosted,
+    applicationsSubmitted,
+  };
+}
+
+/**
+ * Fetches the complete details for a single user for the admin panel.
+ * @param userId The ID of the user to fetch.
+ */
+export async function getUserDetails(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      // Include all relevant relations for a comprehensive view
+      candidateProfile: {
+        include: {
+          skills: { include: { skill: true } },
+          workExperiences: true,
+          education: true,
+        },
+      },
+      ownedAgencies: {
+        include: {
+          subscriptions: { include: { plan: true } },
+          members: true,
+        },
+      },
+      // We can add more relations here later, like applications or jobs
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
+  // Omit the password hash before sending the user object
+  const { passwordHash, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+}
+
+/**
+ * Fetches all job positions posted by a specific agency owner.
+ * @param userId The ID of the agency's owner user.
+ */
+export async function getJobsForAgencyUser(userId: string) {
+  const agency = await prisma.agency.findFirst({
+    where: { ownerUserId: userId },
+    select: { id: true },
+  });
+
+  if (!agency) {
+    // If the user owns no agency, they have no jobs. Return an empty array.
+    return [];
+  }
+
+  return prisma.position.findMany({
+    where: { agencyId: agency.id },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+/**
+ * Fetches all applications submitted by a specific candidate.
+ * @param userId The ID of the candidate's user account.
+ */
+export async function getApplicationsForCandidateUser(userId: string) {
+  const candidate = await prisma.candidateProfile.findFirst({
+    where: { userId: userId },
+    select: { id: true },
+  });
+
+  if (!candidate) {
+    // If the user has no candidate profile, they have no applications.
+    return [];
+  }
+
+  return prisma.application.findMany({
+    where: { candidateId: candidate.id },
+    include: {
+      position: { // Include position details for context
+        select: {
+          title: true,
+          agency: { select: { name: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+/**
+ * Allows an admin to send a direct message to a user from the system account.
+ * @param toUserId The ID of the user receiving the message.
+ * @param body The content of the message.
+ */
+export async function sendSystemMessage(toUserId: string, body: string) {
+  if (!env.SYSTEM_USER_ID) {
+    throw new Error('System User ID is not configured.');
+  }
+
+  const message = await prisma.message.create({
+    data: {
+      fromId: env.SYSTEM_USER_ID,
+      toId: toUserId,
+      body: body,
+    },
+  });
+
+  // 2. After sending the message, emit a 'new_message' event to the recipient
+  // so their inbox updates in real-time if it's open.
+  const recipientSocketId = onlineUsers.get(toUserId);
+  if (recipientSocketId) {
+      ioInstance.to(recipientSocketId).emit('new_message', message);
+  }
+
+  await createNotification({
+      userId: toUserId,
+      message: 'You have a new message from PPALink Support',
+      link: `/inbox?with=${env.SYSTEM_USER_ID}`,
+      type: NotificationType.MESSAGE,
+      meta: {
+          lastMessage: body,
+      }
+  }, ioInstance);
+
+  return message;
+}
+
+/**
+ * Fetches all job positions on the platform for the admin panel, with filtering and searching.
+ */
+export async function getAllJobs(queryParams: { q?: string; status?: string; visibility?: string; industryId?: string }) {
+  const { q, status, visibility, industryId } = queryParams;
+
+  const where: Prisma.PositionWhereInput = {};
+  const orderBy: Prisma.PositionOrderByWithRelationInput = { createdAt: 'desc' };
+
+  if (status) { where.status = status as any; }
+  if (visibility) { where.visibility = visibility as any; }
+  if (industryId) { where.agency = { industryId: parseInt(industryId) }; }
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' } },
+      { agency: { name: { contains: q, mode: 'insensitive' } } },
+    ];
+  }
+
+  return prisma.position.findMany({
+    where,
+    include: { agency: { select: { id: true, name: true } } },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
+
+/**
+ * Admin action to update any job posting.
+ * Bypasses the agency ownership check.
+ */
+export async function adminUpdateJob(jobId: string, data: any) { // Using `any` for flexibility, will be validated by Zod
+  // We can reuse the existing job update logic from the job service if it's refactored
+  // For simplicity here, we'll call prisma directly.
+  return prisma.position.update({
+    where: { id: jobId },
+    data,
+  });
+}
+
+/**
+ * Admin action to quickly unpublish a job (set its visibility to PRIVATE).
+ */
+export async function adminUnpublishJob(jobId: string) {
+  return prisma.position.update({
+    where: { id: jobId },
+    data: {
+      visibility: PositionVisibility.PRIVATE,
+    },
+  });
+}
+
+/**
+ * Admin action to quickly republish a job (set its visibility to PUBLIC).
+ */
+export async function adminRepublishJob(jobId: string) {
+  return prisma.position.update({
+    where: { id: jobId },
+    data: {
+      visibility: PositionVisibility.PUBLIC,
+    },
+  });
+}
+
+/**
+ * Admin action to fetch the full details of any job on the platform.
+ * @param jobId The ID of the job to fetch.
+ */
+export async function adminGetJobById(jobId: string) {
+  const job = await prisma.position.findUnique({
+    where: { id: jobId },
+    include: {
+      agency: { select: { id: true, name: true, domainVerified: true, cacVerified: true } },
+      skills: { include: { skill: true } },
+    },
+  });
+
+  if (!job) {
+    throw new Error('Job not found.');
+  }
+  return job;
+}
+

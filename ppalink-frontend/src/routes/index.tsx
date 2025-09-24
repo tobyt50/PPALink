@@ -8,6 +8,11 @@ import RoleBasedLayout from './RoleBasedLayout';
 // Page Imports (assuming these paths are correct)
 import AdminDashboard from '../pages/admin/Dashboard';
 import ManageUsersPage from '../pages/admin/ManageUsers';
+import UserDetailsPage from '../pages/admin/UserDetails';
+import ManageJobsPage from '../pages/admin/ManageJobs';
+import AdminJobDetailsPage from '../pages/admin/AdminJobDetails';
+import AdminEditJobPage from '../pages/admin/EditJob';
+import ManagePlansPage from '../pages/admin/ManagePlans';
 import VerificationDetailsPage from '../pages/admin/VerificationDetails';
 import VerificationQueuePage from '../pages/admin/VerificationQueue';
 import BillingPage from '../pages/agencies/Billing';
@@ -108,6 +113,11 @@ const router = createBrowserRouter([
           // Admin Dashboard Routes
           { path: 'admin/dashboard', element: <AdminDashboard /> },
           { path: 'admin/users', element: <ManageUsersPage /> },
+          { path: 'admin/users/:userId', element: <UserDetailsPage /> },
+          { path: 'admin/jobs', element: <ManageJobsPage /> },
+          { path: 'admin/jobs/:jobId', element: <AdminJobDetailsPage /> },
+          { path: 'admin/jobs/:jobId/edit', element: <AdminEditJobPage /> },
+          { path: 'admin/plans', element: <ManagePlansPage /> },
           { path: 'admin/verifications', element: <VerificationQueuePage /> },
           { path: 'admin/verifications/:verificationId', element: <VerificationDetailsPage /> },
           { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },

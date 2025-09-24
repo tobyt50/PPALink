@@ -18,7 +18,7 @@ export async function sendMessageHandler(req: AuthRequest, res: Response, next: 
       where: { id: req.user.id },
       select: {
         id: true,
-        candidateProfile: { select: { firstName: true } },
+        candidateProfile: { select: { firstName: true, lastName: true } },
         ownedAgencies: { select: { name: true } },
       }
     });

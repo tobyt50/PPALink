@@ -1,6 +1,8 @@
 import type { ApplicationStatus } from './application';
 import type { Application } from './application';
 import type { Position } from './job';
+import type { Role } from './user';
+
 
 // --- Admin Analytics ---
 export interface AdminDashboardAnalytics {
@@ -13,6 +15,23 @@ export interface AdminDashboardAnalytics {
   totalJobs: number;
   totalApplications: number;
   pendingVerifications: number;
+}
+
+interface TimeSeriesDataPoint {
+  createdAt: string; // Date string
+  _count: { _all: number };
+}
+
+interface UserSignupDataPoint {
+  createdAt: string;
+  role: Role;
+  _count: { _all: number };
+}
+
+export interface AdminTimeSeriesData {
+  userSignups: UserSignupDataPoint[];
+  jobsPosted: TimeSeriesDataPoint[];
+  applicationsSubmitted: TimeSeriesDataPoint[];
 }
 
 // --- Agency Analytics ---

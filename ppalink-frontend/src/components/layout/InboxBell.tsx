@@ -49,9 +49,16 @@ export const InboxBell = () => {
       ));
     };
 
+    const handleNewMessage = () => {
+        refetch();
+    };
+
     socket.on('new_message_notification', handleNewMessageNotification);
+    socket.on('new_message', handleNewMessage);
+    
     return () => {
       socket.off('new_message_notification', handleNewMessageNotification);
+      socket.off('new_message', handleNewMessage);
     };
   }, [socket, navigate]);
 

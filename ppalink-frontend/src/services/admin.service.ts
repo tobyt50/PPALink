@@ -1,5 +1,12 @@
 import apiClient from '../config/axios';
+import type { Position } from '../types/job';
 import type { User, VerificationRequest } from '../types/user';
+import type { SubscriptionPlan } from '../types/subscription';
+
+interface ImpersonateResponse {
+  token: string;
+  user: User;
+}
 
 class AdminService {
   /**
@@ -29,6 +36,72 @@ class AdminService {
   ): Promise<User> {
     const response = await apiClient.patch(`/admin/users/${userId}/status`, { status });
     return response.data.data;
+  }
+
+  async forceVerifyEmail(userId: string): Promise<void> {
+    await apiClient.post(`/admin/users/${userId}/force-verify-email`);
+  }
+
+  async forceVerifyNysc(userId: string): Promise<void> {
+    await apiClient.post(`/admin/users/${userId}/force-verify-nysc`);
+  }
+
+  async forceVerifyDomain(userId: string): Promise<void> {
+    await apiClient.post(`/admin/users/${userId}/force-verify-domain`);
+  }
+  
+  async forceVerifyCac(userId: string): Promise<void> {
+    await apiClient.post(`/admin/users/${userId}/force-verify-cac`);
+  }
+
+  /**
+   * Sends a message from the system account to a specific user.
+   * @param userId The ID of the user to message.
+   * @param message The content of the message.
+   */
+  async sendSystemMessage(userId: string, message: string): Promise<void> {
+    await apiClient.post(`/admin/users/${userId}/send-message`, { message });
+  }
+
+  /**
+   * Requests a short-lived impersonation token for a specific user.
+   * @param userId The ID of the user to impersonate.
+   */
+  async impersonateUser(userId: string): Promise<ImpersonateResponse> {
+    const response = await apiClient.post(`/admin/users/${userId}/impersonate`);
+    return response.data.data;
+  }
+
+  async adminUpdateJob(jobId: string, data: any): Promise<Position> {
+    const response = await apiClient.patch(`/admin/jobs/${jobId}`, data);
+    return response.data.data;
+  }
+
+  async adminUnpublishJob(jobId: string): Promise<void> {
+    await apiClient.post(`/admin/jobs/${jobId}/unpublish`);
+  }
+
+  async adminRepublishJob(jobId: string): Promise<void> {
+    await apiClient.post(`/admin/jobs/${jobId}/republish`);
+  }
+
+  async getAllPlans(): Promise<SubscriptionPlan[]> {
+    const response = await apiClient.get('/admin/plans');
+    return response.data.data;
+  }
+
+  async createPlan(planData: Omit<SubscriptionPlan, 'id' | 'stripePriceId'>): Promise<SubscriptionPlan> {
+    const response = await apiClient.post('/admin/plans', planData);
+    return response.data.data;
+  }
+
+  async updatePlan(planId: string, planData: Partial<Omit<SubscriptionPlan, 'id' | 'stripePriceId'>>): Promise<SubscriptionPlan> {
+    const response = await apiClient.patch(`/admin/plans/${planId}`, planData);
+    return response.data.data;
+  }
+
+  async deletePlan(planId: string): Promise<void> {
+    await apiClient.delete(`/admin/plans/${planId}`);
   }
 }
 

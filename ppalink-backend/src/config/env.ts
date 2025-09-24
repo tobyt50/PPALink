@@ -13,7 +13,7 @@ const envSchema = z.object({
   SMTP_PORT: z.string().default("587"),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  SMTP_FROM_EMAIL: z.string().email().optional(),
+  SMTP_FROM_EMAIL: z.email().optional(),
 
   AWS_ACCESS_KEY_ID: z.string().min(1),
   AWS_SECRET_ACCESS_KEY: z.string().min(1),
@@ -24,6 +24,8 @@ const envSchema = z.object({
   STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_"),
   STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
+
+  SYSTEM_USER_ID: z.uuid(),
 });
 
 const env = envSchema.parse(process.env);

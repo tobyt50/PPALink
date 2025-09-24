@@ -1,8 +1,40 @@
 import type { CandidateProfile } from './candidate';
 import type { Agency } from './agency';
 
+export type Role = 'CANDIDATE' | 'AGENCY' | 'ADMIN';
+export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
 export type VerificationType = 'EMAIL' | 'DOMAIN' | 'CAC' | 'NYSC' | 'NIN' | 'CERTIFICATE';
 export type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+// This type should mirror the User model from Prisma, excluding sensitive fields.
+export interface User {
+  id: string;
+  email: string;
+  phone: string | null;
+  role: 'ADMIN' | 'CANDIDATE' | 'AGENCY';
+  status: 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
+  emailVerifiedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  candidateProfile?: CandidateProfile;
+  ownedAgencies?: Agency[];
+}
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  action: string;
+  details: {
+    jobId?: string;
+    jobTitle?: string;
+    applicationId?: string;
+    positionId?: string;
+    fromStatus?: string;
+    toStatus?: string;
+    changes?: string[];
+  } | null;
+  createdAt: string;
+}
 
 export interface VerificationRequest {
   id: string;
@@ -35,22 +67,4 @@ export interface AgencyMember {
           lastName: string;
       } | null;
   }
-}
-
-// This type should mirror the User model from Prisma, excluding sensitive fields.
-export interface User {
-  id: string;
-  email: string;
-  phone: string | null;
-  role: 'ADMIN' | 'CANDIDATE' | 'AGENCY';
-  status: 'ACTIVE' | 'SUSPENDED' | 'DELETED';
-  createdAt: string;
-  updatedAt: string;
-  candidateProfile?: {
-    firstName: string;
-    lastName: string;
-  } | null;
-  ownedAgencies?: {
-    name: string;
-  }[];
 }

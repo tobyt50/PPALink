@@ -1,13 +1,14 @@
 import { Role } from '@prisma/client';
 import prisma from '../../config/db';
+import { emitToAdmins } from '../../config/socket';
 import { hashPassword, signToken, verifyPassword } from '../utils/crypto';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
+import { logActivity } from '../activity/activity.service';
 
 // --- Candidate Registration Service ---
 export async function registerCandidate(input: RegisterCandidateInput) {
   const { email, password, firstName, lastName, phone } = input;
 
-  // Check if user already exists
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new Error('User with this email already exists');
@@ -15,7 +16,6 @@ export async function registerCandidate(input: RegisterCandidateInput) {
 
   const passwordHash = await hashPassword(password);
 
-  // Use a transaction to create both User and CandidateProfile
   const user = await prisma.user.create({
     data: {
       email,
@@ -31,13 +31,26 @@ export async function registerCandidate(input: RegisterCandidateInput) {
       },
     },
     include: {
-      candidateProfile: true, // Include the profile in the return
+      candidateProfile: true,
     },
   });
 
-  // Exclude password hash from the returned user object
+  // 1. Log the registration event to the user's own activity log.
+  await logActivity(user.id, 'user.register', { role: user.role });
+  
+  // 2. After successfully creating the user, emit an event to all connected admins.
+  emitToAdmins('admin:new_signup', {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      type: 'Candidate',
+  });
+
   const { passwordHash: _, ...userWithoutPassword } = user;
-  return userWithoutPassword;
+  
+  const token = signToken({ id: user.id, email: user.email, role: user.role });
+  
+  return { user: userWithoutPassword, token };
 }
 
 
@@ -45,7 +58,6 @@ export async function registerCandidate(input: RegisterCandidateInput) {
 export async function registerAgency(input: RegisterAgencyInput) {
   const { email, password, agencyName, phone } = input;
 
-  // Check if user (agency owner) already exists
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new Error('User with this email already exists');
@@ -53,9 +65,7 @@ export async function registerAgency(input: RegisterAgencyInput) {
 
   const passwordHash = await hashPassword(password);
 
-  // Use a transaction to ensure all related records are created successfully
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Create the User (owner)
     const owner = await tx.user.create({
       data: {
         email,
@@ -64,16 +74,12 @@ export async function registerAgency(input: RegisterAgencyInput) {
         role: Role.AGENCY,
       },
     });
-
-    // 2. Create the Agency, linking the owner
     const agency = await tx.agency.create({
       data: {
         name: agencyName,
         ownerUserId: owner.id,
       },
     });
-
-    // 3. Create the AgencyMember record to officially add the owner to the agency
     await tx.agencyMember.create({
       data: {
         agencyId: agency.id,
@@ -81,12 +87,29 @@ export async function registerAgency(input: RegisterAgencyInput) {
         role: 'OWNER',
       },
     });
-
     return { owner, agency };
   });
 
+  // 3. Log the registration event for the new agency owner.
+  await logActivity(result.owner.id, 'user.register', { 
+    role: result.owner.role,
+    agencyId: result.agency.id,
+    agencyName: result.agency.name,
+  });
+
+  // 4. Emit the event for agency signups as well.
+  emitToAdmins('admin:new_signup', {
+      id: result.owner.id,
+      email: result.owner.email,
+      role: result.owner.role,
+      type: 'Agency',
+  });
+  
   const { passwordHash: _, ...ownerWithoutPassword } = result.owner;
-  return { owner: ownerWithoutPassword, agency: result.agency };
+  
+  const token = signToken({ id: result.owner.id, email: result.owner.email, role: result.owner.role });
+  
+  return { owner: ownerWithoutPassword, agency: result.agency, token };
 }
 
 // --- Login Service ---
@@ -95,7 +118,6 @@ export async function login(input: LoginInput) {
   
   const user = await prisma.user.findUnique({ where: { email } });
   
-  // Check for user existence AND their status before verifying password
   if (!user || user.status !== 'ACTIVE') {
       throw new Error('Invalid email or password');
   }
@@ -104,8 +126,9 @@ export async function login(input: LoginInput) {
   if (!isPasswordValid) {
       throw new Error('Invalid email or password');
   }
+
+  await logActivity(user.id, 'user.login');
   
-  // Generate JWT
   const token = signToken({
       id: user.id,
       email: user.email,
@@ -115,4 +138,41 @@ export async function login(input: LoginInput) {
   const { passwordHash: _, ...userWithoutPassword } = user;
 
   return { user: userWithoutPassword, token };
+}
+
+/**
+ * Generates a short-lived, single-use token for an admin to impersonate another user.
+ * @param targetUserId The ID of the user to be impersonated.
+ * @param adminUserId The ID of the admin performing the action.
+ */
+export async function generateImpersonationToken(targetUserId: string, adminUserId: string) {
+  const targetUser = await prisma.user.findUnique({
+    where: { id: targetUserId },
+  });
+
+  if (!targetUser) {
+    throw new Error('Target user not found.');
+  }
+
+  // 1. Create a detailed audit log entry for this high-privilege action
+  await logActivity(adminUserId, 'admin.user_impersonate', {
+    targetUserId: targetUser.id,
+    targetUserEmail: targetUser.email,
+  });
+
+  // 2. Create a special JWT payload
+  const payload = {
+    id: targetUser.id,
+    email: targetUser.email,
+    role: targetUser.role,
+    impersonatorId: adminUserId, // Crucial for auditing
+    isImpersonation: true,       // A flag to identify this token type
+  };
+
+  // 3. Sign the token with a very short expiration time (e.g., 60 seconds)
+  // The user must use this token within 60 seconds to start the session.
+  // The session itself will last for the standard duration.
+  const token = signToken(payload, '60s');
+
+  return { token, user: targetUser };
 }

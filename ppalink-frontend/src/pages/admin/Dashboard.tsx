@@ -1,73 +1,115 @@
-import { Briefcase, CheckSquare, Package, Users } from 'lucide-react';
+import { Briefcase, CheckSquare, Clock, Package, Users, Zap } from 'lucide-react';
 import { StatCard } from '../../components/ui/StatCard';
 import { useAuthStore } from '../../context/AuthContext';
 import useFetch from '../../hooks/useFetch';
-import type { AdminDashboardAnalytics } from '../../types/analytics';
+import type { AdminDashboardAnalytics, AdminTimeSeriesData } from '../../types/analytics';
+import { AdminTimeSeriesChart } from './charts/TimeSeriesCharts';
+import { useActivityStore } from '../../context/ActivityStore'; // 1. Import the new persistent store
+import { formatDistanceToNow } from 'date-fns';
 
 const AdminDashboard = () => {
   const adminUser = useAuthStore((state) => state.user);
-  const { data: analytics, isLoading } = useFetch<AdminDashboardAnalytics>('/admin/analytics');
+  const { data: stats, isLoading: isLoadingStats } = useFetch<AdminDashboardAnalytics>('/admin/analytics');
+  const { data: timeSeries, isLoading: isLoadingTimeSeries } = useFetch<AdminTimeSeriesData>('/admin/analytics/timeseries');
+  
+  // 2. Read the live activity directly from the store.
+  // The logic to listen for socket events is now handled globally in SocketContext.
+  const liveActivity = useActivityStore((state) => state.events);
+
+  // 3. The local state and useEffect for socket events are REMOVED from this component, fixing the race condition.
+
+  const isLoading = isLoadingStats || isLoadingTimeSeries;
 
   return (
-    // Replicated overall page layout
     <div className="space-y-5">
-      {/* Header - Replicated from AgencyDashboard */}
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
-          Admin Dashboard
+          Admin Command Center
         </h1>
         <p className="mt-2 text-gray-600">
-          Welcome, {adminUser?.email || 'Admin'}. Here is a snapshot of the platform.
+          Welcome, {adminUser?.email || 'Admin'}. Here is a real-time snapshot of the platform.
         </p>
       </div>
       
-      {/* Analytics Grid - Replicated from AgencyDashboard */}
-      <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
         <StatCard
           icon={Users}
-          label="Total Users"
-          value={analytics?.totalUsers ?? 0}
+          label="Total Candidates"
+          value={stats?.userDistribution.candidates ?? 0}
           isLoading={isLoading}
           color="green"
+          linkTo="/admin/users?role=CANDIDATE"
         />
         <StatCard
           icon={Briefcase}
-          label="Total Jobs Posted"
-          value={analytics?.totalJobs ?? 0}
+          label="Total Agencies"
+          value={stats?.userDistribution.agencies ?? 0}
           isLoading={isLoading}
           color="green"
+          linkTo="/admin/users?role=AGENCY"
         />
         <StatCard
           icon={Package}
-          label="Total Applications"
-          value={analytics?.totalApplications ?? 0}
+          label="Total Jobs"
+          value={stats?.totalJobs ?? 0}
           isLoading={isLoading}
           color="green"
         />
         <StatCard
           icon={CheckSquare}
           label="Pending Verifications"
-          value={analytics?.pendingVerifications ?? 0}
+          value={stats?.pendingVerifications ?? 0}
+          isLoading={isLoading}
+          color="green"
+          linkTo="/admin/verifications"
+        />
+         <StatCard
+          icon={Clock}
+          label="Active Users Now"
+          value={isLoading ? 0 : '12'} // Placeholder for real-time data
           isLoading={isLoading}
           color="green"
         />
       </div>
 
-      {/* Placeholder Card - Replicated Card Styling */}
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-        {/* Card Header */}
-        <div className="p-5 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">Platform Analytics</h2>
-        </div>
-        {/* Card Body */}
-        <div className="p-6 min-h-[300px] flex items-center justify-center">
-            <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800">User Growth</h3>
-                <p className="mt-2 text-gray-500">
-                    Charts and more detailed reports will be displayed here in the future.
-                </p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-2 rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Platform Activity (Last 30 Days)</h2>
             </div>
-        </div>
+            <div className="p-6 min-h-[350px]">
+                {isLoading || !timeSeries ? (
+                    <div className="h-[350px] w-full bg-gray-200 rounded-md animate-pulse"></div>
+                ) : (
+                    <AdminTimeSeriesChart data={timeSeries} />
+                )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+             <div className="p-5 border-b border-gray-100 flex items-center space-x-2">
+                <Zap className="h-5 w-5 text-primary-600"/>
+                <h2 className="text-lg font-semibold text-gray-900">Live Activity Feed</h2>
+             </div>
+             <div className="p-6 min-h-[402px]">
+                 {/* This rendering logic is now more reliable because it's reading from a persistent store */}
+                 {liveActivity.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center pt-16">Waiting for new platform activity...</p>
+                ) : (
+                  <ul className="space-y-4">
+                    {liveActivity.map((event) => (
+                      <li key={event.id} className="flex items-start">
+                          <div className="flex-shrink-0"><event.icon className="h-5 w-5 text-gray-400 mt-0.5" /></div>
+                          <div className="ml-3">
+                              <p className="text-sm text-gray-800">{event.message}</p>
+                              <p className="text-xs text-gray-400">{formatDistanceToNow(event.timestamp, { addSuffix: true })}</p>
+                          </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+             </div>
+          </div>
       </div>
     </div>
   );

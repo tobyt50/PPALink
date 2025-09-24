@@ -4,12 +4,16 @@ import type { Server } from 'socket.io';
 import prisma from '../../config/db';
 import { onlineUsers } from '../../config/socket';
 import { createNotification } from '../notifications/notification.service';
+import env from '../../config/env';
 
 interface SendMessageInput {
   fromId: string;
   toId: string;
   body: string;
-  fromUser: Pick<User, 'id'> & { candidateProfile?: { firstName: string | null } | null; ownedAgencies?: { name: string }[] };
+  fromUser: Pick<User, 'id'> & { 
+    candidateProfile?: { firstName: string | null; lastName: string | null; } | null; 
+    ownedAgencies?: { name: string }[] 
+  };
 }
 
 /**
@@ -30,11 +34,19 @@ export async function sendMessage(data: SendMessageInput, io: Server) {
     io.to(recipientSocketId).emit('new_message', newMessage);
   }
 
-  const senderName = data.fromUser.candidateProfile?.firstName || data.fromUser.ownedAgencies?.[0]?.name || 'A user';
+  let senderName = 'A user'; // Default fallback
+
+  if (data.fromId === env.SYSTEM_USER_ID) {
+    senderName = 'PPALink Support';
+  } else if (data.fromUser.ownedAgencies && data.fromUser.ownedAgencies.length > 0) {
+    senderName = data.fromUser.ownedAgencies[0].name;
+  } else if (data.fromUser.candidateProfile?.firstName && data.fromUser.candidateProfile?.lastName) {
+    senderName = `${data.fromUser.candidateProfile.firstName} ${data.fromUser.candidateProfile.lastName}`;
+  }
   await createNotification(
     {
       userId: data.toId,
-      message: `You have a new message from ${senderName}.`,
+      message: `You have a new message from ${senderName}`,
       link: `/inbox?with=${data.fromId}`,
       type: NotificationType.MESSAGE,
       meta: {
