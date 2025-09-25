@@ -45,6 +45,15 @@ class AuthService {
     const response = await apiClient.post('/auth/login', payload);
     return response.data; // Expected to return { success, message, data: { user, token } }
   }
+
+  /**
+   * Allows a logged-in user to change their own password.
+   * This is used for the "force password change" flow.
+   * @param newPassword The new password to set.
+   */
+  async changePassword(newPassword: string): Promise<void> {
+    await apiClient.post('/auth/change-password', { newPassword });
+  }
 }
 
 // Export a singleton instance of the service

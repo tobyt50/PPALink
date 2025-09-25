@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { login, registerAgency, registerCandidate } from './auth.service';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
+import { AuthRequest } from '../../middleware/auth';
+import { changeUserPassword } from './auth.service';
 
 export async function registerCandidateHandler(
   req: Request<{}, {}, RegisterCandidateInput>,
@@ -63,4 +65,15 @@ export async function loginHandler(
         }
         next(error);
     }
+}
+
+export async function changePasswordHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword) return res.status(400).json({ success: false, message: 'New password is required.' });
+
+    await changeUserPassword(req.user.id, newPassword);
+    res.status(200).json({ success: true, message: 'Password changed successfully.' });
+  } catch (error) { next(error); }
 }

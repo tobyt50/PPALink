@@ -165,13 +165,18 @@ class AdminService {
     return response.data.data;
   }
 
-  async getAllAdmins(): Promise<AdminUser[]> {
-    const response = await apiClient.get('/admin/admins');
+  async getAllAdmins(queryParams?: URLSearchParams): Promise<User[]> {
+    const response = await apiClient.get(`/admin/admins?${queryParams?.toString() || ''}`);
     return response.data.data;
   }
 
   async createAdmin(email: string, role: Role): Promise<User> {
     const response = await apiClient.post('/admin/admins', { email, role });
+    return response.data.data;
+  }
+
+  async updateAdminRole(userId: string, role: Role): Promise<User> {
+    const response = await apiClient.patch(`/admin/admins/${userId}/role`, { role });
     return response.data.data;
   }
 

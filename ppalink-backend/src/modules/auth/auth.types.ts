@@ -48,6 +48,11 @@ export const LoginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+export const changePasswordSchema = z.object({
+  newPassword: z.string().min(8, 'New password must be at least 8 characters long'),
+});
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
 // TypeScript types
 export type RegisterCandidateInput = z.infer<typeof RegisterCandidateSchema>;
 export type RegisterAgencyInput = z.infer<typeof RegisterAgencySchema>;

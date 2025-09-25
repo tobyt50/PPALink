@@ -2,18 +2,22 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { ImpersonationBar } from '../components/layout/ImpersonationBar';
 import Navbar from '../components/layout/Navbar';
 import Sidebar from '../components/layout/Sidebar';
-import { ADMIN_NAV_ITEMS } from '../utils/constants';
+import { ADMIN_NAV_ITEMS, SUPER_ADMIN_NAV_ITEMS } from '../utils/constants';
+import { useAuthStore } from '../context/AuthContext';
 
 const AdminLayout = () => {
+  const user = useAuthStore((state) => state.user);
   const { pathname } = useLocation();
   const isInbox = pathname.startsWith('/inbox');
+  const navItems = user?.role === 'SUPER_ADMIN' ? SUPER_ADMIN_NAV_ITEMS : ADMIN_NAV_ITEMS;
+
   return (
     <div className="h-screen flex flex-col bg-gray-50 has-[[data-impersonating]]:pt-10">
       <ImpersonationBar /> 
       <Navbar />
 
       <div className="flex flex-grow overflow-y-hidden">
-        <Sidebar navItems={ADMIN_NAV_ITEMS} />
+        <Sidebar navItems={navItems} />
 
         <main className="flex-1 overflow-y-auto scrollbar-thin">
           {isInbox ? (

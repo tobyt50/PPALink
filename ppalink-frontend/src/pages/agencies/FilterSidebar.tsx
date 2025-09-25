@@ -190,8 +190,8 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
                   >
                     <SimpleDropdownItem onSelect={() => onChange(null)}>All Courses</SimpleDropdownItem>
                     {courses.map((course) => (
-                      <SimpleDropdownItem key={course.id} onSelect={() => onChange(course.name)}>
-                        {course.name}
+                      <SimpleDropdownItem key={course} onSelect={() => onChange(course)}>
+                        {course}
                       </SimpleDropdownItem>
                     ))}
                   </SimpleDropdown>
@@ -303,8 +303,8 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
                       >
                         <SimpleDropdownItem onSelect={() => onChange(null)}>All Courses</SimpleDropdownItem>
                         {courses.map((course) => (
-                          <SimpleDropdownItem key={course.id} onSelect={() => onChange(course.name)}>
-                            {course.name}
+                          <SimpleDropdownItem key={course} onSelect={() => onChange(course)}>
+                            {course}
                           </SimpleDropdownItem>
                         ))}
                       </SimpleDropdown>

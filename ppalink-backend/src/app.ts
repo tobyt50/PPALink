@@ -17,6 +17,8 @@ import passwordRoutes from './modules/password/password.routes';
 import publicRoutes from './modules/public/public.routes';
 import uploadRoutes from './modules/uploads/upload.routes';
 import utilRoutes from './modules/utils/utils.routes';
+import { authenticate } from "./middleware/auth";
+import { forcePasswordChange } from "./middleware/forcePasswordChange";
 
 const app = express();
 
@@ -24,7 +26,7 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 
-// ✅ Only apply JSON parsing for non-webhook routes
+// Only apply JSON parsing for non-webhook routes
 app.use((req, res, next) => {
   if (req.originalUrl === "/webhook" || req.originalUrl === "/api/billing/webhook") {
     next();
@@ -37,6 +39,13 @@ app.use((req, res, next) => {
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', message: 'ppalink backend running' });
 });
+
+// Stripe Webhook Route (main handler)
+app.post(
+  '/api/billing/webhook',
+  bodyParser.raw({ type: 'application/json' }),
+  stripeWebhookHandler
+);
 
 // Test webhook route
 app.post(
@@ -75,26 +84,32 @@ app.post(
   }
 );
 
-// Stripe Webhook Route (main handler)
-app.post(
-  '/api/billing/webhook',
-  bodyParser.raw({ type: 'application/json' }),
-  stripeWebhookHandler
-);
+// Apply JSON parsing for all other routes
+app.use(express.json());
+
+// --- Public Routes (no auth) ---
+app.use('/api/public', publicRoutes);
+app.use('/api/password', passwordRoutes);
+
+// Auth Routes: Login/Register are public, but change-password is protected.
+// Handled separately because they have mixed protection levels.
+app.use('/api/auth', authRoutes);
+
+// Apply middleware that should run for ALL protected API routes.
+app.use(express.json());      // 1. Parse JSON bodies
+app.use(authenticate);        // 2. Check for a valid JWT
+app.use(forcePasswordChange); // 3. Check if a password change is required
 
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/candidates', candidateRoutes);
-app.use('/api/agencies', agencyRoutes);
-app.use('/api/utils', utilRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/uploads', uploadRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/public', publicRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/password', passwordRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/billing', billingRoutes);
+app.use('/api/candidates', authenticate, forcePasswordChange, candidateRoutes);
+app.use('/api/agencies', authenticate, forcePasswordChange, agencyRoutes);
+app.use('/api/applications', authenticate, forcePasswordChange, applicationRoutes);
+app.use('/api/uploads', authenticate, forcePasswordChange, uploadRoutes);
+app.use('/api/admin', authenticate, forcePasswordChange, adminRoutes);
+app.use('/api/messages', authenticate, forcePasswordChange, messageRoutes);
+app.use('/api/notifications', authenticate, forcePasswordChange, notificationRoutes);
+app.use('/api/billing', authenticate, forcePasswordChange, billingRoutes);
+app.use('/api/utils', authenticate, forcePasswordChange, utilRoutes);
 
 // Error handler
 app.use(errorHandler);

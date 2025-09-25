@@ -1,7 +1,7 @@
 // This file is the single source of truth for truly static application-level constants.
 // Data that can be changed by an admin (like Industries or States) should be fetched from the API.
 
-import { BarChart2, BarChart3, Briefcase, CheckSquare, CreditCard, Heart, Home, Package, Search, Settings, Shield, User, UserPlus, Users } from 'lucide-react';
+import { BarChart2, BarChart3, Briefcase, CheckSquare, CreditCard, Heart, Home, Package, Search, Settings, Shield, ShieldCheck, User, UserPlus, Users } from 'lucide-react';
 import type { NavItem } from '../components/layout/Sidebar';
 
 export const NYSC_BATCHES = ['Batch A', 'Batch B', 'Batch C'];
@@ -32,4 +32,10 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { to: '/admin/reports', icon: BarChart3, text: 'Reporting' },
   { to: '/admin/settings', icon: Settings, text: 'Settings' },
   { to: '/admin/audit-logs', icon: Shield, text: 'Audit Logs' },
+];
+
+export const SUPER_ADMIN_NAV_ITEMS: NavItem[] = [
+    ...ADMIN_NAV_ITEMS,
+    // Add the link that only Super Admins can see
+    { to: '/admin/admins', icon: ShieldCheck, text: 'Manage Admins' },
 ];

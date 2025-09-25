@@ -8,7 +8,6 @@ sgMail.setApiKey(env.SMTP_PASS!);
 
 const RESET_TOKEN_SECRET = env.JWT_SECRET + '-password-reset';
 const RESET_TOKEN_EXPIRES_IN = '15m';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 export async function sendPasswordResetEmail(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
@@ -21,7 +20,7 @@ export async function sendPasswordResetEmail(email: string) {
     expiresIn: RESET_TOKEN_EXPIRES_IN,
   });
 
-  const resetLink = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
   const msg = {
     to: user.email,

@@ -6,7 +6,6 @@ import prisma from '../../config/db';
 sgMail.setApiKey(env.SMTP_PASS!);
 
 const DOMAIN_VERIFY_SECRET = env.JWT_SECRET + '-domain-verification';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 /**
  * Initiates the domain verification process by sending an email.
@@ -28,7 +27,7 @@ export async function initiateDomainVerification(agencyId: string, domain: strin
     expiresIn: '1h', // Link is valid for 1 hour
   });
 
-  const verificationLink = `${FRONTEND_URL}/verify-domain?token=${verificationToken}`;
+  const verificationLink = `${env.FRONTEND_URL}/verify-domain?token=${verificationToken}`;
   const verificationEmail = `verify@${domain}`; // Or admin@, webmaster@, etc.
 
   // Send the verification email

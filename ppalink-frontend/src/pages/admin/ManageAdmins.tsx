@@ -1,109 +1,151 @@
-import { Loader2, PlusCircle, Shield, Trash2, User } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowUpDown, Loader2, PlusCircle, Search, Shield, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../../components/ui/Button';
 import { ConfirmationModal } from '../../components/ui/Modal';
-import { useAuthStore } from '../../context/AuthContext';
-import useFetch from '../../hooks/useFetch';
+import { useDebounce } from '../../hooks/useDebounce';
 import adminService from '../../services/admin.service';
-import type { User as UserType } from '../../types/user';
-// We will create the form modal in the next step
-// import { AdminFormModal, type AdminFormValues } from './forms/AdminForm';
+import useFetch from '../../hooks/useFetch';
+import type { User, Role } from '../../types/user';
+import { AdminFormModal, type AdminFormValues } from './forms/AdminForm';
+import { RoleUpdateModal } from './forms/RoleUpdateModal';
+import { Input } from '../../components/forms/Input';
 
 const ManageAdminsPage = () => {
-  const currentUser = useAuthStore((state) => state.user);
-  const { data: admins, isLoading, error, refetch } = useFetch<UserType[]>('/admin/admins');
+  const [queryParams, setQueryParams] = useState(() => new URLSearchParams({ sortBy: 'createdAt', sortOrder: 'desc' }));
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // We will uncomment this when the form is ready
-  // const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; admin: UserType | null }>({ isOpen: false, admin: null });
+  useEffect(() => {
+    const newParams = new URLSearchParams(queryParams);
+    if (debouncedSearch) {
+      newParams.set('q', debouncedSearch);
+    } else {
+      newParams.delete('q');
+    }
+    newParams.set('page', '1');
+    setQueryParams(newParams);
+  }, [debouncedSearch]);
 
-  // Gatekeeping: Only SUPER_ADMINs should see this page's content
-  if (currentUser?.role !== 'SUPER_ADMIN') {
-    return <div className="p-8 text-center text-red-500">You do not have permission to view this page.</div>;
-  }
+  const { data: admins, isLoading, error, refetch } = useFetch<User[]>(
+    `/admin/admins?${queryParams.toString()}`
+  );
   
-  const openDeleteModal = (admin: UserType) => setDeleteModalState({ isOpen: true, admin });
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [roleModalState, setRoleModalState] = useState<{ isOpen: boolean; admin: User | null }>({ isOpen: false, admin: null });
+  const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; admin: User | null }>({ isOpen: false, admin: null });
+
+  const openDeleteModal = (admin: User) => setDeleteModalState({ isOpen: true, admin });
   const closeDeleteModal = () => setDeleteModalState({ isOpen: false, admin: null });
 
+  const handleCreateAdmin = async (data: AdminFormValues) => {
+    const createPromise = adminService.createAdmin(data.email, data.role as Role);
+    await toast.promise(createPromise, {
+        loading: 'Creating admin account...',
+        success: 'Admin created successfully! A temporary password has been sent to their email.',
+        error: (err) => err.response?.data?.message || 'Failed to create admin.'
+    });
+    refetch();
+  };
+  
   const handleDeleteAdmin = async () => {
     if (!deleteModalState.admin) return;
     const deletePromise = adminService.deleteAdmin(deleteModalState.admin.id);
     await toast.promise(deletePromise, {
-      loading: 'Deleting admin...',
-      success: () => {
-        refetch();
-        closeDeleteModal();
-        return 'Admin account deleted.';
-      },
-      error: (err) => {
-        closeDeleteModal();
-        return err.response?.data?.message || 'Failed to delete admin.';
-      }
+        loading: 'Deleting admin...',
+        success: 'Admin account deleted.',
+        error: (err) => err.response?.data?.message || 'Failed to delete admin.'
     });
+    refetch();
+    closeDeleteModal();
+  };
+  
+  const handleRoleUpdate = async (role: Role) => {
+    if (!roleModalState.admin) return;
+    const updatePromise = adminService.updateAdminRole(roleModalState.admin.id, role);
+    await toast.promise(updatePromise, {
+        loading: "Updating admin's role...",
+        success: "Role updated successfully!",
+        error: (err) => err.response?.data?.message || 'Failed to update role.'
+    });
+    refetch();
+    setRoleModalState({ isOpen: false, admin: null });
+  };
+  
+  const handleSort = (column: string) => {
+      const newParams = new URLSearchParams(queryParams);
+      const currentOrder = newParams.get('sortOrder');
+      newParams.set('sortBy', column);
+      newParams.set('sortOrder', currentOrder === 'asc' ? 'desc' : 'asc');
+      setQueryParams(newParams);
   };
 
   return (
     <>
-      {/* <AdminFormModal isOpen={isFormModalOpen} onClose={() => setIsFormModalOpen(false)} onSubmit={...} /> */}
+      <AdminFormModal isOpen={isFormModalOpen} onClose={() => setIsFormModalOpen(false)} onSubmit={handleCreateAdmin} />
+      <RoleUpdateModal isOpen={roleModalState.isOpen} onClose={() => setRoleModalState({ isOpen: false, admin: null })} onSubmit={handleRoleUpdate} admin={roleModalState.admin} />
       <ConfirmationModal
         isOpen={deleteModalState.isOpen}
         onClose={closeDeleteModal}
         onConfirm={handleDeleteAdmin}
         title={`Delete Admin: ${deleteModalState.admin?.email}`}
-        description="Are you sure? This will permanently delete the user account. This action cannot be undone."
+        description="Are you sure you want to permanently delete this admin account? This action cannot be undone."
         isDestructive
+        confirmButtonText="Delete"
       />
       
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center mb-8">
+      <div className="space-y-5">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary-600">Admin Account Management</h1>
-            <p className="mt-1 text-gray-500">Create, view, and manage administrator and support accounts.</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">Admin Management</h1>
+            <p className="mt-2 text-gray-600">Create, manage, and assign roles to administrators.</p>
           </div>
-          <Button onClick={() => alert('Open Create Form')}>
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Create New Admin
-          </Button>
+          <div className="flex w-full sm:w-auto space-x-2">
+            <div className="relative flex-grow">
+                <Input icon={Search} type="search" placeholder="Search by email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            </div>
+            <Button onClick={() => setIsFormModalOpen(true)}><PlusCircle className="mr-2 h-5 w-5" />Create</Button>
+          </div>
         </div>
 
-        {isLoading && <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-        {error && <div className="text-center text-red-500 p-8">Could not load admin accounts.</div>}
+        {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load admin accounts. It's likely you do not have SUPER_ADMIN privileges.</div>}
         
-        {!isLoading && !error && admins && (
-           <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-              <table className="min-w-full divide-y divide-gray-200">
+        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Role</th>
-                    <th className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {admins.map(admin => (
-                    <tr key={admin.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{admin.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${admin.role === 'SUPER_ADMIN' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
-                          {admin.role === 'SUPER_ADMIN' ? <Shield className="h-3 w-3 mr-1" /> : <User className="h-3 w-3 mr-1" />}
-                          {admin.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {/* Prevent a super admin from deleting themselves */}
-                        {currentUser.id !== admin.id && (
-                          <Button variant="ghost" size="sm" className="text-red-600" onClick={() => openDeleteModal(admin)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </td>
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <button onClick={() => handleSort('email')} className="flex items-center group">EMAIL <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <button onClick={() => handleSort('role')} className="flex items-center group">ROLE <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">STATUS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <button onClick={() => handleSort('createdAt')} className="flex items-center group">CREATED ON <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        </th>
+                        <th className="relative px-6 py-3"><span className="sr-only">ACTIONS</span></th>
                     </tr>
-                  ))}
-                 </tbody>
-              </table>
-           </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                    {isLoading && <tr><td colSpan={5} className="p-12 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600" /></td></tr>}
+                    {!isLoading && admins?.map((admin) => (
+                        <tr key={admin.id} className="hover:bg-gray-50/70 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{admin.email}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{admin.role}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${admin.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{admin.status}</span></td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(admin.createdAt).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary-600 hover:bg-primary-50" onClick={() => setRoleModalState({ isOpen: true, admin })}><Shield className="h-4 w-4"/></Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-red-600 hover:bg-red-50" onClick={() => openDeleteModal(admin)}><Trash2 className="h-4 w-4" /></Button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </>
   );

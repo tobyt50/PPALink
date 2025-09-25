@@ -18,6 +18,7 @@ export interface User {
   updatedAt: string;
   candidateProfile?: CandidateProfile;
   ownedAgencies?: Agency[];
+  passwordResetRequired: boolean;
 }
 
 export interface ActivityLog {

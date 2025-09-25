@@ -14,10 +14,6 @@ import { logAdminAction } from '../auditing/audit.service';
  * Excludes sensitive information like password hashes.
  * @returns A list of all users.
  */
-/**
- * Fetches all users on the platform with filtering, searching, and sorting.
- * This version is built upon your superior, secure implementation.
- */
 export async function getAllUsers(queryParams: {
   q?: string;
   role?: Role;
@@ -441,12 +437,19 @@ export async function adminGetJobById(jobId: string) {
 /**
  * Fetches all users with ADMIN or SUPER_ADMIN roles.
  */
-export async function getAllAdmins() {
+export async function getAllAdmins(query: any) {
+  const { sortBy = 'createdAt', sortOrder = 'desc', q } = query;
+  
+  const where: Prisma.UserWhereInput = {
+    role: { in: [Role.ADMIN, Role.SUPER_ADMIN] },
+    // Add a search clause for email
+    ...(q && { email: { contains: q, mode: 'insensitive' } }),
+  };
+  
   return prisma.user.findMany({
-    where: {
-      role: { in: [Role.ADMIN, Role.SUPER_ADMIN] },
-    },
+    where,
     select: { id: true, email: true, role: true, status: true, createdAt: true },
+    orderBy: { [sortBy]: sortOrder },
   });
 }
 
@@ -456,6 +459,7 @@ export async function getAllAdmins() {
  * @param role The role to assign (ADMIN or SUPER_ADMIN).
  * @param actorId The ID of the Super Admin performing the action (for auditing).
  */
+
 export async function createAdmin(email: string, role: Role, actorId: string) {
   if (role !== Role.ADMIN && role !== Role.SUPER_ADMIN) {
     throw new Error('Invalid role specified for an admin user.');
@@ -466,41 +470,82 @@ export async function createAdmin(email: string, role: Role, actorId: string) {
     throw new Error('A user with this email already exists.');
   }
 
-  // 1. Generate a secure, random temporary password
   const temporaryPassword = randomBytes(12).toString('hex');
   const passwordHash = await hashPassword(temporaryPassword);
 
-  // 2. Create the new admin user
   const newAdmin = await prisma.user.create({
     data: {
       email,
       passwordHash,
       role,
-      emailVerifiedAt: new Date(), // We consider it verified as an admin is creating it
+      emailVerifiedAt: new Date(),
+      passwordResetRequired: true,
     },
   });
 
-  // 3. Log this critical action
   await logAdminAction(actorId, 'admin.create', newAdmin.id, {
     newAdminEmail: newAdmin.email,
     assignedRole: newAdmin.role,
   });
 
-  // 4. Send the temporary password via email
   const msg = {
     to: email,
     from: env.SMTP_FROM_EMAIL!,
-    subject: 'Your PPAHire Admin Account has been created',
+    subject: 'Your PPALink Admin Account has been created',
     html: `
-      <p>An administrator account has been created for you on PPAHire.</p>
-      <p>Your username is: <strong>${email}</strong></p>
-      <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
-      <p>Please log in immediately and change your password.</p>
+      <div style="font-family: sans-serif; padding: 20px; color: #333;">
+        <h2>Welcome to the PPALink Admin Team</h2>
+        <p>An administrator account has been created for you.</p>
+        <p>Your username is: <strong>${email}</strong></p>
+        <p>Your temporary password is: <strong style="font-family: monospace; background-color: #f1f5f9; padding: 4px 8px; border-radius: 4px;">${temporaryPassword}</strong></p>
+        <p>For security, you will be required to change this password upon your first login.</p>
+        <a href="${env.FRONTEND_URL}/login" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; background-color: #16a34a; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">
+            Log In Now
+        </a>
+      </div>
     `,
   };
-  await sgMail.send(msg);
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Admin invitation email sent successfully to ${email}`);
+  } catch (error) {
+    console.error("CRITICAL: Failed to send admin creation email:", error);
+    // In a real production app, you would add this to a retry queue.
+    // We will still proceed to create the user, but this error must be logged.
+  }
 
   return newAdmin;
+}
+
+/**
+ * Updates the role of an admin/super_admin user.
+ * Can only be performed by a Super Admin.
+ */
+export async function updateAdminRole(targetUserId: string, newRole: Role, actorId: string) {
+  if (newRole !== Role.ADMIN && newRole !== Role.SUPER_ADMIN) {
+    throw new Error('Can only assign ADMIN or SUPER_ADMIN roles.');
+  }
+
+  const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!targetUser) throw new Error('Target user not found.');
+
+  if (targetUser.id === actorId) {
+    throw new Error('You cannot change your own role.');
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { role: newRole },
+  });
+
+  await logAdminAction(actorId, 'admin.role.update', targetUserId, {
+    targetUserEmail: updatedUser.email,
+    previousRole: targetUser.role,
+    newRole: updatedUser.role,
+  });
+
+  return updatedUser;
 }
 
 /**

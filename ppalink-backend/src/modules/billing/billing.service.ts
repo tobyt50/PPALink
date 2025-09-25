@@ -3,13 +3,12 @@ import type Stripe from 'stripe';
 import prisma from '../../config/db';
 import { emitToAdmins } from '../../config/socket'; // 1. Import the new helper function
 import { stripe } from '../../config/stripe';
+import env from '../../config/env';
 
 interface CreateCheckoutSessionInput {
   user: User;
   planId: string;
 }
-
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 export async function createCheckoutSession({ user, planId }: CreateCheckoutSessionInput) {
   const agency = await prisma.agency.findFirst({
@@ -48,8 +47,8 @@ export async function createCheckoutSession({ user, planId }: CreateCheckoutSess
       agencyId: agency.id,
       planId: plan.id,
     },
-    success_url: `${FRONTEND_URL}/dashboard/agency/billing?status=success`,
-    cancel_url: `${FRONTEND_URL}/dashboard/agency/billing?status=cancelled`,
+    success_url: `${env.FRONTEND_URL}/dashboard/agency/billing?status=success`,
+    cancel_url: `${env.FRONTEND_URL}/dashboard/agency/billing?status=cancelled`,
   });
 
   if (!checkoutSession.url) {
@@ -150,7 +149,7 @@ export async function createPortalSession(user: User) {
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: subscription.stripeCustomerId,
-    return_url: `${FRONTEND_URL}/dashboard/agency/billing`,
+    return_url: `${env.FRONTEND_URL}/dashboard/agency/billing`,
   });
 
   return { url: portalSession.url };

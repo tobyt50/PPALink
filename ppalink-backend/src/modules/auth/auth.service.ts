@@ -179,3 +179,14 @@ export async function generateImpersonationToken(targetUserId: string, adminUser
 
   return { token, user: targetUser };
 }
+
+export async function changeUserPassword(userId: string, newPassword: string) {
+  const passwordHash = await hashPassword(newPassword);
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      passwordHash,
+      passwordResetRequired: false, // UNSET THE FLAG
+    },
+  });
+}

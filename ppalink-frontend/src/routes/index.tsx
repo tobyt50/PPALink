@@ -19,6 +19,7 @@ import VerificationDetailsPage from '../pages/admin/VerificationDetails';
 import VerificationQueuePage from '../pages/admin/VerificationQueue';
 import AuditLogsPage from '../pages/admin/AuditLogs';
 import AuditLogDetailsPage from '../pages/admin/AuditLogDetails';
+import ManageAdminsPage from '../pages/admin/ManageAdmins';
 import BillingPage from '../pages/agencies/Billing';
 import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
 import CompanyProfilePage from '../pages/agencies/CompanyProfile';
@@ -41,6 +42,7 @@ import Login from '../pages/auth/Login';
 import RegisterAgency from '../pages/auth/RegisterAgency';
 import RegisterCandidate from '../pages/auth/RegisterCandidate';
 import ResetPasswordPage from '../pages/auth/ResetPassword';
+import ChangePasswordPage from '../pages/auth/ChangePassword';
 import BrowseJobsPage from '../pages/candidates/BrowseJobs';
 import CandidateDashboard from '../pages/candidates/Dashboard';
 import EditProfilePage from '../pages/candidates/EditProfile';
@@ -79,8 +81,18 @@ const router = createBrowserRouter([
       { path: 'privacy', element: <PrivacyPolicyPage /> },
     ],
   },
+
+  // Group 2: Special Authenticated Route (for password change)
+  // This route is protected but uses a minimal layout (no sidebar/navbar)
+  {
+      path: '/change-password',
+      element: <ProtectedRoute />, // It's still protected by the login check
+      children: [
+          { index: true, element: <ChangePasswordPage /> }
+      ]
+  },
   
-  // --- Group 2: All Authenticated Routes ---
+  // --- Group 3: Other Authenticated Routes ---
   {
     path: '/',
     element: <ProtectedRoute />, // The master guard for all children
@@ -128,6 +140,7 @@ const router = createBrowserRouter([
           { path: 'admin/verifications/:verificationId', element: <VerificationDetailsPage /> },
           { path: 'admin/audit-logs', element: <AuditLogsPage /> },
           { path: 'admin/audit-logs/:logId', element: <AuditLogDetailsPage /> },
+          { path: 'admin/admins', element: <ManageAdminsPage /> },
 
           // Shared Routes
           { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },

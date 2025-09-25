@@ -60,10 +60,8 @@ export async function sendInvitation({ agencyId, inviterId, inviteeEmail }: Send
       expiresAt,
     },
   });
-    
-  const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-    const inviteLink = `${FRONTEND_URL}/handle-invite?token=${token}`;
+    const inviteLink = `${env.FRONTEND_URL}/handle-invite?token=${token}`;
     console.log("INVITE LINK (for testing):", inviteLink);
   
   const msg = {

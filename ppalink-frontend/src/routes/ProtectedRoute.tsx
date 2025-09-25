@@ -22,7 +22,16 @@ const ProtectedRoute = () => {
   }, [isAuthenticated, user?.role, fetchLookupData, fetchShortlist]);
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Store the original intended location so we can redirect back to it after login
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If authenticated, check if a password reset is required.
+  if (user?.passwordResetRequired) {
+    // If they are not already on the change-password page, force them there.
+    if (location.pathname !== '/change-password') {
+      return <Navigate to="/change-password" replace />;
+    }
   }
   
   return (

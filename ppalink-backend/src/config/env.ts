@@ -7,6 +7,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.string().default("4000"),
   DATABASE_URL: z.string().url(),
+  FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL in your .env file'),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   REDIS_URL: z.string().default("redis://localhost:6379"),
   SMTP_HOST: z.string().default("smtp.example.com"),

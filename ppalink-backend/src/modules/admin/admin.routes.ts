@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import verificationRoutes from '../verifications/verification.routes';
-import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler, getAdminTimeSeriesAnalyticsHandler, getUserDetailsHandler, getJobsForAgencyUserHandler, getApplicationsForCandidateUserHandler, sendSystemMessageHandler, impersonateUserHandler, getAllJobsHandler, adminUpdateJobHandler, adminUnpublishJobHandler, adminRepublishJobHandler, adminGetJobByIdHandler, createAdminPortalSessionHandler, getAllAdminsHandler, createAdminHandler, deleteAdminHandler } from './admin.controller';
+import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler, getAdminTimeSeriesAnalyticsHandler, getUserDetailsHandler, getJobsForAgencyUserHandler, getApplicationsForCandidateUserHandler, sendSystemMessageHandler, impersonateUserHandler, getAllJobsHandler, adminUpdateJobHandler, adminUnpublishJobHandler, adminRepublishJobHandler, adminGetJobByIdHandler, createAdminPortalSessionHandler, getAllAdminsHandler, createAdminHandler, deleteAdminHandler, updateAdminRoleHandler } from './admin.controller';
 import { forceVerifyEmailHandler, forceVerifyNyscHandler, forceVerifyDomainHandler, forceVerifyCacHandler,
 } from './verification.controller';
 import { getActivityLogForUserHandler } from '../activity/activity.controller';
@@ -132,8 +132,13 @@ superAdminRouter.use(requireRole([Role.SUPER_ADMIN]));
 
 // GET /api/admin/admins
 superAdminRouter.get('/', getAllAdminsHandler);
+
 // POST /api/admin/admins
 superAdminRouter.post('/', createAdminHandler);
+
+// PATCH /api/admin/admins/:userId/role
+superAdminRouter.patch('/:userId/role', updateAdminRoleHandler);
+
 // DELETE /api/admin/admins/:userId
 superAdminRouter.delete('/:userId', deleteAdminHandler);
 

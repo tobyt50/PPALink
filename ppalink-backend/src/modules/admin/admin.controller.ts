@@ -1,6 +1,6 @@
 import { UserStatus } from '@prisma/client';
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById, getAllAdmins, createAdmin, deleteAdmin } from './admin.service';
+import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById, getAllAdmins, createAdmin, deleteAdmin, updateAdminRole } from './admin.service';
 import { getAdminTimeSeriesAnalytics, getUserDetails, getJobsForAgencyUser, getApplicationsForCandidateUser, getAllJobs } from './admin.service';
 import { generateImpersonationToken } from '../auth/auth.service';
 import { AuthRequest } from '../../middleware/auth';
@@ -226,7 +226,7 @@ export async function createAdminPortalSessionHandler(req: Request, res: Respons
 
 export async function getAllAdminsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const admins = await getAllAdmins();
+    const admins = await getAllAdmins(req.query);
     res.status(200).json({ success: true, data: admins });
   } catch (error) { next(error); }
 }
@@ -245,6 +245,20 @@ export async function createAdminHandler(req: AuthRequest, res: Response, next: 
       return res.status(409).json({ success: false, message: error.message });
     }
     next(error);
+  }
+}
+
+export async function updateAdminRoleHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    if (!role) return res.status(400).json({ success: false, message: 'Role is required.' });
+    
+    await updateAdminRole(userId, role, req.user.id);
+    res.status(200).json({ success: true, message: 'Admin role updated successfully.' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
   }
 }
 
