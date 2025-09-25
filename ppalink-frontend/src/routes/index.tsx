@@ -13,8 +13,12 @@ import ManageJobsPage from '../pages/admin/ManageJobs';
 import AdminJobDetailsPage from '../pages/admin/AdminJobDetails';
 import AdminEditJobPage from '../pages/admin/EditJob';
 import ManagePlansPage from '../pages/admin/ManagePlans';
+import SettingsPage from '../pages/admin/Settings';
+import ReportingPage from '../pages/admin/Reporting';
 import VerificationDetailsPage from '../pages/admin/VerificationDetails';
 import VerificationQueuePage from '../pages/admin/VerificationQueue';
+import AuditLogsPage from '../pages/admin/AuditLogs';
+import AuditLogDetailsPage from '../pages/admin/AuditLogDetails';
 import BillingPage from '../pages/agencies/Billing';
 import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
 import CompanyProfilePage from '../pages/agencies/CompanyProfile';
@@ -118,8 +122,14 @@ const router = createBrowserRouter([
           { path: 'admin/jobs/:jobId', element: <AdminJobDetailsPage /> },
           { path: 'admin/jobs/:jobId/edit', element: <AdminEditJobPage /> },
           { path: 'admin/plans', element: <ManagePlansPage /> },
+          { path: 'admin/settings', element: <SettingsPage /> },
+          { path: 'admin/reports', element: <ReportingPage /> },
           { path: 'admin/verifications', element: <VerificationQueuePage /> },
           { path: 'admin/verifications/:verificationId', element: <VerificationDetailsPage /> },
+          { path: 'admin/audit-logs', element: <AuditLogsPage /> },
+          { path: 'admin/audit-logs/:logId', element: <AuditLogDetailsPage /> },
+
+          // Shared Routes
           { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },
           { path: 'inbox', element: <InboxPage /> }
         ]

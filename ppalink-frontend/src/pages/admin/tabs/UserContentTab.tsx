@@ -1,42 +1,48 @@
-import { Briefcase, Package } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Briefcase, Loader2, Package } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
 import useFetch from '../../../hooks/useFetch';
 import type { Application } from '../../../types/application';
 import type { Position } from '../../../types/job';
 import type { User } from '../../../types/user';
 
-// Component to display a list of jobs for an Agency
 const JobsList = ({ userId }: { userId: string }) => {
-    const { data: jobs, isLoading } = useFetch<Position[]>(`/admin/users/${userId}/jobs`);
-    if (isLoading) return <p>Loading jobs...</p>;
-    if (!jobs || jobs.length === 0) return <p className="text-gray-500">This agency has not posted any jobs.</p>;
+    const { data: jobs, isLoading, error } = useFetch<Position[]>(`/admin/users/${userId}/jobs`);
+
+    if (isLoading) return <div className="flex h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    if (error) return <p className="text-center text-red-600 p-8">Could not load jobs.</p>;
+    if (!jobs || jobs.length === 0) return <p className="text-center text-gray-500 p-8">This agency has not posted any jobs.</p>;
 
     return (
-        <ul className="divide-y rounded-md border">
+        <ul className="divide-y divide-gray-100">
             {jobs.map(job => (
-                <li key={job.id} className="p-3">
-                    <p className="font-semibold text-gray-800">{job.title}</p>
-                    <p className="text-sm text-gray-500">Status: {job.status} | Visibility: {job.visibility}</p>
+                <li key={job.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <Link to={`/admin/jobs/${job.id}`} className="block">
+                        <p className="font-semibold text-primary-600">{job.title}</p>
+                        <p className="text-sm text-gray-500">Status: {job.status} | Visibility: {job.visibility}</p>
+                    </Link>
                 </li>
             ))}
         </ul>
     );
 };
 
-// Component to display a list of applications for a Candidate
 const ApplicationsList = ({ userId }: { userId: string }) => {
-    const { data: applications, isLoading } = useFetch<Application[]>(`/admin/users/${userId}/applications`);
-    if (isLoading) return <p>Loading applications...</p>;
-    if (!applications || applications.length === 0) return <p className="text-gray-500">This candidate has not submitted any applications.</p>;
+    const { data: applications, isLoading, error } = useFetch<Application[]>(`/admin/users/${userId}/applications`);
+    
+    if (isLoading) return <div className="flex h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    if (error) return <p className="text-center text-red-600 p-8">Could not load applications.</p>;
+    if (!applications || applications.length === 0) return <p className="text-center text-gray-500 p-8">This candidate has not submitted any applications.</p>;
     
     return (
-        <ul className="divide-y rounded-md border">
+        <ul className="divide-y divide-gray-100">
             {applications.map(app => (
-                <li key={app.id} className="p-3">
-                    <p className="font-semibold text-gray-800">Applied for: {app.position.title}</p>
-                    <p className="text-sm text-gray-500">
-                        at {app.position.agency ? app.position.agency.name : 'Unknown Agency'} | Status: {app.status}
-                    </p>
+                <li key={app.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <Link to={`/admin/jobs/${app.position.id}`} className="block">
+                        <p className="font-semibold text-primary-600">Applied for: {app.position.title}</p>
+                        <p className="text-sm text-gray-500">
+                            at {app.position.agency ? app.position.agency.name : 'Unknown Agency'} | Status: {app.status}
+                        </p>
+                    </Link>
                 </li>
             ))}
         </ul>
@@ -49,29 +55,26 @@ const UserContentTab = ({ user }: { user: User }) => {
 
   if (!userId) return null;
 
-  if (user.role === 'AGENCY') {
-    return (
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-          <Briefcase className="mr-2 h-5 w-5" /> Jobs Posted
+  const Card = ({ title, icon: Icon, children }: { title: string; icon: React.ElementType, children: React.ReactNode }) => (
+    <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Icon className="mr-2 h-5 w-5 text-primary-600" /> {title}
         </h3>
-        <JobsList userId={userId} />
       </div>
-    );
+      <div>{children}</div>
+    </div>
+  );
+
+  if (user.role === 'AGENCY') {
+    return <Card title="Jobs Posted" icon={Briefcase}><JobsList userId={userId} /></Card>;
   }
 
   if (user.role === 'CANDIDATE') {
-    return (
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-            <Package className="mr-2 h-5 w-5" /> Applications Submitted
-        </h3>
-        <ApplicationsList userId={userId} />
-      </div>
-    );
+    return <Card title="Applications Submitted" icon={Package}><ApplicationsList userId={userId} /></Card>;
   }
 
-  return <p className="text-gray-500">This user has no applicable content to display.</p>;
+  return <p className="text-gray-500 text-center p-8">This user has no applicable content to display.</p>;
 };
 
 export default UserContentTab;

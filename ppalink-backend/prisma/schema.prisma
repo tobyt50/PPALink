@@ -35,12 +35,11 @@ model User {
   sentInvitations Invitation[] @relation("SentInvitations")
 }
 
-
-
 enum Role {
-  ADMIN
   CANDIDATE
   AGENCY
+  ADMIN
+  SUPER_ADMIN
 }
 
 enum UserStatus {
@@ -279,6 +278,7 @@ enum ApplicationStatus {
   REVIEWING
   INTERVIEW
   OFFER
+  HIRED
   REJECTED
   WITHDRAWN
 }

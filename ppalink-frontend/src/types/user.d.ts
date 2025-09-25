@@ -11,7 +11,7 @@ export interface User {
   id: string;
   email: string;
   phone: string | null;
-  role: 'ADMIN' | 'CANDIDATE' | 'AGENCY';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'CANDIDATE' | 'AGENCY';
   status: 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
   emailVerifiedAt: string | null;
   createdAt: string;
@@ -36,6 +36,56 @@ export interface ActivityLog {
   createdAt: string;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+export interface AuditLog {
+  id: string;
+  actor: {
+    email: string;
+  };
+  action: string;
+  targetId: string | null;
+  metadata: {
+    // For user.status.update & verification.status.update
+    previousStatus?: UserStatus | VerificationStatus;
+    newStatus?: UserStatus | VerificationStatus;
+
+    // For plan.create
+    createdPlan?: Partial<SubscriptionPlan>;
+    
+    // For plan.update
+    planName?: string;
+    before?: Partial<SubscriptionPlan>;
+    after?: Partial<SubscriptionPlan>;
+
+    // For plan.delete
+    deletedPlan?: {
+        name: string;
+        price: number;
+    };
+
+    // For admin.user_impersonate & verification.status.update
+    targetUserEmail?: string;
+
+    // For verification.status.update
+    verificationId?: string;
+    verificationType?: VerificationType;
+    
+    // For user.message.send
+    recipientEmail?: string;
+    messageExcerpt?: string;
+
+  } | null;
+  createdAt: string;
+}
+
 export interface VerificationRequest {
   id: string;
   userId: string;
@@ -48,7 +98,7 @@ export interface VerificationRequest {
   createdAt: string;
   user: {
     email: string;
-    role: 'ADMIN' | 'CANDIDATE' | 'AGENCY';
+    role: 'SUPER_ADMIN' | 'ADMIN' | 'AGENCY' | 'CANDIDATE';
     candidateProfile: CandidateProfile | null;
     ownedAgencies?: Agency[];
   };

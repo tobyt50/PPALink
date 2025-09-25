@@ -1,4 +1,4 @@
-import { Clock, Loader2, Trash2, UserPlus } from 'lucide-react';
+import { Clock, Link, Loader2, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../../components/ui/Button';
@@ -137,6 +137,20 @@ const TeamManagementPage = () => {
     });
   };
 
+  const currentPlan = agency?.subscriptions?.[0]?.plan;
+  const memberCount = agency?.members?.length ?? 0;
+
+  let memberLimit: number;
+  if (currentPlan) {
+    // Paid user: use the limit from their plan.
+    memberLimit = currentPlan.memberLimit;
+  } else {
+    // Free user: use the dynamic limit from the new settings object.
+    memberLimit = agency?.freePlanSettings?.memberLimit ?? 1;
+  }
+
+  const canInviteMember = memberLimit === -1 || memberCount < memberLimit;
+
   if (isLoading) {
     return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
   }
@@ -161,10 +175,19 @@ const TeamManagementPage = () => {
             </h1>
             <p className="mt-2 text-gray-600">Invite and manage members of your agency.</p>
           </div>
-          <Button onClick={() => setIsInviteModalOpen(true)} size="lg" className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition">
-            <UserPlus className="mr-2 h-5 w-5" />
-            Invite Member
-          </Button>
+          {canInviteMember ? (
+            <Button onClick={() => setIsInviteModalOpen(true)}>
+              <UserPlus className="mr-2 h-5 w-5" />
+              Invite Member
+            </Button>
+          ) : (
+             <div className="text-right">
+                <p className="text-sm font-semibold text-yellow-700">Member Limit Reached</p>
+                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 hover:underline">
+                    Upgrade to invite more members
+                </Link>
+            </div>
+          )}
         </div>
 
         {/* Replicated Card Layout */}

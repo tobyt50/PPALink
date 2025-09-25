@@ -91,7 +91,21 @@ export async function getAgencyByUserId(userId: string) {
    throw new Error('User is not associated with any agency.');
  }
 
- return agencyMember.agency;
+ const hasActiveSub = agencyMember.agency.subscriptions.some(s => s.status === 'ACTIVE');
+  let freePlanSettings = null;
+
+  if (!hasActiveSub) {
+    const [jobLimit, memberLimit] = await prisma.$transaction([
+        prisma.setting.findUnique({ where: { key: 'freeJobPostLimit' } }),
+        prisma.setting.findUnique({ where: { key: 'freeMemberLimit' } })
+    ]);
+    freePlanSettings = {
+        jobPostLimit: jobLimit?.value as number ?? 1,
+        memberLimit: memberLimit?.value as number ?? 1
+    };
+  }
+
+ return {...agencyMember.agency, freePlanSettings};
 }
 
 /**

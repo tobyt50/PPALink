@@ -34,13 +34,18 @@ export async function createJobPosition(agencyId: string, data: CreateJobPositio
     include: { plan: true },
   });
 
-  const plan = agencySub?.plan || await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
+  let jobPostLimit: number;
+  let planName: string;
 
-  if (!plan) {
-    throw new Error('Could not determine your subscription plan. Please contact support.');
+  if (agencySub?.plan) {
+    jobPostLimit = agencySub.plan.jobPostLimit;
+    planName = agencySub.plan.name;
+  } else {
+    // User is on the Free plan, use the limit from the Settings table.
+    const freeJobLimitSetting = await prisma.setting.findUnique({ where: { key: 'freeJobPostLimit' } });
+    jobPostLimit = freeJobLimitSetting?.value as number ?? 1; // Fallback to 1 if setting is missing
+    planName = 'Free';
   }
-
-  const { jobPostLimit } = plan;
 
   if (jobPostLimit !== -1) {
     const currentOpenJobs = await prisma.position.count({
@@ -48,7 +53,7 @@ export async function createJobPosition(agencyId: string, data: CreateJobPositio
     });
 
     if (currentOpenJobs >= jobPostLimit) {
-      throw new Error(`Your "${plan.name}" plan is limited to ${jobPostLimit} open job(s). Please upgrade to post more.`);
+      throw new Error(`Your "${planName}" plan is limited to ${jobPostLimit} open job(s). Please upgrade to post more.`);
     }
   }
 

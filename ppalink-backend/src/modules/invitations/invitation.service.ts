@@ -31,15 +31,21 @@ export async function sendInvitation({ agencyId, inviterId, inviteeEmail }: Send
   if (!agency) throw new Error('Agency not found.');
 
   const activeSub = agency.subscriptions.find(s => s.status === 'ACTIVE');
-  const plan = activeSub?.plan || await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
-  
-  if (!plan) throw new Error('Could not determine subscription plan.');
+  let memberLimit: number;
+  let planName: string;
 
-  const { memberLimit } = plan;
+  if (activeSub?.plan) {
+    memberLimit = activeSub.plan.memberLimit;
+    planName = activeSub.plan.name;
+  } else {
+    const freeMemberLimitSetting = await prisma.setting.findUnique({ where: { key: 'freeMemberLimit' } });
+    memberLimit = freeMemberLimitSetting?.value as number ?? 1;
+    planName = 'Free';
+  }
+
   const currentMemberCount = agency.members.length;
-
   if (memberLimit !== -1 && currentMemberCount >= memberLimit) {
-    throw new Error(`Your "${plan.name}" plan is limited to ${memberLimit} team member(s). Please upgrade to invite more.`);
+    throw new Error(`Your "${planName}" plan is limited to ${memberLimit} team member(s). Please upgrade to invite more.`);
   }
 
   const token = randomBytes(32).toString('hex');

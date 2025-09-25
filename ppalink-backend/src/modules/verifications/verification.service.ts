@@ -1,5 +1,6 @@
 import { Prisma, VerificationStatus, VerificationType, VerificationLevel } from '@prisma/client';
 import prisma from '../../config/db';
+import { logAdminAction } from '../auditing/audit.service';
 
 /**
  * Fetches all verification requests that are currently pending.
@@ -51,9 +52,12 @@ export async function updateVerificationStatus(
     throw new Error('Cannot set verification status back to PENDING.');
   }
 
-  // Use a transaction to ensure both updates happen or neither do
   return prisma.$transaction(async (tx) => {
-    // 1. Update the verification record itself
+    const verificationBefore = await tx.verification.findUnique({
+        where: { id: verificationId },
+        select: { status: true }
+    });
+
     const verification = await tx.verification.update({
       where: { id: verificationId },
       data: {
@@ -65,7 +69,6 @@ export async function updateVerificationStatus(
       }
     });
 
-    // 2. THIS IS THE NEW LOGIC: If a CAC request was approved, update the agency
     if (verification.type === 'CAC' && newStatus === 'APPROVED' && verification.user.ownedAgencies.length > 0) {
       const agencyId = verification.user.ownedAgencies[0].id;
       await tx.agency.update({
@@ -77,23 +80,28 @@ export async function updateVerificationStatus(
     if (verification.user.candidateProfile) {
         let newLevel = verification.user.candidateProfile.verificationLevel;
 
-        // You can create a hierarchy of verification here.
-        // For example, NYSC verification is a higher level than email.
         if (verification.type === 'NYSC' && newLevel !== 'NYSC_VERIFIED') {
           newLevel = VerificationLevel.NYSC_VERIFIED;
         } else if (verification.type === 'CERTIFICATE' && newLevel !== 'CERTS_VERIFIED') {
            // Add more levels as needed
         }
 
-        // Update the candidate's main profile with the new status
         await tx.candidateProfile.update({
           where: { id: verification.user.candidateProfile.id },
           data: {
-            isVerified: true, // Set the general verified flag
+            isVerified: true,
             verificationLevel: newLevel,
           },
         });
       }
+
+    await logAdminAction(adminUserId, 'verification.status.update', verification.userId, {
+      verificationId: verification.id,
+      verificationType: verification.type,
+      targetUserEmail: verification.user.email,
+      previousStatus: verificationBefore?.status,
+      newStatus: newStatus,
+    });
 
     return verification;
   });

@@ -21,8 +21,17 @@ const JobPostsPage = () => {
 
   // Determine the current plan and job limits
   const currentPlan = agency?.subscriptions?.[0]?.plan;
-  const jobPostLimit = currentPlan?.jobPostLimit ?? 2; // Default to Free plan limit
-  const openJobsCount = jobs?.filter((job) => job.status === "OPEN").length ?? 0;
+  const openJobsCount = jobs?.filter(job => job.status === 'OPEN').length ?? 0;
+
+  let jobPostLimit: number;
+  if (currentPlan) {
+    // Paid user: use the limit from their plan.
+    jobPostLimit = currentPlan.jobPostLimit;
+  } else {
+    // Free user: use the dynamic limit from the new settings object.
+    jobPostLimit = agency?.freePlanSettings?.jobPostLimit ?? 1;
+  }
+
   const canPostNewJob = jobPostLimit === -1 || openJobsCount < jobPostLimit;
 
   return (

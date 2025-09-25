@@ -2,8 +2,12 @@ import { NotificationType, Prisma, PositionVisibility, PositionStatus, Role, Use
 import { subDays, startOfDay } from 'date-fns';
 import prisma from '../../config/db';
 import env from '../../config/env';
+import { randomBytes } from 'crypto';
+import { hashPassword } from '../utils/crypto';
+import sgMail from '@sendgrid/mail';
 import { onlineUsers, ioInstance } from '../../config/socket';
 import { createNotification } from '../notifications/notification.service';
+import { logAdminAction } from '../auditing/audit.service';
 
 /**
  * Fetches a paginated list of all users.
@@ -85,22 +89,22 @@ export async function getAllUsers(queryParams: {
  * @param userId The ID of the user to update.
  * @param newStatus The new status for the user ('ACTIVE', 'SUSPENDED', 'DELETED').
  */
-export async function updateUserStatus(userId: string, newStatus: UserStatus) {
+export async function updateUserStatus(userId: string, newStatus: UserStatus, adminUserId: string) {
   // Find the user first to ensure they exist
-  const user = await prisma.user.findUnique({
+  const userBefore = await prisma.user.findUnique({
     where: { id: userId },
   });
 
-  if (!user) {
+  if (!userBefore) {
     throw new Error('User not found.');
   }
 
   // Prevent an admin from accidentally changing their own status
-  if (user.role === 'ADMIN') {
+  if (userBefore.role === 'ADMIN') {
       throw new Error('Cannot change the status of an admin account.');
   }
 
-  return prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: {
       id: userId,
     },
@@ -112,6 +116,12 @@ export async function updateUserStatus(userId: string, newStatus: UserStatus) {
       id: true, email: true, phone: true, role: true, status: true,
       emailVerifiedAt: true, createdAt: true, updatedAt: true,
     },
+  });
+
+  await logAdminAction(adminUserId, 'user.status.update', userId, {
+    targetUserEmail: updatedUser.email,
+    previousStatus: userBefore?.status,
+    newStatus: updatedUser.status,
   });
 }
 
@@ -304,11 +314,13 @@ export async function getApplicationsForCandidateUser(userId: string) {
  * @param toUserId The ID of the user receiving the message.
  * @param body The content of the message.
  */
-export async function sendSystemMessage(toUserId: string, body: string) {
+export async function sendSystemMessage(toUserId: string, body: string, adminUserId: string) {
   if (!env.SYSTEM_USER_ID) {
     throw new Error('System User ID is not configured.');
   }
 
+  const recipient = await prisma.user.findUnique({ where: { id: toUserId }, select: { email: true } });
+  
   const message = await prisma.message.create({
     data: {
       fromId: env.SYSTEM_USER_ID,
@@ -334,6 +346,10 @@ export async function sendSystemMessage(toUserId: string, body: string) {
       }
   }, ioInstance);
 
+  await logAdminAction(adminUserId, 'user.message.send', toUserId, {
+    recipientEmail: recipient?.email,
+    messageExcerpt: body.substring(0, 50) + (body.length > 50 ? '...' : ''),
+  });
   return message;
 }
 
@@ -422,3 +438,88 @@ export async function adminGetJobById(jobId: string) {
   return job;
 }
 
+/**
+ * Fetches all users with ADMIN or SUPER_ADMIN roles.
+ */
+export async function getAllAdmins() {
+  return prisma.user.findMany({
+    where: {
+      role: { in: [Role.ADMIN, Role.SUPER_ADMIN] },
+    },
+    select: { id: true, email: true, role: true, status: true, createdAt: true },
+  });
+}
+
+/**
+ * Creates a new admin user and sends them an email with a temporary password.
+ * @param email The new admin's email.
+ * @param role The role to assign (ADMIN or SUPER_ADMIN).
+ * @param actorId The ID of the Super Admin performing the action (for auditing).
+ */
+export async function createAdmin(email: string, role: Role, actorId: string) {
+  if (role !== Role.ADMIN && role !== Role.SUPER_ADMIN) {
+    throw new Error('Invalid role specified for an admin user.');
+  }
+
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    throw new Error('A user with this email already exists.');
+  }
+
+  // 1. Generate a secure, random temporary password
+  const temporaryPassword = randomBytes(12).toString('hex');
+  const passwordHash = await hashPassword(temporaryPassword);
+
+  // 2. Create the new admin user
+  const newAdmin = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      role,
+      emailVerifiedAt: new Date(), // We consider it verified as an admin is creating it
+    },
+  });
+
+  // 3. Log this critical action
+  await logAdminAction(actorId, 'admin.create', newAdmin.id, {
+    newAdminEmail: newAdmin.email,
+    assignedRole: newAdmin.role,
+  });
+
+  // 4. Send the temporary password via email
+  const msg = {
+    to: email,
+    from: env.SMTP_FROM_EMAIL!,
+    subject: 'Your PPAHire Admin Account has been created',
+    html: `
+      <p>An administrator account has been created for you on PPAHire.</p>
+      <p>Your username is: <strong>${email}</strong></p>
+      <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
+      <p>Please log in immediately and change your password.</p>
+    `,
+  };
+  await sgMail.send(msg);
+
+  return newAdmin;
+}
+
+/**
+ * Deletes an admin user.
+ * @param targetUserId The ID of the admin to delete.
+ * @param actorId The ID of the Super Admin performing the action.
+ */
+export async function deleteAdmin(targetUserId: string, actorId: string) {
+    const adminToDelete = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!adminToDelete) throw new Error('Admin user not found.');
+
+    if (adminToDelete.id === actorId) {
+        throw new Error('You cannot delete your own account.');
+    }
+    
+    await prisma.user.delete({ where: { id: targetUserId } });
+
+    await logAdminAction(actorId, 'admin.delete', targetUserId, {
+        deletedAdminEmail: adminToDelete.email,
+        deletedAdminRole: adminToDelete.role,
+    });
+}

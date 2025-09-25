@@ -4,6 +4,7 @@ import { emitToAdmins } from '../../config/socket';
 import { hashPassword, signToken, verifyPassword } from '../utils/crypto';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
 import { logActivity } from '../activity/activity.service';
+import { logAdminAction } from '../auditing/audit.service';
 
 // --- Candidate Registration Service ---
 export async function registerCandidate(input: RegisterCandidateInput) {
@@ -154,19 +155,21 @@ export async function generateImpersonationToken(targetUserId: string, adminUser
     throw new Error('Target user not found.');
   }
 
-  // 1. Create a detailed audit log entry for this high-privilege action
   await logActivity(adminUserId, 'admin.user_impersonate', {
     targetUserId: targetUser.id,
     targetUserEmail: targetUser.email,
   });
 
-  // 2. Create a special JWT payload
+  await logAdminAction(adminUserId, 'admin.user_impersonate', targetUserId, {
+    targetUserEmail: targetUser.email,
+  });
+
   const payload = {
     id: targetUser.id,
     email: targetUser.email,
     role: targetUser.role,
-    impersonatorId: adminUserId, // Crucial for auditing
-    isImpersonation: true,       // A flag to identify this token type
+    impersonatorId: adminUserId,
+    isImpersonation: true,
   };
 
   // 3. Sign the token with a very short expiration time (e.g., 60 seconds)

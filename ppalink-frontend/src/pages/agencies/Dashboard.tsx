@@ -45,7 +45,23 @@ const AgencyDashboard = () => {
   const stats = dashboardData?.stats;
   const verification = dashboardData?.verificationStatus;
   const memberCount = agency?.members?.length ?? 0;
-  const memberLimit = agency?.subscriptions?.[0]?.plan.memberLimit ?? 1;
+  
+  const currentPlan = agency?.subscriptions?.[0]?.plan;
+  let jobPostLimit: number;
+  let memberLimit: number;
+
+  if (currentPlan) {
+    // Paid user: use limits from their plan.
+    jobPostLimit = currentPlan.jobPostLimit;
+    memberLimit = currentPlan.memberLimit;
+  } else {
+    // Free user: use dynamic limits from the settings object.
+    jobPostLimit = agency?.freePlanSettings?.jobPostLimit ?? 1;
+    memberLimit = agency?.freePlanSettings?.memberLimit ?? 1;
+  }
+
+  const openJobsCount = stats?.openJobs ?? 0;
+  const canPostNewJob = jobPostLimit === -1 || openJobsCount < jobPostLimit;
  
   return (
     <div className="space-y-5">
@@ -59,15 +75,21 @@ const AgencyDashboard = () => {
             Welcome back 👋 — here’s a summary of your activity.
           </p>
         </div>
-        <Link to="/dashboard/agency/jobs/create">
-          <Button
-            size="lg"
-            className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
-          >
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Post a New Job
-          </Button>
-        </Link>
+        {canPostNewJob ? (
+            <Link to="/dashboard/agency/jobs/create">
+              <Button size="lg" className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Post a New Job
+              </Button>
+            </Link>
+        ) : (
+             <div className="text-right">
+                <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
+                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 hover:underline">
+                    Upgrade to post more
+                </Link>
+            </div>
+        )}
       </div>
 
       {/* Stat Cards */}

@@ -34,6 +34,65 @@ export interface AdminTimeSeriesData {
   applicationsSubmitted: TimeSeriesDataPoint[];
 }
 
+// TYPES for the Reporting page
+export interface ReportFilters {
+  startDate: string; // ISO string
+  endDate: string;   // ISO string
+  groupBy: 'day' | 'week' | 'month';
+  stateId?: number;
+  industryId?: number;
+  planId?: string;
+  fieldOfStudy?: string;
+}
+
+export interface UserGrowthDataPoint {
+    date: string; // YYYY-MM-DD
+    CANDIDATE: number;
+    AGENCY: number;
+}
+
+// TYPE for the Funnel Report data points
+export interface FunnelDataPoint {
+  stage: 'Applied' | 'Reviewing' | 'Interview' | 'Offer' | 'Hired';
+  count: number;
+  conversion: number; // Conversion rate from the PREVIOUS stage
+}
+
+export interface NameCountPair {
+  name: string;
+  count: number;
+}
+
+export interface CandidateInsightsData {
+  geographicDistribution: NameCountPair[];
+  nyscBatchDistribution: NameCountPair[];
+  gpaDistribution: NameCountPair[];
+  skillDistribution: NameCountPair[];
+}
+export interface AgencyInsightsData {
+  totalAgencies: number;
+  planDistribution: NameCountPair[];
+  industryDistribution: NameCountPair[];
+  engagement: {
+    avgJobsPosted: number;
+    avgShortlisted: number;
+    totalJobsByGroup: number;
+  };
+}
+
+// TYPE for the Job Market Insights Report data
+export interface JobMarketInsightsData {
+  postingVolume: Record<string, number>; // { "2025-09-15": 5, ... }
+  byEmploymentType: NameCountPair[];
+  remoteDistribution: NameCountPair[];
+  salaryAnalytics: {
+    avgMin: number | null;
+    avgMax: number | null;
+    overallMin: number | null;
+    overallMax: number | null;
+  };
+}
+
 // --- Agency Analytics ---
 
 // Tier 1: Data available to Free plan users

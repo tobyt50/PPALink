@@ -46,11 +46,17 @@ export async function getAllUniversities() {
  */
 export async function getAllCourses() {
   const courses = await prisma.education.findMany({
+    where: {
+      field: {
+        not: null,
+        notIn: [''],
+      },
+    },
     distinct: ['field'],
     select: { field: true },
     orderBy: { field: 'asc' },
   });
-  return courses.map(c => ({ name: c.field }));
+  return courses.map(c => c.field!);
 }
 
 /**

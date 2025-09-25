@@ -9,12 +9,15 @@ import adminService from '../../services/admin.service';
 import type { User, UserStatus, Role } from '../../types/user';
 import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
 import { useDebounce } from '../../hooks/useDebounce';
+import { Input } from '../../components/forms/Input';
+import { Button } from '../../components/ui/Button';
 
 const UserRoleBadge = ({ role }: { role: User['role'] }) => {
   const roleStyles: Record<User['role'], string> = {
     ADMIN: 'bg-red-100 text-red-800',
-    AGENCY: 'bg-blue-100 text-blue-800',
+    AGENCY: 'bg-primary-50 text-primary-700',
     CANDIDATE: 'bg-green-100 text-green-800',
+    SUPER_ADMIN: 'bg-purple-100 text-purple-800',
   };
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${roleStyles[role]}`}>
@@ -70,10 +73,10 @@ const ManageUsersPage = () => {
     setSearchParams(params, { replace: true });
   }, [query, roleFilter, statusFilter, sortBy, sortOrder, setSearchParams]);
 
-
   const [modalState, setModalState] = useState<{ isOpen: boolean; user: User | null; action: 'SUSPENDED' | 'ACTIVE' | null; }>({ isOpen: false, user: null, action: null });
   const openConfirmationModal = (user: User, action: 'SUSPENDED' | 'ACTIVE') => setModalState({ isOpen: true, user, action });
   const closeConfirmationModal = () => setModalState({ isOpen: false, user: null, action: null });
+
   const handleUpdateStatus = async () => {
     if (!modalState.user || !modalState.action) return;
     const updatePromise = adminService.updateUserStatus(modalState.user.id, modalState.action);
@@ -91,8 +94,9 @@ const ManageUsersPage = () => {
     });
   };
 
-  const roleOptions: { [key: string]: string } = { ALL: 'All Roles', CANDIDATE: 'Candidate', AGENCY: 'Agency', ADMIN: 'Admin' };
+  const roleOptions: { [key: string]: string } = { ALL: 'All Roles', CANDIDATE: 'Candidate', AGENCY: 'Agency', ADMIN: 'Admin', SUPER_ADMIN: 'Super Admin' };
   const statusOptions: { [key: string]: string } = { ALL: 'All Statuses', ACTIVE: 'Active', SUSPENDED: 'Suspended' };
+  const sortOptions: { [key: string]: string } = { createdAt: 'Date Joined', email: 'Email' };
 
   return (
     <>
@@ -112,12 +116,18 @@ const ManageUsersPage = () => {
           <p className="mt-2 text-gray-600">View, search, and manage all users on the platform.</p>
         </div>
 
-        <div className="p-4 bg-white border rounded-lg shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="lg:col-span-2">
-              <div className="relative"><div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><Search className="h-5 w-5 text-gray-400" /></div><input type="search" placeholder="Search by name, agency, or email..." value={query} onChange={e => setQuery(e.target.value)} className="block w-full rounded-md border-gray-300 pl-10"/></div>
+        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <Input
+                icon={Search}
+                type="search"
+                placeholder="Search by name, agency, or email..."
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+              />
             </div>
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <SimpleDropdown trigger={<DropdownTrigger>{roleOptions[roleFilter]}<ChevronDown className="h-4 w-4 text-gray-500" /></DropdownTrigger>}>
                 {Object.entries(roleOptions).map(([key, value]) => <SimpleDropdownItem key={key} onSelect={() => setRoleFilter(key as Role | 'ALL')}>{value}</SimpleDropdownItem>)}
               </SimpleDropdown>
@@ -135,18 +145,28 @@ const ManageUsersPage = () => {
           <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900">Platform Users ({users.length})</h2>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Sort by:</span>
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="text-sm rounded-md border-gray-200">
-                        <option value="createdAt">Date Joined</option>
-                        <option value="email">Email</option>
-                    </select>
+                <div className="flex items-center gap-2 min-w-0 whitespace-nowrap">
+                    <span className="text-sm text-gray-500">Sort by:</span>
+                    <SimpleDropdown
+                      trigger={
+                        <Button variant="ghost" size="sm">
+                          {sortOptions[sortBy]}
+                          <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
+                        </Button>
+                      }
+                    >
+                      {Object.entries(sortOptions).map(([key, value]) => (
+                        <SimpleDropdownItem key={key} onSelect={() => setSortBy(key)}>
+                          {value}
+                        </SimpleDropdownItem>
+                      ))}
+                    </SimpleDropdown>
                 </div>
             </div>
             
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50/70">
+                <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Email</th>
@@ -161,14 +181,14 @@ const ManageUsersPage = () => {
                     <tr><td colSpan={6} className="text-center p-8 text-gray-500">No users found matching your criteria.</td></tr>
                   ) : (
                     users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                      <tr key={user.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A')}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{user.email}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm"><UserRoleBadge role={user.role} /></td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm"><UserStatusBadge status={user.status} /></td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{new Date(user.createdAt).toLocaleDateString()}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
-                           {user.role !== 'ADMIN' && (
+                           {user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && (
                              <SimpleDropdown
                                trigger={
                                  <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-800">
@@ -177,12 +197,12 @@ const ManageUsersPage = () => {
                                }
                              >
                                {user.status === 'ACTIVE' ? (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 text-yellow-600">
-                                   <UserX className="mr-2 h-4 w-4" /> <span className="group-hover:text-yellow-700">Suspend Account</span>
+                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800">
+                                   <UserX className="mr-2 h-4 w-4" /> <span>Suspend Account</span>
                                  </SimpleDropdownItem>
                                ) : (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 text-green-600">
-                                   <UserCheck className="mr-2 h-4 w-4" /> <span className="group-hover:text-green-700">Reactivate Account</span>
+                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 hover:bg-green-50 hover:text-green-800">
+                                   <UserCheck className="mr-2 h-4 w-4" /> <span>Reactivate Account</span>
                                  </SimpleDropdownItem>
                                )}
                              </SimpleDropdown>

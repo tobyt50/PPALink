@@ -12,7 +12,7 @@ const RoleBasedLayout = () => {
   }
 
   // Render the correct layout based on the user's role
-  if (user.role === 'ADMIN') {
+  if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
     return <AdminLayout />;
   }
 

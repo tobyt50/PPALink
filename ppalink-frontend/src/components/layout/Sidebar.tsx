@@ -44,7 +44,7 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   const isCollapsed = !isSidebarOpen;
   const user = useAuthStore((state) => state.user);
 
-  const title = user?.role === 'ADMIN' ? 'Admin Panel' : 'Quick Links';
+  const title = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? 'Admin Panel' : 'Quick Links';
   
   const handleLinkClick = () => {
     // Auto-close sidebar on mobile when a link is clicked

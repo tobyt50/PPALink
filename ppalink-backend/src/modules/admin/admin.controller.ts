@@ -1,9 +1,10 @@
 import { UserStatus } from '@prisma/client';
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById } from './admin.service';
+import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById, getAllAdmins, createAdmin, deleteAdmin } from './admin.service';
 import { getAdminTimeSeriesAnalytics, getUserDetails, getJobsForAgencyUser, getApplicationsForCandidateUser, getAllJobs } from './admin.service';
 import { generateImpersonationToken } from '../auth/auth.service';
 import { AuthRequest } from '../../middleware/auth';
+import { createAdminPortalSession } from '../billing/billing.service';
 
 /**
  * Handler for an admin to get a list of all users.
@@ -20,7 +21,7 @@ export async function getAllUsersHandler(req: Request, res: Response, next: Next
 /**
  * Handler for an admin to update a user's status.
  */
-export async function updateUserStatusHandler(req: Request, res: Response, next: NextFunction) {
+export async function updateUserStatusHandler(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { userId } = req.params;
     const { status } = req.body;
@@ -30,7 +31,7 @@ export async function updateUserStatusHandler(req: Request, res: Response, next:
       return res.status(400).json({ success: false, message: 'A valid user status is required.' });
     }
 
-    const updatedUser = await updateUserStatus(userId, status);
+    const updatedUser = await updateUserStatus(userId, status, req.user.id);
 
     return res.status(200).json({
       success: true,
@@ -114,14 +115,14 @@ export async function getApplicationsForCandidateUserHandler(req: Request, res: 
   }
 }
 
-export async function sendSystemMessageHandler(req: Request, res: Response, next: NextFunction) {
+export async function sendSystemMessageHandler(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { userId } = req.params;
     const { message } = req.body;
     if (!message) {
       return res.status(400).json({ success: false, message: 'Message body is required.' });
     }
-    await sendSystemMessage(userId, message);
+    await sendSystemMessage(userId, message, req.user.id);
     res.status(200).json({ success: true, message: 'Message sent successfully.' });
   } catch (error) {
     next(error);
@@ -206,6 +207,60 @@ export async function adminGetJobByIdHandler(req: Request, res: Response, next: 
     if (error.message.includes('not found')) {
       return res.status(404).json({ success: false, message: error.message });
     }
+    next(error);
+  }
+}
+
+export async function createAdminPortalSessionHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { agencyId } = req.body;
+        if (!agencyId) {
+            return res.status(400).json({ success: false, message: 'Agency ID is required.' });
+        }
+        const { url } = await createAdminPortalSession(agencyId);
+        res.status(200).json({ success: true, data: { url } });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+}
+
+export async function getAllAdminsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const admins = await getAllAdmins();
+    res.status(200).json({ success: true, data: admins });
+  } catch (error) { next(error); }
+}
+
+export async function createAdminHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { email, role } = req.body;
+    if (!email || !role) {
+      return res.status(400).json({ success: false, message: 'Email and role are required.' });
+    }
+    const newAdmin = await createAdmin(email, role, req.user.id);
+    res.status(201).json({ success: true, data: newAdmin });
+  } catch (error: any) {
+    if (error.message.includes('already exists')) {
+      return res.status(409).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function deleteAdminHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { userId } = req.params;
+    await deleteAdmin(userId, req.user.id);
+    res.status(204).send();
+  } catch (error: any) {
+      if (error.message.includes('your own account')) {
+          return res.status(403).json({ success: false, message: error.message });
+      }
+      if (error.message.includes('not found')) {
+          return res.status(404).json({ success: false, message: error.message });
+      }
     next(error);
   }
 }

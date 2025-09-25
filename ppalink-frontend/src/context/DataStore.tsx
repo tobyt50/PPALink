@@ -26,7 +26,7 @@ interface DataState {
   industries: Industry[];
   states: LocationState[];
   universities: University[];
-  courses: Course[];
+  courses: string[];
   degrees: Degree[];
   isLoading: boolean;
   hasFetched: boolean;

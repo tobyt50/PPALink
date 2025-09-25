@@ -1,4 +1,4 @@
-import { Edit, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Trash2, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../../components/ui/Button';
@@ -55,7 +55,7 @@ const ManagePlansPage = () => {
               setDeleteModalState({ isOpen: false, plan: null });
               return 'Plan deleted successfully.';
           },
-          error: 'Failed to delete plan.'
+          error: (err) => err.response?.data?.message || 'Failed to delete plan.'
       });
   };
 
@@ -77,52 +77,67 @@ const ManagePlansPage = () => {
         confirmButtonText="Delete"
       />
 
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center mb-8">
+      <div className="space-y-5">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary-600">Subscription Plan Management</h1>
-            <p className="mt-1 text-gray-500">Create, edit, and manage subscription plans.</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+              Subscription Plans
+            </h1>
+            <p className="mt-2 text-gray-600">Create, edit, and manage subscription plans for agencies.</p>
           </div>
-          <Button onClick={handleCreate}>
+          <Button size="lg" onClick={handleCreate}>
             <PlusCircle className="mr-2 h-5 w-5" />
             Create New Plan
           </Button>
         </div>
 
-        {isLoading && <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-        {error && <div className="text-center text-red-500 p-8">Could not load plans.</div>}
+        {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>}
+        {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load subscription plans.</div>}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {plans?.map((plan) => (
-            <div key={plan.id} className="rounded-lg border bg-white shadow-sm flex flex-col">
-              <div className="p-6 border-b">
-                <h2 className="text-xl font-semibold text-gray-800">{plan.name}</h2>
-                <p className="text-gray-500 mt-2 text-sm h-10">{plan.description}</p>
-                <div className="my-4">
-                  <span className="text-3xl font-bold text-gray-900">₦{plan.price.toLocaleString()}</span>
-                  <span className="text-sm text-gray-500">/month</span>
+        {!isLoading && !error && plans && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {plans?.map((plan) => (
+                <div key={plan.id} className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 flex flex-col overflow-hidden">
+                <div className="p-6">
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">{plan.name}</h2>
+                    <p className="text-gray-500 mt-2 text-sm h-10">{plan.description}</p>
+                    <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-extrabold tracking-tight text-gray-900">₦{plan.price.toLocaleString()}</span>
+                    <span className="text-sm font-medium text-gray-500">/month</span>
+                    </div>
                 </div>
-              </div>
-              <div className="p-6 flex-grow">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Features & Limits:</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  {plan.features.map((feature, i) => <li key={i}>- {feature}</li>)}
-                  <li className="pt-2 font-medium">Job Post Limit: {plan.jobPostLimit === -1 ? 'Unlimited' : plan.jobPostLimit}</li>
-                  <li>Member Limit: {plan.memberLimit === -1 ? 'Unlimited' : plan.memberLimit}</li>
-                </ul>
-              </div>
-              <div className="p-4 bg-gray-50 border-t flex justify-end space-x-2">
-                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(plan)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(plan)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Plan
-                </Button>
-              </div>
+                <div className="p-6 flex-grow border-t border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-800 mb-4">Features & Limits</h3>
+                    <ul className="space-y-3 text-sm text-gray-600">
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span><strong>{plan.jobPostLimit === -1 ? 'Unlimited' : plan.jobPostLimit}</strong> Job Posts</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span><strong>{plan.memberLimit === -1 ? 'Unlimited' : plan.memberLimit}</strong> Team Members</span>
+                      </li>
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-3">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                </div>
+                <div className="p-4 bg-gray-50/70 border-t flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete(plan)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(plan)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                </div>
+                </div>
+            ))}
             </div>
-          ))}
-        </div>
+        )}
       </div>
     </>
   );

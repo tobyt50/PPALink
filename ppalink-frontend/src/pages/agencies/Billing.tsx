@@ -84,9 +84,9 @@ const BillingPage = () => {
         <Button
           className="w-full border-primary-600"
           variant="outline"
-          onClick={() => handleSubscribe(plan.id)}
-          isLoading={isProcessing === plan.id}
-          disabled={isProcessing !== null}
+          onClick={handleManageSubscription}
+            isLoading={isProcessing === "manage"}
+            disabled={isProcessing !== null}
         >
           {currentPlan?.price === 0 ? 'Choose Plan' : 'Downgrade'}
         </Button>

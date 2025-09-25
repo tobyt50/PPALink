@@ -43,6 +43,10 @@ export interface Agency {
   members?: AgencyMember[];
   invitations?: Invitation[];
   subscriptions?: AgencySubscription[];
+  freePlanSettings?: {
+    jobPostLimit: number;
+    memberLimit: number;
+  };
 }
 
 export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED';

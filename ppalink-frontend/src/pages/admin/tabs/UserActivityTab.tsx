@@ -1,23 +1,21 @@
-import { ArrowRight, FilePlus, LogIn, PenSquare } from 'lucide-react';
+import { ArrowRight, FilePlus, LogIn, PenSquare, Loader2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import useFetch from '../../../hooks/useFetch';
 import type { ActivityLog } from '../../../types/user';
 
-// A map to associate action names with icons and colors for a richer UI
 const actionDetails = {
-  'user.login': { icon: LogIn, color: 'text-gray-500' },
-  'job.create': { icon: FilePlus, color: 'text-green-500' },
-  'job.update': { icon: PenSquare, color: 'text-blue-500' },
-  'job.delete': { icon: PenSquare, color: 'text-red-500' },
-  'application.submit': { icon: ArrowRight, color: 'text-purple-500' },
-  'application.add_candidate': { icon: ArrowRight, color: 'text-indigo-500' },
-  'application.pipeline_move': { icon: ArrowRight, color: 'text-yellow-500' },
-  'application.update_notes': { icon: PenSquare, color: 'text-gray-500' },
-  default: { icon: LogIn, color: 'text-gray-500' }
+  'user.login': { icon: LogIn, color: 'bg-gray-400' },
+  'job.create': { icon: FilePlus, color: 'bg-green-500' },
+  'job.update': { icon: PenSquare, color: 'bg-blue-500' },
+  'job.delete': { icon: PenSquare, color: 'bg-red-500' },
+  'application.submit': { icon: ArrowRight, color: 'bg-primary-600' },
+  'application.add_candidate': { icon: ArrowRight, color: 'bg-indigo-500' },
+  'application.pipeline_move': { icon: ArrowRight, color: 'bg-yellow-500' },
+  'application.update_notes': { icon: PenSquare, color: 'bg-gray-400' },
+  default: { icon: LogIn, color: 'bg-gray-400' }
 };
 
-// Helper to generate a human-readable description from the log data
 const formatActionDetails = (log: ActivityLog) => {
     switch (log.action) {
         case 'user.login': return 'User logged in.';
@@ -31,16 +29,30 @@ const formatActionDetails = (log: ActivityLog) => {
     }
 }
 
-
 const UserActivityTab = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { data: logs, isLoading } = useFetch<ActivityLog[]>(
+  const { data: logs, isLoading, error } = useFetch<ActivityLog[]>(
     userId ? `/admin/users/${userId}/activity` : null
   );
 
+  if (isLoading) {
+    return (
+        <div className="flex h-48 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-600 p-8">Could not load activity log.</p>;
+  }
+  
+  if (!logs || logs.length === 0) {
+    return <p className="text-center text-gray-500 p-8">No activity recorded for this user yet.</p>;
+  }
+
   return (
     <div className="flow-root">
-      {isLoading && <p>Loading activity...</p>}
       <ul role="list" className="-mb-8">
         {logs?.map((log, logIdx) => {
           const { icon: Icon, color } = actionDetails[log.action as keyof typeof actionDetails] || actionDetails.default;
@@ -50,15 +62,15 @@ const UserActivityTab = () => {
                 {logIdx !== logs.length - 1 ? (
                   <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
                 ) : null}
-                <div className="relative flex space-x-3">
+                <div className="relative flex space-x-3 items-center">
                   <div>
-                    <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${color}`}>
-                      <Icon className="h-5 w-5 text-white bg-current rounded-full p-0.5" />
+                    <span className={`h-8 w-8 rounded-full ${color} flex items-center justify-center ring-8 ring-white`}>
+                      <Icon className="h-5 w-5 text-white" />
                     </span>
                   </div>
-                  <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                  <div className="flex min-w-0 flex-1 justify-between space-x-4">
                     <div>
-                      <p className="text-sm text-gray-700">{formatActionDetails(log)}</p>
+                      <p className="text-sm text-gray-800">{formatActionDetails(log)}</p>
                     </div>
                     <div className="whitespace-nowrap text-right text-sm text-gray-500">
                       <time dateTime={log.createdAt}>{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</time>

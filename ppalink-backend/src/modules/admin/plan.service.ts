@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import prisma from '../../config/db';
 import { stripe } from '../../config/stripe';
+import { logAdminAction } from '../auditing/audit.service';
 
 interface PlanInput {
   name: string;
@@ -22,7 +23,7 @@ export async function getAllPlans() {
 /**
  * Creates a new subscription plan in our database AND a corresponding product/price in Stripe.
  */
-export async function createPlan(data: PlanInput) {
+export async function createPlan(data: PlanInput, adminUserId: string) {
   const product = await stripe.products.create({
     name: data.name,
     description: data.description,
@@ -35,19 +36,29 @@ export async function createPlan(data: PlanInput) {
     recurring: { interval: 'month' },
   });
 
-  return prisma.subscriptionPlan.create({
+  const newPlan = await prisma.subscriptionPlan.create({
     data: {
       ...data,
       features: data.features as Prisma.JsonArray, // Cast to the correct Prisma type
       stripePriceId: price.id,
     },
   });
+
+  await logAdminAction(adminUserId, 'plan.create', newPlan.id, {
+    createdPlan: { // Log the entire created object
+      name: newPlan.name,
+      price: newPlan.price,
+      jobPostLimit: newPlan.jobPostLimit,
+      memberLimit: newPlan.memberLimit,
+    }
+  });
+  return newPlan;
 }
 
 /**
  * Updates an existing subscription plan.
  */
-export async function updatePlan(planId: string, data: Partial<PlanInput>) {
+export async function updatePlan(planId: string, data: Partial<PlanInput>, adminUserId: string) {
   const existingPlan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
   if (!existingPlan) throw new Error('Plan not found.');
 
@@ -72,22 +83,42 @@ export async function updatePlan(planId: string, data: Partial<PlanInput>) {
     dataForUpdate.stripePriceId = newPrice.id;
   }
   
-  return prisma.subscriptionPlan.update({
+  const updatedPlan = await prisma.subscriptionPlan.update({
     where: { id: planId },
     data: dataForUpdate,
   });
+
+  const beforeState = {
+      name: existingPlan.name,
+      price: existingPlan.price,
+      jobPostLimit: existingPlan.jobPostLimit,
+      memberLimit: existingPlan.memberLimit,
+      features: existingPlan.features
+  };
+  await logAdminAction(adminUserId, 'plan.update', planId, {
+    planName: existingPlan.name,
+    before: beforeState,
+    after: data
+  });
+  return updatedPlan;
 }
 
 /**
  * Deletes a subscription plan.
  */
-export async function deletePlan(planId: string) {
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
-    if (plan) {
-        await stripe.prices.update(plan.stripePriceId, { active: false });
+export async function deletePlan(planId: string, adminUserId: string) {
+    const planToDelete = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+    if (planToDelete) {
+        await stripe.prices.update(planToDelete.stripePriceId, { active: false });
         // Optionally, archive the product as well if no other prices are attached
         // const price = await stripe.prices.retrieve(plan.stripePriceId);
         // await stripe.products.update(price.product as string, { active: false });
     }
-    return prisma.subscriptionPlan.delete({ where: { id: planId } });
+    await prisma.subscriptionPlan.delete({ where: { id: planId } });
+    await logAdminAction(adminUserId, 'plan.delete', planId, {
+    deletedPlan: {
+      name: planToDelete ? planToDelete.name : undefined,
+      price: planToDelete ? planToDelete.price : undefined,
+    }
+  });
 }

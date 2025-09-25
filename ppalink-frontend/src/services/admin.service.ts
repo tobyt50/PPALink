@@ -2,10 +2,30 @@ import apiClient from '../config/axios';
 import type { Position } from '../types/job';
 import type { User, VerificationRequest } from '../types/user';
 import type { SubscriptionPlan } from '../types/subscription';
+import type { AuditLog, PaginatedResponse, Role } from '../types/user';
 
+export interface AdminUser {
+    id: string;
+    email: string;
+    role: Role;
+    status: 'ACTIVE' | 'SUSPENDED';
+    createdAt: string;
+}
 interface ImpersonateResponse {
   token: string;
   user: User;
+}
+
+export interface PlatformSetting {
+  key: string;
+  value: any;
+  description: string | null;
+}
+
+export interface FeatureFlag {
+  name: string;
+  description: string | null;
+  isEnabled: boolean;
 }
 
 class AdminService {
@@ -102,6 +122,61 @@ class AdminService {
 
   async deletePlan(planId: string): Promise<void> {
     await apiClient.delete(`/admin/plans/${planId}`);
+  }
+
+  /**
+   * Requests a Stripe Customer Portal session link for a specific agency.
+   * @param agencyId The ID of the agency.
+   */
+  async createStripePortalSession(agencyId: string): Promise<{ url: string }> {
+    const response = await apiClient.post('/admin/subscriptions/create-portal-session', { agencyId });
+    return response.data.data;
+  }
+
+  // METHODS for settings management
+
+  async getAllSettings(): Promise<PlatformSetting[]> {
+    const response = await apiClient.get('/admin/settings');
+    return response.data.data;
+  }
+
+  async updateSettings(settings: { key: string; value: any }[]): Promise<void> {
+    await apiClient.patch('/admin/settings', settings);
+
+  }
+  
+  async getAllFeatureFlags(): Promise<FeatureFlag[]> {
+    const response = await apiClient.get('/admin/feature-flags');
+    return response.data.data;
+  }
+
+  async updateFeatureFlag(flagName: string, isEnabled: boolean): Promise<FeatureFlag> {
+    const response = await apiClient.patch(`/admin/feature-flags/${flagName}`, { isEnabled });
+    return response.data.data;
+  }
+
+  async getAuditLogs(queryParams?: URLSearchParams): Promise<PaginatedResponse<AuditLog>> {
+    const response = await apiClient.get(`/admin/audit-logs?${queryParams?.toString() || ''}`);
+    return response.data;
+  }
+
+  async getFullAuditLogExport(): Promise<AuditLog[]> {
+    const response = await apiClient.get('/admin/audit-logs/export');
+    return response.data.data;
+  }
+
+  async getAllAdmins(): Promise<AdminUser[]> {
+    const response = await apiClient.get('/admin/admins');
+    return response.data.data;
+  }
+
+  async createAdmin(email: string, role: Role): Promise<User> {
+    const response = await apiClient.post('/admin/admins', { email, role });
+    return response.data.data;
+  }
+
+  async deleteAdmin(userId: string): Promise<void> {
+    await apiClient.delete(`/admin/admins/${userId}`);
   }
 }
 

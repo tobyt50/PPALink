@@ -18,132 +18,236 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: Industry; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."Industry" (id, name, "createdAt", "isHeading", "order", "updatedAt") FROM stdin;
-310	Finance & Professional Services	2025-09-16 08:41:08.872	t	1	2025-09-16 08:41:08.872
-311	Accounting	2025-09-16 08:41:08.872	f	2	2025-09-16 08:41:08.872
-312	Auditing	2025-09-16 08:41:08.872	f	3	2025-09-16 08:41:08.872
-313	Banking	2025-09-16 08:41:08.872	f	4	2025-09-16 08:41:08.872
-314	Financial Services	2025-09-16 08:41:08.872	f	5	2025-09-16 08:41:08.872
-315	Insurance	2025-09-16 08:41:08.872	f	6	2025-09-16 08:41:08.872
-316	Legal	2025-09-16 08:41:08.872	f	7	2025-09-16 08:41:08.872
-317	Venture Capital	2025-09-16 08:41:08.872	f	8	2025-09-16 08:41:08.872
-318	Investment	2025-09-16 08:41:08.872	f	9	2025-09-16 08:41:08.872
-319	Business & Management	2025-09-16 08:41:08.872	t	10	2025-09-16 08:41:08.872
-320	Consulting	2025-09-16 08:41:08.872	f	11	2025-09-16 08:41:08.872
-321	Business Strategy	2025-09-16 08:41:08.872	f	12	2025-09-16 08:41:08.872
-322	Management	2025-09-16 08:41:08.872	f	13	2025-09-16 08:41:08.872
-323	Human Resources	2025-09-16 08:41:08.872	f	14	2025-09-16 08:41:08.872
-324	Recruitment	2025-09-16 08:41:08.872	f	15	2025-09-16 08:41:08.872
-325	Marketing	2025-09-16 08:41:08.872	f	16	2025-09-16 08:41:08.872
-326	Public Relations	2025-09-16 08:41:08.872	f	17	2025-09-16 08:41:08.872
-327	Advertising	2025-09-16 08:41:08.872	f	18	2025-09-16 08:41:08.872
-328	Media	2025-09-16 08:41:08.872	f	19	2025-09-16 08:41:08.872
-329	Communications	2025-09-16 08:41:08.872	f	20	2025-09-16 08:41:08.872
-330	Research	2025-09-16 08:41:08.872	f	21	2025-09-16 08:41:08.872
-331	Development	2025-09-16 08:41:08.872	f	22	2025-09-16 08:41:08.872
-332	Technology & Digital	2025-09-16 08:41:08.872	t	23	2025-09-16 08:41:08.872
-333	ICT	2025-09-16 08:41:08.872	f	24	2025-09-16 08:41:08.872
-334	Software	2025-09-16 08:41:08.872	f	25	2025-09-16 08:41:08.872
-335	Technology	2025-09-16 08:41:08.872	f	26	2025-09-16 08:41:08.872
-336	Telecommunications	2025-09-16 08:41:08.872	f	27	2025-09-16 08:41:08.872
-337	Cybersecurity	2025-09-16 08:41:08.872	f	28	2025-09-16 08:41:08.872
-338	Data	2025-09-16 08:41:08.872	f	29	2025-09-16 08:41:08.872
-339	Analytics	2025-09-16 08:41:08.872	f	30	2025-09-16 08:41:08.872
-340	E-Commerce	2025-09-16 08:41:08.872	f	31	2025-09-16 08:41:08.872
-341	Gaming	2025-09-16 08:41:08.872	f	32	2025-09-16 08:41:08.872
-342	Entertainment Tech	2025-09-16 08:41:08.872	f	33	2025-09-16 08:41:08.872
-343	FinTech	2025-09-16 08:41:08.872	f	34	2025-09-16 08:41:08.872
-344	Education	2025-09-16 08:41:08.872	t	35	2025-09-16 08:41:08.872
-345	Teaching	2025-09-16 08:41:08.872	f	36	2025-09-16 08:41:08.872
-346	Training	2025-09-16 08:41:08.872	f	37	2025-09-16 08:41:08.872
-347	E-Learning	2025-09-16 08:41:08.872	f	38	2025-09-16 08:41:08.872
-348	EdTech	2025-09-16 08:41:08.872	f	39	2025-09-16 08:41:08.872
-349	Capacity Building	2025-09-16 08:41:08.872	f	40	2025-09-16 08:41:08.872
-350	Healthcare	2025-09-16 08:41:08.872	t	41	2025-09-16 08:41:08.872
-351	Medical Services	2025-09-16 08:41:08.872	f	42	2025-09-16 08:41:08.872
-352	Hospitals	2025-09-16 08:41:08.872	f	43	2025-09-16 08:41:08.872
-353	Clinics	2025-09-16 08:41:08.872	f	44	2025-09-16 08:41:08.872
-354	Pharmaceutical	2025-09-16 08:41:08.872	f	45	2025-09-16 08:41:08.872
-355	Biotechnology	2025-09-16 08:41:08.872	f	46	2025-09-16 08:41:08.872
-356	Public Health	2025-09-16 08:41:08.872	f	47	2025-09-16 08:41:08.872
-357	Fitness	2025-09-16 08:41:08.872	f	48	2025-09-16 08:41:08.872
-358	Wellness	2025-09-16 08:41:08.872	f	49	2025-09-16 08:41:08.872
-359	Agriculture & Food	2025-09-16 08:41:08.872	t	50	2025-09-16 08:41:08.872
-360	Agriculture	2025-09-16 08:41:08.872	f	51	2025-09-16 08:41:08.872
-361	Agro-Allied	2025-09-16 08:41:08.872	f	52	2025-09-16 08:41:08.872
-362	Fisheries	2025-09-16 08:41:08.872	f	53	2025-09-16 08:41:08.872
-363	Aquaculture	2025-09-16 08:41:08.872	f	54	2025-09-16 08:41:08.872
-364	Forestry	2025-09-16 08:41:08.872	f	55	2025-09-16 08:41:08.872
-365	Food Processing	2025-09-16 08:41:08.872	f	56	2025-09-16 08:41:08.872
-366	Retail	2025-09-16 08:41:08.872	f	57	2025-09-16 08:41:08.872
-367	FMCG	2025-09-16 08:41:08.872	f	58	2025-09-16 08:41:08.872
-368	Energy & Natural Resources	2025-09-16 08:41:08.872	t	59	2025-09-16 08:41:08.872
-369	Oil & Gas	2025-09-16 08:41:08.872	f	60	2025-09-16 08:41:08.872
-370	Energy	2025-09-16 08:41:08.872	f	61	2025-09-16 08:41:08.872
-371	Power	2025-09-16 08:41:08.872	f	62	2025-09-16 08:41:08.872
-372	Utilities	2025-09-16 08:41:08.872	f	63	2025-09-16 08:41:08.872
-373	Renewable Energy	2025-09-16 08:41:08.872	f	64	2025-09-16 08:41:08.872
-374	Mining	2025-09-16 08:41:08.872	f	65	2025-09-16 08:41:08.872
-375	Extraction	2025-09-16 08:41:08.872	f	66	2025-09-16 08:41:08.872
-376	Engineering & Manufacturing	2025-09-16 08:41:08.872	t	67	2025-09-16 08:41:08.872
-377	Engineering	2025-09-16 08:41:08.872	f	68	2025-09-16 08:41:08.872
-378	Technical Services	2025-09-16 08:41:08.872	f	69	2025-09-16 08:41:08.872
-379	Construction	2025-09-16 08:41:08.872	f	70	2025-09-16 08:41:08.872
-380	Real Estate	2025-09-16 08:41:08.872	f	71	2025-09-16 08:41:08.872
-381	Architecture	2025-09-16 08:41:08.872	f	72	2025-09-16 08:41:08.872
-382	Design	2025-09-16 08:41:08.872	f	73	2025-09-16 08:41:08.872
-383	Manufacturing	2025-09-16 08:41:08.872	f	74	2025-09-16 08:41:08.872
-384	Production	2025-09-16 08:41:08.872	f	75	2025-09-16 08:41:08.872
-385	Industrial Automation	2025-09-16 08:41:08.872	f	76	2025-09-16 08:41:08.872
-386	Transport & Logistics	2025-09-16 08:41:08.872	t	77	2025-09-16 08:41:08.872
-387	Logistics	2025-09-16 08:41:08.872	f	78	2025-09-16 08:41:08.872
-388	Supply Chain	2025-09-16 08:41:08.872	f	79	2025-09-16 08:41:08.872
-389	Aviation	2025-09-16 08:41:08.872	f	80	2025-09-16 08:41:08.872
-390	Aerospace	2025-09-16 08:41:08.872	f	81	2025-09-16 08:41:08.872
-391	Maritime	2025-09-16 08:41:08.872	f	82	2025-09-16 08:41:08.872
-392	Shipping	2025-09-16 08:41:08.872	f	83	2025-09-16 08:41:08.872
-393	Rail Transport	2025-09-16 08:41:08.872	f	84	2025-09-16 08:41:08.872
-394	Road Transport	2025-09-16 08:41:08.872	f	85	2025-09-16 08:41:08.872
-395	Ride-hailing	2025-09-16 08:41:08.872	f	86	2025-09-16 08:41:08.872
-396	Delivery Services	2025-09-16 08:41:08.872	f	87	2025-09-16 08:41:08.872
-397	Government & Public Sector	2025-09-16 08:41:08.872	t	88	2025-09-16 08:41:08.872
-398	Government	2025-09-16 08:41:08.872	f	89	2025-09-16 08:41:08.872
-399	Public Service	2025-09-16 08:41:08.872	f	90	2025-09-16 08:41:08.872
-400	NGO	2025-09-16 08:41:08.872	f	91	2025-09-16 08:41:08.872
-401	Non-Profit	2025-09-16 08:41:08.872	f	92	2025-09-16 08:41:08.872
-402	International Organizations	2025-09-16 08:41:08.872	f	93	2025-09-16 08:41:08.872
-403	Security Services	2025-09-16 08:41:08.872	f	94	2025-09-16 08:41:08.872
-404	Military	2025-09-16 08:41:08.872	f	95	2025-09-16 08:41:08.872
-405	Defense	2025-09-16 08:41:08.872	f	96	2025-09-16 08:41:08.872
-406	Creative & Lifestyle	2025-09-16 08:41:08.872	t	97	2025-09-16 08:41:08.872
-407	Arts	2025-09-16 08:41:08.872	f	98	2025-09-16 08:41:08.872
-408	Culture	2025-09-16 08:41:08.872	f	99	2025-09-16 08:41:08.872
-409	Hospitality	2025-09-16 08:41:08.872	f	100	2025-09-16 08:41:08.872
-410	Tourism	2025-09-16 08:41:08.872	f	101	2025-09-16 08:41:08.872
-411	Events Management	2025-09-16 08:41:08.872	f	102	2025-09-16 08:41:08.872
-412	Fashion	2025-09-16 08:41:08.872	f	103	2025-09-16 08:41:08.872
-413	Beauty	2025-09-16 08:41:08.872	f	104	2025-09-16 08:41:08.872
-414	Sports	2025-09-16 08:41:08.872	f	105	2025-09-16 08:41:08.872
-415	Recreation	2025-09-16 08:41:08.872	f	106	2025-09-16 08:41:08.872
-416	Entertainment	2025-09-16 08:41:08.872	f	107	2025-09-16 08:41:08.872
-417	Music	2025-09-16 08:41:08.872	f	108	2025-09-16 08:41:08.872
-418	Film	2025-09-16 08:41:08.872	f	109	2025-09-16 08:41:08.872
-\.
-
-
---
 -- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."User" (id, email, phone, "passwordHash", role, "emailVerifiedAt", status, "createdAt", "updatedAt") FROM stdin;
-9784c3ee-80e5-46ae-b62c-e48f3fbde58b	test.candidate@example.com	1234567890	$argon2id$v=19$m=65536,t=3,p=4$aqMci1XbWGHugT4IXxkTgg$0FQu3NRnN51dv3O2CC0k3oJQvWIQ3LVhWOqdnPiFNwI	CANDIDATE	\N	ACTIVE	2025-09-04 15:02:03.164	2025-09-04 15:02:03.164
-097944c2-3582-4220-ade4-4a93ab404375	adinkems@gmail.com	\N	$argon2id$v=19$m=65536,t=3,p=4$lJ8G2lXO24OnXyLsLeZdtg$a759APkYcPau2rJR2rUHNLSBIN5AWniF8JWeBK2aKUI	AGENCY	\N	ACTIVE	2025-09-05 08:06:38.202	2025-09-05 08:06:38.202
 fcd910ed-f411-4524-bdb1-23de83a9e4d1	ezetaj@gmail.com	\N	$argon2id$v=19$m=65536,t=3,p=4$YtaIOT3kOhLeD2F444ftRQ$ob0tm3ekK4BOiYKLZgPH/CuV5yDELL9Rr3z+eAm4nTI	ADMIN	\N	ACTIVE	2025-09-05 08:05:35.134	2025-09-08 00:17:57.501
-5900ca1a-625c-4a14-8331-ee286900ad73	tedunjaiyem@gmail.com	07046015410	$argon2id$v=19$m=65536,t=3,p=4$aM2FsjKjTTJVChoYLzgOzQ$G86fbtF4p1HaYJJ9+xDMdzDEAmYM/RtREVVZFd9TyaM	CANDIDATE	\N	ACTIVE	2025-09-04 15:12:23.319	2025-09-09 16:37:15.578
+24561236-b941-4ff8-ad41-b9b71adcafdd	support@ppalink.com	\N	$argon2id$v=19$m=65536,t=3,p=4$aM2FsjKjTTJVChoYLzgOzQ$G86fbtF4p1HaYJJ9+xDMdzDEAmYM/RtREVVZFd9TyaM	SUPER_ADMIN	2025-09-23 01:46:58.475	ACTIVE	2025-09-23 09:32:44.74	2025-09-24 23:51:39.491
+9784c3ee-80e5-46ae-b62c-e48f3fbde58b	test.candidate@example.com	1234567890	$argon2id$v=19$m=65536,t=3,p=4$aqMci1XbWGHugT4IXxkTgg$0FQu3NRnN51dv3O2CC0k3oJQvWIQ3LVhWOqdnPiFNwI	CANDIDATE	\N	ACTIVE	2025-09-04 15:02:03.164	2025-09-25 00:17:00.606
 c1cfe44e-a176-474b-bf35-48398dca09c9	tedunjaiyeseun@gmail.com	\N	$argon2id$v=19$m=65536,t=3,p=4$Rp024XMb8bTU0WrnuQ+UFw$n2EfYDWN5gm/Co9gwFlQpxWhtnFvse1Ur/d7kXlK/aM	AGENCY	\N	ACTIVE	2025-09-17 20:07:32.282	2025-09-17 20:07:32.282
+097944c2-3582-4220-ade4-4a93ab404375	adinkems@gmail.com	\N	$argon2id$v=19$m=65536,t=3,p=4$lJ8G2lXO24OnXyLsLeZdtg$a759APkYcPau2rJR2rUHNLSBIN5AWniF8JWeBK2aKUI	AGENCY	\N	ACTIVE	2025-09-05 08:06:38.202	2025-09-23 01:28:25.468
+5900ca1a-625c-4a14-8331-ee286900ad73	tedunjaiyem@gmail.com	07046015410	$argon2id$v=19$m=65536,t=3,p=4$aM2FsjKjTTJVChoYLzgOzQ$G86fbtF4p1HaYJJ9+xDMdzDEAmYM/RtREVVZFd9TyaM	CANDIDATE	2025-09-23 01:46:58.475	ACTIVE	2025-09-04 15:12:23.319	2025-09-23 01:46:58.477
+\.
+
+
+--
+-- Data for Name: ActivityLog; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public."ActivityLog" (id, "userId", action, details, "createdAt") FROM stdin;
+46c56492-381c-491e-86b5-9eb803216a3a	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-23 09:02:27.698
+95c25c56-d664-4371-b72b-eb6f63dd0b45	097944c2-3582-4220-ade4-4a93ab404375	job.update	{"jobId": "d45805c9-c04f-4f5a-8beb-5cc970888e66", "changes": ["title", "description", "employmentType", "isRemote", "stateId", "lgaId", "minSalary", "maxSalary", "skills", "visibility", "status"], "jobTitle": "Frontend React Developers"}	2025-09-23 09:02:54.664
+9dee3bea-813c-432b-b6b1-5550597786b8	097944c2-3582-4220-ade4-4a93ab404375	job.update	{"jobId": "d45805c9-c04f-4f5a-8beb-5cc970888e66", "changes": ["title", "description", "employmentType", "isRemote", "stateId", "lgaId", "minSalary", "maxSalary", "skills", "visibility", "status"], "jobTitle": "Frontend React Developer"}	2025-09-23 09:03:24.963
+ddc2f3f1-ba2e-4dce-860e-ea1bbf3a91bb	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 09:55:07.823
+eb8dd2c2-9ea1-4a66-8325-925adb03f3cc	fcd910ed-f411-4524-bdb1-23de83a9e4d1	user.login	\N	2025-09-23 09:55:48.382
+64fa8c66-ee11-40b8-8a02-289d4372fc39	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:09:02.738
+9879db03-b8fd-4456-917c-f1a38cb84307	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:10:02.395
+e3e3273c-ea86-4968-a30b-9b92a21829ee	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:11:22.341
+e9062d8a-1217-4673-87a8-92ee0e709f75	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:20:24.056
+8847bf2f-4812-4520-ae8b-c22c6ace28d6	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:21:01.544
+a4e2a6a2-003c-4140-bd99-588674b458b3	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:26:56.899
+bbb820bc-9a48-40c1-bcdb-88143266058f	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:27:28.444
+4a878a58-250f-4aff-b2ae-214bf252782f	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:35:53.636
+2e88c179-b66b-4185-9d55-d5fe99aadab5	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:36:17.472
+fb50044c-b141-4b8e-96ab-ee153bd9129e	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:36:54.232
+9237a170-b8bc-485b-9612-9f61bc695a28	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:38:42.837
+dc089f61-a6dd-4fc3-8228-0b8ccfe81b2e	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:40:11.006
+fee7d697-b6f7-40ed-bd03-146dafdb7e3a	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:47:23.473
+ae108278-627e-46a8-a997-2e57ca38b5b1	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:47:38.854
+26a73d6b-c48d-4b4e-8f5c-36e29d4e20a2	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:48:00.46
+9442a3d0-98b2-43e2-b175-733b076e6e7e	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:54:06.401
+375bc1bf-da09-4cf5-aed5-72b2f0c2fc71	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:54:42.626
+ed37862d-ebbb-4bfd-91d7-271ce61b82ee	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 10:58:04.053
+81c72457-2988-4fc5-be13-332d04816052	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-23 10:58:36.658
+3a130b7d-1028-4c7b-8780-9823a18990a0	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 11:01:04.11
+34f8f835-081b-4d64-ad76-03264da80be1	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "5900ca1a-625c-4a14-8331-ee286900ad73", "targetUserEmail": "tedunjaiyem@gmail.com"}	2025-09-23 11:41:40.531
+094be065-3e7d-4ce5-b580-5fc3a8e2d376	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 11:42:25.282
+5ce90f28-c111-4ad3-89e4-ad3af05b5781	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "097944c2-3582-4220-ade4-4a93ab404375", "targetUserEmail": "adinkems@gmail.com"}	2025-09-23 11:43:09.914
+b71f9ec4-da64-45e4-b6c5-2bf925bdad81	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 11:43:31.902
+958834c0-d695-4f83-bd19-b1a22df5f078	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 12:02:03.549
+b4064362-fabc-47ac-83f2-096a8761d37f	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "097944c2-3582-4220-ade4-4a93ab404375", "targetUserEmail": "adinkems@gmail.com"}	2025-09-23 12:02:20.339
+3f047c68-925f-4ac9-b509-ba7703053282	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "097944c2-3582-4220-ade4-4a93ab404375", "targetUserEmail": "adinkems@gmail.com"}	2025-09-23 12:05:19.276
+129fe815-58a1-4397-9025-bcdd53d9f55e	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-23 12:05:45.04
+d903cb9d-1271-4752-a3d0-a21a10b2f9a5	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "097944c2-3582-4220-ade4-4a93ab404375", "targetUserEmail": "adinkems@gmail.com"}	2025-09-23 12:07:09.521
+c4287613-99c9-49fc-ab75-b1b87e22f5ba	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 01:09:54.559
+190e4370-67e8-45f5-b59d-d00c9dd356b7	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 01:10:08.417
+6ae61531-acf1-4f6c-89fc-0856297ef412	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 01:13:44.533
+b70e38e9-6d1d-4672-a6d3-3d7c40125f99	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 01:17:50.115
+0fb5857e-3eb2-4ca8-8a7c-d84868df5316	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 01:51:49.629
+5faae161-2da6-4630-a381-59939e5f9522	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 01:52:31.305
+daed7c74-4780-4a67-9b0c-78d94144bee9	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 02:32:23.809
+7bb5c341-bd2d-4b12-a049-e4c44d79a408	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 03:11:27.096
+b879393d-dc99-4431-bd79-5ab915ba27b2	fcd910ed-f411-4524-bdb1-23de83a9e4d1	user.login	\N	2025-09-24 03:11:59.111
+4883d43b-9bd6-4f54-a651-e57b49db1788	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 03:12:16.308
+67b6bcc7-b061-4c9a-b0d8-d4671f810bc6	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 03:16:49.874
+4a8b8856-bc9d-4df2-a7c1-018a251dde92	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 03:31:54.206
+f0362af9-4fed-4a76-b9f6-79cb8bf33c7b	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 03:32:58.154
+d6a327a6-3305-4efe-8c4a-d36a3f0e8fb4	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 03:35:50.652
+512b375f-17ef-4f09-a045-4babce376521	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 03:36:05.122
+7adc0378-ad26-4e18-8fae-622e89ec6215	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:06:03.67
+feddc443-3a35-4f0f-b651-2ff881b2375b	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 11:06:24.199
+973b61ef-633b-4f0a-bf57-ec8303cdbde9	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:09:34.205
+381d8811-2c89-4414-b713-4e26aa90e022	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 11:25:56.855
+76d20cf6-0ff2-4d8e-bd4d-f41c81666751	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:27:14.46
+08c3d43d-1627-4298-aa18-aaada739582a	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 11:48:53.132
+0430867d-f862-476c-9a9c-a5f5fe42dfad	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:49:28.069
+b780c855-21b0-4e44-8921-58102dfe059e	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 11:49:56.97
+d62e4d73-d969-4962-b218-5f1bc24595b2	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:50:18.24
+41eb6d7d-1651-4946-b776-d0421153224d	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 11:51:03.738
+bd78e6c1-2189-4a60-8e71-9e12f76bb23a	c1cfe44e-a176-474b-bf35-48398dca09c9	job.create	{"jobId": "c5807914-9af4-41c2-8f54-8147169ad837", "jobTitle": "sghngsd"}	2025-09-24 11:57:17.884
+84b457b1-2a75-4a42-9d5a-12ad0fd2d0cc	c1cfe44e-a176-474b-bf35-48398dca09c9	job.delete	{"jobId": "c5807914-9af4-41c2-8f54-8147169ad837", "jobTitle": "sghngsd"}	2025-09-24 11:57:28.458
+6bc9fc6b-3f4b-448d-9eac-9538f4b5e97e	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 11:57:43.833
+7db420eb-2e10-44b2-92a8-bffb9a5ddaaa	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 12:01:04.272
+81502f5f-6cfa-49a2-b94b-268dd05170a1	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:01:20.166
+e704655c-9aa9-44a6-9f8a-ba0a0ab98dba	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:09:17.343
+cefbda8c-5b16-4f14-85ae-752ce70f9bc7	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:09:31.453
+0b5a6ef4-a092-4a8c-a68b-a61d3ad97ef0	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:10:16.877
+ee998779-6d7a-4558-be24-3e38ad0957c2	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:10:39.224
+db621be7-bcac-4daa-b471-6ea9a195a991	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:19:39.646
+17d36eae-cc32-41f5-9914-a594f3ca63c6	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:19:53.982
+b801c9d5-d39b-4865-9834-21e2d69f8997	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:20:12.105
+b987294a-f215-4c32-83de-7a14d308f76d	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:21:55.58
+aab8d324-2662-41de-ab7a-dbf49e24acfa	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:32:15.948
+25357321-b731-4c89-a759-9bd863245e63	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:32:31.383
+a6c93331-82c8-432b-915d-dd4347cb5594	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 12:32:44.09
+d35df04a-069c-4920-9ee1-2809c69c9942	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:32:53.527
+04899ea6-ce51-4a3c-a932-6058b17112fb	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 12:33:14.145
+e5982910-a330-4a75-86ee-db7943f03ced	c1cfe44e-a176-474b-bf35-48398dca09c9	user.login	\N	2025-09-24 12:33:35.262
+1cc19036-5148-4c92-9091-82c3bce4abc5	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 13:15:23.852
+b2a097a5-3d20-403c-a4a0-3c3d4bcef035	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 14:26:07.817
+b3089d7c-294b-4eb0-af27-0144b9079a64	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 14:26:36.092
+6e8d070c-357a-4992-907f-73e73dfb7c95	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 14:27:25.214
+79d31b48-d62a-4785-8be2-513fdd6ce592	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 14:28:54.94
+c8241859-44ea-4f12-b1a5-ce4753e90d61	5900ca1a-625c-4a14-8331-ee286900ad73	user.login	\N	2025-09-24 14:31:51.893
+1bd62192-490d-4127-9014-a943aca619bf	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 15:16:18.958
+61974d07-3f5e-458d-9f42-b249f326a819	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-24 16:04:02.952
+817888fb-035f-4391-a6d4-1e18f451bcf5	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 16:04:46.816
+d7ac4a35-1090-46bd-ae1d-0f1810703ef2	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	{"targetUserId": "097944c2-3582-4220-ade4-4a93ab404375", "targetUserEmail": "adinkems@gmail.com"}	2025-09-24 21:44:17.096
+78b775b4-735a-407a-9ee9-d03a703000fa	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-24 23:51:52.926
+c52579ed-d2d2-4218-aaea-f7461bcd9fba	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-25 00:00:29.37
+1eb02fae-1628-42d5-a5c1-84c8b6c2a97e	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-25 00:01:56.127
+5b0c4b4a-e3d1-4bf9-b6f9-3084219a1836	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-25 00:02:29.204
+b2777137-8b6f-4979-baf5-967d3fad46b5	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-25 00:07:13.904
+787b7cd3-f8b8-4b8c-8ac1-b29ff09af600	097944c2-3582-4220-ade4-4a93ab404375	user.login	\N	2025-09-25 00:33:01.897
+b6ea22e0-1064-47de-8003-84239d568360	24561236-b941-4ff8-ad41-b9b71adcafdd	user.login	\N	2025-09-25 00:36:35.921
+\.
+
+
+--
+-- Data for Name: Industry; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public."Industry" (id, name, "createdAt", "isHeading", "order", "updatedAt") FROM stdin;
+528	Finance & Professional Services	2025-09-24 11:30:22.985	t	1	2025-09-24 11:30:22.985
+529	Accounting	2025-09-24 11:30:22.985	f	2	2025-09-24 11:30:22.985
+530	Auditing	2025-09-24 11:30:22.985	f	3	2025-09-24 11:30:22.985
+531	Banking	2025-09-24 11:30:22.985	f	4	2025-09-24 11:30:22.985
+532	Financial Services	2025-09-24 11:30:22.985	f	5	2025-09-24 11:30:22.985
+533	Insurance	2025-09-24 11:30:22.985	f	6	2025-09-24 11:30:22.985
+534	Legal	2025-09-24 11:30:22.985	f	7	2025-09-24 11:30:22.985
+535	Venture Capital	2025-09-24 11:30:22.985	f	8	2025-09-24 11:30:22.985
+536	Investment	2025-09-24 11:30:22.985	f	9	2025-09-24 11:30:22.985
+537	Business & Management	2025-09-24 11:30:22.985	t	10	2025-09-24 11:30:22.985
+538	Consulting	2025-09-24 11:30:22.985	f	11	2025-09-24 11:30:22.985
+539	Business Strategy	2025-09-24 11:30:22.985	f	12	2025-09-24 11:30:22.985
+540	Management	2025-09-24 11:30:22.985	f	13	2025-09-24 11:30:22.985
+541	Human Resources	2025-09-24 11:30:22.985	f	14	2025-09-24 11:30:22.985
+542	Recruitment	2025-09-24 11:30:22.985	f	15	2025-09-24 11:30:22.985
+543	Marketing	2025-09-24 11:30:22.985	f	16	2025-09-24 11:30:22.985
+544	Public Relations	2025-09-24 11:30:22.985	f	17	2025-09-24 11:30:22.985
+545	Advertising	2025-09-24 11:30:22.985	f	18	2025-09-24 11:30:22.985
+546	Media	2025-09-24 11:30:22.985	f	19	2025-09-24 11:30:22.985
+547	Communications	2025-09-24 11:30:22.985	f	20	2025-09-24 11:30:22.985
+548	Research	2025-09-24 11:30:22.985	f	21	2025-09-24 11:30:22.985
+549	Development	2025-09-24 11:30:22.985	f	22	2025-09-24 11:30:22.985
+550	Technology & Digital	2025-09-24 11:30:22.985	t	23	2025-09-24 11:30:22.985
+551	ICT	2025-09-24 11:30:22.985	f	24	2025-09-24 11:30:22.985
+552	Software	2025-09-24 11:30:22.985	f	25	2025-09-24 11:30:22.985
+553	Technology	2025-09-24 11:30:22.985	f	26	2025-09-24 11:30:22.985
+554	Telecommunications	2025-09-24 11:30:22.985	f	27	2025-09-24 11:30:22.985
+555	Cybersecurity	2025-09-24 11:30:22.985	f	28	2025-09-24 11:30:22.985
+556	Data	2025-09-24 11:30:22.985	f	29	2025-09-24 11:30:22.985
+557	Analytics	2025-09-24 11:30:22.985	f	30	2025-09-24 11:30:22.985
+558	E-Commerce	2025-09-24 11:30:22.985	f	31	2025-09-24 11:30:22.985
+559	Gaming	2025-09-24 11:30:22.985	f	32	2025-09-24 11:30:22.985
+560	Entertainment Tech	2025-09-24 11:30:22.985	f	33	2025-09-24 11:30:22.985
+561	FinTech	2025-09-24 11:30:22.985	f	34	2025-09-24 11:30:22.985
+562	Education	2025-09-24 11:30:22.985	t	35	2025-09-24 11:30:22.985
+563	Teaching	2025-09-24 11:30:22.985	f	36	2025-09-24 11:30:22.985
+564	Training	2025-09-24 11:30:22.985	f	37	2025-09-24 11:30:22.985
+565	E-Learning	2025-09-24 11:30:22.985	f	38	2025-09-24 11:30:22.985
+566	EdTech	2025-09-24 11:30:22.985	f	39	2025-09-24 11:30:22.985
+567	Capacity Building	2025-09-24 11:30:22.985	f	40	2025-09-24 11:30:22.985
+568	Healthcare	2025-09-24 11:30:22.985	t	41	2025-09-24 11:30:22.985
+569	Medical Services	2025-09-24 11:30:22.985	f	42	2025-09-24 11:30:22.985
+570	Hospitals	2025-09-24 11:30:22.985	f	43	2025-09-24 11:30:22.985
+571	Clinics	2025-09-24 11:30:22.985	f	44	2025-09-24 11:30:22.985
+572	Pharmaceutical	2025-09-24 11:30:22.985	f	45	2025-09-24 11:30:22.985
+573	Biotechnology	2025-09-24 11:30:22.985	f	46	2025-09-24 11:30:22.985
+574	Public Health	2025-09-24 11:30:22.985	f	47	2025-09-24 11:30:22.985
+575	Fitness	2025-09-24 11:30:22.985	f	48	2025-09-24 11:30:22.985
+576	Wellness	2025-09-24 11:30:22.985	f	49	2025-09-24 11:30:22.985
+577	Agriculture & Food	2025-09-24 11:30:22.985	t	50	2025-09-24 11:30:22.985
+578	Agriculture	2025-09-24 11:30:22.985	f	51	2025-09-24 11:30:22.985
+579	Agro-Allied	2025-09-24 11:30:22.985	f	52	2025-09-24 11:30:22.985
+580	Fisheries	2025-09-24 11:30:22.985	f	53	2025-09-24 11:30:22.985
+581	Aquaculture	2025-09-24 11:30:22.985	f	54	2025-09-24 11:30:22.985
+582	Forestry	2025-09-24 11:30:22.985	f	55	2025-09-24 11:30:22.985
+583	Food Processing	2025-09-24 11:30:22.985	f	56	2025-09-24 11:30:22.985
+584	Retail	2025-09-24 11:30:22.985	f	57	2025-09-24 11:30:22.985
+585	FMCG	2025-09-24 11:30:22.985	f	58	2025-09-24 11:30:22.985
+586	Energy & Natural Resources	2025-09-24 11:30:22.985	t	59	2025-09-24 11:30:22.985
+587	Oil & Gas	2025-09-24 11:30:22.985	f	60	2025-09-24 11:30:22.985
+588	Energy	2025-09-24 11:30:22.985	f	61	2025-09-24 11:30:22.985
+589	Power	2025-09-24 11:30:22.985	f	62	2025-09-24 11:30:22.985
+590	Utilities	2025-09-24 11:30:22.985	f	63	2025-09-24 11:30:22.985
+591	Renewable Energy	2025-09-24 11:30:22.985	f	64	2025-09-24 11:30:22.985
+592	Mining	2025-09-24 11:30:22.985	f	65	2025-09-24 11:30:22.985
+593	Extraction	2025-09-24 11:30:22.985	f	66	2025-09-24 11:30:22.985
+594	Engineering & Manufacturing	2025-09-24 11:30:22.985	t	67	2025-09-24 11:30:22.985
+595	Engineering	2025-09-24 11:30:22.985	f	68	2025-09-24 11:30:22.985
+596	Technical Services	2025-09-24 11:30:22.985	f	69	2025-09-24 11:30:22.985
+597	Construction	2025-09-24 11:30:22.985	f	70	2025-09-24 11:30:22.985
+598	Real Estate	2025-09-24 11:30:22.985	f	71	2025-09-24 11:30:22.985
+599	Architecture	2025-09-24 11:30:22.985	f	72	2025-09-24 11:30:22.985
+600	Design	2025-09-24 11:30:22.985	f	73	2025-09-24 11:30:22.985
+601	Manufacturing	2025-09-24 11:30:22.985	f	74	2025-09-24 11:30:22.985
+602	Production	2025-09-24 11:30:22.985	f	75	2025-09-24 11:30:22.985
+603	Industrial Automation	2025-09-24 11:30:22.985	f	76	2025-09-24 11:30:22.985
+604	Transport & Logistics	2025-09-24 11:30:22.985	t	77	2025-09-24 11:30:22.985
+605	Logistics	2025-09-24 11:30:22.985	f	78	2025-09-24 11:30:22.985
+606	Supply Chain	2025-09-24 11:30:22.985	f	79	2025-09-24 11:30:22.985
+607	Aviation	2025-09-24 11:30:22.985	f	80	2025-09-24 11:30:22.985
+608	Aerospace	2025-09-24 11:30:22.985	f	81	2025-09-24 11:30:22.985
+609	Maritime	2025-09-24 11:30:22.985	f	82	2025-09-24 11:30:22.985
+610	Shipping	2025-09-24 11:30:22.985	f	83	2025-09-24 11:30:22.985
+611	Rail Transport	2025-09-24 11:30:22.985	f	84	2025-09-24 11:30:22.985
+612	Road Transport	2025-09-24 11:30:22.985	f	85	2025-09-24 11:30:22.985
+613	Ride-hailing	2025-09-24 11:30:22.985	f	86	2025-09-24 11:30:22.985
+614	Delivery Services	2025-09-24 11:30:22.985	f	87	2025-09-24 11:30:22.985
+615	Government & Public Sector	2025-09-24 11:30:22.985	t	88	2025-09-24 11:30:22.985
+616	Government	2025-09-24 11:30:22.985	f	89	2025-09-24 11:30:22.985
+617	Public Service	2025-09-24 11:30:22.985	f	90	2025-09-24 11:30:22.985
+618	NGO	2025-09-24 11:30:22.985	f	91	2025-09-24 11:30:22.985
+619	Non-Profit	2025-09-24 11:30:22.985	f	92	2025-09-24 11:30:22.985
+620	International Organizations	2025-09-24 11:30:22.985	f	93	2025-09-24 11:30:22.985
+621	Security Services	2025-09-24 11:30:22.985	f	94	2025-09-24 11:30:22.985
+622	Military	2025-09-24 11:30:22.985	f	95	2025-09-24 11:30:22.985
+623	Defense	2025-09-24 11:30:22.985	f	96	2025-09-24 11:30:22.985
+624	Creative & Lifestyle	2025-09-24 11:30:22.985	t	97	2025-09-24 11:30:22.985
+625	Arts	2025-09-24 11:30:22.985	f	98	2025-09-24 11:30:22.985
+626	Culture	2025-09-24 11:30:22.985	f	99	2025-09-24 11:30:22.985
+627	Hospitality	2025-09-24 11:30:22.985	f	100	2025-09-24 11:30:22.985
+628	Tourism	2025-09-24 11:30:22.985	f	101	2025-09-24 11:30:22.985
+629	Events Management	2025-09-24 11:30:22.985	f	102	2025-09-24 11:30:22.985
+630	Fashion	2025-09-24 11:30:22.985	f	103	2025-09-24 11:30:22.985
+631	Beauty	2025-09-24 11:30:22.985	f	104	2025-09-24 11:30:22.985
+632	Sports	2025-09-24 11:30:22.985	f	105	2025-09-24 11:30:22.985
+633	Recreation	2025-09-24 11:30:22.985	f	106	2025-09-24 11:30:22.985
+634	Entertainment	2025-09-24 11:30:22.985	f	107	2025-09-24 11:30:22.985
+635	Music	2025-09-24 11:30:22.985	f	108	2025-09-24 11:30:22.985
+636	Film	2025-09-24 11:30:22.985	f	109	2025-09-24 11:30:22.985
 \.
 
 
@@ -152,8 +256,8 @@ c1cfe44e-a176-474b-bf35-48398dca09c9	tedunjaiyeseun@gmail.com	\N	$argon2id$v=19$
 --
 
 COPY public."Agency" (id, "ownerUserId", name, "rcNumber", "industryId", website, "sizeRange", "domainVerified", "cacVerified", "logoKey", "headquartersStateId", "lgaId", "createdAt", domain) FROM stdin;
-f7472be1-137d-42c4-b74a-9217988bd932	097944c2-3582-4220-ade4-4a93ab404375	AdinKems Inc.		335	https://www.adinkems.com	30-40	f	f	\N	37	\N	2025-09-05 08:06:38.204	\N
-7b63f0d4-ae27-46f4-8e3b-cabb88daa3d8	c1cfe44e-a176-474b-bf35-48398dca09c9	OhGiveThanks	\N	\N	\N	\N	f	f	\N	\N	\N	2025-09-17 20:07:32.599	tedunjaiyeseun@gmail.com
+7b63f0d4-ae27-46f4-8e3b-cabb88daa3d8	c1cfe44e-a176-474b-bf35-48398dca09c9	OhGiveThanks	\N	\N	\N	\N	t	t	\N	\N	\N	2025-09-17 20:07:32.599	tedunjaiyeseun@gmail.com
+f7472be1-137d-42c4-b74a-9217988bd932	097944c2-3582-4220-ade4-4a93ab404375	AdinKems Inc.		553	https://www.adinkems.com	30-40	t	t	\N	37	\N	2025-09-05 08:06:38.204	\N
 \.
 
 
@@ -172,8 +276,8 @@ f2a37fec-899b-4fa7-83e5-3d091370ba41	7b63f0d4-ae27-46f4-8e3b-cabb88daa3d8	c1cfe4
 --
 
 COPY public."SubscriptionPlan" (id, name, description, price, currency, features, "stripePriceId", "jobPostLimit", "memberLimit") FROM stdin;
+18b6484d-cd07-4fb5-b724-c5907049c251	Pro	Ideal for growing teams with continuous hiring needs.	10000	NGN	["Post up to 20 jobs", "Advanced search filters (skills - GPA - etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"]	price_1S7cM5IGb6x0f4048axxqDh9	20	3
 0b46b7e7-e867-43ce-a0ef-6be760d58cc2	Basic	Perfect for getting started and finding initial talent.	0	NGN	["Post 2 jobs at a time", "Limited search filters (location, role)", "Basic agency listing (unverified)", "1 agency member account", "Standard support"]	price_1S7citIGb6x0f4045UK1S7G4	2	1
-18b6484d-cd07-4fb5-b724-c5907049c251	Pro	Ideal for growing teams with continuous hiring needs.	10000	NGN	["Post up to 20 jobs", "Advanced search filters (skills, GPA, etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"]	price_1S7cM5IGb6x0f4048axxqDh9	20	3
 307e72e7-163a-438f-a22e-44f43e0e2a17	Enterprise	For large organizations with dedicated hiring teams.	25000	NGN	["Unlimited job posts & shortlists", "AI-powered candidate recommendations", "Saved searches & new candidate alerts", "Full CAC verification badge", "Featured 'Top Employer' listing", "Unlimited recruiter accounts", "Advanced demographic & skills analytics"]	price_1S7cpkIGb6x0f404VFAaVjFK	-1	-1
 \.
 
@@ -194,7 +298,8 @@ ac2a9a7a-c2e6-4d3c-b058-7fa8bca1ade5	f7472be1-137d-42c4-b74a-9217988bd932	307e72
 COPY public."CandidateProfile" (id, "userId", "firstName", "lastName", phone, dob, gender, "nyscNumber", "nyscBatch", "nyscStream", "callupHash", "stateCode", "primaryStateId", "lgaId", "disabilityInfo", "isVerified", "verificationLevel", "isRemote", "isOpenToReloc", "salaryMin", "salaryMax", availability, "workAuth", summary, linkedin, portfolio, "graduationYear", "gpaBand", "cvFileKey", "nyscFileKey") FROM stdin;
 368bd3d5-db99-4983-9634-c28fb3833cdc	9784c3ee-80e5-46ae-b62c-e48f3fbde58b	John	Doe	1234567890	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	UNVERIFIED	f	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
 49318ac1-ce7e-435b-ac88-06a97a69641e	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Ezemuah	Tajudeen	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	UNVERIFIED	f	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
-243d4130-0256-4a3e-89f5-c99888237c0f	5900ca1a-625c-4a14-8331-ee286900ad73	Matthew	Tedunjaiye	07046015410	2001-05-09 00:00:00	\N	\N	Batch B	Stream 2	\N	\N	37	\N	\N	t	NYSC_VERIFIED	t	t	250000	\N	\N	\N	Oludasile PPALink	\N	\N	2024	\N	users/5900ca1a-625c-4a14-8331-ee286900ad73/cv/0f5e9afc-1552-4fe0-8dca-34cccf978e5a.pdf	users/5900ca1a-625c-4a14-8331-ee286900ad73/nysc_document/a9ebcbfb-0671-484d-849a-a734979f73f7.pdf
+10ef0a89-f235-4380-b1e3-b788ea0485c8	24561236-b941-4ff8-ad41-b9b71adcafdd	PPALink	Support	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	f	UNVERIFIED	f	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+243d4130-0256-4a3e-89f5-c99888237c0f	5900ca1a-625c-4a14-8331-ee286900ad73	Matthew	Tedunjaiye	07046015410	2001-05-09 00:00:00	\N	\N	Batch B	Stream 2	\N	\N	111	\N	\N	t	NYSC_VERIFIED	t	t	250000	\N	\N	\N	Oludasile PPALink	\N	\N	2024	\N	users/5900ca1a-625c-4a14-8331-ee286900ad73/cv/0f5e9afc-1552-4fe0-8dca-34cccf978e5a.pdf	users/5900ca1a-625c-4a14-8331-ee286900ad73/nysc_document/a9ebcbfb-0671-484d-849a-a734979f73f7.pdf
 \.
 
 
@@ -203,8 +308,8 @@ COPY public."CandidateProfile" (id, "userId", "firstName", "lastName", phone, do
 --
 
 COPY public."Position" (id, "agencyId", title, description, "employmentType", "isRemote", "stateId", "lgaId", "minSalary", "maxSalary", "skillsReq", visibility, status, "createdAt", "updatedAt") FROM stdin;
-c32de97d-1bac-49d5-b026-5e77283e572c	7b63f0d4-ae27-46f4-8e3b-cabb88daa3d8	Software Tester	As a Software Tester, you will be responsible for evaluating and ensuring the quality, functionality, and reliability of software applications before they reach end users. You will design, execute, and maintain test cases, identify and document defects, and collaborate closely with developers and product teams to resolve issues. Your role requires a keen eye for detail, strong analytical skills, and a methodical approach to uncover potential problems, ensuring that software meets both functional and performance standards. You will also contribute to continuous improvement by suggesting enhancements to testing processes and participating in the development of automated testing where applicable.	FULLTIME	f	37	774	650000	719995	null	PUBLIC	OPEN	2025-09-17 20:10:37.758	2025-09-19 00:16:41.113
-d45805c9-c04f-4f5a-8beb-5cc970888e66	f7472be1-137d-42c4-b74a-9217988bd932	Frontend React Developer	We are seeking a skilled Frontend React Developer to join our growing team. You will be responsible for building user-friendly web interfaces, optimizing application performance, and collaborating with backend engineers to deliver scalable solutions. Strong experience with React, Tailwind CSS, and REST APIs is required.\n	FULLTIME	t	24	510	250000	450000	null	PUBLIC	OPEN	2025-09-07 01:32:10.152	2025-09-19 00:36:10.087
+d45805c9-c04f-4f5a-8beb-5cc970888e66	f7472be1-137d-42c4-b74a-9217988bd932	Frontend React Developer	We are seeking a skilled Frontend React Developer to join our growing team. You will be responsible for building user-friendly web interfaces, optimizing application performance, and collaborating with backend engineers to deliver scalable solutions. Strong experience with React, Tailwind CSS, and REST APIs is required.\n	FULLTIME	t	24	510	250000	450000	null	PUBLIC	OPEN	2025-09-07 01:32:10.152	2025-09-23 09:03:24.95
+c32de97d-1bac-49d5-b026-5e77283e572c	7b63f0d4-ae27-46f4-8e3b-cabb88daa3d8	Software Tester	As a Software Tester, you will be responsible for evaluating and ensuring the quality, functionality, and reliability of software applications before they reach end users. You will design, execute, and maintain test cases, identify and document defects, and collaborate closely with developers and product teams to resolve issues. Your role requires a keen eye for detail, strong analytical skills, and a methodical approach to uncover potential problems, ensuring that software meets both functional and performance standards. You will also contribute to continuous improvement by suggesting enhancements to testing processes and participating in the development of automated testing where applicable.	FULLTIME	f	37	774	650000	719995	null	PUBLIC	OPEN	2025-09-17 20:10:37.758	2025-09-24 20:59:33.639
 \.
 
 
@@ -213,10 +318,10 @@ d45805c9-c04f-4f5a-8beb-5cc970888e66	f7472be1-137d-42c4-b74a-9217988bd932	Fronte
 --
 
 COPY public."Application" (id, "positionId", "candidateId", status, notes, "createdAt") FROM stdin;
-e20ead25-4eef-4800-94cd-bd139aa8d1ff	d45805c9-c04f-4f5a-8beb-5cc970888e66	243d4130-0256-4a3e-89f5-c99888237c0f	INTERVIEW	Let us hire him and give him a chance, you hear me ba?	2025-09-09 17:26:37.096
 c8849d9a-b562-43e5-a6f5-422ca612af6f	c32de97d-1bac-49d5-b026-5e77283e572c	243d4130-0256-4a3e-89f5-c99888237c0f	APPLIED	\N	2025-09-20 06:04:39.806
+86788d61-bbff-4d42-9d79-b979aacac013	d45805c9-c04f-4f5a-8beb-5cc970888e66	49318ac1-ce7e-435b-ac88-06a97a69641e	INTERVIEW	\N	2025-09-07 01:55:36.786
+e20ead25-4eef-4800-94cd-bd139aa8d1ff	d45805c9-c04f-4f5a-8beb-5cc970888e66	243d4130-0256-4a3e-89f5-c99888237c0f	APPLIED	Let us hire him and give him a chance, you hear me ba?	2025-09-09 17:26:37.096
 30f4c19a-694c-4ce9-9e21-e9c3ddc35496	d45805c9-c04f-4f5a-8beb-5cc970888e66	368bd3d5-db99-4983-9634-c28fb3833cdc	REJECTED		2025-09-07 01:55:23.295
-86788d61-bbff-4d42-9d79-b979aacac013	d45805c9-c04f-4f5a-8beb-5cc970888e66	49318ac1-ce7e-435b-ac88-06a97a69641e	REVIEWING	\N	2025-09-07 01:55:36.786
 \.
 
 
@@ -224,7 +329,23 @@ c8849d9a-b562-43e5-a6f5-422ca612af6f	c32de97d-1bac-49d5-b026-5e77283e572c	243d41
 -- Data for Name: AuditLog; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public."AuditLog" (id, "actorId", action, entity, "entityId", meta, "createdAt") FROM stdin;
+COPY public."AuditLog" (id, "actorId", action, "createdAt", metadata, "targetId") FROM stdin;
+ac5a7161-3fc7-4f7f-ba19-caca32b7bbbc	24561236-b941-4ff8-ad41-b9b71adcafdd	admin.user_impersonate	2025-09-24 21:44:17.371	{"targetUserEmail": "adinkems@gmail.com"}	097944c2-3582-4220-ade4-4a93ab404375
+79960530-5620-47c6-969d-ffcb6d5227bb	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 21:46:47.214	{"changes": ["name", "description", "price", "features", "jobPostLimit", "memberLimit"]}	18b6484d-cd07-4fb5-b724-c5907049c251
+6bc86dc0-9da2-40fb-9119-81781715bffc	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 21:47:05.449	{"changes": ["name", "description", "price", "features", "jobPostLimit", "memberLimit"]}	18b6484d-cd07-4fb5-b724-c5907049c251
+b0b86f74-aff3-4e6f-b858-e5cc77477af6	24561236-b941-4ff8-ad41-b9b71adcafdd	verification.status.update	2025-09-24 21:52:33.866	{"newStatus": "APPROVED", "verificationId": "ddab4c76-595b-4b5f-a2a5-9f9da12ad723", "targetUserEmail": "adinkems@gmail.com", "verificationType": "CAC"}	097944c2-3582-4220-ade4-4a93ab404375
+8cc5f090-dd6f-4c7b-9267-bcdb8fc72c46	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 21:57:14.84	{"changes": ["name", "description", "price", "features", "jobPostLimit", "memberLimit"], "planName": "Pro"}	18b6484d-cd07-4fb5-b724-c5907049c251
+075b100e-5b2a-4094-be76-490c5873a22d	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 21:57:35.383	{"changes": ["name", "description", "price", "features", "jobPostLimit", "memberLimit"], "planName": "Prow"}	18b6484d-cd07-4fb5-b724-c5907049c251
+329ce874-da76-4c25-bcfb-3cf009beab31	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 22:17:44.046	{"changes": ["name", "description", "price", "features", "jobPostLimit", "memberLimit"], "planName": "Pro"}	18b6484d-cd07-4fb5-b724-c5907049c251
+d45eb4b6-139d-41a7-bff9-56f8edcc498a	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-24 22:26:08.288	{"newStatus": "SUSPENDED", "previousStatus": "ACTIVE"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+952434d9-11cd-40d9-9eb7-108003e84df3	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-24 23:16:58.738	{"after": {"name": "Pro", "price": 10000, "features": ["Post up to 20 jobs", "Advanced search filters (skills", "GPA", "etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"], "description": "Ideal for growing teams with continuous hiring needs.", "memberLimit": 3, "jobPostLimit": 20}, "before": {"name": "Proq", "price": 10000, "features": ["Post up to 20 jobs", "Advanced search filters (skills", "GPA", "etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"], "memberLimit": 3, "jobPostLimit": 20}, "planName": "Proq"}	18b6484d-cd07-4fb5-b724-c5907049c251
+299c54aa-7ba5-4797-b54d-b08c29c9d209	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-24 23:17:29.683	{"newStatus": "ACTIVE", "previousStatus": "SUSPENDED"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+2a6e5162-f80e-4244-b46f-1171a3b574c4	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-24 23:25:41.671	{"newStatus": "SUSPENDED", "previousStatus": "ACTIVE"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+33613d92-9778-4895-80df-6311a43f9b3f	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-24 23:29:01.94	{"newStatus": "ACTIVE", "previousStatus": "SUSPENDED", "targetUserEmail": "test.candidate@example.com"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+4d637b5b-d262-45d4-b28f-4dd1636403c0	24561236-b941-4ff8-ad41-b9b71adcafdd	user.message.send	2025-09-24 23:35:50.516	{"messageExcerpt": "my boyyyy how far naaa", "recipientEmail": "tedunjaiyem@gmail.com"}	5900ca1a-625c-4a14-8331-ee286900ad73
+0af62ca2-5f5d-4701-9882-18a84100db21	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-25 00:16:47.71	{"newStatus": "SUSPENDED", "previousStatus": "ACTIVE", "targetUserEmail": "test.candidate@example.com"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+ffd36ae7-c216-4839-b140-ad1d42058a80	24561236-b941-4ff8-ad41-b9b71adcafdd	user.status.update	2025-09-25 00:17:00.611	{"newStatus": "ACTIVE", "previousStatus": "SUSPENDED", "targetUserEmail": "test.candidate@example.com"}	9784c3ee-80e5-46ae-b62c-e48f3fbde58b
+10aea2d8-fef6-4a96-97ea-a1dd94b4c998	24561236-b941-4ff8-ad41-b9b71adcafdd	plan.update	2025-09-25 01:00:57.292	{"after": {"name": "Pro", "price": 10000, "features": ["Post up to 20 jobs", "Advanced search filters (skills - GPA - etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"], "description": "Ideal for growing teams with continuous hiring needs.", "memberLimit": 3, "jobPostLimit": 20}, "before": {"name": "Pro", "price": 10000, "features": ["Post up to 20 jobs", "Advanced search filters (skills", "GPA", "etc.)", "Shortlist up to 100 candidates", "Branded agency profile page", "Domain & email verification", "Add up to 3 recruiter accounts", "Job & applicant analytics"], "memberLimit": 3, "jobPostLimit": 20}, "planName": "Pro"}	18b6484d-cd07-4fb5-b724-c5907049c251
 \.
 
 
@@ -266,12 +387,12 @@ COPY public."Skill" (id, name, slug) FROM stdin;
 --
 
 COPY public."CandidateSkill" (id, "candidateId", "skillId", level, years) FROM stdin;
-0c3c1c33-690e-40a3-98f4-727a3eaaacf9	243d4130-0256-4a3e-89f5-c99888237c0f	1	1	\N
-71d39ebe-ba7c-4db2-999a-cae839be8cf4	243d4130-0256-4a3e-89f5-c99888237c0f	2	1	\N
-15179034-f244-4ee0-8386-5719d72c5437	243d4130-0256-4a3e-89f5-c99888237c0f	4	1	\N
-f85460bc-9301-425b-8a38-048ddd3e024b	243d4130-0256-4a3e-89f5-c99888237c0f	12	1	\N
-64882ec1-cc09-47aa-808e-e08da576b2e8	243d4130-0256-4a3e-89f5-c99888237c0f	16	1	\N
-913a5945-8c0f-4763-be0b-e2bc19c43d77	243d4130-0256-4a3e-89f5-c99888237c0f	17	1	\N
+9695cc96-4ee8-457c-a4a5-5a90b0314556	243d4130-0256-4a3e-89f5-c99888237c0f	1	1	\N
+5e047d77-8fa6-43ea-a75e-5eb97cbeee29	243d4130-0256-4a3e-89f5-c99888237c0f	2	1	\N
+dfab9e99-573b-4e93-b42c-8912b012116f	243d4130-0256-4a3e-89f5-c99888237c0f	4	1	\N
+37cfb270-ceef-40fc-a80b-a69ad8e9088a	243d4130-0256-4a3e-89f5-c99888237c0f	12	1	\N
+865d8b1a-5760-4b3a-b9bc-40887c509a64	243d4130-0256-4a3e-89f5-c99888237c0f	16	1	\N
+91c9fae8-e4a3-4c8f-8677-3b121c6ca981	243d4130-0256-4a3e-89f5-c99888237c0f	17	1	\N
 \.
 
 
@@ -288,7 +409,16 @@ COPY public."Credential" (id, "candidateId", "fileUrl", type, hash, verified) FR
 --
 
 COPY public."Education" (id, "candidateId", institution, degree, field, grade, "startDate", "endDate", "createdAt", "updatedAt") FROM stdin;
-2be402a0-a2b1-496c-b40d-6f08375d52db	243d4130-0256-4a3e-89f5-c99888237c0f	The Federal University of Technology, Akure	Bachelor of Technology	Computer Science	Second Class Upper	2018-01-10 00:00:00	2024-01-04 00:00:00	2025-09-10 00:09:03.175	2025-09-16 02:54:30.083
+2be402a0-a2b1-496c-b40d-6f08375d52db	243d4130-0256-4a3e-89f5-c99888237c0f	The Federal University of Technology, Akure	Bachelor of Technology	Computer Science	Second Class Upper	2018-01-10 00:00:00	2024-01-04 00:00:00	2025-09-10 00:09:03.175	2025-09-21 13:28:28.476
+\.
+
+
+--
+-- Data for Name: FeatureFlag; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public."FeatureFlag" (name, description, "isEnabled") FROM stdin;
+enableAiRecommendations	Enables the AI-powered candidate matching feature for Enterprise agencies.	f
 \.
 
 
@@ -313,43 +443,43 @@ COPY public."Invitation" (id, email, "agencyId", "inviterId", token, "expiresAt"
 --
 
 COPY public."LocationState" (id, name) FROM stdin;
-1	Abia
-2	Adamawa
-3	Akwa Ibom
-4	Anambra
-5	Bauchi
-6	Bayelsa
-7	Benue
-8	Borno
-9	Cross River
-10	Delta
-11	Ebonyi
-12	Edo
-13	Ekiti
-14	Enugu
-15	Gombe
-16	Imo
-17	Jigawa
-18	Kaduna
-19	Kano
-20	Katsina
-21	Kebbi
-22	Kogi
-23	Kwara
-24	Lagos
-25	Nasarawa
-26	Niger
-27	Ogun
-28	Ondo
-29	Osun
-30	Oyo
-31	Plateau
-32	Rivers
-33	Sokoto
-34	Taraba
-35	Yobe
-36	Zamfara
-37	Abuja (FCT)
+75	Abia
+76	Adamawa
+77	Akwa Ibom
+78	Anambra
+79	Bauchi
+80	Bayelsa
+81	Benue
+82	Borno
+83	Cross River
+84	Delta
+85	Ebonyi
+86	Edo
+87	Ekiti
+88	Enugu
+89	Gombe
+90	Imo
+91	Jigawa
+92	Kaduna
+93	Kano
+94	Katsina
+95	Kebbi
+96	Kogi
+97	Kwara
+98	Lagos
+99	Nasarawa
+100	Niger
+101	Ogun
+102	Ondo
+103	Osun
+104	Oyo
+105	Plateau
+106	Rivers
+107	Sokoto
+108	Taraba
+109	Yobe
+110	Zamfara
+111	Abuja (FCT)
 \.
 
 
@@ -358,780 +488,780 @@ COPY public."LocationState" (id, name) FROM stdin;
 --
 
 COPY public."LocationLGA" (id, name, "stateId") FROM stdin;
-1	Aba North	1
-2	Aba South	1
-3	Arochukwu	1
-4	Bende	1
-5	Ikwuano	1
-6	Isiala Ngwa North	1
-7	Isiala Ngwa South	1
-8	Isuikwuato	1
-9	Obi Ngwa	1
-10	Ohafia	1
-11	Osisioma	1
-12	Ugwunagbo	1
-13	Ukwa East	1
-14	Ukwa West	1
-15	Umuahia North	1
-16	Umuahia South	1
-17	Umu Nneochi	1
-18	Demsa	2
-19	Fufure	2
-20	Ganye	2
-21	Gayuk	2
-22	Gombi	2
-23	Grie	2
-24	Hong	2
-25	Jada	2
-26	Larmurde	2
-27	Madagali	2
-28	Maiha	2
-29	Mayo Belwa	2
-30	Michika	2
-31	Mubi North	2
-32	Mubi South	2
-33	Numan	2
-34	Shelleng	2
-35	Song	2
-36	Toungo	2
-37	Yola North	2
-38	Yola South	2
-39	Abak	3
-40	Eastern Obolo	3
-41	Eket	3
-42	Esit Eket	3
-43	Essien Udim	3
-44	Etim Ekpo	3
-45	Etinan	3
-46	Ibeno	3
-47	Ibesikpo Asutan	3
-48	Ibiono-Ibom	3
-49	Ika	3
-50	Ikono	3
-51	Ikot Abasi	3
-52	Ikot Ekpene	3
-53	Ini	3
-54	Itu	3
-55	Mbo	3
-56	Mkpat-Enin	3
-57	Nsit-Atai	3
-58	Nsit-Ibom	3
-59	Nsit-Ubium	3
-60	Obot Akara	3
-61	Okobo	3
-62	Onna	3
-63	Oron	3
-64	Oruk Anam	3
-65	Udung-Uko	3
-66	Ukanafun	3
-67	Uruan	3
-68	Urue-Offong/Oruko	3
-69	Uyo	3
-70	Aguata	4
-71	Anambra East	4
-72	Anambra West	4
-73	Anaocha	4
-74	Awka North	4
-75	Awka South	4
-76	Ayamelum	4
-77	Dunukofia	4
-78	Ekwusigo	4
-79	Idemili North	4
-80	Idemili South	4
-81	Ihiala	4
-82	Njikoka	4
-83	Nnewi North	4
-84	Nnewi South	4
-85	Ogbaru	4
-86	Onitsha North	4
-87	Onitsha South	4
-88	Orumba North	4
-89	Orumba South	4
-90	Oyi	4
-91	Alkaleri	5
-92	Bauchi	5
-93	Bogoro	5
-94	Damban	5
-95	Darazo	5
-96	Dass	5
-97	Gamawa	5
-98	Ganjuwa	5
-99	Giade	5
-100	Itas/Gadau	5
-101	Jama'are	5
-102	Katagum	5
-103	Kirfi	5
-104	Misau	5
-105	Ningi	5
-106	Shira	5
-107	Tafawa Balewa	5
-108	Toro	5
-109	Warji	5
-110	Zaki	5
-111	Brass	6
-112	Ekeremor	6
-113	Kolokuma/Opokuma	6
-114	Nembe	6
-115	Ogbia	6
-116	Sagbama	6
-117	Southern Ijaw	6
-118	Yenagoa	6
-119	Ado	7
-120	Agatu	7
-121	Apa	7
-122	Buruku	7
-123	Gboko	7
-124	Guma	7
-125	Gwer East	7
-126	Gwer West	7
-127	Katsina-Ala	7
-128	Konshisha	7
-129	Kwande	7
-130	Logo	7
-131	Makurdi	7
-132	Obi	7
-133	Ogbadibo	7
-134	Ohimini	7
-135	Oju	7
-136	Okpokwu	7
-137	Oturkpo	7
-138	Tarka	7
-139	Ukum	7
-140	Ushongo	7
-141	Vandeikya	7
-142	Abadam	8
-143	Askira/Uba	8
-144	Bama	8
-145	Bayo	8
-146	Biu	8
-147	Chibok	8
-148	Damboa	8
-149	Dikwa	8
-150	Gubio	8
-151	Guzamala	8
-152	Gwoza	8
-153	Hawul	8
-154	Jere	8
-155	Kaga	8
-156	Kala/Balge	8
-157	Konduga	8
-158	Kukawa	8
-159	Kwaya Kusar	8
-160	Mafa	8
-161	Magumeri	8
-162	Maiduguri	8
-163	Marte	8
-164	Mobbar	8
-165	Monguno	8
-166	Ngala	8
-167	Nganzai	8
-168	Shani	8
-169	Abi	9
-170	Akamkpa	9
-171	Akpabuyo	9
-172	Bakassi	9
-173	Bekwarra	9
-174	Biase	9
-175	Boki	9
-176	Calabar Municipal	9
-177	Calabar South	9
-178	Etung	9
-179	Ikom	9
-180	Obanliku	9
-181	Obubra	9
-182	Obudu	9
-183	Odukpani	9
-184	Ogoja	9
-185	Yakuur	9
-186	Yala	9
-187	Aniocha North	10
-188	Aniocha South	10
-189	Bomadi	10
-190	Burutu	10
-191	Ethiope East	10
-192	Ethiope West	10
-193	Ika North East	10
-194	Ika South	10
-195	Isoko North	10
-196	Isoko South	10
-197	Ndokwa East	10
-198	Ndokwa West	10
-199	Okpe	10
-200	Oshimili North	10
-201	Oshimili South	10
-202	Patani	10
-203	Sapele	10
-204	Udu	10
-205	Ughelli North	10
-206	Ughelli South	10
-207	Ukwuani	10
-208	Uvwie	10
-209	Warri North	10
-210	Warri South	10
-211	Warri South West	10
-212	Abakaliki	11
-213	Afikpo North	11
-214	Afikpo South	11
-215	Ebonyi	11
-216	Ezza North	11
-217	Ezza South	11
-218	Ikwo	11
-219	Ishielu	11
-220	Ivo	11
-221	Izzi	11
-222	Ohaozara	11
-223	Ohaukwu	11
-224	Onicha	11
-225	Akoko-Edo	12
-226	Egor	12
-227	Esan Central	12
-228	Esan North-East	12
-229	Esan South-East	12
-230	Esan West	12
-231	Etsako Central	12
-232	Etsako East	12
-233	Etsako West	12
-234	Igueben	12
-235	Ikpoba Okha	12
-236	Orhionmwon	12
-237	Oredo	12
-238	Ovia North-East	12
-239	Ovia South-West	12
-240	Owan East	12
-241	Owan West	12
-242	Uhunmwonde	12
-243	Ado Ekiti	13
-244	Efon	13
-245	Ekiti East	13
-246	Ekiti South-West	13
-247	Ekiti West	13
-248	Emure	13
-249	Gbonyin	13
-250	Ido Osi	13
-251	Ijero	13
-252	Ikere	13
-253	Ikole	13
-254	Ilejemeje	13
-255	Irepodun/Ifelodun	13
-256	Ise/Orun	13
-257	Moba	13
-258	Oye	13
-259	Aninri	14
-260	Awgu	14
-261	Enugu East	14
-262	Enugu North	14
-263	Enugu South	14
-264	Ezeagu	14
-265	Igbo Etiti	14
-266	Igbo Eze North	14
-267	Igbo Eze South	14
-268	Isi Uzo	14
-269	Nkanu East	14
-270	Nkanu West	14
-271	Nsukka	14
-272	Oji River	14
-273	Udenu	14
-274	Udi	14
-275	Uzo Uwani	14
-276	Akko	15
-277	Balanga	15
-278	Billiri	15
-279	Dukku	15
-280	Funakaye	15
-281	Gombe	15
-282	Kaltungo	15
-283	Kwami	15
-284	Nafada	15
-285	Shongom	15
-286	Yamaltu/Deba	15
-287	Aboh Mbaise	16
-288	Ahiazu Mbaise	16
-289	Ehime Mbano	16
-290	Ezinihitte	16
-291	Ideato North	16
-292	Ideato South	16
-293	Ihitte/Uboma	16
-294	Ikeduru	16
-295	Isiala Mbano	16
-296	Isu	16
-297	Mbaitoli	16
-298	Ngor Okpala	16
-299	Njaba	16
-300	Nkwerre	16
-301	Nwangele	16
-302	Obowo	16
-303	Oguta	16
-304	Ohaji/Egbema	16
-305	Okigwe	16
-306	Orlu	16
-307	Orsu	16
-308	Oru East	16
-309	Oru West	16
-310	Owerri Municipal	16
-311	Owerri North	16
-312	Owerri West	16
-313	Unuimo	16
-314	Auyo	17
-315	Babura	17
-316	Biriniwa	17
-317	Birnin Kudu	17
-318	Buji	17
-319	Dutse	17
-320	Gagarawa	17
-321	Garki	17
-322	Gumel	17
-323	Guri	17
-324	Gwaram	17
-325	Gwiwa	17
-326	Hadejia	17
-327	Jahun	17
-328	Kafin Hausa	17
-329	Kazaure	17
-330	Kiri Kasama	17
-331	Kiyawa	17
-332	Kaugama	17
-333	Maigatari	17
-334	Malam Madori	17
-335	Miga	17
-336	Ringim	17
-337	Roni	17
-338	Sule Tankarkar	17
-339	Taura	17
-340	Yankwashi	17
-341	Birnin Gwari	18
-342	Chikun	18
-343	Giwa	18
-344	Igabi	18
-345	Ikara	18
-346	Jaba	18
-347	Jema'a	18
-348	Kachia	18
-349	Kaduna North	18
-350	Kaduna South	18
-351	Kagarko	18
-352	Kajuru	18
-353	Kaura	18
-354	Kauru	18
-355	Kubau	18
-356	Kudan	18
-357	Lere	18
-358	Makarfi	18
-359	Sabon Gari	18
-360	Sanga	18
-361	Soba	18
-362	Zangon Kataf	18
-363	Zaria	18
-364	Ajingi	19
-365	Albasu	19
-366	Bagwai	19
-367	Bebeji	19
-368	Bichi	19
-369	Bunkure	19
-370	Dala	19
-371	Dambatta	19
-372	Dawakin Kudu	19
-373	Dawakin Tofa	19
-374	Doguwa	19
-375	Fagge	19
-376	Gabasawa	19
-377	Garko	19
-378	Garun Mallam	19
-379	Gaya	19
-380	Gezawa	19
-381	Gwale	19
-382	Gwarzo	19
-383	Kabo	19
-384	Kano Municipal	19
-385	Karaye	19
-386	Kibiya	19
-387	Kiru	19
-388	Kumbotso	19
-389	Kunchi	19
-390	Kura	19
-391	Madobi	19
-392	Makoda	19
-393	Minjibir	19
-394	Nasarawa	19
-395	Rano	19
-396	Rimin Gado	19
-397	Rogo	19
-398	Shanono	19
-399	Sumaila	19
-400	Takai	19
-401	Tarauni	19
-402	Tofa	19
-403	Tsanyawa	19
-404	Tudun Wada	19
-405	Ungogo	19
-406	Warawa	19
-407	Wudil	19
-408	Bakori	20
-409	Batagarawa	20
-410	Batsari	20
-411	Baure	20
-412	Bindawa	20
-413	Charanchi	20
-414	Dandume	20
-415	Danja	20
-416	Dan Musa	20
-417	Daura	20
-418	Dutsi	20
-419	Dutsin Ma	20
-420	Faskari	20
-421	Funtua	20
-422	Ingawa	20
-423	Jibia	20
-424	Kafur	20
-425	Kaita	20
-426	Kankara	20
-427	Kankia	20
-428	Katsina	20
-429	Kurfi	20
-430	Kusada	20
-431	Mai'Adua	20
-432	Malumfashi	20
-433	Mani	20
-434	Mashi	20
-435	Matazu	20
-436	Musawa	20
-437	Rimi	20
-438	Sabuwa	20
-439	Safana	20
-440	Sandamu	20
-441	Zango	20
-442	Aleiro	21
-443	Arewa Dandi	21
-444	Argungu	21
-445	Augie	21
-446	Bagudo	21
-447	Birnin Kebbi	21
-448	Bunza	21
-449	Dandi	21
-450	Fakai	21
-451	Gwandu	21
-452	Jega	21
-453	Kalgo	21
-454	Koko/Besse	21
-455	Maiyama	21
-456	Ngaski	21
-457	Sakaba	21
-458	Shanga	21
-459	Suru	21
-460	Wasagu/Danko	21
-461	Yauri	21
-462	Zuru	21
-463	Adavi	22
-464	Ajaokuta	22
-465	Ankpa	22
-466	Bassa	22
-467	Dekina	22
-468	Ibaji	22
-469	Idah	22
-470	Igalamela Odolu	22
-471	Ijumu	22
-472	Kabba/Bunu	22
-473	Kogi	22
-474	Lokoja	22
-475	Mopa Muro	22
-476	Ofu	22
-477	Ogori/Magongo	22
-478	Okehi	22
-479	Okene	22
-480	Olamaboro	22
-481	Omala	22
-482	Yagba East	22
-483	Yagba West	22
-484	Asa	23
-485	Baruten	23
-486	Edu	23
-487	Ekiti	23
-488	Ifelodun	23
-489	Ilorin East	23
-490	Ilorin South	23
-491	Ilorin West	23
-492	Irepodun	23
-493	Isin	23
-494	Kaiama	23
-495	Moro	23
-496	Offa	23
-497	Oke Ero	23
-498	Oyun	23
-499	Pategi	23
-500	Agege	24
-501	Ajeromi-Ifelodun	24
-502	Alimosho	24
-503	Amuwo-Odofin	24
-504	Apapa	24
-505	Badagry	24
-506	Epe	24
-507	Eti Osa	24
-508	Ibeju-Lekki	24
-509	Ifako-Ijaiye	24
-510	Ikeja	24
-511	Ikorodu	24
-512	Kosofe	24
-513	Lagos Island	24
-514	Lagos Mainland	24
-515	Mushin	24
-516	Ojo	24
-517	Oshodi-Isolo	24
-518	Shomolu	24
-519	Surulere	24
-520	Akwanga	25
-521	Awe	25
-522	Doma	25
-523	Karu	25
-524	Keana	25
-525	Keffi	25
-526	Kokona	25
-527	Lafia	25
-528	Nasarawa	25
-529	Nasarawa Egon	25
-530	Obi	25
-531	Toto	25
-532	Wamba	25
-533	Agaie	26
-534	Agwara	26
-535	Bida	26
-536	Borgu	26
-537	Bosso	26
-538	Chanchaga	26
-539	Edati	26
-540	Gbako	26
-541	Gurara	26
-542	Katcha	26
-543	Kontagora	26
-544	Lapai	26
-545	Lavun	26
-546	Magama	26
-547	Mariga	26
-548	Mashegu	26
-549	Mokwa	26
-550	Moya	26
-551	Paikoro	26
-552	Rafi	26
-553	Rijau	26
-554	Shiroro	26
-555	Suleja	26
-556	Tafa	26
-557	Wushishi	26
-558	Abeokuta North	27
-559	Abeokuta South	27
-560	Ado-Odo/Ota	27
-561	Egbado North	27
-562	Egbado South	27
-563	Ewekoro	27
-564	Ifo	27
-565	Ijebu East	27
-566	Ijebu North	27
-567	Ijebu North East	27
-568	Ijebu Ode	27
-569	Ikenne	27
-570	Imeko Afon	27
-571	Ipokia	27
-572	Obafemi Owode	27
-573	Odeda	27
-574	Odogbolu	27
-575	Ogun Waterside	27
-576	Remo North	27
-577	Shagamu	27
-578	Akoko North-East	28
-579	Akoko North-West	28
-580	Akoko South-West	28
-581	Akoko South-East	28
-582	Akure North	28
-583	Akure South	28
-584	Ese Odo	28
-585	Idanre	28
-586	Ifedore	28
-587	Ilaje	28
-588	Ile Oluji/Okeigbo	28
-589	Irele	28
-590	Odigbo	28
-591	Okitipupa	28
-592	Ondo East	28
-593	Ondo West	28
-594	Ose	28
-595	Owo	28
-596	Aiyedaade	29
-597	Aiyedire	29
-598	Atakunmosa East	29
-599	Atakunmosa West	29
-600	Boluwaduro	29
-601	Boripe	29
-602	Ede North	29
-603	Ede South	29
-604	Ife Central	29
-605	Ife East	29
-606	Ife North	29
-607	Ife South	29
-608	Egbedore	29
-609	Ejigbo	29
-610	Ifedayo	29
-611	Ifelodun	29
-612	Ila	29
-613	Ilesa East	29
-614	Ilesa West	29
-615	Irepodun	29
-616	Irewole	29
-617	Isokan	29
-618	Iwo	29
-619	Obokun	29
-620	Odo Otin	29
-621	Ola Oluwa	29
-622	Olorunda	29
-623	Oriade	29
-624	Orolu	29
-625	Osogbo	29
-626	Afijio	30
-627	Akinyele	30
-628	Atiba	30
-629	Atisbo	30
-630	Egbeda	30
-631	Ibadan North	30
-632	Ibadan North-East	30
-633	Ibadan North-West	30
-634	Ibadan South-East	30
-635	Ibadan South-West	30
-636	Ibarapa Central	30
-637	Ibarapa East	30
-638	Ibarapa North	30
-639	Ido	30
-640	Irepo	30
-641	Iseyin	30
-642	Itesiwaju	30
-643	Iwajowa	30
-644	Kajola	30
-645	Lagelu	30
-646	Ogbomosho North	30
-647	Ogbomosho South	30
-648	Ogo Oluwa	30
-649	Olorunsogo	30
-650	Oluyole	30
-651	Ona Ara	30
-652	Orelope	30
-653	Ori Ire	30
-654	Oyo	30
-655	Oyo East	30
-656	Saki East	30
-657	Saki West	30
-658	Surulere	30
-659	Bokkos	31
-660	Barkin Ladi	31
-661	Bassa	31
-662	Jos East	31
-663	Jos North	31
-664	Jos South	31
-665	Kanam	31
-666	Kanke	31
-667	Langtang South	31
-668	Langtang North	31
-669	Mangu	31
-670	Mikang	31
-671	Pankshin	31
-672	Qua'an Pan	31
-673	Riyom	31
-674	Shendam	31
-675	Wase	31
-676	Port Harcourt	32
-677	Obio-Akpor	32
-678	Okrika	32
-679	OguΓÇôBolo	32
-680	Eleme	32
-681	Tai	32
-682	Gokana	32
-683	Khana	32
-684	Oyigbo	32
-685	OpoboΓÇôNkoro	32
-686	Andoni	32
-687	Bonny	32
-688	Degema	32
-689	Asari-Toru	32
-690	Akuku-Toru	32
-691	AbuaΓÇôOdual	32
-692	Ahoada West	32
-693	Ahoada East	32
-694	OgbaΓÇôEgbemaΓÇôNdoni	32
-695	Emuoha	32
-696	Ikwerre	32
-697	Etche	32
-698	Omuma	32
-699	Binji	33
-700	Bodinga	33
-701	Dange Shuni	33
-702	Gada	33
-703	Goronyo	33
-704	Gudu	33
-705	Gwadabawa	33
-706	Illela	33
-707	Isa	33
-708	Kebbe	33
-709	Kware	33
-710	Rabah	33
-711	Sabon Birni	33
-712	Shagari	33
-713	Silame	33
-714	Sokoto North	33
-715	Sokoto South	33
-716	Tambuwal	33
-717	Tangaza	33
-718	Tureta	33
-719	Wamako	33
-720	Wurno	33
-721	Yabo	33
-722	Ardo Kola	34
-723	Bali	34
-724	Donga	34
-725	Gashaka	34
-726	Gassol	34
-727	Ibi	34
-728	Jalingo	34
-729	Karim Lamido	34
-730	Kumi	34
-731	Lau	34
-732	Sardauna	34
-733	Takum	34
-734	Ussa	34
-735	Wukari	34
-736	Yorro	34
-737	Zing	34
-738	Bade	35
-739	Bursari	35
-740	Damaturu	35
-741	Fika	35
-742	Fune	35
-743	Geidam	35
-744	Gujba	35
-745	Gulani	35
-746	Jakusko	35
-747	Karasuwa	35
-748	Machina	35
-749	Nangere	35
-750	Nguru	35
-751	Potiskum	35
-752	Tarmuwa	35
-753	Yunusari	35
-754	Yusufari	35
-755	Anka	36
-756	Bakura	36
-757	Birnin Magaji/Kiyaw	36
-758	Bukkuyum	36
-759	Bungudu	36
-760	Gummi	36
-761	Gusau	36
-762	Kaura Namoda	36
-763	Maradun	36
-764	Maru	36
-765	Shinkafi	36
-766	Talata Mafara	36
-767	Chafe	36
-768	Zurmi	36
-769	Abaji	37
-770	Bwari	37
-771	Gwagwalada	37
-772	Kuje	37
-773	Kwali	37
-774	Municipal Area Council	37
+1549	Aba North	75
+1550	Aba South	75
+1551	Arochukwu	75
+1552	Bende	75
+1553	Ikwuano	75
+1554	Isiala Ngwa North	75
+1555	Isiala Ngwa South	75
+1556	Isuikwuato	75
+1557	Obi Ngwa	75
+1558	Ohafia	75
+1559	Osisioma	75
+1560	Ugwunagbo	75
+1561	Ukwa East	75
+1562	Ukwa West	75
+1563	Umuahia North	75
+1564	Umuahia South	75
+1565	Umu Nneochi	75
+1566	Demsa	76
+1567	Fufure	76
+1568	Ganye	76
+1569	Gayuk	76
+1570	Gombi	76
+1571	Grie	76
+1572	Hong	76
+1573	Jada	76
+1574	Larmurde	76
+1575	Madagali	76
+1576	Maiha	76
+1577	Mayo Belwa	76
+1578	Michika	76
+1579	Mubi North	76
+1580	Mubi South	76
+1581	Numan	76
+1582	Shelleng	76
+1583	Song	76
+1584	Toungo	76
+1585	Yola North	76
+1586	Yola South	76
+1587	Abak	77
+1588	Eastern Obolo	77
+1589	Eket	77
+1590	Esit Eket	77
+1591	Essien Udim	77
+1592	Etim Ekpo	77
+1593	Etinan	77
+1594	Ibeno	77
+1595	Ibesikpo Asutan	77
+1596	Ibiono-Ibom	77
+1597	Ika	77
+1598	Ikono	77
+1599	Ikot Abasi	77
+1600	Ikot Ekpene	77
+1601	Ini	77
+1602	Itu	77
+1603	Mbo	77
+1604	Mkpat-Enin	77
+1605	Nsit-Atai	77
+1606	Nsit-Ibom	77
+1607	Nsit-Ubium	77
+1608	Obot Akara	77
+1609	Okobo	77
+1610	Onna	77
+1611	Oron	77
+1612	Oruk Anam	77
+1613	Udung-Uko	77
+1614	Ukanafun	77
+1615	Uruan	77
+1616	Urue-Offong/Oruko	77
+1617	Uyo	77
+1618	Aguata	78
+1619	Anambra East	78
+1620	Anambra West	78
+1621	Anaocha	78
+1622	Awka North	78
+1623	Awka South	78
+1624	Ayamelum	78
+1625	Dunukofia	78
+1626	Ekwusigo	78
+1627	Idemili North	78
+1628	Idemili South	78
+1629	Ihiala	78
+1630	Njikoka	78
+1631	Nnewi North	78
+1632	Nnewi South	78
+1633	Ogbaru	78
+1634	Onitsha North	78
+1635	Onitsha South	78
+1636	Orumba North	78
+1637	Orumba South	78
+1638	Oyi	78
+1639	Alkaleri	79
+1640	Bauchi	79
+1641	Bogoro	79
+1642	Damban	79
+1643	Darazo	79
+1644	Dass	79
+1645	Gamawa	79
+1646	Ganjuwa	79
+1647	Giade	79
+1648	Itas/Gadau	79
+1649	Jama'are	79
+1650	Katagum	79
+1651	Kirfi	79
+1652	Misau	79
+1653	Ningi	79
+1654	Shira	79
+1655	Tafawa Balewa	79
+1656	Toro	79
+1657	Warji	79
+1658	Zaki	79
+1659	Brass	80
+1660	Ekeremor	80
+1661	Kolokuma/Opokuma	80
+1662	Nembe	80
+1663	Ogbia	80
+1664	Sagbama	80
+1665	Southern Ijaw	80
+1666	Yenagoa	80
+1667	Ado	81
+1668	Agatu	81
+1669	Apa	81
+1670	Buruku	81
+1671	Gboko	81
+1672	Guma	81
+1673	Gwer East	81
+1674	Gwer West	81
+1675	Katsina-Ala	81
+1676	Konshisha	81
+1677	Kwande	81
+1678	Logo	81
+1679	Makurdi	81
+1680	Obi	81
+1681	Ogbadibo	81
+1682	Ohimini	81
+1683	Oju	81
+1684	Okpokwu	81
+1685	Oturkpo	81
+1686	Tarka	81
+1687	Ukum	81
+1688	Ushongo	81
+1689	Vandeikya	81
+1690	Abadam	82
+1691	Askira/Uba	82
+1692	Bama	82
+1693	Bayo	82
+1694	Biu	82
+1695	Chibok	82
+1696	Damboa	82
+1697	Dikwa	82
+1698	Gubio	82
+1699	Guzamala	82
+1700	Gwoza	82
+1701	Hawul	82
+1702	Jere	82
+1703	Kaga	82
+1704	Kala/Balge	82
+1705	Konduga	82
+1706	Kukawa	82
+1707	Kwaya Kusar	82
+1708	Mafa	82
+1709	Magumeri	82
+1710	Maiduguri	82
+1711	Marte	82
+1712	Mobbar	82
+1713	Monguno	82
+1714	Ngala	82
+1715	Nganzai	82
+1716	Shani	82
+1717	Abi	83
+1718	Akamkpa	83
+1719	Akpabuyo	83
+1720	Bakassi	83
+1721	Bekwarra	83
+1722	Biase	83
+1723	Boki	83
+1724	Calabar Municipal	83
+1725	Calabar South	83
+1726	Etung	83
+1727	Ikom	83
+1728	Obanliku	83
+1729	Obubra	83
+1730	Obudu	83
+1731	Odukpani	83
+1732	Ogoja	83
+1733	Yakuur	83
+1734	Yala	83
+1735	Aniocha North	84
+1736	Aniocha South	84
+1737	Bomadi	84
+1738	Burutu	84
+1739	Ethiope East	84
+1740	Ethiope West	84
+1741	Ika North East	84
+1742	Ika South	84
+1743	Isoko North	84
+1744	Isoko South	84
+1745	Ndokwa East	84
+1746	Ndokwa West	84
+1747	Okpe	84
+1748	Oshimili North	84
+1749	Oshimili South	84
+1750	Patani	84
+1751	Sapele	84
+1752	Udu	84
+1753	Ughelli North	84
+1754	Ughelli South	84
+1755	Ukwuani	84
+1756	Uvwie	84
+1757	Warri North	84
+1758	Warri South	84
+1759	Warri South West	84
+1760	Abakaliki	85
+1761	Afikpo North	85
+1762	Afikpo South	85
+1763	Ebonyi	85
+1764	Ezza North	85
+1765	Ezza South	85
+1766	Ikwo	85
+1767	Ishielu	85
+1768	Ivo	85
+1769	Izzi	85
+1770	Ohaozara	85
+1771	Ohaukwu	85
+1772	Onicha	85
+1773	Akoko-Edo	86
+1774	Egor	86
+1775	Esan Central	86
+1776	Esan North-East	86
+1777	Esan South-East	86
+1778	Esan West	86
+1779	Etsako Central	86
+1780	Etsako East	86
+1781	Etsako West	86
+1782	Igueben	86
+1783	Ikpoba Okha	86
+1784	Orhionmwon	86
+1785	Oredo	86
+1786	Ovia North-East	86
+1787	Ovia South-West	86
+1788	Owan East	86
+1789	Owan West	86
+1790	Uhunmwonde	86
+1791	Ado Ekiti	87
+1792	Efon	87
+1793	Ekiti East	87
+1794	Ekiti South-West	87
+1795	Ekiti West	87
+1796	Emure	87
+1797	Gbonyin	87
+1798	Ido Osi	87
+1799	Ijero	87
+1800	Ikere	87
+1801	Ikole	87
+1802	Ilejemeje	87
+1803	Irepodun/Ifelodun	87
+1804	Ise/Orun	87
+1805	Moba	87
+1806	Oye	87
+1807	Aninri	88
+1808	Awgu	88
+1809	Enugu East	88
+1810	Enugu North	88
+1811	Enugu South	88
+1812	Ezeagu	88
+1813	Igbo Etiti	88
+1814	Igbo Eze North	88
+1815	Igbo Eze South	88
+1816	Isi Uzo	88
+1817	Nkanu East	88
+1818	Nkanu West	88
+1819	Nsukka	88
+1820	Oji River	88
+1821	Udenu	88
+1822	Udi	88
+1823	Uzo Uwani	88
+1824	Akko	89
+1825	Balanga	89
+1826	Billiri	89
+1827	Dukku	89
+1828	Funakaye	89
+1829	Gombe	89
+1830	Kaltungo	89
+1831	Kwami	89
+1832	Nafada	89
+1833	Shongom	89
+1834	Yamaltu/Deba	89
+1835	Aboh Mbaise	90
+1836	Ahiazu Mbaise	90
+1837	Ehime Mbano	90
+1838	Ezinihitte	90
+1839	Ideato North	90
+1840	Ideato South	90
+1841	Ihitte/Uboma	90
+1842	Ikeduru	90
+1843	Isiala Mbano	90
+1844	Isu	90
+1845	Mbaitoli	90
+1846	Ngor Okpala	90
+1847	Njaba	90
+1848	Nkwerre	90
+1849	Nwangele	90
+1850	Obowo	90
+1851	Oguta	90
+1852	Ohaji/Egbema	90
+1853	Okigwe	90
+1854	Orlu	90
+1855	Orsu	90
+1856	Oru East	90
+1857	Oru West	90
+1858	Owerri Municipal	90
+1859	Owerri North	90
+1860	Owerri West	90
+1861	Unuimo	90
+1862	Auyo	91
+1863	Babura	91
+1864	Biriniwa	91
+1865	Birnin Kudu	91
+1866	Buji	91
+1867	Dutse	91
+1868	Gagarawa	91
+1869	Garki	91
+1870	Gumel	91
+1871	Guri	91
+1872	Gwaram	91
+1873	Gwiwa	91
+1874	Hadejia	91
+1875	Jahun	91
+1876	Kafin Hausa	91
+1877	Kazaure	91
+1878	Kiri Kasama	91
+1879	Kiyawa	91
+1880	Kaugama	91
+1881	Maigatari	91
+1882	Malam Madori	91
+1883	Miga	91
+1884	Ringim	91
+1885	Roni	91
+1886	Sule Tankarkar	91
+1887	Taura	91
+1888	Yankwashi	91
+1889	Birnin Gwari	92
+1890	Chikun	92
+1891	Giwa	92
+1892	Igabi	92
+1893	Ikara	92
+1894	Jaba	92
+1895	Jema'a	92
+1896	Kachia	92
+1897	Kaduna North	92
+1898	Kaduna South	92
+1899	Kagarko	92
+1900	Kajuru	92
+1901	Kaura	92
+1902	Kauru	92
+1903	Kubau	92
+1904	Kudan	92
+1905	Lere	92
+1906	Makarfi	92
+1907	Sabon Gari	92
+1908	Sanga	92
+1909	Soba	92
+1910	Zangon Kataf	92
+1911	Zaria	92
+1912	Ajingi	93
+1913	Albasu	93
+1914	Bagwai	93
+1915	Bebeji	93
+1916	Bichi	93
+1917	Bunkure	93
+1918	Dala	93
+1919	Dambatta	93
+1920	Dawakin Kudu	93
+1921	Dawakin Tofa	93
+1922	Doguwa	93
+1923	Fagge	93
+1924	Gabasawa	93
+1925	Garko	93
+1926	Garun Mallam	93
+1927	Gaya	93
+1928	Gezawa	93
+1929	Gwale	93
+1930	Gwarzo	93
+1931	Kabo	93
+1932	Kano Municipal	93
+1933	Karaye	93
+1934	Kibiya	93
+1935	Kiru	93
+1936	Kumbotso	93
+1937	Kunchi	93
+1938	Kura	93
+1939	Madobi	93
+1940	Makoda	93
+1941	Minjibir	93
+1942	Nasarawa	93
+1943	Rano	93
+1944	Rimin Gado	93
+1945	Rogo	93
+1946	Shanono	93
+1947	Sumaila	93
+1948	Takai	93
+1949	Tarauni	93
+1950	Tofa	93
+1951	Tsanyawa	93
+1952	Tudun Wada	93
+1953	Ungogo	93
+1954	Warawa	93
+1955	Wudil	93
+1956	Bakori	94
+1957	Batagarawa	94
+1958	Batsari	94
+1959	Baure	94
+1960	Bindawa	94
+1961	Charanchi	94
+1962	Dandume	94
+1963	Danja	94
+1964	Dan Musa	94
+1965	Daura	94
+1966	Dutsi	94
+1967	Dutsin Ma	94
+1968	Faskari	94
+1969	Funtua	94
+1970	Ingawa	94
+1971	Jibia	94
+1972	Kafur	94
+1973	Kaita	94
+1974	Kankara	94
+1975	Kankia	94
+1976	Katsina	94
+1977	Kurfi	94
+1978	Kusada	94
+1979	Mai'Adua	94
+1980	Malumfashi	94
+1981	Mani	94
+1982	Mashi	94
+1983	Matazu	94
+1984	Musawa	94
+1985	Rimi	94
+1986	Sabuwa	94
+1987	Safana	94
+1988	Sandamu	94
+1989	Zango	94
+1990	Aleiro	95
+1991	Arewa Dandi	95
+1992	Argungu	95
+1993	Augie	95
+1994	Bagudo	95
+1995	Birnin Kebbi	95
+1996	Bunza	95
+1997	Dandi	95
+1998	Fakai	95
+1999	Gwandu	95
+2000	Jega	95
+2001	Kalgo	95
+2002	Koko/Besse	95
+2003	Maiyama	95
+2004	Ngaski	95
+2005	Sakaba	95
+2006	Shanga	95
+2007	Suru	95
+2008	Wasagu/Danko	95
+2009	Yauri	95
+2010	Zuru	95
+2011	Adavi	96
+2012	Ajaokuta	96
+2013	Ankpa	96
+2014	Bassa	96
+2015	Dekina	96
+2016	Ibaji	96
+2017	Idah	96
+2018	Igalamela Odolu	96
+2019	Ijumu	96
+2020	Kabba/Bunu	96
+2021	Kogi	96
+2022	Lokoja	96
+2023	Mopa Muro	96
+2024	Ofu	96
+2025	Ogori/Magongo	96
+2026	Okehi	96
+2027	Okene	96
+2028	Olamaboro	96
+2029	Omala	96
+2030	Yagba East	96
+2031	Yagba West	96
+2032	Asa	97
+2033	Baruten	97
+2034	Edu	97
+2035	Ekiti	97
+2036	Ifelodun	97
+2037	Ilorin East	97
+2038	Ilorin South	97
+2039	Ilorin West	97
+2040	Irepodun	97
+2041	Isin	97
+2042	Kaiama	97
+2043	Moro	97
+2044	Offa	97
+2045	Oke Ero	97
+2046	Oyun	97
+2047	Pategi	97
+2048	Agege	98
+2049	Ajeromi-Ifelodun	98
+2050	Alimosho	98
+2051	Amuwo-Odofin	98
+2052	Apapa	98
+2053	Badagry	98
+2054	Epe	98
+2055	Eti Osa	98
+2056	Ibeju-Lekki	98
+2057	Ifako-Ijaiye	98
+2058	Ikeja	98
+2059	Ikorodu	98
+2060	Kosofe	98
+2061	Lagos Island	98
+2062	Lagos Mainland	98
+2063	Mushin	98
+2064	Ojo	98
+2065	Oshodi-Isolo	98
+2066	Shomolu	98
+2067	Surulere	98
+2068	Akwanga	99
+2069	Awe	99
+2070	Doma	99
+2071	Karu	99
+2072	Keana	99
+2073	Keffi	99
+2074	Kokona	99
+2075	Lafia	99
+2076	Nasarawa	99
+2077	Nasarawa Egon	99
+2078	Obi	99
+2079	Toto	99
+2080	Wamba	99
+2081	Agaie	100
+2082	Agwara	100
+2083	Bida	100
+2084	Borgu	100
+2085	Bosso	100
+2086	Chanchaga	100
+2087	Edati	100
+2088	Gbako	100
+2089	Gurara	100
+2090	Katcha	100
+2091	Kontagora	100
+2092	Lapai	100
+2093	Lavun	100
+2094	Magama	100
+2095	Mariga	100
+2096	Mashegu	100
+2097	Mokwa	100
+2098	Moya	100
+2099	Paikoro	100
+2100	Rafi	100
+2101	Rijau	100
+2102	Shiroro	100
+2103	Suleja	100
+2104	Tafa	100
+2105	Wushishi	100
+2106	Abeokuta North	101
+2107	Abeokuta South	101
+2108	Ado-Odo/Ota	101
+2109	Egbado North	101
+2110	Egbado South	101
+2111	Ewekoro	101
+2112	Ifo	101
+2113	Ijebu East	101
+2114	Ijebu North	101
+2115	Ijebu North East	101
+2116	Ijebu Ode	101
+2117	Ikenne	101
+2118	Imeko Afon	101
+2119	Ipokia	101
+2120	Obafemi Owode	101
+2121	Odeda	101
+2122	Odogbolu	101
+2123	Ogun Waterside	101
+2124	Remo North	101
+2125	Shagamu	101
+2126	Akoko North-East	102
+2127	Akoko North-West	102
+2128	Akoko South-West	102
+2129	Akoko South-East	102
+2130	Akure North	102
+2131	Akure South	102
+2132	Ese Odo	102
+2133	Idanre	102
+2134	Ifedore	102
+2135	Ilaje	102
+2136	Ile Oluji/Okeigbo	102
+2137	Irele	102
+2138	Odigbo	102
+2139	Okitipupa	102
+2140	Ondo East	102
+2141	Ondo West	102
+2142	Ose	102
+2143	Owo	102
+2144	Aiyedaade	103
+2145	Aiyedire	103
+2146	Atakunmosa East	103
+2147	Atakunmosa West	103
+2148	Boluwaduro	103
+2149	Boripe	103
+2150	Ede North	103
+2151	Ede South	103
+2152	Ife Central	103
+2153	Ife East	103
+2154	Ife North	103
+2155	Ife South	103
+2156	Egbedore	103
+2157	Ejigbo	103
+2158	Ifedayo	103
+2159	Ifelodun	103
+2160	Ila	103
+2161	Ilesa East	103
+2162	Ilesa West	103
+2163	Irepodun	103
+2164	Irewole	103
+2165	Isokan	103
+2166	Iwo	103
+2167	Obokun	103
+2168	Odo Otin	103
+2169	Ola Oluwa	103
+2170	Olorunda	103
+2171	Oriade	103
+2172	Orolu	103
+2173	Osogbo	103
+2174	Afijio	104
+2175	Akinyele	104
+2176	Atiba	104
+2177	Atisbo	104
+2178	Egbeda	104
+2179	Ibadan North	104
+2180	Ibadan North-East	104
+2181	Ibadan North-West	104
+2182	Ibadan South-East	104
+2183	Ibadan South-West	104
+2184	Ibarapa Central	104
+2185	Ibarapa East	104
+2186	Ibarapa North	104
+2187	Ido	104
+2188	Irepo	104
+2189	Iseyin	104
+2190	Itesiwaju	104
+2191	Iwajowa	104
+2192	Kajola	104
+2193	Lagelu	104
+2194	Ogbomosho North	104
+2195	Ogbomosho South	104
+2196	Ogo Oluwa	104
+2197	Olorunsogo	104
+2198	Oluyole	104
+2199	Ona Ara	104
+2200	Orelope	104
+2201	Ori Ire	104
+2202	Oyo	104
+2203	Oyo East	104
+2204	Saki East	104
+2205	Saki West	104
+2206	Surulere	104
+2207	Bokkos	105
+2208	Barkin Ladi	105
+2209	Bassa	105
+2210	Jos East	105
+2211	Jos North	105
+2212	Jos South	105
+2213	Kanam	105
+2214	Kanke	105
+2215	Langtang South	105
+2216	Langtang North	105
+2217	Mangu	105
+2218	Mikang	105
+2219	Pankshin	105
+2220	Qua'an Pan	105
+2221	Riyom	105
+2222	Shendam	105
+2223	Wase	105
+2224	Port Harcourt	106
+2225	Obio-Akpor	106
+2226	Okrika	106
+2227	OguΓÇôBolo	106
+2228	Eleme	106
+2229	Tai	106
+2230	Gokana	106
+2231	Khana	106
+2232	Oyigbo	106
+2233	OpoboΓÇôNkoro	106
+2234	Andoni	106
+2235	Bonny	106
+2236	Degema	106
+2237	Asari-Toru	106
+2238	Akuku-Toru	106
+2239	AbuaΓÇôOdual	106
+2240	Ahoada West	106
+2241	Ahoada East	106
+2242	OgbaΓÇôEgbemaΓÇôNdoni	106
+2243	Emuoha	106
+2244	Ikwerre	106
+2245	Etche	106
+2246	Omuma	106
+2247	Binji	107
+2248	Bodinga	107
+2249	Dange Shuni	107
+2250	Gada	107
+2251	Goronyo	107
+2252	Gudu	107
+2253	Gwadabawa	107
+2254	Illela	107
+2255	Isa	107
+2256	Kebbe	107
+2257	Kware	107
+2258	Rabah	107
+2259	Sabon Birni	107
+2260	Shagari	107
+2261	Silame	107
+2262	Sokoto North	107
+2263	Sokoto South	107
+2264	Tambuwal	107
+2265	Tangaza	107
+2266	Tureta	107
+2267	Wamako	107
+2268	Wurno	107
+2269	Yabo	107
+2270	Ardo Kola	108
+2271	Bali	108
+2272	Donga	108
+2273	Gashaka	108
+2274	Gassol	108
+2275	Ibi	108
+2276	Jalingo	108
+2277	Karim Lamido	108
+2278	Kumi	108
+2279	Lau	108
+2280	Sardauna	108
+2281	Takum	108
+2282	Ussa	108
+2283	Wukari	108
+2284	Yorro	108
+2285	Zing	108
+2286	Bade	109
+2287	Bursari	109
+2288	Damaturu	109
+2289	Fika	109
+2290	Fune	109
+2291	Geidam	109
+2292	Gujba	109
+2293	Gulani	109
+2294	Jakusko	109
+2295	Karasuwa	109
+2296	Machina	109
+2297	Nangere	109
+2298	Nguru	109
+2299	Potiskum	109
+2300	Tarmuwa	109
+2301	Yunusari	109
+2302	Yusufari	109
+2303	Anka	110
+2304	Bakura	110
+2305	Birnin Magaji/Kiyaw	110
+2306	Bukkuyum	110
+2307	Bungudu	110
+2308	Gummi	110
+2309	Gusau	110
+2310	Kaura Namoda	110
+2311	Maradun	110
+2312	Maru	110
+2313	Shinkafi	110
+2314	Talata Mafara	110
+2315	Chafe	110
+2316	Zurmi	110
+2317	Abaji	111
+2318	Bwari	111
+2319	Gwagwalada	111
+2320	Kuje	111
+2321	Kwali	111
+2322	Municipal Area Council	111
 \.
 
 
@@ -1209,6 +1339,25 @@ de6f7452-0bd4-4721-a27f-7491dac84e5b	097944c2-3582-4220-ade4-4a93ab404375	9784c3
 fdf878a3-05ba-42eb-a2b4-8646e205604e	5900ca1a-625c-4a14-8331-ee286900ad73	097944c2-3582-4220-ade4-4a93ab404375	\N	sf	2025-09-20 04:47:57.522	2025-09-20 05:02:07.048
 43b410bd-dd7d-4599-adad-5c0ff9251093	5900ca1a-625c-4a14-8331-ee286900ad73	097944c2-3582-4220-ade4-4a93ab404375	\N	vx	2025-09-20 04:48:03.509	2025-09-20 05:02:07.048
 dfbc1a2d-5138-4ad1-a99b-6da3729d7422	5900ca1a-625c-4a14-8331-ee286900ad73	097944c2-3582-4220-ade4-4a93ab404375	\N	f	2025-09-20 04:48:11.022	2025-09-20 05:02:07.048
+36aea139-9a41-478e-929a-d5c0eb4e60a5	5900ca1a-625c-4a14-8331-ee286900ad73	097944c2-3582-4220-ade4-4a93ab404375	\N	hi	2025-09-21 11:04:43.451	2025-09-21 11:04:49.78
+1e8954f2-dcc6-432a-8334-34ee8a484284	097944c2-3582-4220-ade4-4a93ab404375	5900ca1a-625c-4a14-8331-ee286900ad73	\N	hello	2025-09-21 11:04:57.116	2025-09-21 13:29:22.329
+db84fb22-95bd-4e0d-bf58-290bc38d8e2a	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	how far my guy	2025-09-23 10:09:54.8	2025-09-23 10:10:08.655
+b22b8b32-e57d-4aa7-a15f-a17bc295d0a6	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	Hi boss. i hope this gets you well	2025-09-23 09:54:57.048	2025-09-23 09:55:17.143
+9bbb87b0-6821-4cd9-9a78-f428ae9301ad	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	hello	2025-09-23 09:55:31.267	2025-09-23 10:09:16.19
+aacf44e6-1337-499e-a8c4-4d56330fa396	097944c2-3582-4220-ade4-4a93ab404375	5900ca1a-625c-4a14-8331-ee286900ad73	\N	hew	2025-09-23 00:44:51.525	2025-09-23 10:10:57.455
+f56edaaf-e946-4501-8697-1166338bf97c	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	heyyyy	2025-09-23 10:11:15.474	2025-09-23 10:11:27.757
+2d19d92c-a174-40a8-b28e-40bf5b62c5ca	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	okay thanks	2025-09-23 10:20:53.464	2025-09-23 10:21:10.501
+315380b8-4e1d-4e33-bdec-69d8e0b31e75	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	indomie boy	2025-09-23 10:20:16.973	2025-09-23 10:20:44.032
+96f97a7b-28d3-4578-a14a-c6cfae539700	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	how far	2025-09-23 10:35:46.514	2025-09-23 10:36:00.064
+e4d79b2c-7672-4396-a746-de2f3b989513	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	yooooooooooooooo	2025-09-23 10:27:20.547	2025-09-23 10:35:43.23
+f9664dbd-3e93-4c0e-a705-46e332900cca	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	i dey	2025-09-23 10:36:05.179	2025-09-23 10:47:43.656
+bf22773a-ad2f-42e2-bdb2-d593973ad799	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	fsw	2025-09-23 10:47:30.522	2025-09-23 10:47:43.656
+1971042d-4f9e-4327-b954-08f6dc5f6f1e	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	cool	2025-09-23 10:47:53.315	2025-09-23 10:53:55.288
+98098569-e22d-498e-aeb0-422cfa25f872	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	yeah	2025-09-23 10:53:58.034	2025-09-23 10:54:11.043
+8a9ae3d0-fe0d-4ca3-a6a4-5bfd482f7e03	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	mayonaises	2025-09-23 10:54:35.299	2025-09-23 10:57:45.56
+c90cc872-39fb-4f8d-acee-a956ae3ca197	5900ca1a-625c-4a14-8331-ee286900ad73	24561236-b941-4ff8-ad41-b9b71adcafdd	\N	good	2025-09-23 10:57:51.442	2025-09-23 10:58:08.64
+4a7b538a-ce52-41a2-af1d-477e3129cd9b	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	boat and slide	2025-09-23 10:58:27.633	2025-09-24 11:26:00.99
+e52fcbc2-cdc2-4a0c-9dc8-541546ff6f69	24561236-b941-4ff8-ad41-b9b71adcafdd	5900ca1a-625c-4a14-8331-ee286900ad73	\N	my boyyyy how far naaa	2025-09-24 23:35:50.368	\N
 \.
 
 
@@ -1267,6 +1416,38 @@ cf9288ec-36dc-43d9-9474-92f9202f5f76	097944c2-3582-4220-ade4-4a93ab404375	You ha
 5babbf7c-097a-4e75-a2cc-1738c2bdc689	097944c2-3582-4220-ade4-4a93ab404375	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	f	2025-09-20 04:47:57.525	MESSAGE	{"lastMessage": "sf"}
 799a90f3-7f93-4865-83f3-1244dd61ee45	097944c2-3582-4220-ade4-4a93ab404375	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-20 04:48:11.037	MESSAGE	{"lastMessage": "f"}
 cf12491f-8107-4de8-a70c-541357c8cd28	097944c2-3582-4220-ade4-4a93ab404375	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-20 04:48:03.512	MESSAGE	{"lastMessage": "vx"}
+01df9f78-0fad-4dfc-a6b8-7b94def3d9cc	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 04:23:11.469	GENERIC	\N
+b6e4c483-6df1-4491-9d39-9a4e200cb9b9	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to REVIEWING.	/dashboard/candidate/applications	f	2025-09-21 04:53:47.516	GENERIC	\N
+4149efcd-580f-4ff8-ab91-a7d80005dfa9	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 04:53:54.055	GENERIC	\N
+7719b05b-c0f1-4c29-9153-a2adb87bbb94	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to REVIEWING.	/dashboard/candidate/applications	f	2025-09-21 04:54:05.868	GENERIC	\N
+c2b3aa0e-9c96-470c-a7c1-9feb39140762	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 04:54:08.31	GENERIC	\N
+75796c29-75c4-4cf2-8571-df8f72ef1385	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to REVIEWING.	/dashboard/candidate/applications	f	2025-09-21 04:58:56.15	GENERIC	\N
+da3d220d-c5c1-4fe5-b7fa-e7dd392fa6dc	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 05:02:56.485	GENERIC	\N
+1e646e2c-ed08-484f-ba3e-2d17ad3f82b3	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to REVIEWING.	/dashboard/candidate/applications	f	2025-09-21 05:03:03.667	GENERIC	\N
+cb3910ec-61de-4973-a603-6a408c8a858b	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 05:03:21.78	GENERIC	\N
+376eff07-02ad-47a0-bdd3-bd8dd4237177	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to INTERVIEW.	/dashboard/candidate/applications	f	2025-09-21 05:03:37.947	GENERIC	\N
+6b4aab13-c533-484f-b182-65f55c41967c	5900ca1a-625c-4a14-8331-ee286900ad73	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 05:10:27.016	GENERIC	\N
+95aba24a-800e-4222-aaee-445c8475b429	5900ca1a-625c-4a14-8331-ee286900ad73	Your application for "Frontend React Developer" was updated to REVIEWING.	/dashboard/candidate/applications	f	2025-09-21 05:19:17.951	GENERIC	\N
+8eaa7f44-c588-406c-b40a-7bc5a043111e	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to OFFER.	/dashboard/candidate/applications	f	2025-09-21 05:35:16.995	GENERIC	\N
+57a879ff-3654-4f43-822c-3f324840a8f8	5900ca1a-625c-4a14-8331-ee286900ad73	Your application for "Frontend React Developer" was updated to APPLIED.	/dashboard/candidate/applications	f	2025-09-21 10:59:45.218	GENERIC	\N
+b3837027-de8a-4ae0-b6d8-aff2fdab055b	097944c2-3582-4220-ade4-4a93ab404375	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-21 11:04:43.463	MESSAGE	{"lastMessage": "hi"}
+b8207757-4fef-44d3-be11-facc6adf939a	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from AdinKems Inc..	/inbox?with=097944c2-3582-4220-ade4-4a93ab404375	t	2025-09-21 11:04:57.121	MESSAGE	{"lastMessage": "hello"}
+f1825e88-6018-4dbe-bafd-e7fc67389c11	fcd910ed-f411-4524-bdb1-23de83a9e4d1	Your application for "Frontend React Developer" was updated to INTERVIEW.	/dashboard/candidate/applications	t	2025-09-21 05:35:18.697	GENERIC	\N
+cca2e9d2-7511-4dd8-b43d-1a2d87c44a4d	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from AdinKems Inc..	/inbox?with=097944c2-3582-4220-ade4-4a93ab404375	t	2025-09-23 00:44:51.684	MESSAGE	{"lastMessage": "hew"}
+42cd44d6-5c48-435a-bbe4-dca86ce071dc	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 09:55:31.293	MESSAGE	{"lastMessage": "hello"}
+38cad77e-8b95-4083-9f48-747330d6b110	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:11:15.477	MESSAGE	{"lastMessage": "heyyyy"}
+4d6069b5-7fd0-45f8-8b25-5275e832e5e7	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from PPAHire Admin.	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	t	2025-09-23 10:20:17.437	MESSAGE	{"lastMessage": "indomie boy"}
+17f3cab0-f61a-4c15-ac9e-c2032348d7d9	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:20:53.467	MESSAGE	{"lastMessage": "okay thanks"}
+d993b740-0839-469f-86e2-5d58c837c810	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:27:20.571	MESSAGE	{"lastMessage": "yooooooooooooooo"}
+ddec3708-1757-4752-bcc3-f48ebc61c754	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from A user.	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	t	2025-09-23 10:35:46.561	MESSAGE	{"lastMessage": "how far"}
+8bf5cd1d-5d25-4097-a70d-24514f91218f	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	f	2025-09-23 10:36:05.183	MESSAGE	{"lastMessage": "i dey"}
+7084ce5f-dea0-4aa9-8e24-fe5c4c86ed1e	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew Tedunjaiye.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:47:30.556	MESSAGE	{"lastMessage": "fsw"}
+12d3c564-16f9-407e-8cc8-7b9ebf5ae0a0	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from PPALink Support.	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	t	2025-09-23 10:47:53.355	MESSAGE	{"lastMessage": "cool"}
+b3767525-ddd0-4434-9d00-9070928c8b5e	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew Tedunjaiye.	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:53:58.092	MESSAGE	{"lastMessage": "yeah"}
+20de3832-b290-4bfa-9952-fa820ab2a981	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from PPAHire Admin.	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	t	2025-09-23 10:54:35.35	MESSAGE	{"lastMessage": "mayonaises"}
+512c3816-af13-4f1b-9cd4-4b74d5042dd5	24561236-b941-4ff8-ad41-b9b71adcafdd	You have a new message from Matthew Tedunjaiye	/inbox?with=5900ca1a-625c-4a14-8331-ee286900ad73	t	2025-09-23 10:57:51.631	MESSAGE	{"lastMessage": "good"}
+57865583-49b0-4261-99e0-179cc8079e3e	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from PPALink Support	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	t	2025-09-23 10:58:27.647	MESSAGE	{"lastMessage": "boat and slide"}
+0c58053c-5408-46ad-824d-5007881aa6b6	5900ca1a-625c-4a14-8331-ee286900ad73	You have a new message from PPALink Support	/inbox?with=24561236-b941-4ff8-ad41-b9b71adcafdd	f	2025-09-24 23:35:50.47	MESSAGE	{"lastMessage": "my boyyyy how far naaa"}
 \.
 
 
@@ -1292,11 +1473,21 @@ d45805c9-c04f-4f5a-8beb-5cc970888e66	14
 
 
 --
+-- Data for Name: Setting; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public."Setting" (key, value, description, "updatedAt") FROM stdin;
+maintenanceMode	false	If true, the entire public-facing site will be disabled.	2025-09-24 12:32:25.624
+freeJobPostLimit	2	The number of open jobs an agency on the 'Free' plan can have.	2025-09-24 12:32:25.624
+freeMemberLimit	1	The number of team members an agency on the 'Free' plan can have.	2025-09-24 12:32:25.624
+\.
+
+
+--
 -- Data for Name: Shortlist; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Shortlist" (id, "agencyId", "candidateId", source, "createdAt") FROM stdin;
-8724a62d-ce88-4fe0-a4d5-f7cc22ad4433	f7472be1-137d-42c4-b74a-9217988bd932	243d4130-0256-4a3e-89f5-c99888237c0f	SEARCH	2025-09-11 21:26:46.443
 \.
 
 
@@ -1310,6 +1501,7 @@ COPY public."Verification" (id, "userId", type, status, evidence, "reviewedBy", 
 86e8467e-1390-45bc-8108-ee3e52ea33c8	5900ca1a-625c-4a14-8331-ee286900ad73	NYSC	APPROVED	{"fileKey": "users/5900ca1a-625c-4a14-8331-ee286900ad73/nysc_document/42ac05c0-1804-4c90-b935-eed1c1d46715.pdf", "fileName": "._NECO RESULT_..pdf"}	fcd910ed-f411-4524-bdb1-23de83a9e4d1	2025-09-14 23:19:00.723
 ec572c2f-0068-4e96-9fee-38a053b439ea	c1cfe44e-a176-474b-bf35-48398dca09c9	CAC	APPROVED	{"fileKey": "users/c1cfe44e-a176-474b-bf35-48398dca09c9/nysc_document/defccb12-76ff-41ca-a82e-c01d80656b88.pdf", "fileName": "Akinbo_Talking_Drum_Tone_2019.pdf"}	fcd910ed-f411-4524-bdb1-23de83a9e4d1	2025-09-19 15:05:12.961
 8451b215-d6f6-4a72-b128-6a1fb98c13fc	5900ca1a-625c-4a14-8331-ee286900ad73	NYSC	APPROVED	{"fileKey": "users/5900ca1a-625c-4a14-8331-ee286900ad73/nysc_document/e643da35-89d4-467d-9dd8-06e9da640f5a.pdf", "fileName": "472_Bio 101.pdf"}	fcd910ed-f411-4524-bdb1-23de83a9e4d1	2025-09-20 11:17:43.163
+ddab4c76-595b-4b5f-a2a5-9f9da12ad723	097944c2-3582-4220-ade4-4a93ab404375	CAC	APPROVED	{"fileKey": "users/097944c2-3582-4220-ade4-4a93ab404375/nysc_document/7a20a9e5-02ed-40ad-8e42-b4aa4209cbeb.pdf", "fileName": "._NECO RESULT_..pdf"}	24561236-b941-4ff8-ad41-b9b71adcafdd	2025-09-21 10:27:27.113
 \.
 
 
@@ -1344,6 +1536,10 @@ ef10699c-0ab4-4da1-8b09-973830b4f4fc	fef607b8c88f6bb4279cbdb9b5e5560e26e455757b2
 5b8ab782-bad6-40b7-8809-d92824625da9	935e9a7fe8265d030052f2a069736447b2a25a6fb906a7f92d8dea8e7294a545	2025-09-19 11:28:06.339208+01	20250919102806_add_agency_domain	\N	\N	2025-09-19 11:28:06.165868+01	1
 076b0caf-d177-4b1a-a03d-769ada6c23ca	5693d3f1cfcc4bdd478e3a7ea7832b4eab8e25b2904eda82207dda36f9073ca0	2025-09-16 09:25:37.333526+01	20250916082536_add_industry_model	\N	\N	2025-09-16 09:25:36.180633+01	1
 fe0e18a6-b60d-429d-8108-205dd5e4b5fe	cb036e00f9d1e40f25bc40230ed0530c64131239064fe5554084ad9aaf5fce95	2025-09-16 10:08:07.735832+01	20250916090803_add_agency_industry_relation	\N	\N	2025-09-16 10:08:04.015574+01	1
+9a3caf39-3bbd-4f02-9e21-041730f51234	b49412a6666b71239ccbe667c542543cf1898e7e9c9ddda872a2920524bc0574	2025-09-22 23:52:22.056322+01	20250922225221_add_admin_foundations	\N	\N	2025-09-22 23:52:21.502026+01	1
+fff853ed-427c-4f0e-832e-6b475275b3af	e92d6ca6716ee629cde30fe3430667a2a590ae40933658f2518b830840ecf29e	2025-09-23 08:18:18.19526+01	20250923071817_add_activity_log	\N	\N	2025-09-23 08:18:17.778416+01	1
+2086a0c4-8395-4a16-88b8-a1f1cff7f91e	6ef785de2b78692fddd3349c39cb1a3c881ba5a39c3fbe862c14528a2b05350e	2025-09-24 14:30:31.885497+01	20250924133031_add_hired_status	\N	\N	2025-09-24 14:30:31.758966+01	1
+9ea05aef-a1f1-4efe-b87d-283f467c2105	1f4a40e80aaa3e3715d61b720bd7cd0b32dee96d0d1fcb5b0b2891c443a329ae	2025-09-25 00:45:28.911514+01	20250924234528_add_super_admin_role	\N	\N	2025-09-25 00:45:28.852749+01	1
 \.
 
 
@@ -1351,21 +1547,21 @@ fe0e18a6-b60d-429d-8108-205dd5e4b5fe	cb036e00f9d1e40f25bc40230ed0530c64131239064
 -- Name: Industry_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."Industry_id_seq"', 418, true);
+SELECT pg_catalog.setval('public."Industry_id_seq"', 636, true);
 
 
 --
 -- Name: LocationLGA_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."LocationLGA_id_seq"', 774, true);
+SELECT pg_catalog.setval('public."LocationLGA_id_seq"', 2322, true);
 
 
 --
 -- Name: LocationState_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."LocationState_id_seq"', 37, true);
+SELECT pg_catalog.setval('public."LocationState_id_seq"', 111, true);
 
 
 --

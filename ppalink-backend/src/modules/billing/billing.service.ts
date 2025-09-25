@@ -155,3 +155,31 @@ export async function createPortalSession(user: User) {
 
   return { url: portalSession.url };
 }
+
+export async function createAdminPortalSession(agencyId: string) {
+  const subscription = await prisma.agencySubscription.findFirst({
+    where: {
+      agencyId: agencyId,
+    },
+    include: {
+        agency: {
+            select: {
+                ownerUserId: true
+            }
+        }
+    }
+  });
+
+  if (!subscription || !subscription.stripeCustomerId) {
+    throw new Error('No manageable subscription found for this agency.');
+  }
+  
+  const ownerUserId = subscription.agency.ownerUserId;
+
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: subscription.stripeCustomerId,
+    return_url: `${process.env.FRONTEND_URL}/admin/users/${ownerUserId}`,
+  });
+
+  return { url: portalSession.url };
+}

@@ -57,7 +57,7 @@ const Login = () => {
           }
       }
 
-        if (user.role === 'ADMIN') {
+        if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
           navigate('/admin/dashboard');
         } else if (user.role === 'CANDIDATE') {
           navigate('/dashboard/candidate');
