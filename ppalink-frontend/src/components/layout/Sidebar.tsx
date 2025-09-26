@@ -57,7 +57,7 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
     <aside className={`flex flex-col flex-shrink-0 h-full bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-17.5'}`}>
       <div className={`p-4 flex items-center h-14 border-b border-gray-100 dark:border-zinc-800 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
          {!isCollapsed && (
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               {title}
             </span>
          )}

@@ -107,7 +107,7 @@ const AcceptInvitePage = () => {
       <PageWrapper>
         <div className="text-center">
           <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Welcome Aboard!
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
@@ -115,7 +115,7 @@ const AcceptInvitePage = () => {
           </p>
           <div className="mt-8">
             <Link to="/login">
-              <Button size="lg" className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
+              <Button size="lg" className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
                 Proceed to Login
               </Button>
             </Link>
@@ -128,7 +128,7 @@ const AcceptInvitePage = () => {
   return (
     <PageWrapper>
       <div className="text-center">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Join Your Team
         </h1>
         <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">Create your account to accept the invitation.</p>
@@ -164,7 +164,7 @@ const AcceptInvitePage = () => {
           <p className="text-xs text-red-500 h-3 mt-1">{errors.confirmPassword?.message}</p>
         </div>
 
-        <Button type="submit" className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition" isLoading={isSubmitting} size="lg">
+        <Button type="submit" className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition" isLoading={isSubmitting} size="lg">
           Create Account & Join
         </Button>
       </form>

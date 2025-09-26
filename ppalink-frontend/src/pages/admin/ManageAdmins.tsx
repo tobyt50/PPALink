@@ -97,7 +97,7 @@ const ManageAdminsPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Admin Management</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Admin Management</h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Create, manage, and assign roles to administrators.</p>
           </div>
           <div className="flex w-full sm:w-auto space-x-2">

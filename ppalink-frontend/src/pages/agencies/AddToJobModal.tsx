@@ -122,7 +122,7 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                     onClick={handleSubmit}
                     disabled={!selectedPositionId || isLoadingJobs}
                     // Replicated primary button style
-                    className="rounded-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition disabled:opacity-50"
+                    className="rounded-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition disabled:opacity-50"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add to Pipeline
