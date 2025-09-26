@@ -41,7 +41,7 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-920 px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -50,16 +50,16 @@ const ChangePasswordPage = () => {
       >
         <div className="text-center">
             <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-r from-primary-100 to-green-100 mb-4">
-              <Lock className="h-6 w-6 text-primary-600" />
+              <Lock className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               Change Your Password
             </h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
               For security, you must change your temporary password before you can proceed.
             </p>
         </div>
-        <div className="mt-8 rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-8">
+        <div className="mt-8 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-1.5">
               <Label htmlFor="newPassword">New Password</Label>
@@ -84,3 +84,4 @@ const ChangePasswordPage = () => {
 };
 
 export default ChangePasswordPage;
+

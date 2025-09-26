@@ -11,11 +11,11 @@ import type { Position } from '../../types/job';
 // A small component for consistent key detail display
 const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string }) => (
     <div>
-        <dt className="flex items-center text-sm font-medium text-gray-500">
-            <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-2" />
+        <dt className="flex items-center text-sm font-medium text-gray-500 dark:text-zinc-400">
+            <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 dark:text-zinc-500 mr-2" />
             <span>{label}</span>
         </dt>
-        <dd className="mt-1.5 text-sm font-medium text-gray-900 ml-7">{value}</dd>
+        <dd className="mt-1.5 text-sm font-medium text-gray-900 dark:text-zinc-50 ml-7">{value}</dd>
     </div>
 );
 
@@ -46,10 +46,10 @@ const PublicJobDetailsPage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>;
   }
   if (error || !job) {
-    return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Error loading job details. This job may no longer be available.</div>;
+    return <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Error loading job details. This job may no longer be available.</div>;
   }
 
   const locationState = job.isRemote ? 'Remote' : (job.stateId ? states.find(s => s.id === job.stateId)?.name : 'On-site');
@@ -62,35 +62,35 @@ const PublicJobDetailsPage = () => {
   return (
     <div className="mx-auto max-w-5xl space-y-5">
       <div className="flex items-center justify-between">
-        <Link to="/dashboard/candidate/jobs/browse" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+        <Link to="/dashboard/candidate/jobs/browse" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
           <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to All Jobs
         </Link>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         {/* Card Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 dark:border-zinc-800">
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                 {job.title}
               </h1>
               {/* Polished Subtitle with Agency Name and Verification Badges */}
-              <div className="mt-2 flex items-center flex-wrap gap-x-3 gap-y-2 text-gray-600">
+              <div className="mt-2 flex items-center flex-wrap gap-x-3 gap-y-2 text-gray-600 dark:text-zinc-300">
                 <span className="flex items-center text-sm">
-                  <Building className="h-4 w-4 mr-1.5 text-gray-400" />
+                  <Building className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
                   {job.agency?.name}
                 </span>
                 {/* --- THIS IS THE FIX: Verification Badges Restored --- */}
                 {job.agency?.cacVerified && (
-                  <span className="flex items-center text-xs font-medium text-green-800 bg-green-100 px-2.5 py-1 rounded-full">
+                  <span className="flex items-center text-xs font-medium text-green-800 dark:text-green-200 bg-green-100 dark:bg-green-950/60 px-2.5 py-1 rounded-full">
                     <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
                     CAC Verified
                   </span>
                 )}
                 {job.agency?.domainVerified && (
-                  <span className="flex items-center text-xs font-medium text-blue-800 bg-blue-100 px-2.5 py-1 rounded-full">
+                  <span className="flex items-center text-xs font-medium text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 px-2.5 py-1 rounded-full">
                     <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
                     Verified Domain
                   </span>
@@ -104,7 +104,7 @@ const PublicJobDetailsPage = () => {
                 onClick={handleApply}
                 isLoading={isApplying}
                 disabled={isApplying}
-                className="w-full rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+                className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
               >
                 Apply Now
               </Button>
@@ -125,27 +125,27 @@ const PublicJobDetailsPage = () => {
           {/* Right Column for Description & Skills */}
           <div className="lg:col-span-2 space-y-8">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Full Job Description</h2>
-              <div className="prose prose-sm max-w-none mt-2 text-gray-600 whitespace-pre-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Full Job Description</h2>
+              <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">
                 {job.description}
               </div>
             </div>
 
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Skills Required</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Skills Required</h2>
               <div className="flex flex-wrap gap-2 mt-3">
                 {Array.isArray(job.skills) && job.skills.length > 0 ? (
                   job.skills.map((positionSkill) => (
                     <span
                       key={positionSkill.skill.id}
-                      className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800"
+                      className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-950/60 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-200"
                     >
                       <Tag className="h-4 w-4 mr-1.5" />
                       {positionSkill.skill.name}
                     </span>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500">No specific skills listed.</p>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">No specific skills listed.</p>
                 )}
               </div>
             </div>
@@ -157,3 +157,4 @@ const PublicJobDetailsPage = () => {
 };
 
 export default PublicJobDetailsPage;
+

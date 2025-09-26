@@ -47,24 +47,24 @@ const SubmitVerificationPage = () => {
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Submit NYSC Verification
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Upload your official NYSC Call-up Letter to get a verified badge.
           </p>
         </div>
-        <Link to="/dashboard/candidate/profile" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+        <Link to="/dashboard/candidate/profile" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
           <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to Profile
         </Link>
       </div>
 
       {/* Replicated Card Styling */}
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         {/* Card Header */}
-        <div className="p-5 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Upload Document</h2>
+        <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Upload Document</h2>
         </div>
 
         {/* Card Body */}
@@ -77,13 +77,13 @@ const SubmitVerificationPage = () => {
         </div>
 
         {/* Card Footer */}
-        <div className="flex justify-end p-4 bg-gray-50 border-t border-gray-100">
+        <div className="flex justify-end p-4 bg-gray-50 dark:bg-gray-920 border-t border-gray-100 dark:border-zinc-800">
           <Button 
             onClick={handleSubmit} 
             disabled={!fileKey || isSubmitting}
             isLoading={isSubmitting}
             // Replicated Primary Button Style
-            className="rounded-lg shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition disabled:opacity-50"
+            className="rounded-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition disabled:opacity-50"
           >
             <FileUp className="mr-2 h-4 w-4" />
             Submit for Review
@@ -95,3 +95,4 @@ const SubmitVerificationPage = () => {
 };
 
 export default SubmitVerificationPage;
+

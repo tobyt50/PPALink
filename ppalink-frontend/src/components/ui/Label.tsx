@@ -5,7 +5,7 @@ import * as React from 'react';
 // We use cva here for consistency, even though it has only one variant for now.
 // This establishes a pattern for future extensions if needed.
 const labelVariants = cva(
-  'text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+  'text-sm font-medium leading-none text-gray-700 dark:text-zinc-200 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 );
 
 // We use React.forwardRef to allow parent components to pass a ref to the underlying Radix component.
@@ -26,3 +26,4 @@ const Label = React.forwardRef<
 Label.displayName = LabelPrimitive.Root.displayName;
 
 export { Label };
+

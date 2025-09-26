@@ -54,7 +54,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="relative inline-flex items-center rounded-md px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="relative inline-flex items-center rounded-md px-2 py-2 text-sm font-medium text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <ChevronLeft className="h-5 w-5" />
         <span>Previous</span>
@@ -71,9 +71,9 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
               onClick={() => onPageChange(page)}
               className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
                 currentPage === page
-                  ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              } border border-gray-300`}
+                  ? 'z-10 bg-primary-50 dark:bg-primary-950/60 border-primary-500 dark:border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800'
+              } border border-gray-300 dark:border-zinc-800`}
             >
               {page}
             </button>
@@ -85,7 +85,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="relative inline-flex items-center rounded-md px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="relative inline-flex items-center rounded-md px-2 py-2 text-sm font-medium text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span>Next</span>
         <ChevronRight className="h-5 w-5" />

@@ -8,7 +8,7 @@ const actionDetails = {
   'user.login': { icon: LogIn, color: 'bg-gray-400' },
   'job.create': { icon: FilePlus, color: 'bg-green-500' },
   'job.update': { icon: PenSquare, color: 'bg-blue-500' },
-  'job.delete': { icon: PenSquare, color: 'bg-red-500' },
+  'job.delete': { icon: PenSquare, color: 'bg-red-500 dark:bg-red-500' },
   'application.submit': { icon: ArrowRight, color: 'bg-primary-600' },
   'application.add_candidate': { icon: ArrowRight, color: 'bg-indigo-500' },
   'application.pipeline_move': { icon: ArrowRight, color: 'bg-yellow-500' },
@@ -38,17 +38,17 @@ const UserActivityTab = () => {
   if (isLoading) {
     return (
         <div className="flex h-48 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
         </div>
     );
   }
 
   if (error) {
-    return <p className="text-center text-red-600 p-8">Could not load activity log.</p>;
+    return <p className="text-center text-red-600 dark:text-red-400 p-8">Could not load activity log.</p>;
   }
   
   if (!logs || logs.length === 0) {
-    return <p className="text-center text-gray-500 p-8">No activity recorded for this user yet.</p>;
+    return <p className="text-center text-gray-500 dark:text-zinc-400 p-8">No activity recorded for this user yet.</p>;
   }
 
   return (
@@ -60,19 +60,19 @@ const UserActivityTab = () => {
             <li key={log.id}>
               <div className="relative pb-8">
                 {logIdx !== logs.length - 1 ? (
-                  <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
+                  <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-zinc-800" aria-hidden="true" />
                 ) : null}
                 <div className="relative flex space-x-3 items-center">
                   <div>
-                    <span className={`h-8 w-8 rounded-full ${color} flex items-center justify-center ring-8 ring-white`}>
-                      <Icon className="h-5 w-5 text-white" />
+                    <span className={`h-8 w-8 rounded-full ${color} flex items-center justify-center ring-8 ring-white dark:ring-white/10`}>
+                      <Icon className="h-5 w-5 text-white dark:text-zinc-100" />
                     </span>
                   </div>
                   <div className="flex min-w-0 flex-1 justify-between space-x-4">
                     <div>
-                      <p className="text-sm text-gray-800">{formatActionDetails(log)}</p>
+                      <p className="text-sm text-gray-800 dark:text-zinc-100">{formatActionDetails(log)}</p>
                     </div>
-                    <div className="whitespace-nowrap text-right text-sm text-gray-500">
+                    <div className="whitespace-nowrap text-right text-sm text-gray-500 dark:text-zinc-400">
                       <time dateTime={log.createdAt}>{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</time>
                     </div>
                   </div>

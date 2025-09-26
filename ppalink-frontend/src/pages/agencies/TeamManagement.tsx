@@ -12,14 +12,14 @@ import { EmptyState } from '../../components/ui/EmptyState'; // For a polished e
 
 // Polished Table Rows
 const MemberRow = ({ member }: { member: AgencyMember }) => (
-  <tr className="hover:bg-gray-50/50 transition-colors">
-    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-800">
+  <tr className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-800 dark:text-zinc-100">
       {member.user.candidateProfile?.firstName || member.user.email}
     </td>
-    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{member.user.email}</td>
-    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{member.role}</td>
+    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{member.user.email}</td>
+    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{member.role}</td>
     <td className="whitespace-nowrap px-6 py-4 text-sm">
-      <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 capitalize">
+      <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200 capitalize">
         {member.user.status.toLowerCase()}
       </span>
     </td>
@@ -28,24 +28,24 @@ const MemberRow = ({ member }: { member: AgencyMember }) => (
 );
 
 const InvitationRow = ({ invitation, onRevoke }: { invitation: Invitation; onRevoke: () => void }) => (
-  <tr className="hover:bg-gray-50/50 transition-colors">
-    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-800 italic">
+  <tr className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-800 dark:text-zinc-100 italic">
       {invitation.email}
     </td>
-    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{invitation.email}</td>
-    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-      <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
+    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{invitation.email}</td>
+    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">
+      <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
         <Clock className="h-3 w-3 mr-1.5" /> Pending
       </span>
     </td>
-    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">
       Expires {new Date(invitation.expiresAt).toLocaleDateString()}
     </td>
     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
       <Button
         variant="ghost"
         size="sm"
-        className="text-red-600 hover:bg-red-100 hover:text-red-700"
+        className="text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/60 hover:text-red-700 dark:hover:text-red-300"
         onClick={onRevoke}
       >
         <Trash2 className="h-4 w-4" />
@@ -59,15 +59,15 @@ const MemberCard = ({ member }: { member: AgencyMember }) => (
   <div className="px-4 py-4">
     <div className="flex items-center justify-between">
       <div>
-        <p className="font-semibold text-gray-800">{member.user.candidateProfile?.firstName || member.user.email}</p>
-        <p className="text-sm text-gray-500">{member.user.email}</p>
+        <p className="font-semibold text-gray-800 dark:text-zinc-100">{member.user.candidateProfile?.firstName || member.user.email}</p>
+        <p className="text-sm text-gray-500 dark:text-zinc-400">{member.user.email}</p>
       </div>
-      <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 capitalize">
+      <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200 capitalize">
         {member.user.status.toLowerCase()}
       </span>
     </div>
-    <div className="mt-2 pt-2 border-t border-gray-100">
-      <p className="text-sm text-gray-500">Role: <span className="font-medium text-gray-700">{member.role}</span></p>
+    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
+      <p className="text-sm text-gray-500 dark:text-zinc-400">Role: <span className="font-medium text-gray-700 dark:text-zinc-200">{member.role}</span></p>
     </div>
   </div>
 );
@@ -76,19 +76,19 @@ const InvitationCard = ({ invitation, onRevoke }: { invitation: Invitation; onRe
   <div className="px-4 py-4">
     <div className="flex items-center justify-between">
       <div>
-        <p className="font-semibold text-gray-800 italic">{invitation.email}</p>
-        <p className="text-sm text-gray-500">Invitation Pending</p>
+        <p className="font-semibold text-gray-800 dark:text-zinc-100 italic">{invitation.email}</p>
+        <p className="text-sm text-gray-500 dark:text-zinc-400">Invitation Pending</p>
       </div>
-       <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
+       <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
         <Clock className="h-3 w-3 mr-1.5" /> Pending
       </span>
     </div>
-    <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between items-center">
-      <p className="text-sm text-gray-500">Expires {new Date(invitation.expiresAt).toLocaleDateString()}</p>
+    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800 flex justify-between items-center">
+      <p className="text-sm text-gray-500 dark:text-zinc-400">Expires {new Date(invitation.expiresAt).toLocaleDateString()}</p>
       <Button
         variant="ghost"
         size="sm"
-        className="text-red-600 hover:bg-red-100 hover:text-red-700"
+        className="text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/60 hover:text-red-700 dark:hover:text-red-300"
         onClick={onRevoke}
       >
         <Trash2 className="h-4 w-4 mr-1" /> Revoke
@@ -152,10 +152,10 @@ const TeamManagementPage = () => {
   const canInviteMember = memberLimit === -1 || memberCount < memberLimit;
 
   if (isLoading) {
-    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>;
   }
   if (error) {
-    return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load team data.</div>;
+    return <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Could not load team data.</div>;
   }
 
   const members = agency?.members || [];
@@ -170,10 +170,10 @@ const TeamManagementPage = () => {
         {/* Header - Replicated from AgencyDashboard */}
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               Team Management
             </h1>
-            <p className="mt-2 text-gray-600">Invite and manage members of your agency.</p>
+            <p className="mt-2 text-gray-600 dark:text-zinc-300">Invite and manage members of your agency.</p>
           </div>
           {canInviteMember ? (
             <Button onClick={() => setIsInviteModalOpen(true)}>
@@ -183,7 +183,7 @@ const TeamManagementPage = () => {
           ) : (
              <div className="text-right">
                 <p className="text-sm font-semibold text-yellow-700">Member Limit Reached</p>
-                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 hover:underline">
+                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
                     Upgrade to invite more members
                 </Link>
             </div>
@@ -191,21 +191,21 @@ const TeamManagementPage = () => {
         </div>
 
         {/* Replicated Card Layout */}
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden sm:block">
             <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50/70">
+              <thead className="bg-gray-50 dark:bg-white/5">
   <tr>
-    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Member</th>
-    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
-    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
-    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-zinc-200">Member</th>
+    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-zinc-200">Email</th>
+    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-zinc-200">Role</th>
+    <th scope="col" className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-zinc-200">Status</th>
     <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
   </tr>
 </thead>
 
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
                 {members.map((member) => <MemberRow key={member.id} member={member} />)}
                 {invitations.map((invitation) => <InvitationRow key={invitation.id} invitation={invitation} onRevoke={() => openDeleteModal(invitation)} />)}
               </tbody>
@@ -233,3 +233,4 @@ const TeamManagementPage = () => {
 };
 
 export default TeamManagementPage;
+

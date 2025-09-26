@@ -12,7 +12,7 @@ export const DistributionPieChart = ({ data }: ChartProps) => {
   const chartData = data.map(item => ({ name: item.name, value: item.count }));
 
   if (!chartData || chartData.length === 0) {
-      return <div className="text-center text-gray-500 h-[300px] flex items-center justify-center">No data to display.</div>;
+      return <div className="text-center text-gray-500 dark:text-zinc-400 h-[300px] flex items-center justify-center">No data to display.</div>;
   }
 
   return (

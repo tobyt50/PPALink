@@ -18,14 +18,14 @@ const CandidateProfilePage = () => {
   if (isLoading) {
     return (
       <div className="flex h-80 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">
+      <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">
         <h3 className="text-lg font-semibold">Could Not Load Profile</h3>
         <p className="mt-2 text-sm">{error?.toString() || 'An unexpected error occurred. Please try again later.'}</p>
       </div>
@@ -39,10 +39,10 @@ const CandidateProfilePage = () => {
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             My Profile
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             View and manage your professional details.
           </p>
         </div>
@@ -50,7 +50,7 @@ const CandidateProfilePage = () => {
           <Button
             variant="outline"
             size="sm"
-            className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+            className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit Profile
@@ -64,8 +64,8 @@ const CandidateProfilePage = () => {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Personal Info Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Personal Information</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Personal Information</h2></div>
             <div className="p-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
               <ProfileField icon={User} label="Full Name" value={`${profile.firstName} ${profile.lastName}`} />
               <ProfileField icon={AtSign} label="Email Address" value={userEmail} />
@@ -78,24 +78,24 @@ const CandidateProfilePage = () => {
           </div>
 
           {/* Professional Summary Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Professional Summary</h2></div>
-            <div className="p-6"><p className="text-gray-600 whitespace-pre-wrap">{profile.summary || 'You have not added a summary yet.'}</p></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Professional Summary</h2></div>
+            <div className="p-6"><p className="text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">{profile.summary || 'You have not added a summary yet.'}</p></div>
           </div>
           
           {/* Skills Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Skills</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Skills</h2></div>
             <div className="p-6 flex flex-wrap gap-2">
               {profile.skills && profile.skills.length > 0 ? (
                 profile.skills.map(({ skill }) => (
-                  <span key={skill.id} className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                  <span key={skill.id} className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-950/60 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-200">
                     <Tag className="h-4 w-4 mr-1.5" />
                     {skill.name}
                   </span>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No skills added yet. Click "Edit Profile" to add your skills.</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">No skills added yet. Click "Edit Profile" to add your skills.</p>
               )}
             </div>
           </div>
@@ -108,17 +108,17 @@ const CandidateProfilePage = () => {
         <div className="lg:col-span-1 space-y-8">
           
           {/* Verification Status Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Verification Status</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Verification Status</h2></div>
             <div className="p-6">
               <ProfileField icon={BadgeCheck} label="Current Level">
-                <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
+                <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-950/60 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:text-blue-300">
                   {profile.verificationLevel.replace('_', ' ')}
                 </span>
               </ProfileField>
               <div className="mt-4">
                 <Link to="/dashboard/candidate/verifications/submit">
-                    <Button variant="outline" size="sm" className="w-full rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50">
+                    <Button variant="outline" size="sm" className="w-full rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50">
                         Submit Documents
                     </Button>
                 </Link>
@@ -127,8 +127,8 @@ const CandidateProfilePage = () => {
           </div>
 
           {/* NYSC & Education Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">NYSC & Education</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">NYSC & Education</h2></div>
             <div className="p-6 space-y-5">
               <ProfileField icon={GraduationCap} label="NYSC Details" value={`${profile.nyscBatch || ''} ${profile.nyscStream || ''}`.trim()} />
               <ProfileField icon={GraduationCap} label="Graduation Year" value={profile.graduationYear} />
@@ -136,18 +136,18 @@ const CandidateProfilePage = () => {
           </div>
           
           {/* Job Preferences Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Job Preferences</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Job Preferences</h2></div>
             <div className="p-6 space-y-5">
               <ProfileField icon={Briefcase} label="Minimum Salary" value={profile.salaryMin ? `₦${profile.salaryMin.toLocaleString()}` : null} />
               <ProfileField icon={MapPin} label="Work Location">
                 <div className="flex flex-col space-y-2 mt-1">
-                  <span className={`inline-flex items-center text-sm font-medium ${profile.isRemote ? 'text-green-700' : 'text-gray-500'}`}>
-                    {profile.isRemote ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
+                  <span className={`inline-flex items-center text-sm font-medium ${profile.isRemote ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-zinc-400'}`}>
+                    {profile.isRemote ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />}
                     Remote
                   </span>
-                  <span className={`inline-flex items-center text-sm font-medium ${profile.isOpenToReloc ? 'text-green-700' : 'text-gray-500'}`}>
-                    {profile.isOpenToReloc ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400" />}
+                  <span className={`inline-flex items-center text-sm font-medium ${profile.isOpenToReloc ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-zinc-400'}`}>
+                    {profile.isOpenToReloc ? <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> : <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />}
                     Relocation
                   </span>
                 </div>
@@ -156,18 +156,18 @@ const CandidateProfilePage = () => {
           </div>
           
           {/* Documents Card */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Documents</h2></div>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Documents</h2></div>
             <div className="p-6 space-y-4">
               {profile.cvFileKey ? (
                 <DocumentLink fileKey={profile.cvFileKey} fileName="View Curriculum Vitae (CV)" />
               ) : (
-                <p className="text-sm text-gray-400 flex items-center"><FileText className="h-4 w-4 mr-2" /> CV not yet uploaded.</p>
+                <p className="text-sm text-gray-400 dark:text-zinc-500 flex items-center"><FileText className="h-4 w-4 mr-2" /> CV not yet uploaded.</p>
               )}
               {profile.nyscFileKey ? (
                 <DocumentLink fileKey={profile.nyscFileKey} fileName="View NYSC Call-up Letter" />
               ) : (
-                 <p className="text-sm text-gray-400 flex items-center"><FileText className="h-4 w-4 mr-2" /> NYSC document not uploaded.</p>
+                 <p className="text-sm text-gray-400 dark:text-zinc-500 flex items-center"><FileText className="h-4 w-4 mr-2" /> NYSC document not uploaded.</p>
               )}
             </div>
           </div>
@@ -178,3 +178,4 @@ const CandidateProfilePage = () => {
 };
 
 export default CandidateProfilePage;
+

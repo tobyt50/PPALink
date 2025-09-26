@@ -151,17 +151,17 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
           <div className="space-y-2">
             <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
             <Input id="linkedin" type="url" placeholder="https://linkedin.com/in/..." {...register('linkedin')} />
-            {errors.linkedin && <p className="text-xs text-red-600">{errors.linkedin.message}</p>}
+            {errors.linkedin && <p className="text-xs text-red-600 dark:text-red-400">{errors.linkedin.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="portfolio">Portfolio URL</Label>
             <Input id="portfolio" type="url" placeholder="https://..." {...register('portfolio')} />
-            {errors.portfolio && <p className="text-xs text-red-600">{errors.portfolio.message}</p>}
+            {errors.portfolio && <p className="text-xs text-red-600 dark:text-red-400">{errors.portfolio.message}</p>}
           </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="summary">Professional Summary</Label>
-          <textarea id="summary" rows={5} className="flex w-full rounded-md border border-gray-300" {...register('summary')} />
+          <textarea id="summary" rows={5} className="flex w-full rounded-md border border-gray-300 dark:border-zinc-800" {...register('summary')} />
         </div>
       </section>
 
@@ -292,7 +292,7 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
             {watchedSkills?.map((skill, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-800"
+                className="flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/50 px-3 py-1 text-sm font-medium text-primary-800"
               >
                 <span>{skill}</span>
                 <button type="button" onClick={() => removeSkill(index)}>
@@ -307,7 +307,7 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
       {/* Documents */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold border-b pb-2">Documents</h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-zinc-400">
           Upload your CV and NYSC Call-up Letter. These will be saved when you click "Save Changes".
         </p>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -326,3 +326,4 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
 };
 
 export default ProfileForm;
+

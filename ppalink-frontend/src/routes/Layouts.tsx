@@ -12,7 +12,7 @@ const DashboardLayout = () => {
   const isInbox = pathname.startsWith('/inbox');
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 has-[[data-impersonating]]:pt-10">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
       <ImpersonationBar />
       <Navbar />
       <div className="flex flex-grow overflow-y-hidden">

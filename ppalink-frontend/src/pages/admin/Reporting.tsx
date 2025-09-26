@@ -82,8 +82,8 @@ const ReportFilterBar = ({
   };
 
   const inputStyle = `
-    flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm
-    transition-colors duration-150 placeholder:text-gray-400
+    flex h-10 w-full rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm
+    transition-colors duration-150 placeholder:text-gray-400 dark:placeholder:text-zinc-600
     focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-600
     disabled:cursor-not-allowed disabled:opacity-50
   `;
@@ -91,21 +91,21 @@ const ReportFilterBar = ({
   return (
     <form
       onSubmit={handleSubmit(processSubmit)}
-      className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5"
+      className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5"
     >
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 w-full">
         {/* make filters single column on mobile, 2-col on small, 5-col on md */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 flex-grow min-w-0">
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">Start Date</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">Start Date</label>
             <input type="date" className={inputStyle} {...register('startDate')} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">End Date</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">End Date</label>
             <input type="date" className={inputStyle} {...register('endDate')} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">Group By</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">Group By</label>
             <Controller
               name="groupBy"
               control={control}
@@ -126,7 +126,7 @@ const ReportFilterBar = ({
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">State</label>
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">State</label>
             <Controller
               name="stateId"
               control={control}
@@ -153,7 +153,7 @@ const ReportFilterBar = ({
           </div>
           {activeReport === 'candidateInsights' ? (
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Field of Study</label>
+              <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">Field of Study</label>
               <Controller
                 name="fieldOfStudy"
                 control={control}
@@ -180,7 +180,7 @@ const ReportFilterBar = ({
             </div>
           ) : (
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1.5">Industry</label>
+              <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">Industry</label>
               <Controller
                 name="industryId"
                 control={control}
@@ -303,23 +303,23 @@ const ReportingPage = () => {
 
   const tabStyle =
     'flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors';
-  const activeTabStyle = 'border-primary-600 text-primary-600';
+  const activeTabStyle = 'border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400';
   const inactiveTabStyle =
-    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+    'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 hover:border-gray-300';
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Reporting & Analytics
         </h1>
-        <p className="mt-2 text-gray-600">Generate and export detailed reports on platform activity.</p>
+        <p className="mt-2 text-gray-600 dark:text-zinc-300">Generate and export detailed reports on platform activity.</p>
       </div>
 
       {/* mobile-friendly tab bar with horizontal scroll */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-zinc-800">
         <nav
-          className="-mb-px flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 space-x-6 sm:space-x-8"
+          className="-mb-px flex overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 space-x-6 sm:space-x-8"
           aria-label="Tabs"
         >
           <button
@@ -374,31 +374,31 @@ const ReportingPage = () => {
 
       <div className="pt-3">
         {isLoading ? (
-          <div className="text-center p-12 rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
-            <p className="text-gray-600">Generating your report...</p>
+          <div className="text-center p-12 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
+            <p className="text-gray-600 dark:text-zinc-300">Generating your report...</p>
           </div>
         ) : !hasData && currentFilters ? (
-          <div className="text-center p-12 rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
-            <BarChart3 className="mx-auto h-12 w-12 text-gray-400" />
-            <h2 className="mt-2 font-semibold text-gray-800">No Data Found</h2>
-            <p className="text-sm text-gray-500">
+          <div className="text-center p-12 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
+            <BarChart3 className="mx-auto h-12 w-12 text-gray-400 dark:text-zinc-500" />
+            <h2 className="mt-2 font-semibold text-gray-800 dark:text-zinc-100">No Data Found</h2>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">
               Your report for the selected filters is empty. Try a different date range.
             </p>
           </div>
         ) : !currentFilters ? (
-          <div className="text-center p-12 rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
-            <BarChart3 className="mx-auto h-12 w-12 text-gray-400" />
-            <h2 className="mt-2 font-semibold text-gray-800">Generate a Report</h2>
-            <p className="text-sm text-gray-500">
+          <div className="text-center p-12 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
+            <BarChart3 className="mx-auto h-12 w-12 text-gray-400 dark:text-zinc-500" />
+            <h2 className="mt-2 font-semibold text-gray-800 dark:text-zinc-100">Generate a Report</h2>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">
               Select your report type and filters, then click &quot;Generate Report&quot;.
             </p>
           </div>
         ) : null}
 
         {userGrowthData && activeReport === 'userGrowth' && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-semibold text-gray-900">User Growth</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">User Growth</h2>
               <Button
                 onClick={() => exportUserGrowthToCSV(userGrowthData, currentFilters)}
                 variant="outline"
@@ -411,7 +411,7 @@ const ReportingPage = () => {
             </div>
             <div className="p-6 space-y-8">
               <UserGrowthChart data={userGrowthData} />
-              <div className="mt-6 border-t border-gray-100 pt-6">
+              <div className="mt-6 border-t border-gray-100 dark:border-zinc-800 pt-6">
                 <UserGrowthTable data={userGrowthData} />
               </div>
             </div>
@@ -419,9 +419,9 @@ const ReportingPage = () => {
         )}
 
         {funnelData && activeReport === 'applicationFunnel' && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-semibold text-gray-900">Application Funnel</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Application Funnel</h2>
               <Button
                 onClick={() => exportFunnelToCSV(funnelData, currentFilters)}
                 variant="outline"
@@ -440,9 +440,9 @@ const ReportingPage = () => {
         )}
 
         {candidateInsightsData && activeReport === 'candidateInsights' && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-semibold text-gray-900">Candidate Insights</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Candidate Insights</h2>
               <Button
                 onClick={() =>
                   exportCandidateInsightsToCSV(candidateInsightsData, currentFilters)
@@ -465,9 +465,9 @@ const ReportingPage = () => {
         )}
 
         {agencyInsightsData && activeReport === 'agencyInsights' && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-semibold text-gray-900">Agency Insights</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Agency Insights</h2>
               <Button
                 onClick={() => exportAgencyInsightsToCSV(agencyInsightsData, currentFilters)}
                 variant="outline"
@@ -485,9 +485,9 @@ const ReportingPage = () => {
         )}
 
         {jobMarketInsightsData && activeReport === 'jobMarketInsights' && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-semibold text-gray-900">Job Market Insights</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center gap-3 flex-wrap">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Job Market Insights</h2>
               <Button
                 onClick={() =>
                   exportJobMarketInsightsToCSV(jobMarketInsightsData, currentFilters)
@@ -511,3 +511,5 @@ const ReportingPage = () => {
 };
 
 export default ReportingPage;
+
+

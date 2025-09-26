@@ -97,8 +97,8 @@ const ManageAdminsPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">Admin Management</h1>
-            <p className="mt-2 text-gray-600">Create, manage, and assign roles to administrators.</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Admin Management</h1>
+            <p className="mt-2 text-gray-600 dark:text-zinc-300">Create, manage, and assign roles to administrators.</p>
           </div>
           <div className="flex w-full sm:w-auto space-x-2">
             <div className="relative flex-grow">
@@ -108,37 +108,37 @@ const ManageAdminsPage = () => {
           </div>
         </div>
 
-        {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load admin accounts. It's likely you do not have SUPER_ADMIN privileges.</div>}
+        {error && <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Could not load admin accounts. It's likely you do not have SUPER_ADMIN privileges.</div>}
         
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-920">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            <button onClick={() => handleSort('email')} className="flex items-center group">EMAIL <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                            <button onClick={() => handleSort('email')} className="flex items-center group">EMAIL <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            <button onClick={() => handleSort('role')} className="flex items-center group">ROLE <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                            <button onClick={() => handleSort('role')} className="flex items-center group">ROLE <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">STATUS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            <button onClick={() => handleSort('createdAt')} className="flex items-center group">CREATED ON <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 group-hover:text-gray-600"/></button>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">STATUS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                            <button onClick={() => handleSort('createdAt')} className="flex items-center group">CREATED ON <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
                         </th>
                         <th className="relative px-6 py-3"><span className="sr-only">ACTIONS</span></th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                    {isLoading && <tr><td colSpan={5} className="p-12 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600" /></td></tr>}
+                <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
+                    {isLoading && <tr><td colSpan={5} className="p-12 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600 dark:text-primary-400" /></td></tr>}
                     {!isLoading && admins?.map((admin) => (
-                        <tr key={admin.id} className="hover:bg-gray-50/70 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{admin.email}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{admin.role}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${admin.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{admin.status}</span></td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(admin.createdAt).toLocaleDateString()}</td>
+                        <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-zinc-50">{admin.email}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{admin.role}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${admin.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100'}`}>{admin.status}</span></td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{new Date(admin.createdAt).toLocaleDateString()}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-primary-600 hover:bg-primary-50" onClick={() => setRoleModalState({ isOpen: true, admin })}><Shield className="h-4 w-4"/></Button>
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-red-600 hover:bg-red-50" onClick={() => openDeleteModal(admin)}><Trash2 className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50" onClick={() => setRoleModalState({ isOpen: true, admin })}><Shield className="h-4 w-4"/></Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60" onClick={() => openDeleteModal(admin)}><Trash2 className="h-4 w-4" /></Button>
                             </td>
                         </tr>
                     ))}
@@ -152,3 +152,4 @@ const ManageAdminsPage = () => {
 };
 
 export default ManageAdminsPage;
+

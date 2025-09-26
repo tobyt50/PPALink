@@ -84,18 +84,18 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
     }
   };
 
-  if (isLoading) return <div className="flex justify-center items-center h-full bg-gray-50"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
-  if (error) return <div className="p-8 text-center text-red-600">Failed to load messages.</div>;
+  if (isLoading) return <div className="flex justify-center items-center h-full bg-gray-50 dark:bg-gray-920"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>;
+  if (error) return <div className="p-8 text-center text-red-600 dark:text-red-400">Failed to load messages.</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gray-50/50"> 
-      <div className="h-14 px-4 flex items-center border-b border-gray-100 flex-shrink-0 bg-white">
-        <button onClick={onGoBack} className="md:hidden mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors">
-          <ChevronLeft className="h-5 w-5 text-gray-600" />
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-zinc-900/50"> 
+      <div className="h-14 px-4 flex items-center border-b border-gray-100 dark:border-zinc-800 flex-shrink-0 bg-white dark:bg-zinc-900">
+        <button onClick={onGoBack} className="md:hidden mr-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+          <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-zinc-300" />
         </button>
-        <p className="font-semibold text-primary-600">{getUserName(activeConversation.otherUser)}</p>
+        <p className="font-semibold text-primary-600 dark:text-primary-400">{getUserName(activeConversation.otherUser)}</p>
       </div>
-      <div className="flex-grow p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="flex-grow p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
         {messages?.map((msg, index) => {
           const prevMsg = messages[index - 1];
           const showDateSeparator = isNewDay(msg.createdAt, prevMsg?.createdAt);
@@ -103,15 +103,15 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
           return (
             <React.Fragment key={msg.id}>
               {showDateSeparator && (
-                <div className="text-center text-xs text-gray-500 py-3">
-                  <span className="bg-gray-200/70 rounded-full px-3 py-1">{format(new Date(msg.createdAt), 'MMMM d, yyyy')}</span>
+                <div className="text-center text-xs text-gray-500 dark:text-zinc-400 py-3">
+                  <span className="bg-gray-200 dark:bg-zinc-800/70 rounded-full px-3 py-1">{format(new Date(msg.createdAt), 'MMMM d, yyyy')}</span>
                 </div>
               )}
               <div className={`flex items-end gap-2 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
-                <div className={`py-2.5 px-4 max-w-[80%] text-sm ${isMyMessage ? 'bg-primary-500 text-white rounded-2xl rounded-br-lg shadow-md' : 'bg-white text-gray-800 ring-1 ring-gray-100 rounded-2xl rounded-bl-lg shadow-sm'}`}>
+                <div className={`py-2.5 px-4 max-w-[80%] text-sm ${isMyMessage ? 'bg-primary-500 dark:bg-primary-500 text-white dark:text-zinc-100 rounded-2xl rounded-br-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10' : 'bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-100 ring-1 ring-gray-100 rounded-2xl rounded-bl-lg shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10'}`}>
                   <p className="whitespace-pre-wrap break-words">{msg.body}</p>
                   <div className={`flex items-center gap-1.5 mt-1.5 ${isMyMessage ? 'justify-end' : ''}`}>
-                    <p className={`text-xs ${isMyMessage ? 'text-green-50' : 'text-gray-400'}`}>{format(new Date(msg.createdAt), 'h:mm a')}</p>
+                    <p className={`text-xs ${isMyMessage ? 'text-green-50' : 'text-gray-400 dark:text-zinc-500'}`}>{format(new Date(msg.createdAt), 'h:mm a')}</p>
                     {isMyMessage && (msg.readAt ? <CheckCheck className="h-4 w-4 text-blue-300" /> : <Check className="h-4 w-4 text-green-100/80" />)}
                   </div>
                 </div>
@@ -122,9 +122,9 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 border-t border-gray-100 bg-white flex-shrink-0">
+      <div className="p-3 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex-shrink-0">
         <form onSubmit={handleSendMessage}>
-          <div className="relative flex items-center rounded-full bg-gray-100 px-3 py-2.5">
+          <div className="relative flex items-center rounded-full bg-gray-100 dark:bg-zinc-800 px-3 py-2.5">
             <textarea
               rows={1}
               value={newMessage}
@@ -140,7 +140,7 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
             />
             <button
               type="submit"
-              className="ml-3 flex-shrink-0 p-2.5 rounded-full bg-primary-500 text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="ml-3 flex-shrink-0 p-2.5 rounded-full bg-primary-500 dark:bg-primary-500 text-white dark:text-zinc-100 transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={!newMessage.trim()}
             >
               <Send className="h-4 w-4" />
@@ -154,11 +154,11 @@ const ChatWindow = ({ activeConversation, onGoBack }: { activeConversation: Conv
 
 const ConversationList = ({ conversations, onSelect, activeConversationId }: { conversations: Conversation[], onSelect: (conv: Conversation) => void, activeConversationId: string | null }) => {
   return (
-    <div className="border-r border-gray-100 h-full bg-white flex flex-col">
-      <div className="h-14 px-5 flex items-center border-b border-gray-100 flex-shrink-0">
-        <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+    <div className="border-r border-gray-100 dark:border-zinc-800 h-full bg-white dark:bg-zinc-900 flex flex-col">
+      <div className="h-14 px-5 flex items-center border-b border-gray-100 dark:border-zinc-800 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Conversations</h2>
       </div>
-      <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+      <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 scrollbar-thumb-gray-200 scrollbar-track-transparent">
         {conversations.map((conv) => {
           const isActive = conv.otherUser.id === activeConversationId;
           const hasUnread = conv.lastMessage && conv.lastMessage.fromId !== useAuthStore.getState().user?.id && !conv.lastMessage.readAt;
@@ -166,13 +166,13 @@ const ConversationList = ({ conversations, onSelect, activeConversationId }: { c
             <li
               key={conv.otherUser.id}
               onClick={() => onSelect(conv)}
-              className={`group block px-4 py-3 cursor-pointer transition-all ${isActive ? 'bg-gradient-to-r from-primary-50 to-green-50' : 'hover:bg-gray-50/70'}`}
+              className={`group block px-4 py-3 cursor-pointer transition-all ${isActive ? 'bg-gradient-to-r from-primary-50 dark:from-primary-950/60 to-green-50 dark:to-green-950/60' : 'hover:bg-gray-50 dark:hover:bg-zinc-800/70'}`}
             >
               <div className="flex items-center justify-between">
-                <p className={`font-semibold text-sm truncate ${isActive ? 'text-primary-600' : 'text-gray-800'}`}>{getUserName(conv.otherUser)}</p>
-                {hasUnread && <div className="h-2 w-2 rounded-full bg-primary-500" />}
+                <p className={`font-semibold text-sm truncate ${isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-800 dark:text-zinc-100'}`}>{getUserName(conv.otherUser)}</p>
+                {hasUnread && <div className="h-2 w-2 rounded-full bg-primary-500 dark:bg-primary-500" />}
               </div>
-              <p className={`text-sm text-gray-500 truncate mt-0.5 ${hasUnread && !isActive ? 'font-semibold text-gray-700' : ''}`}>
+              <p className={`text-sm text-gray-500 dark:text-zinc-400 truncate mt-0.5 ${hasUnread && !isActive ? 'font-semibold text-gray-700 dark:text-zinc-200' : ''}`}>
                 {conv.lastMessage?.body || 'No messages yet.'}
               </p>
             </li>
@@ -193,7 +193,7 @@ const InboxPage = () => {
     else if (conversations && conversations.length > 0 && !activeConversation) setActiveConversation(conversations[0]);
   }, [location.state, conversations, activeConversation]);
 
-  if (isLoading) return <div className="flex h-[calc(100vh-56px)] items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary-600" /></div>;
+  if (isLoading) return <div className="flex h-[calc(100vh-56px)] items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" /></div>;
   if (error) return <div className="p-8 text-center text-red-500">Failed to load conversations.</div>;
   if (!conversations || conversations.length === 0) {
     return (
@@ -210,10 +210,10 @@ const InboxPage = () => {
       </aside>
       <main className={`flex-1 transition-transform duration-300 ease-in-out w-full ${!activeConversation && 'max-md:hidden'} ${activeConversation ? 'max-md:translate-x-0' : 'max-md:translate-x-full'} max-md:absolute max-md:top-0 max-md:left-0 max-md:h-full`}>
         {activeConversation ? <ChatWindow activeConversation={activeConversation} onGoBack={() => setActiveConversation(null)} /> : (
-          <div className="hidden md:flex flex-col h-full items-center justify-center text-center text-gray-500 bg-gray-50/50">
+          <div className="hidden md:flex flex-col h-full items-center justify-center text-center text-gray-500 dark:text-zinc-400 bg-gray-50 dark:bg-zinc-900/50">
             <MessageSquare className="h-16 w-16 text-gray-300" />
-            <h2 className="mt-4 text-lg font-medium text-gray-600">Select a conversation</h2>
-            <p className="text-sm text-gray-500">Choose from the list on the left to start chatting.</p>
+            <h2 className="mt-4 text-lg font-medium text-gray-600 dark:text-zinc-300">Select a conversation</h2>
+            <p className="text-sm text-gray-500 dark:text-zinc-400">Choose from the list on the left to start chatting.</p>
           </div>
         )}
       </main>
@@ -222,3 +222,5 @@ const InboxPage = () => {
 };
 
 export default InboxPage;
+
+

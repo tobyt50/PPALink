@@ -10,9 +10,9 @@ import type { VerificationRequest } from '../../types/user';
 // Replicated the polished ProfileField style for consistency
 const VerificationInfoField = ({ label, value }: { label: string, value?: string | null | number }) => (
     <div className="flex flex-col">
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1.5 text-sm font-medium text-gray-900">
-            {value || <span className="text-gray-400 italic">Not provided</span>}
+        <dt className="text-sm font-medium text-gray-500 dark:text-zinc-400">{label}</dt>
+        <dd className="mt-1.5 text-sm font-medium text-gray-900 dark:text-zinc-50">
+            {value || <span className="text-gray-400 dark:text-zinc-500 italic">Not provided</span>}
         </dd>
     </div>
 );
@@ -39,10 +39,10 @@ const VerificationDetailsPage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>;
+    return <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>;
   }
   if (error || !verification) {
-    return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Error: Could not load verification details.</div>;
+    return <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Error: Could not load verification details.</div>;
   }
   
   const { user, evidence, type } = verification;
@@ -55,14 +55,14 @@ const VerificationDetailsPage = () => {
       {/* Replicated Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Review Verification
           </h1>
-          <p className="mt-2 text-gray-600">
-            Approve or reject the submitted document for <span className="font-semibold text-gray-800">{user.email}</span>.
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
+            Approve or reject the submitted document for <span className="font-semibold text-gray-800 dark:text-zinc-100">{user.email}</span>.
           </p>
         </div>
-        <Link to="/admin/verifications" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+        <Link to="/admin/verifications" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
           <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to Queue
         </Link>
@@ -71,12 +71,12 @@ const VerificationDetailsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Details Panel - Replicated Card Styling */}
         <div className="lg:col-span-1">
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             {user.role === 'CANDIDATE' && profile && (
               <>
-                <div className="p-5 border-b border-gray-100 flex items-center">
-                  <User className="h-5 w-5 mr-3 text-primary-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Candidate Details</h2>
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex items-center">
+                  <User className="h-5 w-5 mr-3 text-primary-600 dark:text-primary-400" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Candidate Details</h2>
                 </div>
                 <div className="p-6 space-y-5">
                     <VerificationInfoField label="Full Name" value={`${profile.firstName} ${profile.lastName}`} />
@@ -88,9 +88,9 @@ const VerificationDetailsPage = () => {
             )}
             {user.role === 'AGENCY' && agency && (
               <>
-                <div className="p-5 border-b border-gray-100 flex items-center">
-                  <Building className="h-5 w-5 mr-3 text-primary-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Agency Details</h2>
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex items-center">
+                  <Building className="h-5 w-5 mr-3 text-primary-600 dark:text-primary-400" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Agency Details</h2>
                 </div>
                 <div className="p-6 space-y-5">
                     <VerificationInfoField label="Agency Name" value={agency.name} />
@@ -104,11 +104,11 @@ const VerificationDetailsPage = () => {
 
         {/* Document Review Panel - Replicated Card Styling */}
         <div className="lg:col-span-2">
-            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
                 {/* Card Header */}
-                <div className="p-5 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900">Submitted Document: {type}</h2>
-                    <p className="text-sm text-gray-500 mt-1">
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Submitted Document: {type}</h2>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                         Review the document and compare it with the user's details.
                     </p>
                 </div>
@@ -119,7 +119,7 @@ const VerificationDetailsPage = () => {
                     ) : <p>No document was submitted for this verification.</p>}
                 </div>
                 {/* Card Footer */}
-                <div className="p-4 bg-gray-50/70 border-t border-gray-100 flex justify-end space-x-3">
+                <div className="p-4 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-zinc-800 flex justify-end space-x-3">
                     <Button variant="destructive" size="sm" className="rounded-lg" onClick={() => handleUpdateStatus('REJECTED')}>
                         <X className="mr-2 h-4 w-4" />
                         Reject
@@ -128,7 +128,7 @@ const VerificationDetailsPage = () => {
                     <Button 
                         size="sm" 
                         onClick={() => handleUpdateStatus('APPROVED')}
-                        className="rounded-lg shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+                        className="rounded-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
                     >
                         <Check className="mr-2 h-4 w-4" />
                         Approve
@@ -142,3 +142,4 @@ const VerificationDetailsPage = () => {
 };
 
 export default VerificationDetailsPage;
+

@@ -37,7 +37,7 @@ export const NotificationBell = () => {
         <InteractiveToast
           t={t}
           Icon={Bell}
-          iconColorClass="text-primary-500"
+          iconColorClass="text-primary-500 dark:text-primary-400"
           title="New Notification"
           message={newNotification.message}
           link={newNotification.link || '#'}
@@ -85,9 +85,9 @@ export const NotificationBell = () => {
           className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
           variant="ghost"
         >
-      <Bell className="h-5 w-5 text-gray-600" />
+      <Bell className="h-5 w-5 text-gray-600 dark:text-zinc-300" />
       {unreadCount > 0 && (
-        <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
+        <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 dark:bg-red-500 border-2 border-white dark:border-black" />
       )}
     </Button>
   );
@@ -99,12 +99,12 @@ export const NotificationBell = () => {
       maxHeight="max-h-[16rem] sm:max-h-[28rem]"
     >
       {/* Polished and Compact Header */}
-      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900">Notifications</h3>
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
+        <h3 className="font-semibold text-gray-900 dark:text-zinc-50">Notifications</h3>
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="flex items-center text-xs font-medium text-primary-600 hover:text-primary-700 hover:underline"
+            className="flex items-center text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:underline"
           >
             <Check className="h-3 w-3 mr-1" />
             Mark all as read
@@ -122,14 +122,14 @@ export const NotificationBell = () => {
             <div className="flex items-start gap-3 w-full">
               {/* Polished Unread Indicator */}
               {!notif.read && (
-                 <div className="h-2 w-2 rounded-full bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
+                 <div className="h-2 w-2 rounded-full bg-primary-500 dark:bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
               )}
               {/* Read items have a placeholder for alignment */}
               {notif.read && <div className="w-2 flex-shrink-0" />}
 
               <div className="flex-grow">
-                <p className={`text-sm ${!notif.read ? 'font-semibold text-gray-800' : 'text-gray-600'}`}>{notif.message}</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={`text-sm ${!notif.read ? 'font-semibold text-gray-800 dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-300'}`}>{notif.message}</p>
+                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
                   {formatDistanceToNow(new Date(notif.createdAt))} ago
                 </p>
               </div>
@@ -138,7 +138,7 @@ export const NotificationBell = () => {
         ))
       ) : (
         // Polished Empty State
-        <div className="px-4 py-8 text-center text-sm text-gray-500">
+        <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-zinc-400">
           You're all caught up!
         </div>
       )}

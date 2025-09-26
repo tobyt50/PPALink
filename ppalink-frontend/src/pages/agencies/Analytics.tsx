@@ -51,17 +51,17 @@ const AnalyticsPage = () => {
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Analytics Dashboard
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Insights into your recruitment performance.
           </p>
         </div>
         <Link to="/dashboard/agency/billing">
           <Button
             size="lg"
-            className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+            className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             Upgrade Plan
           </Button>
@@ -106,13 +106,13 @@ const AnalyticsPage = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
             Application Status Distribution
           </h2>
           <div className="mt-4">
             {isLoading ? (
-              <div className="h-[300px] w-full bg-gray-200 rounded-md animate-pulse" />
+              <div className="h-[300px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
             ) : (
               isProOrEnterprise(analytics) && (
                 <DistributionBarChart
@@ -123,13 +123,13 @@ const AnalyticsPage = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
             Application Trends (Last 3 Months)
           </h2>
           <div className="mt-4">
             {isLoading ? (
-              <div className="h-[300px] w-full bg-gray-200 rounded-md animate-pulse" />
+              <div className="h-[300px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
             ) : (
               isProOrEnterprise(analytics) && (
                 <TrendLineChart data={analytics.applicationTrends} />
@@ -140,14 +140,14 @@ const AnalyticsPage = () => {
       </div>
 
       {/* Advanced Analytics (Enterprise) */}
-      <div className="relative rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
+      <div className="relative rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
         {!isEnterprise(analytics) && !isLoading && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl">
+          <div className="absolute inset-0 bg-white dark:bg-zinc-900/70 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl">
             <Star className="h-10 w-10 text-yellow-500" />
-            <h3 className="mt-2 text-lg font-semibold text-gray-800">
+            <h3 className="mt-2 text-lg font-semibold text-gray-800 dark:text-zinc-100">
               Unlock Enterprise Insights
             </h3>
-            <p className="text-sm text-gray-500 text-center max-w-sm">
+            <p className="text-sm text-gray-500 dark:text-zinc-400 text-center max-w-sm">
               Upgrade to view skills heatmaps and geographic sourcing data.
             </p>
             <Link to="/dashboard/agency/billing" className="mt-4">
@@ -155,15 +155,15 @@ const AnalyticsPage = () => {
             </Link>
           </div>
         )}
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
           Advanced Analytics (Enterprise)
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
           <div>
-            <h3 className="font-medium text-gray-700">Top 5 Skills in Pipeline</h3>
+            <h3 className="font-medium text-gray-700 dark:text-zinc-200">Top 5 Skills in Pipeline</h3>
             <div className="mt-2">
               {isLoading ? (
-                <div className="h-[250px] w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-[250px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
               ) : (
                 isEnterprise(analytics) && (
                   <SkillsHeatmapChart data={analytics.skillsHeatmap} />
@@ -172,12 +172,12 @@ const AnalyticsPage = () => {
             </div>
           </div>
           <div>
-            <h3 className="font-medium text-gray-700">
+            <h3 className="font-medium text-gray-700 dark:text-zinc-200">
               Top 5 Candidate Locations
             </h3>
             <div className="mt-2">
               {isLoading ? (
-                <div className="h-[250px] w-full bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-[250px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
               ) : (
                 isEnterprise(analytics) && (
                   <GeographicSourcingChart data={analytics.geographicSourcing} />
@@ -192,3 +192,5 @@ const AnalyticsPage = () => {
 };
 
 export default AnalyticsPage;
+
+

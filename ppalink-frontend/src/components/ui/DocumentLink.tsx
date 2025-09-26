@@ -28,7 +28,7 @@ const DocumentLink = ({ fileKey, fileName }: { fileKey: string; fileName: string
     <button
       onClick={handleGetLink}
       disabled={isLoading}
-      className="flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 disabled:opacity-50"
+      className="flex items-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50"
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />

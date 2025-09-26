@@ -80,10 +80,10 @@ const ManagePlansPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               Subscription Plans
             </h1>
-            <p className="mt-2 text-gray-600">Create, edit, and manage subscription plans for agencies.</p>
+            <p className="mt-2 text-gray-600 dark:text-zinc-300">Create, edit, and manage subscription plans for agencies.</p>
           </div>
           <Button size="lg" onClick={handleCreate}>
             <PlusCircle className="mr-2 h-5 w-5" />
@@ -91,24 +91,24 @@ const ManagePlansPage = () => {
           </Button>
         </div>
 
-        {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>}
-        {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load subscription plans.</div>}
+        {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>}
+        {error && <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Could not load subscription plans.</div>}
 
         {!isLoading && !error && plans && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {plans?.map((plan) => (
-                <div key={plan.id} className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 flex flex-col overflow-hidden">
+                <div key={plan.id} className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 flex flex-col overflow-hidden">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">{plan.name}</h2>
-                    <p className="text-gray-500 mt-2 text-sm h-10">{plan.description}</p>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">{plan.name}</h2>
+                    <p className="text-gray-500 dark:text-zinc-400 mt-2 text-sm h-10">{plan.description}</p>
                     <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold tracking-tight text-gray-900">₦{plan.price.toLocaleString()}</span>
-                    <span className="text-sm font-medium text-gray-500">/month</span>
+                    <span className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-zinc-50">₦{plan.price.toLocaleString()}</span>
+                    <span className="text-sm font-medium text-gray-500 dark:text-zinc-400">/month</span>
                     </div>
                 </div>
-                <div className="p-6 flex-grow border-t border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-800 mb-4">Features & Limits</h3>
-                    <ul className="space-y-3 text-sm text-gray-600">
+                <div className="p-6 flex-grow border-t border-gray-100 dark:border-zinc-800">
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-zinc-100 mb-4">Features & Limits</h3>
+                    <ul className="space-y-3 text-sm text-gray-600 dark:text-zinc-300">
                       <li className="flex items-center gap-3">
                         <CheckCircle className="h-5 w-5 text-green-500" />
                         <span><strong>{plan.jobPostLimit === -1 ? 'Unlimited' : plan.jobPostLimit}</strong> Job Posts</span>
@@ -125,8 +125,8 @@ const ManagePlansPage = () => {
                       ))}
                     </ul>
                 </div>
-                <div className="p-4 bg-gray-50/70 border-t flex items-center justify-end gap-2">
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete(plan)}>
+                <div className="p-4 bg-gray-50 dark:bg-white/5 border-t flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/60 hover:text-red-600 dark:hover:text-red-400" onClick={() => handleDelete(plan)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(plan)}>
@@ -144,3 +144,4 @@ const ManagePlansPage = () => {
 };
 
 export default ManagePlansPage;
+

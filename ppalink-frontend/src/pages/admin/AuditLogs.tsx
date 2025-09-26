@@ -88,13 +88,13 @@ const FilterBar = ({
   return (
     <form
       onSubmit={handleSubmit(onApply)}
-      className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5"
+      className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5"
     >
       <div className="flex flex-col sm:flex-row items-end gap-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-grow">
           {/* Admin filter */}
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">
               Filter by Admin
             </label>
             <Controller
@@ -105,7 +105,7 @@ const FilterBar = ({
                   trigger={
                     <DropdownTrigger>
                       <span className="truncate">{selectedAdminEmail}</span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                     </DropdownTrigger>
                   }
                 >
@@ -124,7 +124,7 @@ const FilterBar = ({
 
           {/* Action filter */}
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">
               Filter by Action
             </label>
             <Controller
@@ -135,7 +135,7 @@ const FilterBar = ({
                   trigger={
                     <DropdownTrigger>
                       <span className="truncate">{selectedActionText}</span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                     </DropdownTrigger>
                   }
                 >
@@ -154,7 +154,7 @@ const FilterBar = ({
 
           {/* Target ID filter */}
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">
               Filter by Target ID
             </label>
             <Input
@@ -166,7 +166,7 @@ const FilterBar = ({
 
           {/* Sort by Date */}
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">
+            <label className="text-xs font-medium text-gray-600 dark:text-zinc-300 block mb-1.5">
               Sort by Date
             </label>
             <Controller
@@ -178,7 +178,7 @@ const FilterBar = ({
                   trigger={
                     <DropdownTrigger>
                       <span className="truncate">{selectedSortText}</span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                     </DropdownTrigger>
                   }
                 >
@@ -285,10 +285,10 @@ const AuditLogsPage = () => {
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Audit Logs
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             A chronological record of all administrative actions on the platform.
           </p>
         </div>
@@ -307,30 +307,30 @@ const AuditLogsPage = () => {
         onReset={handleResetFilters}
       />
 
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-920">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                   Admin
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                   Action
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                   Target
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                   Timestamp
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
               {isLoading && (
                 <tr>
                   <td colSpan={4} className="p-12 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600" />
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600 dark:text-primary-400" />
                   </td>
                 </tr>
               )}
@@ -338,7 +338,7 @@ const AuditLogsPage = () => {
               {error && (
                 <tr>
                   <td colSpan={4}>
-                    <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-sm">
+                    <div className="m-4 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10">
                         {error}
                     </div>
                   </td>
@@ -347,7 +347,7 @@ const AuditLogsPage = () => {
 
               {!isLoading && !error && logs?.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-12 text-center text-gray-500">
+                  <td colSpan={4} className="p-12 text-center text-gray-500 dark:text-zinc-400">
                     No audit logs found for the selected filters.
                   </td>
                 </tr>
@@ -356,22 +356,22 @@ const AuditLogsPage = () => {
               {!isLoading &&
                 !error &&
                 logs?.map(log => (
-                  <tr key={log.id} className="hover:bg-gray-50/70 transition-colors">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">
                       {log.actor.email}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-zinc-200">
                       {formatLogMessage(log)}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 font-mono">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400 font-mono">
                       <Link
                         to={`/admin/audit-logs/${log.id}`}
-                        className="hover:underline text-primary-600"
+                        className="hover:underline text-primary-600 dark:text-primary-400"
                       >
                         {log.targetId || 'N/A'}
                       </Link>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">
                       {format(new Date(log.createdAt), 'MMM d, yyyy, h:mm a')}
                     </td>
                   </tr>
@@ -381,7 +381,7 @@ const AuditLogsPage = () => {
         </div>
 
         {meta && meta.totalPages > 1 && (
-          <div className="p-5 border-t border-gray-100">
+          <div className="p-5 border-t border-gray-100 dark:border-zinc-800">
             <Pagination
               currentPage={meta.page}
               totalPages={meta.totalPages}
@@ -395,3 +395,4 @@ const AuditLogsPage = () => {
 };
 
 export default AuditLogsPage;
+

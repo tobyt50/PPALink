@@ -77,8 +77,8 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
       <div 
         className={`relative flex w-full flex-col items-center justify-center rounded-xl border border-dashed p-8 transition-all
           ${isDragging 
-            ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200' 
-            : 'border-gray-300 bg-white hover:border-primary-400'
+            ? 'border-primary-500 dark:border-primary-500 bg-primary-50 dark:bg-primary-950/60 ring-2 ring-primary-200 dark:ring-primary-500/30' 
+            : 'border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-primary-400 dark:hover:border-primary-500'
           }`
         }
         onDragOver={handleDragOver}
@@ -87,11 +87,11 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
         onClick={() => fileInputRef.current?.click()} // Make the whole area clickable
       >
         <div className="text-center">
-          <UploadCloud className={`mx-auto h-10 w-10 transition-colors ${isDragging ? 'text-primary-500' : 'text-gray-400'}`} />
-          <p className="mt-3 text-sm text-gray-600">
-            <span className="font-semibold text-primary-600">Click to upload</span> or drag and drop
+          <UploadCloud className={`mx-auto h-10 w-10 transition-colors ${isDragging ? 'text-primary-500 dark:text-primary-400' : 'text-gray-400 dark:text-zinc-500'}`} />
+          <p className="mt-3 text-sm text-gray-600 dark:text-zinc-300">
+            <span className="font-semibold text-primary-600 dark:text-primary-400">Click to upload</span> or drag and drop
           </p>
-          <p className="mt-1 text-xs text-gray-500">PDF, DOC, DOCX up to 5MB</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-zinc-400">PDF, DOC, DOCX up to 5MB</p>
           <input 
             id={`file-upload-${uploadType}`} 
             ref={fileInputRef}
@@ -106,27 +106,27 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
       
       {/* Polished Upload Status Display */}
       {uploadStatus !== 'idle' && (
-         <div className="mt-4 rounded-lg bg-gray-50 p-3">
-          <div className="flex items-center text-sm font-medium text-gray-800">
-            <FileIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+         <div className="mt-4 rounded-lg bg-gray-50 dark:bg-gray-920 p-3">
+          <div className="flex items-center text-sm font-medium text-gray-800 dark:text-zinc-100">
+            <FileIcon className="h-5 w-5 text-gray-400 dark:text-zinc-500 mr-2 flex-shrink-0" />
             <span className="truncate flex-grow">{fileName}</span>
           </div>
           {uploadStatus === 'uploading' && (
-            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+            <div className="w-full bg-gray-200 dark:bg-zinc-800 rounded-full h-1.5 mt-2">
               <div 
-                className="bg-gradient-to-r from-primary-600 to-green-500 h-1.5 rounded-full transition-all duration-300" 
+                className="bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 h-1.5 rounded-full transition-all duration-300" 
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
           )}
           {uploadStatus === 'success' && (
-             <div className="flex items-center text-sm text-green-700 font-semibold mt-2">
+             <div className="flex items-center text-sm text-green-700 dark:text-green-300 font-semibold mt-2">
                 <CheckCircle className="h-4 w-4 mr-1.5"/>
                 <span>Upload successful</span>
             </div>
           )}
            {uploadStatus === 'error' && (
-             <div className="flex items-center text-sm text-red-700 font-semibold mt-2">
+             <div className="flex items-center text-sm text-red-700 dark:text-red-400 font-semibold mt-2">
                 <AlertCircle className="h-4 w-4 mr-1.5"/>
                 <span>{error}</span>
             </div>

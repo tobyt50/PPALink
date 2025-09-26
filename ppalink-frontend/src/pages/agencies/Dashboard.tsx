@@ -20,13 +20,13 @@ const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
   <li>
     <Link
       to={linkTo}
-      className="group block rounded-xl px-4 py-3 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+      className="group block rounded-xl px-4 py-3 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-700 group-hover:text-primary-600">
+        <p className="text-sm font-medium text-gray-700 dark:text-zinc-200 group-hover:text-primary-600 dark:group-hover:text-primary-400">
           {text}
         </p>
-        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-primary-500" />
+        <ArrowRight className="h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-primary-500" />
       </div>
     </Link>
   </li>
@@ -68,16 +68,16 @@ const AgencyDashboard = () => {
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Agency Dashboard
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Welcome back 👋 — here’s a summary of your activity.
           </p>
         </div>
         {canPostNewJob ? (
             <Link to="/dashboard/agency/jobs/create">
-              <Button size="lg" className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition">
+              <Button size="lg" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Post a New Job
               </Button>
@@ -85,7 +85,7 @@ const AgencyDashboard = () => {
         ) : (
              <div className="text-right">
                 <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
-                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 hover:underline">
+                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
                     Upgrade to post more
                 </Link>
             </div>
@@ -137,37 +137,37 @@ const AgencyDashboard = () => {
         {/* Left column */}
         <div className="lg:col-span-2 space-y-8">
           {/* Recent Applications */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                 Recent Applications
               </h2>
             </div>
             {isLoading ? (
               <div className="p-6 space-y-4">
-                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
               </div>
             ) : dashboardData?.recentApplications.length === 0 ? (
-              <p className="p-6 text-sm text-gray-500">No new applications yet.</p>
+              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">No new applications yet.</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {dashboardData?.recentApplications.map((app) => (
                   <li key={app.id}>
                     <Link
                       to={`/dashboard/agency/applications/${app.id}`}
-                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all"
+                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-primary-600">
+                          <p className="font-semibold text-primary-600 dark:text-primary-400">
                             {app.candidate.firstName} {app.candidate.lastName}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-zinc-400">
                             for {app.position.title}
                           </p>
                         </div>
-                        <ArrowRight className="h-5 w-5 text-gray-400" />
+                        <ArrowRight className="h-5 w-5 text-gray-400 dark:text-zinc-500" />
                       </div>
                     </Link>
                   </li>
@@ -177,27 +177,27 @@ const AgencyDashboard = () => {
           </div>
 
           {/* Active Jobs */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Active Jobs</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Active Jobs</h2>
             </div>
             {isLoading ? (
               <div className="p-6 space-y-4">
-                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
               </div>
             ) : dashboardData?.activeJobs.length === 0 ? (
-              <p className="p-6 text-sm text-gray-500">You have no open jobs.</p>
+              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">You have no open jobs.</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {dashboardData?.activeJobs.map((job) => (
                   <li key={job.id}>
                     <Link
                       to={`/dashboard/agency/${job.agencyId}/jobs/${job.id}/pipeline`}
-                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all"
+                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
                     >
                       <div className="flex items-center justify-between">
-                        <p className="font-semibold text-primary-600">{job.title}</p>
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-sm font-medium text-primary-600">
+                        <p className="font-semibold text-primary-600 dark:text-primary-400">{job.title}</p>
+                        <span className="rounded-full bg-green-100 dark:bg-green-950/60 px-2 py-0.5 text-sm font-medium text-primary-600 dark:text-primary-400">
                           {job._count.applications}
                         </span>
                       </div>
@@ -212,14 +212,14 @@ const AgencyDashboard = () => {
         {/* Right column */}
         <div className="lg:col-span-1 space-y-8">
           {/* Next Steps */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                 Recommended Next Steps
               </h2>
             </div>
             {isLoading ? (
-              <div className="p-6 h-24 bg-gray-200 animate-pulse rounded-b-lg"></div>
+              <div className="p-6 h-24 bg-gray-200 dark:bg-zinc-800 animate-pulse rounded-b-lg"></div>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {!verification?.domainVerified && isPaidUser && (
@@ -259,7 +259,7 @@ const AgencyDashboard = () => {
                   dashboardData &&
                   dashboardData.activeJobs.length > 0 &&
                   (memberCount >= memberLimit || memberLimit === -1) && (
-                    <li className="flex items-center p-5 text-sm text-gray-500">
+                    <li className="flex items-center p-5 text-sm text-gray-500 dark:text-zinc-400">
                       <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> You’re
                       all set up!
                     </li>
@@ -269,9 +269,9 @@ const AgencyDashboard = () => {
           </div>
 
           {/* Team */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Your Team</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Your Team</h2>
             </div>
             <div className="p-6">
               <div className="flex items-center justify-between">
@@ -279,16 +279,16 @@ const AgencyDashboard = () => {
                   {Array.from({ length: Math.min(memberCount, 3) }).map((_, i) => (
                     <div
                       key={i}
-                      className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-300"
+                      className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-white/10 bg-gray-300"
                     ></div>
                   ))}
                 </div>
                 {isLoading ? (
-                  <div className="h-5 w-20 animate-pulse rounded-md bg-gray-200"></div>
+                  <div className="h-5 w-20 animate-pulse rounded-md bg-gray-200 dark:bg-zinc-800"></div>
                 ) : (
                   <p className="text-sm font-medium">
-                    <span className="text-gray-900">{memberCount}</span>
-                    <span className="text-gray-500">
+                    <span className="text-gray-900 dark:text-zinc-50">{memberCount}</span>
+                    <span className="text-gray-500 dark:text-zinc-400">
                       {" "}
                       / {memberLimit === -1 ? "Unlimited" : memberLimit} members
                     </span>
@@ -300,7 +300,7 @@ const AgencyDashboard = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+                    className="w-full rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
                   >
                     <UserPlus className="mr-2 h-4 w-4" />
                     Manage & Invite
@@ -311,20 +311,20 @@ const AgencyDashboard = () => {
           </div>
 
           {/* Plan */}
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
-            <h2 className="text-lg font-semibold text-gray-900">Your Plan</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Your Plan</h2>
             {isPaidUser ? (
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-gray-500 dark:text-zinc-400">
                 You are on the{" "}
-                <span className="font-semibold text-primary-600">
+                <span className="font-semibold text-primary-600 dark:text-primary-400">
                   {analytics?.planName}
                 </span>{" "}
                 plan.
               </p>
             ) : (
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-gray-500 dark:text-zinc-400">
                 You are on the{" "}
-                <span className="font-semibold text-primary-600">Free</span> plan.
+                <span className="font-semibold text-primary-600 dark:text-primary-400">Free</span> plan.
                 Upgrade to unlock powerful analytics.
               </p>
             )}
@@ -333,7 +333,7 @@ const AgencyDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+                  className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
                 >
                   View Full Analytics
                 </Button>
@@ -347,3 +347,5 @@ const AgencyDashboard = () => {
 };
 
 export default AgencyDashboard;
+
+

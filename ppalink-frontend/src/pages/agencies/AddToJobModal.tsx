@@ -49,9 +49,9 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
           leaveTo="opacity-0"
         >
           {/* Updated backdrop for a more polished feel */}
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900 dark:bg-zinc-100/60 dark:bg-black/70 backdrop-blur-sm" />
         </Transition.Child>
-        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
               as={Fragment}
@@ -63,11 +63,11 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
               leaveTo="opacity-0 scale-95"
             >
               {/* Replicated card styling for the Dialog Panel */}
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 text-left align-middle shadow-2xl dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-black ring-opacity-5 transition-all">
                 {/* Modal Header */}
-                <div className="p-5 border-b border-gray-100 flex items-center">
-                   <Briefcase className="h-5 w-5 mr-3 text-primary-600" />
-                   <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex items-center">
+                   <Briefcase className="h-5 w-5 mr-3 text-primary-600 dark:text-primary-400" />
+                   <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 dark:text-zinc-50">
                     Add to Job Pipeline
                   </Dialog.Title>
                 </div>
@@ -76,24 +76,24 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                 <div className="p-6">
                   {isLoadingJobs ? (
                      <div className="flex justify-center items-center h-28">
-                        <Loader2 className="h-7 w-7 animate-spin text-primary-500" />
+                        <Loader2 className="h-7 w-7 animate-spin text-primary-500 dark:text-primary-400" />
                      </div>
                   ) : !openJobs || openJobs.length === 0 ? (
                     <div className="text-center py-6">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-zinc-300">
                         You have no open job postings.
                         </p>
                         {/* Optionally, add a link to create a job */}
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <label htmlFor="position" className="text-sm font-medium text-gray-700">Select an open position</label>
+                      <label htmlFor="position" className="text-sm font-medium text-gray-700 dark:text-zinc-200">Select an open position</label>
                       <SimpleDropdown
                         trigger={
                           // Polished dropdown trigger
-                          <DropdownTrigger className="w-full rounded-lg border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-100">
+                          <DropdownTrigger className="w-full rounded-lg border-gray-300 dark:border-zinc-800 bg-gray-50 dark:bg-gray-920 text-gray-800 dark:text-zinc-100 hover:bg-gray-100 dark:hover:bg-zinc-800">
                             <span className="truncate">{selectedJobTitle}</span>
-                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                           </DropdownTrigger>
                         }
                       >
@@ -102,7 +102,7 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                           <SimpleDropdownItem 
                             key={job.id} 
                             onSelect={() => setSelectedPositionId(job.id)}
-                            className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 text-gray-700 group-hover:text-primary-600"
+                            className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 text-gray-700 dark:text-zinc-200 group-hover:text-primary-600 dark:group-hover:text-primary-400"
                           >
                             {job.title}
                           </SimpleDropdownItem>
@@ -113,7 +113,7 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex justify-end space-x-3 p-4 bg-gray-50 border-t border-gray-100">
+                <div className="flex justify-end space-x-3 p-4 bg-gray-50 dark:bg-gray-920 border-t border-gray-100 dark:border-zinc-800">
                   <Button variant="outline" size="sm" className="rounded-lg" onClick={onClose}>
                     Cancel
                   </Button>
@@ -122,7 +122,7 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
                     onClick={handleSubmit}
                     disabled={!selectedPositionId || isLoadingJobs}
                     // Replicated primary button style
-                    className="rounded-lg shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition disabled:opacity-50"
+                    className="rounded-lg shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition disabled:opacity-50"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add to Pipeline
@@ -136,3 +136,4 @@ export const AddToJobModal = ({ isOpen, onClose, onSubmit }: AddToJobModalProps)
     </Transition>
   );
 };
+

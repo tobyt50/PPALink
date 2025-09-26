@@ -120,14 +120,14 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
       <div className="space-y-2">
         <Label htmlFor="name">Agency Name</Label>
         <Input id="name" error={!!errors.name} {...register('name')} />
-        {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+        {errors.name && <p className="text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>}
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="rcNumber">RC Number</Label>
           <Input id="rcNumber" error={!!errors.rcNumber} {...register('rcNumber')} />
-          {errors.rcNumber && <p className="text-xs text-red-600">{errors.rcNumber.message}</p>}
+          {errors.rcNumber && <p className="text-xs text-red-600 dark:text-red-400">{errors.rcNumber.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="website">Website URL</Label>
@@ -138,14 +138,14 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
             error={!!errors.website}
             {...register('website')}
           />
-          {errors.website && <p className="text-xs text-red-600">{errors.website.message}</p>}
+          {errors.website && <p className="text-xs text-red-600 dark:text-red-400">{errors.website.message}</p>}
         </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="sizeRange">Company Size (e.g., 1-10, 11-50)</Label>
         <Input id="sizeRange" error={!!errors.sizeRange} {...register('sizeRange')} />
-        {errors.sizeRange && <p className="text-xs text-red-600">{errors.sizeRange.message}</p>}
+        {errors.sizeRange && <p className="text-xs text-red-600 dark:text-red-400">{errors.sizeRange.message}</p>}
       </div>
 
       <div className="grid grid-cols-1 gap-6 pt-2 sm:grid-cols-2">
@@ -180,7 +180,7 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
 
                 {groupedIndustries.map(({ heading, children }) => (
                   <div key={heading.id}>
-                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">
+                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">
                       {heading.name}
                     </div>
                     {children.map((child) => (
@@ -236,3 +236,4 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
 };
 
 export default CompanyProfileForm;
+

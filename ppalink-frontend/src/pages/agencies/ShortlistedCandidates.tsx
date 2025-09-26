@@ -19,17 +19,17 @@ const ShortlistedCandidatesPage = () => {
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Shortlisted Candidates
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Your saved list of top candidates for future consideration.
           </p>
         </div>
         <Link to="/dashboard/agency/candidates/browse">
           <Button
             size="lg"
-            className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+            className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             Find More Candidates
           </Button>
@@ -39,12 +39,12 @@ const ShortlistedCandidatesPage = () => {
       {/* Results Section */}
       {isLoading && (
         <div className="flex justify-center p-16">
-          <Loader2 className="h-10 w-10 animate-spin text-primary-500" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary-500 dark:text-primary-400" />
         </div>
       )}
 
       {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 p-6 text-center text-red-800">
+        <div className="rounded-md border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/60 p-6 text-center text-red-800">
           <h3 className="text-lg font-semibold">Could Not Load Shortlist</h3>
           <p className="mt-1 text-sm">{error}</p>
         </div>
@@ -86,3 +86,4 @@ const ShortlistedCandidatesPage = () => {
 };
 
 export default ShortlistedCandidatesPage;
+

@@ -39,14 +39,14 @@ const EditProfilePage = () => {
   if (isLoading) {
     return (
       <div className="flex h-80 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
 
   if (error) {
     return (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">
+        <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">
             <h3 className="text-lg font-semibold">Could Not Load Profile Data</h3>
             <p className="mt-2 text-sm">{error.toString()}</p>
       </div>
@@ -58,21 +58,21 @@ const EditProfilePage = () => {
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Edit Profile
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Keep your professional information up to date.
           </p>
         </div>
-        <Link to="/dashboard/candidate/profile" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+        <Link to="/dashboard/candidate/profile" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
           <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to Profile
         </Link>
       </div>
 
       {/* Replicated Card Styling */}
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         <div className="p-6">
             <ProfileForm initialData={profile} onSubmit={handleUpdateProfile} />
         </div>
@@ -82,3 +82,4 @@ const EditProfilePage = () => {
 };
 
 export default EditProfilePage;
+

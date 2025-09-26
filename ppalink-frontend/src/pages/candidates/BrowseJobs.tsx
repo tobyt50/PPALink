@@ -16,26 +16,26 @@ const JobCard = ({ job }: { job: Position }) => {
   return (
     <Link
       to={`/jobs/${job.id}/details`}
-      className="group block rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+      className="group block rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
     >
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex-grow">
-          <p className="font-semibold text-lg text-gray-900 group-hover:text-primary-600 transition-colors">
+          <p className="font-semibold text-lg text-gray-900 dark:text-zinc-50 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
             {job.title}
           </p>
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-2 text-sm text-gray-600 mt-2">
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-2 text-sm text-gray-600 dark:text-zinc-300 mt-2">
             <span className="flex items-center">
-              <Building className="h-4 w-4 mr-1.5 text-gray-400" />
+              <Building className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
               {agency?.name}
             </span>
             {agency?.cacVerified && (
-              <span className="flex items-center text-xs font-medium text-green-800 bg-green-100 px-2.5 py-1 rounded-full">
+              <span className="flex items-center text-xs font-medium text-green-800 dark:text-green-200 bg-green-100 dark:bg-green-950/60 px-2.5 py-1 rounded-full">
                 <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
                 CAC Verified
               </span>
             )}
             {agency?.domainVerified && (
-              <span className="flex items-center text-xs font-medium text-blue-800 bg-blue-100 px-2.5 py-1 rounded-full">
+              <span className="flex items-center text-xs font-medium text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 px-2.5 py-1 rounded-full">
                 <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
                 Verified Domain
               </span>
@@ -44,20 +44,20 @@ const JobCard = ({ job }: { job: Position }) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 mt-4 pt-4 border-t border-gray-100">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 dark:text-zinc-200 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
         <span className="flex items-center">
-          <Briefcase className="h-4 w-4 mr-1.5 text-gray-400" />
+          <Briefcase className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
           {job.employmentType}
         </span>
         <span className="flex items-center">
           {job.isRemote ? (
             <>
-              <Globe className="h-4 w-4 mr-1.5 text-gray-400" />
+              <Globe className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
               Remote
             </>
           ) : (
             <>
-              <MapPin className="h-4 w-4 mr-1.5 text-gray-400" />
+              <MapPin className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
               {locationState || "On-site"}
             </>
           )}
@@ -68,13 +68,13 @@ const JobCard = ({ job }: { job: Position }) => {
             {job.skills.slice(0, 2).map((positionSkill) => (
               <span
                 key={positionSkill.skill.id}
-                className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700"
+                className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-950/60 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-300"
               >
                 {positionSkill.skill.name}
               </span>
             ))}
             {job.skills.length > 2 && (
-              <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+              <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-zinc-800 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-zinc-300">
                 + {job.skills.length - 2} more
               </span>
             )}
@@ -98,10 +98,10 @@ const BrowseJobsPage = () => {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Browse Open Jobs
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 dark:text-zinc-300">
           Find your next opportunity from our verified network of companies.
         </p>
       </div>
@@ -119,11 +119,11 @@ const BrowseJobsPage = () => {
 
       {isLoading && (
         <div className="flex justify-center p-20">
-          <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" />
         </div>
       )}
       {error && (
-        <div className="text-center text-red-600 p-10 bg-red-50 rounded-lg">
+        <div className="text-center text-red-600 dark:text-red-400 p-10 bg-red-50 dark:bg-red-950/60 rounded-lg">
           Could not load job listings. Please try again.
         </div>
       )}
@@ -133,7 +133,7 @@ const BrowseJobsPage = () => {
           {jobs.length > 0 ? (
             jobs.map((job) => <JobCard key={job.id} job={job} />)
           ) : (
-            <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-8">
+            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-8">
               <EmptyState
                 icon={Briefcase}
                 title={
@@ -154,3 +154,5 @@ const BrowseJobsPage = () => {
 };
 
 export default BrowseJobsPage;
+
+

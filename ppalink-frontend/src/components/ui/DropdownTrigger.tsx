@@ -11,9 +11,9 @@ export const DropdownTrigger = React.forwardRef<HTMLDivElement, DropdownTriggerP
       <div
         ref={ref}
         className={`
-          flex h-10 w-full items-center justify-between rounded-xl border border-gray-300
-          bg-white px-3 py-2 text-sm font-normal text-gray-700 shadow-sm
-          hover:bg-gray-50 transition
+          flex h-10 w-full items-center justify-between rounded-xl border border-gray-300 dark:border-zinc-800
+          bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-normal text-gray-700 dark:text-zinc-200 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10
+          hover:bg-gray-50 dark:hover:bg-zinc-800 transition
           ${className}
         `}
         {...props}
@@ -25,3 +25,4 @@ export const DropdownTrigger = React.forwardRef<HTMLDivElement, DropdownTriggerP
 );
 
 DropdownTrigger.displayName = 'DropdownTrigger';
+

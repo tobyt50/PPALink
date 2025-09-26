@@ -227,11 +227,11 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
         ) : null}
 
         {/* --- Show Advanced Filters Toggle --- */}
-        <div className="border-t border-gray-100 pt-5">
+        <div className="border-t border-gray-100 dark:border-zinc-800 pt-5">
           <button
             type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="w-full flex items-center justify-between text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+            className="w-full flex items-center justify-between text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
           >
             {showAdvanced ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
             {showAdvanced ? (
@@ -246,7 +246,7 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
         {showAdvanced && (
           <div className="space-y-5 pt-4 animate-in fade-in">
             {!hasAdvancedAccess && (
-              <div className="p-3 rounded-lg bg-yellow-100/60 text-yellow-900 text-xs text-center">
+              <div className="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-950/60/60 text-yellow-900 dark:text-yellow-950 text-xs text-center">
                 <Lock className="inline h-3.5 w-3.5 mr-1.5" />
                 <Link to="/dashboard/agency/billing" className="font-semibold underline hover:text-yellow-950">
                   Upgrade to Pro
@@ -425,12 +425,12 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
                   <input
                     id="isRemote"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
+                    className="h-4 w-4 rounded border-gray-300 dark:border-zinc-800 text-primary-600 dark:text-primary-400 focus:ring-primary-600"
                     {...register('isRemote')}
                   />
                 </div>
                 <div className="ml-3 text-sm leading-6">
-                  <Label htmlFor="isRemote" className="font-normal text-gray-700">
+                  <Label htmlFor="isRemote" className="font-normal text-gray-700 dark:text-zinc-200">
                     Open to Remote
                   </Label>
                 </div>
@@ -440,12 +440,12 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
                   <input
                     id="isOpenToReloc"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
+                    className="h-4 w-4 rounded border-gray-300 dark:border-zinc-800 text-primary-600 dark:text-primary-400 focus:ring-primary-600"
                     {...register('isOpenToReloc')}
                   />
                 </div>
                 <div className="ml-3 text-sm leading-6">
-                  <Label htmlFor="isOpenToReloc" className="font-normal text-gray-700">
+                  <Label htmlFor="isOpenToReloc" className="font-normal text-gray-700 dark:text-zinc-200">
                     Open to Relocation
                   </Label>
                 </div>
@@ -458,7 +458,7 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
           <Button
             size="lg"
             type="submit"
-            className="w-full rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+            className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             Apply Filters
           </Button>

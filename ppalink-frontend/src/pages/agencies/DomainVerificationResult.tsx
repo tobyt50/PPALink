@@ -29,14 +29,14 @@ const DomainVerificationResultPage = () => {
   return (
     <div className="flex flex-col items-center justify-center text-center p-8 min-h-[calc(100vh-200px)]">
       {isSuccess ? (
-        <CheckCircle className="h-16 w-16 text-primary-500" />
+        <CheckCircle className="h-16 w-16 text-primary-500 dark:text-primary-400" />
       ) : (
         <XCircle className="h-16 w-16 text-red-500" />
       )}
-      <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+      <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-zinc-50">
         {isSuccess ? 'Domain Verified Successfully!' : 'Verification Failed'}
       </h1>
-      <p className="mt-2 text-base text-gray-600">
+      <p className="mt-2 text-base text-gray-600 dark:text-zinc-300">
         {isSuccess
           ? "Your agency's domain has been successfully verified. You can now return to your dashboard."
           : message || "The verification link may have expired or is invalid. Please try again."}

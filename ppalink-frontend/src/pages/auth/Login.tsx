@@ -79,7 +79,7 @@ const Login = () => {
   const y = useTransform(scrollY, [0, 300], [0, 100]);
 
   return (
-    <div className="w-full min-h-screen relative overflow-hidden text-white flex items-center justify-center">
+    <div className="w-full min-h-screen relative overflow-hidden text-white dark:text-zinc-100 flex items-center justify-center">
       {/* Background image */}
       <motion.div
         style={{
@@ -91,7 +91,7 @@ const Login = () => {
         className="absolute inset-0"
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
 
       {/* Login form */}
       <motion.div
@@ -100,30 +100,30 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="relative w-full max-w-md"
       >
-        <div className="rounded-xl border border-gray-200 bg-white/90 p-6 shadow-lg md:p-10">
+        <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 dark:bg-black/80 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400 sm:text-3xl">
               Welcome Back
             </h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
               Sign in to access your PPALink dashboard.
             </p>
           </div>
 
           {inviteMessage && (
-            <div className="mt-6 rounded-md bg-blue-50 p-4 text-center text-sm text-blue-700">
+            <div className="mt-6 rounded-md bg-blue-50 dark:bg-blue-950/60 p-4 text-center text-sm text-blue-700 dark:text-blue-400">
               <Info className="inline-block h-5 w-5 mr-2" /> {inviteMessage}
             </div>
           )}
           {inviteError && (
-            <div className="mt-6 rounded-md bg-red-50 p-4 text-center text-sm text-red-700">
+            <div className="mt-6 rounded-md bg-red-50 dark:bg-red-950/60 p-4 text-center text-sm text-red-700 dark:text-red-400">
               {inviteError}
             </div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
             {errors.root && (
-              <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+              <div className="rounded-md border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/60 p-3 text-center text-sm text-red-700 dark:text-red-400">
                 {errors.root.message}
               </div>
             )}
@@ -137,14 +137,14 @@ const Login = () => {
                 error={!!errors.email}
                 {...register('email')}
                 disabled={isSubmitting}
-                className="text-gray-900 placeholder-gray-400 bg-white"
+                className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
               />
-              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+              {errors.email && <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                <Link to="/forgot-password" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500">
                         Forgot password?
                     </Link>
               </div>
@@ -156,26 +156,26 @@ const Login = () => {
                 error={!!errors.password}
                 {...register('password')}
                 disabled={isSubmitting}
-                className="text-gray-900 placeholder-gray-400 bg-white"
+                className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
               />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password && <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}
             </div>
             <Button type="submit" className="w-full" isLoading={isSubmitting} size="lg">
               Sign In
             </Button>
           </form>
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-gray-600 dark:text-zinc-300">
   Not account yet?{' '} Register as {' '}
   <Link
     to="/register/candidate"
-    className="font-semibold text-primary-600 hover:text-primary-500"
+    className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-500"
   >
     Corp Member
   </Link>{' '}
   or{' '}
   <Link
     to="/register/agency"
-    className="font-semibold text-primary-600 hover:text-primary-500"
+    className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-500"
   >
     Agency
   </Link>
@@ -188,3 +188,4 @@ const Login = () => {
 };
 
 export default Login;
+

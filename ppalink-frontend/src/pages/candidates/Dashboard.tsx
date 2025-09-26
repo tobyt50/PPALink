@@ -11,23 +11,23 @@ const ProfileCompleteness = ({ score }: { score: number }) => {
   const clampedScore = Math.min(100, Math.max(0, score));
 
   return (
-    <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-      <div className="p-5 border-b border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900">Profile Strength</h2>
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Profile Strength</h2>
       </div>
       <div className="p-6">
-        <p className="text-sm text-gray-500">A complete profile attracts more recruiters.</p>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4 overflow-hidden">
+        <p className="text-sm text-gray-500 dark:text-zinc-400">A complete profile attracts more recruiters.</p>
+        <div className="w-full bg-gray-200 dark:bg-zinc-800 rounded-full h-2.5 mt-4 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-primary-600 to-green-500 h-2.5 rounded-full transform origin-left transition-transform duration-500"
+            className="bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 h-2.5 rounded-full transform origin-left transition-transform duration-500"
             style={{ transform: `scaleX(${clampedScore / 100})` }}
           />
         </div>
         <div className="flex justify-between items-center text-sm mt-2">
-          <span className="font-semibold text-primary-600">{clampedScore}% Complete</span>
+          <span className="font-semibold text-primary-600 dark:text-primary-400">{clampedScore}% Complete</span>
           {clampedScore < 100 && (
             <Link to="/dashboard/candidate/profile/edit">
-              <Button variant="link" size="sm" className="text-primary-600 px-0">
+              <Button variant="link" size="sm" className="text-primary-600 dark:text-primary-400 px-0">
                 Complete Profile <ArrowRight className="inline h-4 w-4 ml-1" />
               </Button>
             </Link>
@@ -41,15 +41,15 @@ const ProfileCompleteness = ({ score }: { score: number }) => {
 // Polished Application Status Badge
 const ApplicationStatusBadge = ({ status }: { status: ApplicationStatus }) => {
   const labelMap: Record<ApplicationStatus, { text: string; color: string }> = {
-    APPLIED: { text: 'Applied', color: 'text-gray-700 bg-gray-100' },
-    REVIEWING: { text: 'In Review', color: 'text-indigo-700 bg-indigo-100' },
-    INTERVIEW: { text: 'Interview', color: 'text-amber-700 bg-amber-100' },
-    OFFER: { text: 'Offer', color: 'text-green-700 bg-green-100' },
-    REJECTED: { text: 'Rejected', color: 'text-red-700 bg-red-100' },
-    WITHDRAWN: { text: 'Withdrawn', color: 'text-pink-700 bg-pink-100' },
+    APPLIED: { text: 'Applied', color: 'text-gray-700 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800' },
+    REVIEWING: { text: 'In Review', color: 'text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/60' },
+    INTERVIEW: { text: 'Interview', color: 'text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60' },
+    OFFER: { text: 'Offer', color: 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-950/60' },
+    REJECTED: { text: 'Rejected', color: 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-950/60' },
+    WITHDRAWN: { text: 'Withdrawn', color: 'text-pink-700 dark:text-pink-400 bg-pink-100 dark:bg-pink-950/60' },
   };
 
-  const { text, color } = labelMap[status] ?? { text: 'Unknown', color: 'text-gray-700 bg-gray-100' };
+  const { text, color } = labelMap[status] ?? { text: 'Unknown', color: 'text-gray-700 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800' };
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${color}`}>{text}</span>;
 };
 
@@ -63,29 +63,29 @@ const CandidateDashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2">
-            <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse" />
-            <div className="h-4 w-64 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-8 w-48 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
+            <div className="h-4 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
           </div>
-          <div className="h-10 w-40 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-10 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
         </div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
-          <div className="h-28 bg-gray-200 rounded-2xl animate-pulse" />
-          <div className="h-28 bg-gray-200 rounded-2xl animate-pulse" />
-          <div className="h-28 bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
         </div>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="h-64 bg-gray-200 rounded-2xl animate-pulse" />
+            <div className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           </div>
           {/* Right column */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="h-48 bg-gray-200 rounded-2xl animate-pulse" />
-            <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />
+            <div className="h-48 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+            <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           </div>
         </div>
       </div>
@@ -99,15 +99,15 @@ const CandidateDashboard = () => {
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             My Dashboard
           </h1>
-          <p className="mt-2 text-gray-600">Welcome! Here's an overview of your job search journey.</p>
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">Welcome! Here's an overview of your job search journey.</p>
         </div>
         <Link to="/dashboard/candidate/jobs/browse">
           <Button
             size="lg"
-            className="rounded-xl shadow-md bg-gradient-to-r from-primary-600 to-green-500 text-white hover:opacity-90 transition"
+            className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             <Search className="mr-2 h-5 w-5" />
             Find a Job
@@ -144,30 +144,30 @@ const CandidateDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-              <Link to="/dashboard/candidate/applications" className="text-sm font-medium text-primary-600 hover:underline">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Recent Activity</h2>
+              <Link to="/dashboard/candidate/applications" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">
                 View All
               </Link>
             </div>
 
             {recentApplications.length === 0 ? (
-              <p className="p-6 text-sm text-center text-gray-500">Your recent applications will appear here.</p>
+              <p className="p-6 text-sm text-center text-gray-500 dark:text-zinc-400">Your recent applications will appear here.</p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {recentApplications.map((app) => (
                   <li key={app.id}>
                     <Link
                       to={`/dashboard/candidate/applications`}
-                      className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50"
+                      className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-primary-600 group-hover:text-primary-600">
+                          <p className="font-semibold text-primary-600 dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
                             {app.position.title}
                           </p>
-                          <p className="text-sm text-gray-500">{app.position.agency.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-zinc-400">{app.position.agency.name}</p>
                         </div>
                         <div className="flex items-center gap-4">
                           <ApplicationStatusBadge status={app.status} />
@@ -185,19 +185,19 @@ const CandidateDashboard = () => {
         {/* Right Column */}
         <div className="lg:col-span-1 space-y-8">
           <ProfileCompleteness score={profileCompleteness} />
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Verification Status</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Verification Status</h2>
             </div>
             <div className="p-6">
               {isVerified ? (
-                <div className="flex items-center text-green-700">
+                <div className="flex items-center text-green-700 dark:text-green-300">
                   <CheckCircle className="h-5 w-5 mr-2" />
                   <p className="font-semibold">Your NYSC status is verified!</p>
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-zinc-300">
                     Get your profile verified to stand out and build trust with recruiters.
                   </p>
                   <div className="mt-4">
@@ -205,7 +205,7 @@ const CandidateDashboard = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+                        className="w-full rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
                       >
                         Submit Documents
                       </Button>
@@ -222,3 +222,5 @@ const CandidateDashboard = () => {
 };
 
 export default CandidateDashboard;
+
+

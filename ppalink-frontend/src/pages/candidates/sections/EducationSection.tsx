@@ -77,15 +77,15 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
       />
 
       {/* Replicated Card Styling */}
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         {/* Card Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Education</h2>
+        <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Education</h2>
           {isOwner && (
              <Button
               variant="outline"
               size="sm"
-              className="rounded-lg border-primary-600 text-primary-600 hover:bg-primary-50"
+              className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
               onClick={() => openFormModal()}
             >
               <PlusCircle className="mr-2 h-4 w-4" /> Add
@@ -100,28 +100,28 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
               {educationHistory.map((edu) => (
                 <li key={edu.id} className="relative flex items-start pr-16">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center ring-4 ring-white">
-                      <GraduationCap className="h-6 w-6 text-primary-600" />
+                    <div className="h-12 w-12 rounded-full bg-green-50 dark:bg-green-950/60 flex items-center justify-center ring-4 ring-white dark:ring-white/10">
+                      <GraduationCap className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                     </div>
                   </div>
                   <div className="ml-4 flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800">{edu.institution}</p>
-                    <p className="text-sm text-gray-600">{edu.degree}{edu.field ? `, ${edu.field}` : ''}</p>
-                    <p className="text-sm text-gray-400 mt-0.5">{formatDate(edu.startDate)} - {formatDate(edu.endDate)}</p>
-                    {edu.grade && <p className="mt-1 text-sm text-gray-500">Grade: {edu.grade}</p>}
+                    <p className="font-semibold text-gray-800 dark:text-zinc-100">{edu.institution}</p>
+                    <p className="text-sm text-gray-600 dark:text-zinc-300">{edu.degree}{edu.field ? `, ${edu.field}` : ''}</p>
+                    <p className="text-sm text-gray-400 dark:text-zinc-500 mt-0.5">{formatDate(edu.startDate)} - {formatDate(edu.endDate)}</p>
+                    {edu.grade && <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">Grade: {edu.grade}</p>}
                   </div>
                   {isOwner && (
                     // Removed opacity and hover classes to make buttons always visible
                     <div className="absolute top-0 right-0 flex items-center -space-x-1">
-                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary-600" onClick={() => openFormModal(edu)}><Edit className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" className="text-gray-600 hover:text-red-600" onClick={() => openDeleteModal(edu)}><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400" onClick={() => openFormModal(edu)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" className="text-gray-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400" onClick={() => openDeleteModal(edu)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   )}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-center text-gray-500 py-4">No education history has been added yet.</p>
+            <p className="text-sm text-center text-gray-500 dark:text-zinc-400 py-4">No education history has been added yet.</p>
           )}
         </div>
       </div>
@@ -130,3 +130,4 @@ const EducationSection = ({ educationHistory, isOwner, refetchProfile }: Educati
 };
 
 export default EducationSection;
+

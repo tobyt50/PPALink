@@ -92,9 +92,9 @@ export const InboxBell = () => {
           className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
           variant="ghost"
         >
-    <Mail className="h-5 w-5 text-gray-600" />
+    <Mail className="h-5 w-5 text-gray-600 dark:text-zinc-300" />
     {unreadMessageCount > 0 && (
-      <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 text-white font-bold border-2 border-white">
+      <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 dark:bg-red-500 text-white dark:text-zinc-100 font-bold border-2 border-white dark:border-black">
         {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
       </span>
     )}
@@ -108,12 +108,12 @@ export const InboxBell = () => {
       maxHeight="max-h-[16rem] sm:max-h-[28rem]"
     >
       {/* Polished and Compact Header */}
-      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900">Messages</h3>
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
+        <h3 className="font-semibold text-gray-900 dark:text-zinc-50">Messages</h3>
         {unreadMessageCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="flex items-center text-xs font-medium text-primary-600 hover:text-primary-700 hover:underline"
+            className="flex items-center text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:underline"
           >
              <Check className="h-3 w-3 mr-1" />
             Mark all as read
@@ -131,18 +131,18 @@ export const InboxBell = () => {
             <div className="flex items-start gap-3 w-full">
                {/* Polished Unread Indicator */}
               {!notif.read && (
-                 <div className="h-2 w-2 rounded-full bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
+                 <div className="h-2 w-2 rounded-full bg-primary-500 dark:bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
               )}
               {notif.read && <div className="w-2 flex-shrink-0" />}
 
               <div className="flex-grow overflow-hidden">
-                <p className={`text-sm truncate ${!notif.read ? 'font-semibold text-gray-800' : 'font-medium text-gray-700'}`}>
+                <p className={`text-sm truncate ${!notif.read ? 'font-semibold text-gray-800 dark:text-zinc-100' : 'font-medium text-gray-700 dark:text-zinc-200'}`}>
                   {notif.message.replace('You have a new message from ', '')}
                 </p>
-                <p className={`text-sm truncate mt-0.5 ${!notif.read ? 'text-gray-600' : 'text-gray-500'}`}>
+                <p className={`text-sm truncate mt-0.5 ${!notif.read ? 'text-gray-600 dark:text-zinc-300' : 'text-gray-500 dark:text-zinc-400'}`}>
                   {notif.meta?.lastMessage || 'Click to view message...'}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
                   {formatDistanceToNow(new Date(notif.createdAt))} ago
                 </p>
               </div>
@@ -151,7 +151,7 @@ export const InboxBell = () => {
         ))
       ) : (
         // Polished Empty State
-        <div className="px-4 py-8 text-center text-sm text-gray-500">
+        <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-zinc-400">
           You have no new messages.
         </div>
       )}

@@ -21,8 +21,8 @@ const SidebarLink = ({ to, icon: Icon, text, isCollapsed, end, onClick }: NavIte
       className={({ isActive }) =>
         `group relative flex items-center p-3 text-sm font-medium rounded-xl transition-all duration-200 w-full ${
           isActive
-            ? 'bg-gradient-to-r from-primary-50 to-green-50 text-primary-600 shadow-sm'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+            ? 'bg-gradient-to-r from-primary-50 dark:from-primary-950/60 to-green-50 dark:to-green-950/60 text-primary-600 dark:text-primary-400 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10'
+            : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-800 dark:hover:text-zinc-200'
         }`
       }
     >
@@ -31,7 +31,7 @@ const SidebarLink = ({ to, icon: Icon, text, isCollapsed, end, onClick }: NavIte
       
       {/* Tooltip for collapsed sidebar */}
       {isCollapsed && (
-          <div className="absolute left-full top-1/2 z-20 ml-4 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
+          <div className="absolute left-full top-1/2 z-20 ml-4 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 dark:bg-zinc-100 px-2 py-1.5 text-xs font-medium text-white dark:text-zinc-100 opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
             {text}
           </div>
         )}
@@ -54,20 +54,20 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   };
 
   return (
-    <aside className={`flex flex-col flex-shrink-0 h-full bg-white border-r border-gray-100 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-17.5'}`}>
-      <div className={`p-4 flex items-center h-14 border-b border-gray-100 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+    <aside className={`flex flex-col flex-shrink-0 h-full bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-17.5'}`}>
+      <div className={`p-4 flex items-center h-14 border-b border-gray-100 dark:border-zinc-800 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
          {!isCollapsed && (
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               {title}
             </span>
          )}
         {/* Desktop Collapse Button */}
-        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 hidden md:block">
-          <ChevronLeft className={`h-5 w-5 text-gray-500 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 hidden md:block">
+          <ChevronLeft className={`h-5 w-5 text-gray-500 dark:text-zinc-400 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
         </button>
         {/* Mobile Close Button (now integrated here) */}
-        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 md:hidden">
-          <X className="h-5 w-5 text-gray-500" />
+        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 md:hidden">
+          <X className="h-5 w-5 text-gray-500 dark:text-zinc-400" />
         </button>
       </div>
 
@@ -114,7 +114,7 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={toggleSidebar}
-              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 md:hidden"
             />
             <motion.div
               initial={{ x: '-100%' }}
@@ -133,3 +133,4 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
 };
 
 export default Sidebar;
+
