@@ -21,7 +21,7 @@ const AboutPage = () => {
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
           {/* Renamed and styled like the empowering text, bigger */}
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent sm:text-6xl">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent sm:text-6xl">
             PPALink, Inc.
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-zinc-300">

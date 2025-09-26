@@ -19,7 +19,7 @@ const ProfileCompleteness = ({ score }: { score: number }) => {
         <p className="text-sm text-gray-500 dark:text-zinc-400">A complete profile attracts more recruiters.</p>
         <div className="w-full bg-gray-200 dark:bg-zinc-800 rounded-full h-2.5 mt-4 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 h-2.5 rounded-full transform origin-left transition-transform duration-500"
+            className="bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 h-2.5 rounded-full transform origin-left transition-transform duration-500"
             style={{ transform: `scaleX(${clampedScore / 100})` }}
           />
         </div>
@@ -99,7 +99,7 @@ const CandidateDashboard = () => {
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             My Dashboard
           </h1>
           <p className="mt-2 text-gray-600 dark:text-zinc-300">Welcome! Here's an overview of your job search journey.</p>
@@ -107,7 +107,7 @@ const CandidateDashboard = () => {
         <Link to="/dashboard/candidate/jobs/browse">
           <Button
             size="lg"
-            className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
+            className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             <Search className="mr-2 h-5 w-5" />
             Find a Job

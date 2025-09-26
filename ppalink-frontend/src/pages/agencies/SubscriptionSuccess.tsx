@@ -21,7 +21,7 @@ const SubscriptionSuccessPage = () => {
                     </div>
 
                     {/* Replicated Gradient Header */}
-                    <h1 className="mt-6 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+                    <h1 className="mt-6 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                         Subscription Successful!
                     </h1>
 
@@ -34,7 +34,7 @@ const SubscriptionSuccessPage = () => {
                         <Link to="/dashboard/agency">
                             <Button 
                                 size="lg" 
-                                className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
+                                className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
                             >
                                 Go to Dashboard
                             </Button>

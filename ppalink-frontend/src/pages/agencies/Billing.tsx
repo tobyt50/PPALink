@@ -59,7 +59,7 @@ const BillingPage = () => {
       if (isCurrent) {
         return (
           <Button
-            className="w-full rounded-xl bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 hover:opacity-90 transition"
+            className="w-full rounded-xl bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 hover:opacity-90 transition"
             onClick={handleManageSubscription}
             isLoading={isProcessing === "manage"}
             disabled={isProcessing !== null}
@@ -71,7 +71,7 @@ const BillingPage = () => {
       if (isUpgrade) {
         return (
           <Button
-            className="w-full rounded-xl bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 hover:opacity-90 transition"
+            className="w-full rounded-xl bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 hover:opacity-90 transition"
             onClick={() => handleSubscribe(plan.id)}
             isLoading={isProcessing === plan.id}
             disabled={isProcessing !== null}
@@ -131,7 +131,7 @@ const BillingPage = () => {
       {/* Header */}
       <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:items-center sm:justify-center">
   <div className="text-center sm:text-left">
-    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
       Billing & Subscription
     </h1>
     <p className="mt-2 text-gray-600 dark:text-zinc-300">Manage your agency's subscription plan.</p>

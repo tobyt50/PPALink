@@ -80,7 +80,7 @@ const ManagePlansPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               Subscription Plans
             </h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Create, edit, and manage subscription plans for agencies.</p>
@@ -99,7 +99,7 @@ const ManagePlansPage = () => {
             {plans?.map((plan) => (
                 <div key={plan.id} className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 flex flex-col overflow-hidden">
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">{plan.name}</h2>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">{plan.name}</h2>
                     <p className="text-gray-500 dark:text-zinc-400 mt-2 text-sm h-10">{plan.description}</p>
                     <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-zinc-50">₦{plan.price.toLocaleString()}</span>

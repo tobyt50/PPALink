@@ -114,7 +114,7 @@ export const FileUpload = ({ uploadType, onUploadSuccess, label }: FileUploadPro
           {uploadStatus === 'uploading' && (
             <div className="w-full bg-gray-200 dark:bg-zinc-800 rounded-full h-1.5 mt-2">
               <div 
-                className="bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 h-1.5 rounded-full transition-all duration-300" 
+                className="bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 h-1.5 rounded-full transition-all duration-300" 
                 style={{ width: `${progress}%` }}
               ></div>
             </div>

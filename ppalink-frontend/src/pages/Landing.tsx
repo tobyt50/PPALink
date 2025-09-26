@@ -39,7 +39,7 @@ const LandingPage = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="absolute inset-0 flex justify-center pointer-events-none"
           >
-            <div className="h-72 w-72 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-400 via-pink-500 to-yellow-400 opacity-30 blur-3xl" />
+            <div className="h-72 w-72 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-500 via-pink-500 to-yellow-400 opacity-30 blur-3xl" />
           </motion.div>
 
           <motion.h1

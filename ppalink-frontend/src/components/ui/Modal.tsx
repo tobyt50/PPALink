@@ -87,7 +87,7 @@ export const ConfirmationModal = ({
                     className={`rounded-lg shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 transition-opacity ${
                       isDestructive
                         ? 'bg-red-600 dark:bg-red-500 text-white dark:text-zinc-100 hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50'
-                        : 'bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 disabled:opacity-50'
+                        : 'bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 disabled:opacity-50'
                     }`}
                   >
                     {confirmButtonText}

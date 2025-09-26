@@ -3,7 +3,7 @@ const PrivacyPolicyPage = () => {
     <div className="mx-auto max-w-5xl py-4 md:py-8 px-4 sm:px-6 lg:px-8">
       <div className="prose lg:prose-lg prose-headings:text-primary-600 prose-a:text-primary-600">
         {/* Header */}
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent sm:text-6xl">Privacy Policy</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent sm:text-6xl">Privacy Policy</h1>
         <p className="text-gray-500 dark:text-zinc-400">Last updated: September 15, 2025</p>
 
         {/* Important notice */}

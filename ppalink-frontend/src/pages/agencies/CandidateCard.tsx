@@ -20,13 +20,13 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
       {/* Header */}
       <div className="flex items-start">
         {/* Avatar */}
-        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 flex items-center justify-center text-white dark:text-zinc-100 font-bold">
+        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 flex items-center justify-center text-white dark:text-zinc-100 font-bold">
           {initials}
         </div>
 
         {/* Name & Summary */}
         <div className="ml-4 flex-grow">
-          <p className="font-bold text-base bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <p className="font-bold text-base bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             {candidate.firstName} {candidate.lastName}
           </p>
           <p className="text-sm text-gray-600 dark:text-zinc-300 line-clamp-2 mt-1">
