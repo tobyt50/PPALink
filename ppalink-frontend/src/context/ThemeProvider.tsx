@@ -1,19 +1,114 @@
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import type { ThemeProviderProps } from 'next-themes';
+﻿import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 
-// We will also create a custom hook to easily access the theme state
-import { useTheme as useNextTheme } from 'next-themes';
+type Theme = "light" | "dark" | "system";
 
-export const useTheme = () => {
-    const { theme, setTheme, systemTheme } = useNextTheme();
-    return {
-        theme: theme,
-        setTheme: setTheme,
-        isDarkMode: theme === 'dark' || (theme === 'system' && systemTheme === 'dark'),
+interface ThemeContextType {
+  theme: Theme;
+  resolvedTheme: "light" | "dark";
+  setTheme: (t: Theme) => void;
+  toggle: () => void;
+}
+
+const THEME_KEY = "ppalink:theme";
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    try {
+      const raw = localStorage.getItem(THEME_KEY) as Theme | null;
+      return raw ?? "system";
+    } catch {
+      return "system";
+    }
+  });
+
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    return window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  // apply theme to <html data-theme="...">
+  const applyTheme = useCallback((r: "light" | "dark") => {
+    setResolvedTheme(r);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", r === "dark" ? "dark" : "light");
+
+    // optional: update meta theme-color to match current computed var (if you use it)
+    const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (meta) {
+      // fallbacks if you don't have CSS vars for meta:
+      const computed = getComputedStyle(root);
+      const candidate = r === "dark"
+        ? computed.getPropertyValue('--color-gray-900') || '#000000'
+        : computed.getPropertyValue('--color-gray-50') || '#ffffff';
+      meta.setAttribute("content", (candidate || (r === "dark" ? '#000000' : '#ffffff')).trim());
+    }
+  }, []);
+
+  // init from storage + system preference
+  useEffect(() => {
+    const raw = localStorage.getItem(THEME_KEY) as Theme | null;
+    const initial = raw ?? "system";
+    setThemeState(initial);
+
+    if (initial === "system") {
+      const isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(isDark ? "dark" : "light");
+    } else {
+      applyTheme(initial === "dark" ? "dark" : "light");
+    }
+  }, [applyTheme]);
+
+  // listen for system changes when theme === system
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (ev: MediaQueryListEvent) => {
+      if (theme === "system") {
+        applyTheme(ev.matches ? "dark" : "light");
+      }
     };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [theme, applyTheme]);
+
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t);
+    try {
+      localStorage.setItem(THEME_KEY, t);
+    } catch {}
+    if (t === "system") {
+      const isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(isDark ? "dark" : "light");
+    } else {
+      applyTheme(t === "dark" ? "dark" : "light");
+    }
+  }, [applyTheme]);
+
+  const toggle = () => {
+  setTheme(theme === "dark" ? "light" : "dark");
 };
 
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggle }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
+
+export function useTheme() {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
+  return ctx;
+}
+

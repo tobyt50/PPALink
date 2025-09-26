@@ -1,4 +1,4 @@
-import { Analytics } from '@vercel/analytics/react';
+﻿import { Analytics } from '@vercel/analytics/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
@@ -6,6 +6,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './index.css';
 import AppRouter from './routes';
+import { ThemeProvider } from './context/ThemeProvider';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -31,7 +32,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           },
         }}
       />
+      <ThemeProvider>
       <AppRouter />
+      </ThemeProvider>
       <Analytics />
     </SkeletonTheme>
   </React.StrictMode>
