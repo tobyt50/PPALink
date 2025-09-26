@@ -3,6 +3,7 @@ import { Briefcase, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const PublicHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -29,12 +30,16 @@ const PublicHeader = () => {
           </Link>
 
           {/* Buttons */}
-          <div className="flex items-center space-x-2">
-            <Link to="/login">
-              <Button variant="ghost">Login</Button>
-            </Link>
-            <Button onClick={() => setModalOpen(true)}>Sign Up</Button>
-          </div>
+          <div className="flex items-center gap-2">
+  <ThemeToggle />
+  <Link to="/login">
+    <Button variant="ghost" className="whitespace-nowrap">Login</Button>
+  </Link>
+  <Button onClick={() => setModalOpen(true)} className="whitespace-nowrap">
+    Sign Up
+  </Button>
+</div>
+
         </div>
       </header>
 

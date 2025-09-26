@@ -15,7 +15,7 @@ const LandingPage = () => {
   const y = useTransform(scrollY, [0, 300], [0, 100]);
 
   return (
-    <div className="w-full min-h-screen relative overflow-hidden text-white dark:text-zinc-100">
+    <div className="w-full min-h-screen relative overflow-hidden text-white">
       {/* Global Background (declared once) */}
       <motion.div
         style={{
@@ -27,7 +27,7 @@ const LandingPage = () => {
         className="absolute inset-0"
       />
       {/* Global overlay */}
-      <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
+      <div className="absolute inset-0 bg-black/50" />
 
       {/* Hero Section */}
       <section className="relative py-24 sm:py-32 text-center">
@@ -39,7 +39,7 @@ const LandingPage = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="absolute inset-0 flex justify-center pointer-events-none"
           >
-            <div className="h-72 w-72 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-500 via-pink-500 to-yellow-400 opacity-30 blur-3xl" />
+            <div className="h-72 w-72 rounded-full bg-gradient-to-r from-primary-600 via-pink-500 to-yellow-400 opacity-30 blur-3xl" />
           </motion.div>
 
           <motion.h1
@@ -57,7 +57,7 @@ const LandingPage = () => {
 
           <motion.p
             {...fadeInUp(0.2)}
-            className="mt-6 max-w-2xl mx-auto text-lg text-gray-200"
+            className="mt-6 max-w-2xl mx-auto text-lg text-gray-200 dark:text-white"
           >
             PPALink is the dedicated platform for organizations to discover and
             hire talented NYSC corps members, and for corps members to launch
@@ -112,7 +112,7 @@ const LandingPage = () => {
           </motion.h2>
           <motion.p
             {...fadeInUp(0.2)}
-            className="mt-4 max-w-2xl mx-auto text-gray-200"
+            className="mt-4 max-w-2xl mx-auto text-gray-200 dark:text-white"
           >
             We make it seamless for corps members to find meaningful work and
             for organizations to hire the best emerging talent.
@@ -121,17 +121,17 @@ const LandingPage = () => {
           <div className="mt-12 grid grid-cols-1 gap-10 sm:grid-cols-3">
             {[
               {
-                icon: <Briefcase className="h-8 w-8 text-primary-600 dark:text-primary-400" />,
+                icon: <Briefcase className="h-8 w-8 text-primary-600" />,
                 title: "Opportunities",
                 desc: "Thousands of PPA listings across industries and sectors.",
               },
               {
-                icon: <Users className="h-8 w-8 text-primary-600 dark:text-primary-400" />,
+                icon: <Users className="h-8 w-8 text-primary-600" />,
                 title: "Community",
                 desc: "Connect with other corps members and employers directly.",
               },
               {
-                icon: <Rocket className="h-8 w-8 text-primary-600 dark:text-primary-400" />,
+                icon: <Rocket className="h-8 w-8 text-primary-600" />,
                 title: "Career Growth",
                 desc: "Kickstart your career with real-world experience.",
               },
@@ -139,11 +139,11 @@ const LandingPage = () => {
               <motion.div
                 key={i}
                 {...fadeInUp(0.3 + i * 0.1)}
-                className="rounded-xl border border-white/10 dark:border-white/10 bg-white dark:bg-zinc-900/5 p-6 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 hover:shadow-xl dark:hover:shadow-none transition transform hover:-translate-y-2 backdrop-blur-sm"
+                className="rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm hover:shadow-xl transition transform hover:-translate-y-2 backdrop-blur-sm"
               >
                 <div className="flex justify-center">{f.icon}</div>
                 <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
-                <p className="mt-2 text-gray-200 text-sm">{f.desc}</p>
+                <p className="mt-2 text-gray-200 dark:text-white text-sm">{f.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -152,7 +152,7 @@ const LandingPage = () => {
 
       {/* CTA Section (darker primary gradient) */}
       <section className="relative py-20 bg-gradient-to-r from-primary-700 to-primary-600 text-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-white dark:text-zinc-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-white">
           <motion.h2
             {...fadeInUp(0.1)}
             className="text-3xl font-bold sm:text-4xl"
@@ -174,7 +174,7 @@ const LandingPage = () => {
                 {/* Button now primary-filled (not white) */}
                 <Button
                   size="lg"
-                  className="bg-primary-800 text-white dark:text-zinc-100 hover:bg-primary-900 focus:outline-none focus:ring-4 focus:ring-primary-600/25 font-semibold shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10"
+                  className="bg-primary-800 text-white hover:bg-primary-900 focus:outline-none focus:ring-4 focus:ring-primary-600/25 font-semibold shadow-md"
                 >
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -188,5 +188,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
-
