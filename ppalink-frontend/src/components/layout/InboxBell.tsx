@@ -10,6 +10,7 @@ import notificationService from '../../services/notification.service';
 import type { Notification } from '../../types/notification';
 import { BellDropdown, BellDropdownItem } from '../ui/BellDropdown';
 import { InteractiveToast } from '../ui/InteractiveToast';
+import { Button } from '../ui/Button';
 
 export const InboxBell = () => {
   const navigate = useNavigate();
@@ -86,14 +87,18 @@ export const InboxBell = () => {
 
   // Polished Dropdown Trigger
   const DropdownTrigger = (
-  <button className="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100/80 transition-colors focus:outline-none">
+  <Button
+          size="icon"
+          className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
+          variant="ghost"
+        >
     <Mail className="h-5 w-5 text-gray-600" />
     {unreadMessageCount > 0 && (
       <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 text-white font-bold border-2 border-white">
         {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
       </span>
     )}
-  </button>
+  </Button>
 );
 
   return (

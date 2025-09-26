@@ -8,6 +8,7 @@ import notificationService from '../../services/notification.service';
 import type { Notification } from '../../types/notification';
 import { BellDropdown, BellDropdownItem } from '../ui/BellDropdown';
 import { InteractiveToast } from '../ui/InteractiveToast';
+import { Button } from '../ui/Button';
 
 export const NotificationBell = () => {
   const navigate = useNavigate();
@@ -79,12 +80,16 @@ export const NotificationBell = () => {
 
   // Polished Dropdown Trigger
   const DropdownTrigger = (
-    <button className="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100/80 transition-colors focus:outline-none">
+    <Button
+          size="icon"
+          className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
+          variant="ghost"
+        >
       <Bell className="h-5 w-5 text-gray-600" />
       {unreadCount > 0 && (
         <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
       )}
-    </button>
+    </Button>
   );
 
   return (

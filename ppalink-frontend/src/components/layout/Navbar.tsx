@@ -8,6 +8,7 @@ import { InboxBell } from './InboxBell';
 import { NotificationBell } from './NotificationBell';
 import { useUIStore } from '../../context/UISlice';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { Button } from '../ui/Button';
 
 // const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.ElementType; children: React.ReactNode }) => (
 //   <NavLink
@@ -67,9 +68,13 @@ const Navbar = () => {
 
           <SimpleDropdown
             trigger={
-              <button className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-gray-100 dark:bg-gray-100">
+              <Button
+          size="icon"
+          className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
+          variant="ghost"
+        >
                 <UserCircle2 className="h-6 w-6 text-gray-500 dark:text-gray-500" />
-              </button>
+              </Button>
             }
           >
             <div className="p-2 text-sm border-b border-gray-100">
