@@ -19,16 +19,11 @@ import uploadRoutes from './modules/uploads/upload.routes';
 import utilRoutes from './modules/utils/utils.routes';
 import { authenticate } from "./middleware/auth";
 import { forcePasswordChange } from "./middleware/forcePasswordChange";
-import prisma from './config/db';
 
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  credentials: true,
-}));
-
+app.use(cors());
 app.use(helmet());
 
 // Only apply JSON parsing for non-webhook routes
@@ -115,17 +110,6 @@ app.use('/api/messages', authenticate, forcePasswordChange, messageRoutes);
 app.use('/api/notifications', authenticate, forcePasswordChange, notificationRoutes);
 app.use('/api/billing', authenticate, forcePasswordChange, billingRoutes);
 app.use('/api/utils', authenticate, forcePasswordChange, utilRoutes);
-
-// Temporary testing only
-app.get('/api/test-users', async (_req, res) => {
-  try {
-    const users = await prisma.user.findMany({ select: { id: true, email: true, status: true } });
-    res.json({ count: users.length, users });
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
-  }
-});
-
 
 // Error handler
 app.use(errorHandler);
