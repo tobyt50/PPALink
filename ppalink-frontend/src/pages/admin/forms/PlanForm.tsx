@@ -85,7 +85,7 @@ export const PlanFormModal = ({ isOpen, onClose, onSubmit, initialData }: PlanFo
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900 dark:bg-zinc-100/25 backdrop-blur-sm" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
@@ -98,8 +98,8 @@ export const PlanFormModal = ({ isOpen, onClose, onSubmit, initialData }: PlanFo
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 border-b border-gray-100 pb-4">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-4">
                   {isEditMode ? 'Edit Subscription Plan' : 'Create New Subscription Plan'}
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(processSubmit)} className="mt-4 space-y-4">
@@ -121,22 +121,22 @@ export const PlanFormModal = ({ isOpen, onClose, onSubmit, initialData }: PlanFo
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="features">Features (comma separated)</Label>
-                        <textarea id="features" rows={3} className={`flex w-full rounded-xl border bg-white px-3 py-2 text-sm transition-colors duration-150 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 ${errors.features ? 'border-red-300 text-red-600 placeholder:text-red-400 focus-visible:ring-red-400' : 'border-gray-200 focus-visible:ring-primary-600'}`} {...register('features')}/>
+                        <textarea id="features" rows={3} className={`flex w-full rounded-xl border bg-white dark:bg-zinc-900 px-3 py-2 text-sm transition-colors duration-150 placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 ${errors.features ? 'border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 placeholder:text-red-400 dark:placeholder:text-red-500/80 focus-visible:ring-red-400 dark:focus-visible:ring-red-500' : 'border-gray-200 dark:border-zinc-800 focus-visible:ring-primary-600'}`} {...register('features')}/>
                         {errors.features && <p className="text-xs text-red-500">{errors.features.message}</p>}
                     </div>
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="jobPostLimit">Job Post Limit</Label>
                             <Input id="jobPostLimit" type="number" {...register('jobPostLimit')} />
-                            <p className="text-xs text-gray-500 mt-1">-1 for unlimited</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">-1 for unlimited</p>
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="memberLimit">Team Member Limit</Label>
                             <Input id="memberLimit" type="number" {...register('memberLimit')} />
-                            <p className="text-xs text-gray-500 mt-1">-1 for unlimited</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">-1 for unlimited</p>
                         </div>
                     </div>
-                  <div className="mt-6 flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                  <div className="mt-6 flex justify-end space-x-2 pt-4 border-t border-gray-100 dark:border-zinc-800">
                     <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
                     <Button type="submit" isLoading={isSubmitting}>{isEditMode ? 'Save Changes' : 'Create Plan'}</Button>
                   </div>

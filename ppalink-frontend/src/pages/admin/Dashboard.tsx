@@ -23,10 +23,10 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Admin Command Center
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 dark:text-zinc-300">
           Welcome, {adminUser?.email || 'Admin'}. Here is a real-time snapshot of the platform.
         </p>
       </div>
@@ -73,36 +73,36 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          <div className="lg:col-span-2 rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Platform Activity (Last 30 Days)</h2>
+          <div className="lg:col-span-2 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Platform Activity (Last 30 Days)</h2>
             </div>
             <div className="p-6 min-h-[350px]">
                 {isLoading || !timeSeries ? (
-                    <div className="h-[350px] w-full bg-gray-200 rounded-md animate-pulse"></div>
+                    <div className="h-[350px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse"></div>
                 ) : (
                     <AdminTimeSeriesChart data={timeSeries} />
                 )}
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-             <div className="p-5 border-b border-gray-100 flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-primary-600"/>
-                <h2 className="text-lg font-semibold text-gray-900">Live Activity Feed</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+             <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex items-center space-x-2">
+                <Zap className="h-5 w-5 text-primary-600 dark:text-primary-400"/>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Live Activity Feed</h2>
              </div>
              <div className="p-6 min-h-[402px]">
                  {/* This rendering logic is now more reliable because it's reading from a persistent store */}
                  {liveActivity.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center pt-16">Waiting for new platform activity...</p>
+                  <p className="text-sm text-gray-500 dark:text-zinc-400 text-center pt-16">Waiting for new platform activity...</p>
                 ) : (
                   <ul className="space-y-4">
                     {liveActivity.map((event) => (
                       <li key={event.id} className="flex items-start">
-                          <div className="flex-shrink-0"><event.icon className="h-5 w-5 text-gray-400 mt-0.5" /></div>
+                          <div className="flex-shrink-0"><event.icon className="h-5 w-5 text-gray-400 dark:text-zinc-500 mt-0.5" /></div>
                           <div className="ml-3">
-                              <p className="text-sm text-gray-800">{event.message}</p>
-                              <p className="text-xs text-gray-400">{formatDistanceToNow(event.timestamp, { addSuffix: true })}</p>
+                              <p className="text-sm text-gray-800 dark:text-zinc-100">{event.message}</p>
+                              <p className="text-xs text-gray-400 dark:text-zinc-500">{formatDistanceToNow(event.timestamp, { addSuffix: true })}</p>
                           </div>
                       </li>
                     ))}
@@ -116,3 +116,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

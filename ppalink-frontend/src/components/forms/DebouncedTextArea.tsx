@@ -27,8 +27,8 @@ export const DebouncedTextarea = ({ initialValue, onSave, placeholder }: Debounc
   }, [debouncedText, initialValue, onSave]);
 
   const SavingIndicator = () => {
-    if (savingState === 'saving') return <span className="flex items-center text-xs text-gray-500"><Loader2 className="h-3 w-3 mr-1 animate-spin" />Saving...</span>;
-    if (savingState === 'saved') return <span className="text-xs text-gray-500">Saved</span>;
+    if (savingState === 'saving') return <span className="flex items-center text-xs text-gray-500 dark:text-zinc-400"><Loader2 className="h-3 w-3 mr-1 animate-spin" />Saving...</span>;
+    if (savingState === 'saved') return <span className="text-xs text-gray-500 dark:text-zinc-400">Saved</span>;
     return null;
   };
 
@@ -37,7 +37,7 @@ export const DebouncedTextarea = ({ initialValue, onSave, placeholder }: Debounc
       <textarea
         rows={6}
         placeholder={placeholder}
-        className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
+        className="w-full rounded-md border-gray-300 dark:border-zinc-800 text-sm shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 focus:border-primary-500 focus:ring-primary-500"
         value={text}
         onChange={(e) => {
           setText(e.target.value);

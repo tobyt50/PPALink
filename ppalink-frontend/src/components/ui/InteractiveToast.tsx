@@ -32,20 +32,20 @@ export const InteractiveToast = ({
       onClick={handleNavigate}
       className={`${
         t.visible ? 'animate-enter' : 'animate-leave'
-      } w-full max-w-sm transform-gpu rounded-2xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all hover:bg-gray-50/70 cursor-pointer`}
+      } w-full max-w-sm transform-gpu rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl dark:shadow-none dark:ring-1 ring-1 ring-black dark:ring-white/10 ring-opacity-5 transition-all hover:bg-gray-50 dark:hover:bg-zinc-800/70 cursor-pointer`}
     >
       <div className="flex items-start p-4">
         {/* Polished Icon Container */}
         <div className="flex-shrink-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
             <Icon className={`h-6 w-6 ${iconColorClass}`} aria-hidden="true" />
           </div>
         </div>
         
         {/* Polished Typography and Layout */}
         <div className="ml-4 flex-1">
-          <p className="text-sm font-semibold text-gray-900">{title}</p>
-          <p className="mt-1 text-sm text-gray-600">{message}</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-zinc-50">{title}</p>
+          <p className="mt-1 text-sm text-gray-600 dark:text-zinc-300">{message}</p>
         </div>
 
         {/* Polished Dismiss Button */}
@@ -55,7 +55,7 @@ export const InteractiveToast = ({
               e.stopPropagation();
               toast.dismiss(t.id);
             }}
-            className="inline-flex rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="inline-flex rounded-full p-1.5 text-gray-400 dark:text-zinc-500 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-600 dark:hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <span className="sr-only">Close</span>
             <X className="h-5 w-5" aria-hidden="true" />

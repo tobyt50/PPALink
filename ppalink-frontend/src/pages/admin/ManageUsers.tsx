@@ -14,9 +14,9 @@ import { Button } from '../../components/ui/Button';
 
 const UserRoleBadge = ({ role }: { role: User['role'] }) => {
   const roleStyles: Record<User['role'], string> = {
-    ADMIN: 'bg-red-100 text-red-800',
-    AGENCY: 'bg-primary-50 text-primary-700',
-    CANDIDATE: 'bg-green-100 text-green-800',
+    ADMIN: 'bg-red-100 dark:bg-red-950/60 text-red-800',
+    AGENCY: 'bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300',
+    CANDIDATE: 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200',
     SUPER_ADMIN: 'bg-purple-100 text-purple-800',
   };
   return (
@@ -28,9 +28,9 @@ const UserRoleBadge = ({ role }: { role: User['role'] }) => {
 
 const UserStatusBadge = ({ status }: { status: User['status'] }) => {
   const statusStyles: Record<User['status'], string> = {
-    ACTIVE: 'bg-green-100 text-green-800',
-    SUSPENDED: 'bg-yellow-100 text-yellow-800',
-    DEACTIVATED: 'bg-red-100 text-red-800',
+    ACTIVE: 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200',
+    SUSPENDED: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300',
+    DEACTIVATED: 'bg-red-100 dark:bg-red-950/60 text-red-800',
   };
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[status]}`}>
@@ -112,11 +112,11 @@ const ManageUsersPage = () => {
 
       <div className="space-y-5">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">Manage Users</h1>
-          <p className="mt-2 text-gray-600">View, search, and manage all users on the platform.</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Manage Users</h1>
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">View, search, and manage all users on the platform.</p>
         </div>
 
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <Input
@@ -128,30 +128,30 @@ const ManageUsersPage = () => {
               />
             </div>
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <SimpleDropdown trigger={<DropdownTrigger>{roleOptions[roleFilter]}<ChevronDown className="h-4 w-4 text-gray-500" /></DropdownTrigger>}>
+              <SimpleDropdown trigger={<DropdownTrigger>{roleOptions[roleFilter]}<ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" /></DropdownTrigger>}>
                 {Object.entries(roleOptions).map(([key, value]) => <SimpleDropdownItem key={key} onSelect={() => setRoleFilter(key as Role | 'ALL')}>{value}</SimpleDropdownItem>)}
               </SimpleDropdown>
-              <SimpleDropdown trigger={<DropdownTrigger>{statusOptions[statusFilter]}<ChevronDown className="h-4 w-4 text-gray-500" /></DropdownTrigger>}>
+              <SimpleDropdown trigger={<DropdownTrigger>{statusOptions[statusFilter]}<ChevronDown className="h-4 w-4 text-gray-500 dark:text-zinc-400" /></DropdownTrigger>}>
                 {Object.entries(statusOptions).map(([key, value]) => <SimpleDropdownItem key={key} onSelect={() => setStatusFilter(key as UserStatus | 'ALL')}>{value}</SimpleDropdownItem>)}
               </SimpleDropdown>
             </div>
           </div>
         </div>
 
-        {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>}
-        {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Could not load users.</div>}
+        {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>}
+        {error && <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Could not load users.</div>}
 
         {!isLoading && !error && users && (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">Platform Users ({users.length})</h2>
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Platform Users ({users.length})</h2>
                 <div className="flex items-center gap-2 min-w-0 whitespace-nowrap">
-                    <span className="text-sm text-gray-500">Sort by:</span>
+                    <span className="text-sm text-gray-500 dark:text-zinc-400">Sort by:</span>
                     <SimpleDropdown
                       trigger={
                         <Button variant="ghost" size="sm">
                           {sortOptions[sortBy]}
-                          <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
+                          <ChevronDown className="ml-2 h-4 w-4 text-gray-500 dark:text-zinc-400" />
                         </Button>
                       }
                     >
@@ -166,42 +166,42 @@ const ManageUsersPage = () => {
             
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-920">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Email</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Role</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Joined On</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Name</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Email</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Role</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Joined On</th>
                     <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
                   {users.length === 0 ? (
-                    <tr><td colSpan={6} className="text-center p-8 text-gray-500">No users found matching your criteria.</td></tr>
+                    <tr><td colSpan={6} className="text-center p-8 text-gray-500 dark:text-zinc-400">No users found matching your criteria.</td></tr>
                   ) : (
                     users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A')}</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{user.email}</td>
+                      <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">{user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A')}</td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{user.email}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm"><UserRoleBadge role={user.role} /></td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm"><UserStatusBadge status={user.status} /></td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{new Date(user.createdAt).toLocaleDateString()}</td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{new Date(user.createdAt).toLocaleDateString()}</td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                            {user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && (
                              <SimpleDropdown
                                trigger={
-                                 <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-800">
+                                 <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
                                    <MoreHorizontal className="h-5 w-5" />
                                  </button>
                                }
                              >
                                {user.status === 'ACTIVE' ? (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800">
+                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
                                    <UserX className="mr-2 h-4 w-4" /> <span>Suspend Account</span>
                                  </SimpleDropdownItem>
                                ) : (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 hover:bg-green-50 hover:text-green-800">
+                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
                                    <UserCheck className="mr-2 h-4 w-4" /> <span>Reactivate Account</span>
                                  </SimpleDropdownItem>
                                )}
@@ -222,3 +222,4 @@ const ManageUsersPage = () => {
 };
 
 export default ManageUsersPage;
+

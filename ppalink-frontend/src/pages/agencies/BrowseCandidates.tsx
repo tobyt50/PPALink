@@ -85,10 +85,10 @@ const BrowseCandidatesPage = () => {
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Browse Candidates
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Find the best talent for your open positions.
           </p>
         </div>
@@ -98,14 +98,14 @@ const BrowseCandidatesPage = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Sidebar */}
         <aside className="lg:col-span-1">
-          <div className="sticky top-20 rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3 mb-4">
+          <div className="sticky top-20 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4">
               Filters
             </h2>
             {isLoadingAgency ? (
               <div className="space-y-4">
-                <div className="h-10 bg-gray-200 rounded-md animate-pulse" />
-                <div className="h-20 bg-gray-200 rounded-md animate-pulse" />
+                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+                <div className="h-20 bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
               </div>
             ) : (
               <FilterSidebar
@@ -118,12 +118,12 @@ const BrowseCandidatesPage = () => {
 
         {/* Main */}
         <main className="lg:col-span-3">
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             {/* Search bar */}
-            <div className="p-5 border-b border-gray-100 bg-gray-50">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-gray-920">
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Search className="h-5 w-5 text-gray-400" />
+                  <Search className="h-5 w-5 text-gray-400 dark:text-zinc-500" />
                 </div>
                 <input
                   type="search"
@@ -165,7 +165,7 @@ const BrowseCandidatesPage = () => {
                   <Link
                     key={candidate.id}
                     to={`/dashboard/agency/candidates/${candidate.id}/profile`}
-                    className="block hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all rounded-xl"
+                    className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
                   >
                     <CandidateCard candidate={candidate} />
                   </Link>
@@ -180,3 +180,5 @@ const BrowseCandidatesPage = () => {
 };
 
 export default BrowseCandidatesPage;
+
+

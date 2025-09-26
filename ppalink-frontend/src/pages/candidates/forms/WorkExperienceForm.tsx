@@ -91,10 +91,10 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900 dark:bg-zinc-100/25 backdrop-blur-sm" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
               as={Fragment}
@@ -105,8 +105,8 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title className="text-lg font-semibold leading-6 text-gray-900 border-b pb-2">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title className="text-lg font-semibold leading-6 text-gray-900 dark:text-zinc-50 border-b pb-2">
                   {initialData ? 'Edit' : 'Add'} Work Experience
                 </Dialog.Title>
 
@@ -149,7 +149,7 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
                     <textarea
                       id="description"
                       rows={4}
-                      className="w-full rounded-md border-gray-300 text-sm shadow-sm"
+                      className="w-full rounded-md border-gray-300 dark:border-zinc-800 text-sm shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10"
                       {...register('description')}
                     />
                   </div>

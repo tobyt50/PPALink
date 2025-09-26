@@ -21,7 +21,7 @@ const PublicHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 dark:bg-black/80 dark:backdrop-blur-sm backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -40,16 +40,16 @@ const PublicHeader = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4">
           <motion.div
             ref={modalRef}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.1 }} // instant
-            className="w-full max-w-lg rounded-2xl bg-white/80 backdrop-blur-lg p-6 shadow-2xl"
+            className="w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900/80 dark:bg-black/80 dark:backdrop-blur-sm backdrop-blur-lg p-6 shadow-2xl dark:shadow-none dark:ring-1 dark:ring-white/10"
           >
-            <h2 className="text-2xl font-bold text-primary-600 text-center mb-6">
+            <h2 className="text-2xl font-bold text-primary-600 dark:text-primary-400 text-center mb-6">
               Create Your Account
             </h2>
 
@@ -59,12 +59,12 @@ const PublicHeader = () => {
                   whileHover={{ y: -2, scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.05 }}
-                  className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white/60 p-4 shadow-sm hover:shadow-lg transition backdrop-blur-sm"
+                  className="flex items-start gap-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-4 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 hover:shadow-lg transition backdrop-blur-sm"
                 >
-                  <Users className="h-8 w-8 text-primary-600 mt-1" />
+                  <Users className="h-8 w-8 text-primary-600 dark:text-primary-400 mt-1" />
                   <div>
-                    <p className="font-semibold text-gray-900">Corp Member</p>
-                    <p className="text-sm text-gray-700">Find jobs & internships fast.</p>
+                    <p className="font-semibold text-gray-900 dark:text-zinc-50">Corp Member</p>
+                    <p className="text-sm text-gray-700 dark:text-zinc-200">Find jobs & internships fast.</p>
                   </div>
                 </motion.div>
               </Link>
@@ -74,12 +74,12 @@ const PublicHeader = () => {
                   whileHover={{ y: -2, scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.05 }}
-                  className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white/60 p-4 shadow-sm hover:shadow-lg transition backdrop-blur-sm"
+                  className="flex items-start gap-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-4 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 hover:shadow-lg transition backdrop-blur-sm"
                 >
-                  <Briefcase className="h-8 w-8 text-primary-600 mt-1" />
+                  <Briefcase className="h-8 w-8 text-primary-600 dark:text-primary-400 mt-1" />
                   <div>
-                    <p className="font-semibold text-gray-900">Agency</p>
-                    <p className="text-sm text-gray-700">Hire top NYSC talent easily.</p>
+                    <p className="font-semibold text-gray-900 dark:text-zinc-50">Agency</p>
+                    <p className="text-sm text-gray-700 dark:text-zinc-200">Hire top NYSC talent easily.</p>
                   </div>
                 </motion.div>
               </Link>
@@ -100,3 +100,5 @@ const PublicHeader = () => {
 };
 
 export default PublicHeader;
+
+

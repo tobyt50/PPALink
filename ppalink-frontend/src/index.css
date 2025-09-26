@@ -40,7 +40,7 @@
     --color-gray-800: #27272a;
     /* Primary Text */
     --color-gray-900: #18181b;
-    --color-gray-920: #101012;
+    --color-gray-920: #1a1a1b;
     --color-gray-950: #09090b;
     /* Almost Black */
     --font-sans: "Inter", system-ui, sans-serif;
@@ -134,11 +134,5 @@
     }
     [data-theme="dark"] .scrollbar-thin {
         scrollbar-color: var(--color-gray-700) transparent;
-    }
-    .bg-zinc-920 {
-        background-color: var(--color-gray-920);
-    }
-    [data-theme="dark"] .bg-zinc-920 {
-        background-color: var(--color-gray-920);
     }
 }

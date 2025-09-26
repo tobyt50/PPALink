@@ -45,13 +45,13 @@ export const AdminFormModal = ({ isOpen, onClose, onSubmit }: AdminFormModalProp
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={handleClose}>
         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900 dark:bg-zinc-100/25 backdrop-blur-sm" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 border-b border-gray-100 pb-4">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-4">
                   Create New Administrator
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(processSubmit)} className="mt-4 space-y-4">
@@ -68,16 +68,16 @@ export const AdminFormModal = ({ isOpen, onClose, onSubmit }: AdminFormModalProp
                       <RadioGroup value={field.value} onChange={field.onChange} className="space-y-2">
                         <Label>Role</Label>
                         {roles.map((role) => (
-                           <RadioGroup.Option key={role.name} value={role.name} className={({ checked }) => `${checked ? 'bg-primary-50 border-primary-500 ring-2 ring-primary-500' : 'border-gray-200 hover:bg-gray-50'} relative flex cursor-pointer rounded-xl border p-4 focus:outline-none transition-all`}>
+                           <RadioGroup.Option key={role.name} value={role.name} className={({ checked }) => `${checked ? 'bg-primary-50 dark:bg-primary-950/60 border-primary-500 dark:border-primary-500 ring-2 ring-primary-500' : 'border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800'} relative flex cursor-pointer rounded-xl border p-4 focus:outline-none transition-all`}>
                              {({ checked }) => (
                                <div className="flex w-full items-center justify-between">
                                  <div className="flex items-center">
                                      <div className="text-sm">
-                                         <RadioGroup.Label as="p" className={`font-semibold ${checked ? 'text-primary-700' : 'text-gray-900'}`}>{role.name}</RadioGroup.Label>
-                                         <RadioGroup.Description as="span" className={`inline text-xs ${checked ? 'text-primary-600' : 'text-gray-500'}`}>{role.description}</RadioGroup.Description>
+                                         <RadioGroup.Label as="p" className={`font-semibold ${checked ? 'text-primary-700 dark:text-primary-300' : 'text-gray-900 dark:text-zinc-50'}`}>{role.name}</RadioGroup.Label>
+                                         <RadioGroup.Description as="span" className={`inline text-xs ${checked ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-zinc-400'}`}>{role.description}</RadioGroup.Description>
                                      </div>
                                  </div>
-                                 {checked && <div className="shrink-0 text-primary-600"><CheckCircle className="h-5 w-5" /></div>}
+                                 {checked && <div className="shrink-0 text-primary-600 dark:text-primary-400"><CheckCircle className="h-5 w-5" /></div>}
                                </div>
                              )}
                            </RadioGroup.Option>
@@ -86,7 +86,7 @@ export const AdminFormModal = ({ isOpen, onClose, onSubmit }: AdminFormModalProp
                     )}
                   />
                   
-                  <div className="mt-6 flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                  <div className="mt-6 flex justify-end space-x-2 pt-4 border-t border-gray-100 dark:border-zinc-800">
                     <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
                     <Button type="submit" isLoading={isSubmitting}><UserPlus className="mr-2 h-4 w-4" />Create Admin</Button>
                   </div>

@@ -4,7 +4,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 export const ApplicationCardSkeleton = () => {
   return (
     // Replicated the polished card container style
-    <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
       <div className="flex items-center justify-between">
         <div>
           {/* Mimics candidate name and job title */}
@@ -19,3 +19,4 @@ export const ApplicationCardSkeleton = () => {
     </div>
   );
 };
+

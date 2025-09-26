@@ -32,8 +32,8 @@ const VerifyDomainPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen space-y-4">
-      <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
-      <p className="text-gray-500">{message}</p>
+      <Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" />
+      <p className="text-gray-500 dark:text-zinc-400">{message}</p>
     </div>
   );
 };

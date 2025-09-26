@@ -32,31 +32,31 @@ const AdminEditJobPage = () => {
             <div>
                 <Link
                     to={jobId ? `/admin/jobs/${jobId}` : '/admin/jobs'}
-                    className="flex items-center text-sm font-semibold text-gray-500 hover:text-primary-600 transition"
+                    className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
                     <ChevronLeft className="h-5 w-5 mr-1" />
                     Back to Job Details
                 </Link>
-                <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+                <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                     Edit Job Post
                 </h1>
-                <p className="mt-2 text-gray-600">You are editing this job as an administrator. Changes will be live immediately.</p>
+                <p className="mt-2 text-gray-600 dark:text-zinc-300">You are editing this job as an administrator. Changes will be live immediately.</p>
             </div>
             
             {isLoading && (
                 <div className="flex justify-center p-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+                    <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
                 </div>
             )}
 
             {error && (
-                 <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">
+                 <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">
                     Could not load job data to edit.
                 </div>
             )}
 
             {!isLoading && !error && job && (
-                <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
+                <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
                     <JobForm 
                         initialData={job} 
                         onSubmit={handleSubmit} 
@@ -69,3 +69,4 @@ const AdminEditJobPage = () => {
 };
 
 export default AdminEditJobPage;
+

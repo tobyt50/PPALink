@@ -106,10 +106,10 @@ export const SimpleDropdown = ({
               transition={{ duration: 0.1, ease: 'easeOut' }}
               className={`origin-top-right absolute right-0 ${
                 dropUp ? 'bottom-full mb-2' : 'mt-2'
-              } min-w-full w-auto rounded-2xl shadow-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 p-1`}
+              } min-w-full w-auto rounded-2xl shadow-md dark:shadow-none dark:ring-1 bg-white dark:bg-zinc-900 ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none z-50 p-1`}
             >
               <div
-                className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${
+                className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 ${
                   isIndustryDropdown ? 'max-h-80' : 'max-h-60'
                 }`}
                 role="menu"
@@ -118,7 +118,7 @@ export const SimpleDropdown = ({
                 {groupedIndustries.length > 0 && isIndustryDropdown
                   ? groupedIndustries.map(({ heading, children: industryChildren }) => (
                       <div key={heading.id}>
-                        <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">
+                        <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">
                           {heading.name}
                         </div>
                         {industryChildren.map((child) => (
@@ -156,7 +156,7 @@ export const SimpleDropdownItem = ({ children, onSelect, className }: SimpleDrop
   return (
     <a
       href="#"
-      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900 ${className}`}
+      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-gray-900 ${className}`}
       role="menuitem"
       onClick={(e) => {
         e.preventDefault();

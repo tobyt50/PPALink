@@ -51,14 +51,14 @@ const ResetPasswordPage = () => {
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4 py-12">
       <motion.div /* ... */ className="w-full max-w-md">
-        <div className="rounded-xl border bg-white/90 p-6 shadow-lg md:p-10">
+        <div className="rounded-xl border bg-white dark:bg-zinc-900/90 dark:bg-black/80 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
           {isSuccess ? (
              <div className="text-center">
-              <CheckCircle className="mx-auto h-12 w-12 text-primary-600" />
-              <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+              <CheckCircle className="mx-auto h-12 w-12 text-primary-600 dark:text-primary-400" />
+              <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-zinc-50">
                 Password Reset!
               </h1>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
                 Your password has been reset successfully. You can now log in with your new password.
               </p>
               <div className="mt-6">
@@ -68,10 +68,10 @@ const ResetPasswordPage = () => {
           ) : (
             <>
               <div className="text-center">
-                <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
+                <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400 sm:text-3xl">
                   Set a New Password
                 </h1>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
                   Enter your new password below.
                 </p>
               </div>
@@ -79,7 +79,7 @@ const ResetPasswordPage = () => {
                 <div className="space-y-2">
                   <Label htmlFor="password">New Password</Label>
                   <Input id="password" type="password" {...register('password')} />
-                  {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+                  {errors.password && <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}
                 </div>
                 <Button type="submit" className="w-full" isLoading={isSubmitting} size="lg">
                   Reset Password

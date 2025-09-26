@@ -43,13 +43,13 @@ export const InviteMemberFormModal = ({ isOpen, onClose, onSubmit }: InviteMembe
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={handleClose}>
         <Transition.Child as={Fragment} {...{/* backdrop transition */}}>
-          <div className="fixed inset-0 bg-gray-900/25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900 dark:bg-zinc-100/25 backdrop-blur-sm" />
         </Transition.Child>
-        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+        <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} {...{/* panel transition */}}>
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 border-b pb-2">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 dark:text-zinc-50 border-b pb-2">
                   Invite New Team Member
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(processSubmit)} className="mt-4 space-y-4">
@@ -58,7 +58,7 @@ export const InviteMemberFormModal = ({ isOpen, onClose, onSubmit }: InviteMembe
                     <Input id="email" type="email" placeholder="colleague@example.com" {...register('email')} />
                     {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">
                     An invitation link will be sent to this email address. The link will be valid for 48 hours.
                   </p>
                   <div className="mt-6 flex justify-end space-x-2">

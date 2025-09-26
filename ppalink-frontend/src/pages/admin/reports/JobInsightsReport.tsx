@@ -9,9 +9,9 @@ interface ReportProps {
 }
 
 const ReportCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-        <div className="p-5 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+        <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">{title}</h3>
         </div>
         <div className="p-6">
             {children}
@@ -69,3 +69,4 @@ export const JobMarketInsightsReport = ({ data }: ReportProps) => {
     </div>
   );
 };
+

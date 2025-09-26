@@ -12,7 +12,7 @@ const AdminLayout = () => {
   const navItems = user?.role === 'SUPER_ADMIN' ? SUPER_ADMIN_NAV_ITEMS : ADMIN_NAV_ITEMS;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 has-[[data-impersonating]]:pt-10">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
       <ImpersonationBar /> 
       <Navbar />
 

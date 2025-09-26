@@ -101,10 +101,10 @@ export const BellDropdown = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -8 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className={`absolute ${positionClass} mt-2 origin-top rounded-2xl shadow-2xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${widthClass}`}
+              className={`absolute ${positionClass} mt-2 origin-top rounded-2xl shadow-2xl dark:shadow-none dark:ring-1 bg-white dark:bg-zinc-900 ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none z-50 ${widthClass}`}
             >
               <div
-                className={`overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 ${maxHeight} divide-y divide-gray-100 scrollbar-thumb-rounded-full`}
+                className={`overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 ${maxHeight} divide-y divide-gray-100 scrollbar-thumb-rounded-full`}
               >
                 {children}
               </div>
@@ -130,10 +130,11 @@ export const BellDropdownItem = ({
   return (
     <button
       type="button"
-      className={`group w-full text-left px-4 py-3 text-sm text-gray-700 transition-all hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 hover:text-primary-600 ${className}`}
+      className={`group w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-zinc-200 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 hover:text-primary-600 dark:hover:text-primary-400 ${className}`}
       onClick={handleClick}
     >
       {children}
     </button>
   );
 };
+

@@ -15,8 +15,8 @@ import { useAuthStore } from '../../context/AuthContext';
 
 const DetailField = ({ label, value, children }: { label: string; value?: React.ReactNode; children?: React.ReactNode }) => (
   <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-    <dt className="text-sm font-medium text-gray-500">{label}</dt>
-    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{value || children}</dd>
+    <dt className="text-sm font-medium text-gray-500 dark:text-zinc-400">{label}</dt>
+    <dd className="mt-1 text-sm text-gray-900 dark:text-zinc-50 sm:mt-0 sm:col-span-2">{value || children}</dd>
   </div>
 );
 
@@ -28,20 +28,20 @@ const UserOverview = ({ user }: { user: User }) => {
             <DetailField label="Email Address" value={user.email} />
             <DetailField label="Phone Number" value={user.phone || 'N/A'} />
             <DetailField label="Role" value={user.role} />
-            <DetailField label="Account Status"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{user.status}</span></DetailField>
+            <DetailField label="Account Status"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${user.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-950/60 text-red-800'}`}>{user.status}</span></DetailField>
             <DetailField label="Joined On" value={new Date(user.createdAt).toLocaleDateString()} />
             {agency && (
               <>
                 <DetailField label="Agency Name" value={agency.name} />
                 <DetailField label="Verification Status">
                   <div className="flex flex-wrap gap-2">
-                      {agency.domainVerified ? <span className="flex items-center text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full"><CheckCircle className="h-3 w-3 mr-1" />Verified Domain</span> : <span className="flex items-center text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">Domain Unverified</span>}
-                      {agency.cacVerified ? <span className="flex items-center text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full"><CheckCircle className="h-3 w-3 mr-1" />CAC Verified</span> : <span className="flex items-center text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">CAC Unverified</span>}
+                      {agency.domainVerified ? <span className="flex items-center text-xs font-semibold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/60 px-2 py-0.5 rounded-full"><CheckCircle className="h-3 w-3 mr-1" />Verified Domain</span> : <span className="flex items-center text-xs font-semibold text-gray-700 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">Domain Unverified</span>}
+                      {agency.cacVerified ? <span className="flex items-center text-xs font-semibold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-950/60 px-2 py-0.5 rounded-full"><CheckCircle className="h-3 w-3 mr-1" />CAC Verified</span> : <span className="flex items-center text-xs font-semibold text-gray-700 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">CAC Unverified</span>}
                   </div>
                 </DetailField>
               </>
             )}
-            {isCandidate && user.candidateProfile && (<DetailField label="Verification Level"><span className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-green-600" />{user.candidateProfile.verificationLevel || 'UNVERIFIED'}</span></DetailField>)}
+            {isCandidate && user.candidateProfile && (<DetailField label="Verification Level"><span className="flex items-center"><ShieldCheck className="mr-2 h-4 w-4 text-green-600 dark:text-green-400" />{user.candidateProfile.verificationLevel || 'UNVERIFIED'}</span></DetailField>)}
         </dl>
     );
 };
@@ -133,8 +133,8 @@ const UserDetailsPage = () => {
     });
   };
 
-  if (isLoading) { return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>; }
-  if (error || !user) { return <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-800 shadow-md">Error loading user details.</div>; }
+  if (isLoading) { return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>; }
+  if (error || !user) { return <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Error loading user details.</div>; }
 
   const isCandidate = user.role === 'CANDIDATE';
   const agency = user.role === 'AGENCY' ? user.ownedAgencies?.[0] : null;
@@ -142,8 +142,8 @@ const UserDetailsPage = () => {
   const displayName = isCandidate && user.candidateProfile?.firstName ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : agency?.name || user.email;
 
   const tabStyle = "flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors";
-  const activeTabStyle = "border-primary-600 text-primary-600";
-  const inactiveTabStyle = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300";
+  const activeTabStyle = "border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400";
+  const inactiveTabStyle = "border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 hover:border-gray-300";
 
   return (
     <>
@@ -152,11 +152,11 @@ const UserDetailsPage = () => {
 
       <div className="space-y-5">
         <div className="mb-2">
-          <Link to="/admin/users" className="flex items-center text-sm font-semibold text-gray-500 hover:text-primary-600 transition mb-4"><ChevronLeft className="h-5 w-5 mr-1" />Back to User List</Link>
+          <Link to="/admin/users" className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 transition mb-4"><ChevronLeft className="h-5 w-5 mr-1" />Back to User List</Link>
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                  <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">{displayName}</h1>
-                  <p className="mt-2 text-gray-600 font-mono text-xs">User ID: {user.id}</p>
+                  <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">{displayName}</h1>
+                  <p className="mt-2 text-gray-600 dark:text-zinc-300 font-mono text-xs">User ID: {user.id}</p>
               </div>
               <div className="flex items-center space-x-2">
                   <Button variant="outline" onClick={() => setIsMessageModalOpen(true)}><Mail className="mr-2 h-4 w-4" />Message</Button>
@@ -168,14 +168,14 @@ const UserDetailsPage = () => {
                   )}
                   <SimpleDropdown trigger={<Button variant="ghost" size="icon"><MoreHorizontal className="h-5 w-5" /></Button>}>
                       <SimpleDropdownItem onSelect={() => openModal('impersonate')}><LogIn className="mr-2 h-4 w-4" />Impersonate User</SimpleDropdownItem>
-                      <div className="my-1 h-px bg-gray-100" />
+                      <div className="my-1 h-px bg-gray-100 dark:bg-zinc-800" />
                       {isSuspended ? (
-                          <SimpleDropdownItem onSelect={() => openModal('reactivate')} className="text-green-700 hover:bg-green-50"><CheckCircle className="mr-2 h-4 w-4" />Reactivate User</SimpleDropdownItem>
+                          <SimpleDropdownItem onSelect={() => openModal('reactivate')} className="text-green-700 dark:text-green-300 hover:bg-green-50"><CheckCircle className="mr-2 h-4 w-4" />Reactivate User</SimpleDropdownItem>
                       ) : (
-                          <SimpleDropdownItem onSelect={() => openModal('suspend')} className="text-red-700 hover:bg-red-50"><XOctagon className="mr-2 h-4 w-4" />Suspend User</SimpleDropdownItem>
+                          <SimpleDropdownItem onSelect={() => openModal('suspend')} className="text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60"><XOctagon className="mr-2 h-4 w-4" />Suspend User</SimpleDropdownItem>
                       )}
-                      <div className="my-1 h-px bg-gray-100" />
-                      <p className="px-3 py-1 text-xs text-gray-500 uppercase font-semibold">Force Verify</p>
+                      <div className="my-1 h-px bg-gray-100 dark:bg-zinc-800" />
+                      <p className="px-3 py-1 text-xs text-gray-500 dark:text-zinc-400 uppercase font-semibold">Force Verify</p>
                       {!user.emailVerifiedAt && <SimpleDropdownItem onSelect={() => openModal('verifyEmail')}>Verify Email</SimpleDropdownItem>}
                       {isCandidate && !user.candidateProfile?.isVerified && <SimpleDropdownItem onSelect={() => openModal('verifyNysc')}>Verify NYSC</SimpleDropdownItem>}
                       {agency && !agency.domainVerified && <SimpleDropdownItem onSelect={() => openModal('verifyDomain')}>Verify Domain</SimpleDropdownItem>}
@@ -185,7 +185,7 @@ const UserDetailsPage = () => {
           </div>
         </div>
         
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-zinc-800">
             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                 <button onClick={() => setActiveTab('overview')} className={`${tabStyle} ${activeTab === 'overview' ? activeTabStyle : inactiveTabStyle}`}><UserIcon className="mr-2 h-5 w-5" />Overview</button>
                 <button onClick={() => setActiveTab('activity')} className={`${tabStyle} ${activeTab === 'activity' ? activeTabStyle : inactiveTabStyle}`}><List className="mr-2 h-5 w-5" />Activity Log</button>
@@ -195,8 +195,8 @@ const UserDetailsPage = () => {
 
         <div className="pt-1">
             {activeTab === 'overview' && (
-                <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-                    <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900 flex items-center">{isCandidate ? <UserIcon className="h-5 w-5 mr-2 text-primary-600" /> : <Briefcase className="h-5 w-5 mr-2 text-primary-600" />} User Overview</h2></div>
+                <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+                    <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50 flex items-center">{isCandidate ? <UserIcon className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" /> : <Briefcase className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />} User Overview</h2></div>
                     <div className="p-6"><UserOverview user={user}/></div>
                 </div>
             )}
@@ -209,3 +209,4 @@ const UserDetailsPage = () => {
 };
 
 export default UserDetailsPage;
+

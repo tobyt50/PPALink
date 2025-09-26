@@ -15,26 +15,19 @@ import type { Position } from '../../types/job';
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
+    <div className="rounded-xl bg-white dark:bg-zinc-900 p-4 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
       <div className="flex items-start">
-        <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0" />
+        <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0" />
         <div className="ml-3 flex-1 min-w-0">
           <div className="relative group">
   <p
-    className=" 
-      font-semibold text-sm text-gray-800
-      truncate
-      transition-all
-      group-hover:text-primary-600
-      group-hover:whitespace-normal
-      group-hover:break-words
-    "
+    className=" font-semibold text-sm text-gray-800 dark:text-zinc-100 truncate transition-all group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal group-hover:break-words"
   >
     {candidate.firstName} {candidate.lastName}
   </p>
 </div>
 
-          <div className="flex items-center text-xs text-gray-500 mt-1">
+          <div className="flex items-center text-xs text-gray-500 dark:text-zinc-400 mt-1">
             <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
             {candidate.verificationLevel.replace('_', ' ')}
           </div>
@@ -43,12 +36,12 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
       <div className="mt-3 flex flex-wrap gap-1.5">
         {candidate.skills && candidate.skills.length > 0 ? (
           candidate.skills.slice(0, 3).map((skillInfo) => (
-            <span key={skillInfo.skill.id} className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+            <span key={skillInfo.skill.id} className="rounded-full bg-green-50 dark:bg-green-950/60 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-300">
               {skillInfo.skill.name}
             </span>
           ))
         ) : (
-          <p className="text-xs text-gray-400 italic">No skills listed</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 italic">No skills listed</p>
         )}
       </div>
     </div>
@@ -84,22 +77,22 @@ const PipelineColumn = ({ title, status, applications }: { title: string; status
   return (
     <div
       ref={setNodeRef}
-      className="rounded-2xl bg-gray-100 shadow-md ring-1 ring-gray-100 w-full flex flex-col min-h-[500px] overflow-hidden"
+      className="rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col min-h-[500px] overflow-hidden"
     >
-      <div className="p-5 border-b border-gray-200 flex-shrink-0">
-        <h2 className="text-lg font-semibold text-gray-900">
+      <div className="p-5 border-b border-gray-200 dark:border-zinc-800 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
           {title} ({applications.length})
         </h2>
       </div>
       <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
-        <div className="bg-gray-100 p-4 space-y-3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+        <div className="bg-gray-100 dark:bg-zinc-800 p-4 space-y-3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           {applications.length > 0 ? (
             applications.map((app) => (
               <ApplicantCard key={app.id} application={app} />
             ))
           ) : (
-            <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200">
-              <p className="text-sm text-gray-500">Drop applicants here</p>
+            <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200 dark:border-zinc-800">
+              <p className="text-sm text-gray-500 dark:text-zinc-400">Drop applicants here</p>
             </div>
           )}
         </div>
@@ -203,22 +196,22 @@ const JobPipelinePage = () => {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary-600" /></div>;
+    return <div className="flex items-center justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" /></div>;
   }
   if (error || !job) {
-    return <div className="text-center text-red-600 p-10 bg-red-50 rounded-lg">Error loading job pipeline. Please try again later.</div>;
+    return <div className="text-center text-red-600 dark:text-red-400 p-10 bg-red-50 dark:bg-red-950/60 rounded-lg">Error loading job pipeline. Please try again later.</div>;
   }
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             {job.title}
           </h1>
-          <p className="mt-2 text-gray-600">Drag and drop to manage your applicant pipeline.</p>
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">Drag and drop to manage your applicant pipeline.</p>
         </div>
-        <Link to="/dashboard/agency/profile" className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors">
+        <Link to="/dashboard/agency/profile" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
             <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to All Jobs
         </Link>
@@ -228,7 +221,7 @@ const JobPipelinePage = () => {
         <SimpleDropdown
           isIndustryDropdown={false}
           trigger={
-            <button className="flex items-center gap-2 rounded-2xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+            <button className="flex items-center gap-2 rounded-2xl border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-medium text-gray-700 dark:text-zinc-200 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 hover:bg-gray-50 dark:hover:bg-zinc-800">
               <Filter className="h-4 w-4" />
               <span>Filter</span>
             </button>
@@ -284,3 +277,4 @@ const JobPipelinePage = () => {
 };
 
 export default JobPipelinePage;
+

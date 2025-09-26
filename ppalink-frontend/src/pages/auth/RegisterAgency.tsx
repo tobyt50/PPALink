@@ -57,7 +57,7 @@ const RegisterAgency = () => {
   const y = useTransform(scrollY, [0, 300], [0, 100]);
 
   return (
-    <div className="w-full min-h-screen relative overflow-hidden text-white">
+    <div className="w-full min-h-screen relative overflow-hidden text-white dark:text-zinc-100">
       {/* Background image */}
       <motion.div
         style={{
@@ -69,7 +69,7 @@ const RegisterAgency = () => {
         className="absolute inset-0"
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
 
       {/* Form wrapper with top padding */}
       <div className="relative flex flex-col items-center justify-start pt-12 pb-12 px-4 sm:px-6 lg:px-8 min-h-screen">
@@ -79,19 +79,19 @@ const RegisterAgency = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="rounded-xl border border-gray-200 bg-white/90 p-6 shadow-lg md:p-10">
+          <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 dark:bg-black/80 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
             <div className="text-center">
-              <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400 sm:text-3xl">
                 Register Your Agency
               </h1>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
                 Find and hire the best NYSC candidates.
               </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
               {errors.root && (
-                <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+                <div className="rounded-md border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/60 p-3 text-center text-sm text-red-700 dark:text-red-400">
                   {errors.root.message}
                 </div>
               )}
@@ -104,9 +104,9 @@ const RegisterAgency = () => {
                   error={!!errors.agencyName}
                   {...register('agencyName')}
                   disabled={isSubmitting}
-                  className="text-gray-900 placeholder-gray-400 bg-white"
+                  className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
                 />
-                {errors.agencyName && <p className="text-xs text-red-600">{errors.agencyName.message}</p>}
+                {errors.agencyName && <p className="text-xs text-red-600 dark:text-red-400">{errors.agencyName.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -118,9 +118,9 @@ const RegisterAgency = () => {
                   error={!!errors.email}
                   {...register('email')}
                   disabled={isSubmitting}
-                  className="text-gray-900 placeholder-gray-400 bg-white"
+                  className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
                 />
-                {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+                {errors.email && <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -132,9 +132,9 @@ const RegisterAgency = () => {
                   error={!!errors.password}
                   {...register('password')}
                   disabled={isSubmitting}
-                  className="text-gray-900 placeholder-gray-400 bg-white"
+                  className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
                 />
-                {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+                {errors.password && <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -146,10 +146,10 @@ const RegisterAgency = () => {
                   error={!!errors.confirmPassword}
                   {...register('confirmPassword')}
                   disabled={isSubmitting}
-                  className="text-gray-900 placeholder-gray-400 bg-white"
+                  className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-xs text-red-600">{errors.confirmPassword.message}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
@@ -158,9 +158,9 @@ const RegisterAgency = () => {
               </Button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-gray-600">
+            <p className="mt-8 text-center text-sm text-gray-600 dark:text-zinc-300">
               Already registered?{' '}
-              <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-500">
+              <Link to="/login" className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-500">
                 Sign In
               </Link>
             </p>
@@ -172,3 +172,4 @@ const RegisterAgency = () => {
 };
 
 export default RegisterAgency;
+

@@ -69,25 +69,25 @@ const SettingsPage = () => {
     });
   };
 
-  if (isLoading) { return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary-600" /></div>; }
+  if (isLoading) { return <div className="flex justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>; }
 
   return (
     <div className="mx-auto max-w-5xl space-y-5">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Platform Settings
         </h1>
-        <p className="mt-2 text-gray-600">Manage global settings and experimental features.</p>
+        <p className="mt-2 text-gray-600 dark:text-zinc-300">Manage global settings and experimental features.</p>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-        <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">Feature Flags</h2></div>
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+        <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Feature Flags</h2></div>
         <ul className="divide-y divide-gray-100">
           {flags?.map((flag) => (
             <li key={flag.name} className="px-6 py-4 flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-800">{flag.name}</p>
-                <p className="text-sm text-gray-500">{flag.description}</p>
+                <p className="font-medium text-gray-800 dark:text-zinc-100">{flag.name}</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-400">{flag.description}</p>
               </div>
               <ToggleSwitch
                 enabled={flag.isEnabled}
@@ -100,8 +100,8 @@ const SettingsPage = () => {
       </div>
       
       <form onSubmit={handleSubmit(onSaveSettings)}>
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
-          <div className="p-5 border-b border-gray-100"><h2 className="text-lg font-semibold text-gray-900">General Settings</h2></div>
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+          <div className="p-5 border-b border-gray-100 dark:border-zinc-800"><h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">General Settings</h2></div>
           <div className="divide-y divide-gray-100">
             <Controller
               name="maintenanceMode"
@@ -109,8 +109,8 @@ const SettingsPage = () => {
               render={({ field }) => (
                 <div className="px-6 py-4 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-800">Maintenance Mode</p>
-                    <p className="text-sm text-gray-500">Temporarily disable public access to the site.</p>
+                    <p className="font-medium text-gray-800 dark:text-zinc-100">Maintenance Mode</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Temporarily disable public access to the site.</p>
                   </div>
                   <ToggleSwitch enabled={field.value} onChange={field.onChange} srLabel="Toggle Maintenance Mode" />
                 </div>
@@ -120,16 +120,16 @@ const SettingsPage = () => {
               <div className="space-y-1.5">
                 <Label htmlFor="freeJobPostLimit">Free Plan Job Limit</Label>
                 <Input id="freeJobPostLimit" type="number" {...register('freeJobPostLimit', { valueAsNumber: true, min: -1 })} />
-                <p className="text-xs text-gray-500">Set to -1 for unlimited posts.</p>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Set to -1 for unlimited posts.</p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="freeMemberLimit">Free Plan Member Limit</Label>
                 <Input id="freeMemberLimit" type="number" {...register('freeMemberLimit', { valueAsNumber: true, min: -1 })} />
-                 <p className="text-xs text-gray-500">Set to -1 for unlimited members.</p>
+                 <p className="text-xs text-gray-500 dark:text-zinc-400">Set to -1 for unlimited members.</p>
               </div>
             </div>
           </div>
-          <div className="p-5 bg-gray-50/70 border-t border-gray-100 flex justify-end">
+          <div className="p-5 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-zinc-800 flex justify-end">
             <Button type="submit" isLoading={isSubmitting} disabled={!isDirty}>
                 <Save className="mr-2 h-4 w-4"/>
                 Save Changes
@@ -142,3 +142,4 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
+

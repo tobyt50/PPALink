@@ -41,7 +41,7 @@ const ForgotPasswordPage = () => {
   const y = useTransform(scrollY, [0, 300], [0, 100]);
 
   return (
-    <div className="w-full min-h-screen relative overflow-hidden text-white">
+    <div className="w-full min-h-screen relative overflow-hidden text-white dark:text-zinc-100">
       {/* Background image */}
       <motion.div
         style={{
@@ -53,7 +53,7 @@ const ForgotPasswordPage = () => {
         className="absolute inset-0"
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
 
       {/* Form wrapper */}
       <div className="relative flex flex-col items-center justify-start pt-12 pb-12 px-4 sm:px-6 lg:px-8 min-h-screen">
@@ -63,24 +63,24 @@ const ForgotPasswordPage = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="rounded-xl border border-gray-200 bg-white/90 p-6 shadow-lg md:p-10">
+          <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 dark:bg-black/80 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
             {isSubmitted ? (
               <div className="text-center">
-                <Mail className="mx-auto h-12 w-12 text-primary-600" />
-                <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+                <Mail className="mx-auto h-12 w-12 text-primary-600 dark:text-primary-400" />
+                <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-zinc-50">
                   Check your email
                 </h1>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
                   If an account with that email exists, we've sent a link to reset your password.
                 </p>
               </div>
             ) : (
               <>
                 <div className="text-center">
-                  <h1 className="text-2xl font-bold tracking-tight text-primary-600 sm:text-3xl">
+                  <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400 sm:text-3xl">
                     Forgot Password?
                   </h1>
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
                     No problem. Enter your email address and we'll send you a link to reset it.
                   </p>
                 </div>
@@ -93,10 +93,10 @@ const ForgotPasswordPage = () => {
                       error={!!errors.email}
                       {...register('email')}
                       disabled={isSubmitting}
-                      className="text-gray-900 placeholder-gray-400 bg-white"
+                      className="text-gray-900 dark:text-zinc-50 placeholder-gray-400 bg-white dark:bg-zinc-900"
                     />
                     {errors.email && (
-                      <p className="text-xs text-red-600">{errors.email.message}</p>
+                      <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
                     )}
                   </div>
                   <Button type="submit" className="w-full" isLoading={isSubmitting} size="lg">
@@ -113,3 +113,4 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
+

@@ -39,15 +39,15 @@ const JobPostsPage = () => {
       {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Job Postings
           </h1>
-          <p className="mt-0.5 text-gray-600">Create and manage your open positions.</p>
+          <p className="mt-0.5 text-gray-600 dark:text-zinc-300">Create and manage your open positions.</p>
         </div>
 
         {/* Conditionally render the "Create Job" button or an "Upgrade" message */}
         {isLoadingAgency ? (
-          <div className="h-10 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+          <div className="h-10 w-32 bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse"></div>
         ) : canPostNewJob ? (
           <Link to="/dashboard/agency/jobs/create">
             <Button>
@@ -60,7 +60,7 @@ const JobPostsPage = () => {
             <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
             <Link
               to="/dashboard/agency/billing"
-              className="text-xs text-primary-600 hover:underline"
+              className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
             >
               Upgrade to post more jobs
             </Link>
@@ -75,7 +75,7 @@ const JobPostsPage = () => {
             Could not load job postings.
           </div>
         ) : (
-          <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 overflow-hidden">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             {isLoading ? (
               <ul>
                 <JobCardSkeleton />
@@ -88,18 +88,18 @@ const JobPostsPage = () => {
                   <li
                     key={job.id}
                     className={`${
-                      index < jobs.length - 1 ? "border-b border-gray-100" : ""
+                      index < jobs.length - 1 ? "border-b border-gray-100 dark:border-zinc-800" : ""
                     }`}
                   >
-                    <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 transition-all">
+                    <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all">
   <Link
     to={`/dashboard/agency/${agencyId}/jobs/${job.id}`}
     className="flex-grow min-w-0"
   >
-    <p className="font-semibold text-gray-800 hover:underline truncate">
+    <p className="font-semibold text-gray-800 dark:text-zinc-100 hover:underline truncate">
       {job.title}
     </p>
-    <div className="flex flex-wrap items-center space-x-2 text-sm text-gray-500 mt-1">
+    <div className="flex flex-wrap items-center space-x-2 text-sm text-gray-500 dark:text-zinc-400 mt-1">
       <span>{job.employmentType.replace("_", " ")}</span>
       <span>&bull;</span>
       <span>{job.isRemote ? "Remote" : "On-site"}</span>
@@ -109,8 +109,8 @@ const JobPostsPage = () => {
     <span
       className={`px-2 py-1 text-xs font-semibold rounded-full ${
         job.status === "OPEN"
-          ? "bg-green-100 text-green-800"
-          : "bg-gray-100 text-gray-800"
+          ? "bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200"
+          : "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100"
       }`}
     >
       {job.status}
@@ -146,3 +146,5 @@ const JobPostsPage = () => {
 };
 
 export default JobPostsPage;
+
+

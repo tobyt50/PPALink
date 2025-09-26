@@ -164,17 +164,17 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
         <div className="space-y-2">
           <Label htmlFor="title">Job Title</Label>
           <Input id="title" placeholder="e.g., Software Engineer" {...register('title')} />
-          {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
+          {errors.title && <p className="text-xs text-red-600 dark:text-red-400">{errors.title.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="description">Job Description</Label>
           <textarea
             id="description"
             rows={8}
-            className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm"
+            className="flex w-full rounded-md border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10"
             {...register('description')}
           />
-          {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
+          {errors.description && <p className="text-xs text-red-600 dark:text-red-400">{errors.description.message}</p>}
         </div>
       </section>
 
@@ -208,7 +208,7 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
           <div className="space-y-2">
             <Label htmlFor="maxSalary">Maximum Salary (₦)</Label>
             <Input id="maxSalary" type="number" {...register('maxSalary', { valueAsNumber: true })} />
-            {errors.maxSalary && <p className="text-xs text-red-600">{errors.maxSalary.message}</p>}
+            {errors.maxSalary && <p className="text-xs text-red-600 dark:text-red-400">{errors.maxSalary.message}</p>}
           </div>
           <div className="space-y-2">
             <Label>Position Status</Label>
@@ -278,13 +278,13 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
     {skills?.map((skill, index) => (
       <div
         key={index}
-        className="flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-sm font-medium text-primary-800"
+        className="flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/50 px-3 py-1 text-sm font-medium text-primary-800"
       >
         <span>{skill}</span>
         <button
           type="button"
           onClick={() => removeSkill(index)}
-          className="text-primary-600 hover:text-primary-800"
+          className="text-primary-600 dark:text-primary-400 hover:text-primary-800"
         >
           <XCircle size={16} />
         </button>
@@ -293,7 +293,7 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
   </div>
 
   {errors.skills && (
-    <p className="text-xs text-red-600">
+    <p className="text-xs text-red-600 dark:text-red-400">
       {errors.skills.message || (errors.skills as any)?.root?.message}
     </p>
   )}
@@ -309,3 +309,4 @@ const JobForm = ({ initialData, onSubmit, submitButtonText = 'Create Job' }: Job
 };
 
 export default JobForm;
+

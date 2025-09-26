@@ -35,7 +35,7 @@ const EditJobPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-10">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ const EditJobPage = () => {
   if (error || !job) {
     return (
       <div className="mx-auto max-w-5xl">
-        <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-8 text-center">
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-8 text-center">
           <p className="text-sm text-red-500 font-medium">
             Failed to load job data for editing.
           </p>
@@ -57,16 +57,16 @@ const EditJobPage = () => {
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Edit Job Posting
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 dark:text-zinc-300">
           Make changes to your open position details.
         </p>
       </div>
 
       {/* Form Card */}
-      <div className="rounded-2xl bg-white shadow-md ring-1 ring-gray-100 p-6">
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
         <JobForm
           initialData={job}
           onSubmit={handleUpdateJob}
@@ -78,3 +78,5 @@ const EditJobPage = () => {
 };
 
 export default EditJobPage;
+
+

@@ -16,20 +16,20 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
   const initials = `${candidate.firstName?.[0] || ""}${candidate.lastName?.[0] || ""}`;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md ring-1 ring-gray-100 p-5 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 hover:to-green-50 flex flex-col h-full">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 flex flex-col h-full">
       {/* Header */}
       <div className="flex items-start">
         {/* Avatar */}
-        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-600 to-green-500 flex items-center justify-center text-white font-bold">
+        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 flex items-center justify-center text-white dark:text-zinc-100 font-bold">
           {initials}
         </div>
 
         {/* Name & Summary */}
         <div className="ml-4 flex-grow">
-          <p className="font-bold text-base bg-gradient-to-r from-primary-600 to-green-500 bg-clip-text text-transparent">
+          <p className="font-bold text-base bg-gradient-to-r from-primary-600 dark:from-primary-400 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             {candidate.firstName} {candidate.lastName}
           </p>
-          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+          <p className="text-sm text-gray-600 dark:text-zinc-300 line-clamp-2 mt-1">
             {candidate.summary || "No summary provided."}
           </p>
         </div>
@@ -42,30 +42,30 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
             {candidate.skills.slice(0, SKILL_LIMIT).map((skillInfo) => (
               <span
                 key={skillInfo.skill.id}
-                className="rounded-full bg-gray-100 px-2 py-1 font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                className="rounded-full bg-gray-100 dark:bg-zinc-800 px-2 py-1 font-medium text-gray-700 dark:text-zinc-200 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
               >
                 {skillInfo.skill.name}
               </span>
             ))}
             {candidate.skills.length > SKILL_LIMIT && (
-              <span className="rounded-full bg-gray-100 px-2 py-1 font-medium text-gray-600">
+              <span className="rounded-full bg-gray-100 dark:bg-zinc-800 px-2 py-1 font-medium text-gray-600 dark:text-zinc-300">
                 + {candidate.skills.length - SKILL_LIMIT} more
               </span>
             )}
           </>
         ) : (
-          <p className="text-gray-400">No skills listed.</p>
+          <p className="text-gray-400 dark:text-zinc-500">No skills listed.</p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-100 pt-3 flex items-center justify-between text-sm text-gray-600 mt-4">
+      <div className="border-t border-gray-100 dark:border-zinc-800 pt-3 flex items-center justify-between text-sm text-gray-600 dark:text-zinc-300 mt-4">
         <div className="flex items-center">
           <BadgeCheck className="h-4 w-4 mr-1.5 text-green-500" />
           {candidate.verificationLevel.replace("_", " ")}
         </div>
         <div className="flex items-center">
-          <MapPin className="h-4 w-4 mr-1.5 text-gray-400" />
+          <MapPin className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
           {candidate.isRemote ? "Remote" : locationState || "On-site"}
         </div>
       </div>
@@ -74,3 +74,5 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
 };
 
 export default CandidateCard;
+
+

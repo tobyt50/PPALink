@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const PublicFooter = () => {
   return (
     // Replicated modern, subtle background and border
-    <footer className="bg-gray-50 border-t border-gray-100">
+    <footer className="bg-gray-50 dark:bg-gray-920 border-t border-gray-100 dark:border-zinc-800">
       <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:px-8">
         {/* Polished layout for logo, nav, and copyright */}
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
@@ -21,19 +21,19 @@ const PublicFooter = () => {
           
           {/* Navigation Links */}
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2" aria-label="Footer">
-            <Link to="/about" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">
+            <Link to="/about" className="text-sm font-medium text-gray-600 dark:text-zinc-300 transition-colors hover:text-primary-600 dark:hover:text-primary-400">
               About Us
             </Link>
-            <Link to="/terms" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">
+            <Link to="/terms" className="text-sm font-medium text-gray-600 dark:text-zinc-300 transition-colors hover:text-primary-600 dark:hover:text-primary-400">
               Terms of Service
             </Link>
-            <Link to="/privacy" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">
+            <Link to="/privacy" className="text-sm font-medium text-gray-600 dark:text-zinc-300 transition-colors hover:text-primary-600 dark:hover:text-primary-400">
               Privacy Policy
             </Link>
           </nav>
 
           {/* Copyright */}
-          <div className="text-center text-sm text-gray-500 md:text-right">
+          <div className="text-center text-sm text-gray-500 dark:text-zinc-400 md:text-right">
             <p>&copy; {new Date().getFullYear()} PPALink. All rights reserved.</p>
           </div>
         </div>
