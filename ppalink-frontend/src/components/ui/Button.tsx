@@ -22,7 +22,7 @@ const buttonVariants = cva(
         link:
           "text-primary-600 dark:text-primary-400 underline-offset-4 hover:underline focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500",
         outlineTransparent: 
-          "rounded-xl border border-white dark:border-black bg-transparent text-white dark:text-zinc-100 hover:bg-white hover:text-primary-600 dark:hover:text-primary-400 focus-visible:ring-white dark:focus-visible:ring-white/20"
+          "rounded-xl border border-white dark:border-primary-400 bg-transparent text-white dark:text-zinc-100 hover:bg-white hover:text-primary-600 dark:hover:text-primary-400 focus-visible:ring-white dark:focus-visible:ring-white/20"
 
       },
       size: {

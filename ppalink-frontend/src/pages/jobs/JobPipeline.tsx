@@ -1,17 +1,43 @@
-import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  closestCenter,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { BadgeCheck, ChevronLeft, Filter, Loader2 } from 'lucide-react';
+import {
+  BadgeCheck,
+  ChevronLeft,
+  Filter,
+  Loader2,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
-import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
+import {
+  SimpleDropdown,
+  SimpleDropdownItem,
+} from '../../components/ui/SimpleDropdown';
 import useFetch from '../../hooks/useFetch';
 import applicationService from '../../services/application.service';
-import type { Application, ApplicationStatus } from '../../types/application';
+import type {
+  Application,
+  ApplicationStatus,
+} from '../../types/application';
 import type { Position } from '../../types/job';
 
-// A purely presentational card, stripped of dnd-kit hooks, for the DragOverlay
+// ---------- STATIC CARD (used inside DragOverlay) ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -20,13 +46,10 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
         <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0" />
         <div className="ml-3 flex-1 min-w-0">
           <div className="relative group">
-  <p
-    className=" font-semibold text-sm text-gray-800 dark:text-zinc-100 truncate transition-all group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal group-hover:break-words"
-  >
-    {candidate.firstName} {candidate.lastName}
-  </p>
-</div>
-
+            <p className="font-semibold text-sm text-gray-800 dark:text-zinc-100 truncate transition-all group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal group-hover:break-words">
+              {candidate.firstName} {candidate.lastName}
+            </p>
+          </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-zinc-400 mt-1">
             <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
             {candidate.verificationLevel.replace('_', ' ')}
@@ -36,21 +59,33 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
       <div className="mt-3 flex flex-wrap gap-1.5">
         {candidate.skills && candidate.skills.length > 0 ? (
           candidate.skills.slice(0, 3).map((skillInfo) => (
-            <span key={skillInfo.skill.id} className="rounded-full bg-green-50 dark:bg-green-950/60 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-300">
+            <span
+              key={skillInfo.skill.id}
+              className="rounded-full bg-green-50 dark:bg-green-950/60 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-300"
+            >
               {skillInfo.skill.name}
             </span>
           ))
         ) : (
-          <p className="text-xs text-gray-400 dark:text-zinc-500 italic">No skills listed</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 italic">
+            No skills listed
+          </p>
         )}
       </div>
     </div>
   );
 };
 
-// The sortable card which will now be hidden during drag
+// ---------- SORTABLE CARD (hidden while dragging) ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: application.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: application.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -60,8 +95,13 @@ const ApplicantCard = ({ application }: { application: Application }) => {
   };
 
   return (
-    // Added 'relative group' to establish positioning context and hover target for the tooltip
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none relative group">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="touch-none relative group"
+    >
       <Link to={`/dashboard/agency/applications/${application.id}`}>
         <StaticApplicantCard application={application} />
       </Link>
@@ -69,15 +109,31 @@ const ApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// Replicated the polished styling for the Pipeline Column
-const PipelineColumn = ({ title, status, applications }: { title: string; status: ApplicationStatus; applications: Application[] }) => {
-  const applicationIds = useMemo(() => applications.map(app => app.id), [applications]);
-  const { setNodeRef } = useSortable({ id: status });
+// ---------- PIPELINE COLUMN (pop-out when hovered) ----------
+const PipelineColumn = ({
+  title,
+  status,
+  applications,
+}: {
+  title: string;
+  status: ApplicationStatus;
+  applications: Application[];
+}) => {
+  const applicationIds = useMemo(
+    () => applications.map((app) => app.id),
+    [applications]
+  );
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
     <div
       ref={setNodeRef}
-      className="rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col min-h-[500px] overflow-hidden"
+      className={`
+        rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
+        dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
+        min-h-[500px] overflow-hidden transition-all duration-200
+        ${isOver ? 'scale-[1.03] ring-2 ring-primary-500 z-10' : ''}
+      `}
     >
       <div className="p-5 border-b border-gray-200 dark:border-zinc-800 flex-shrink-0">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -92,7 +148,9 @@ const PipelineColumn = ({ title, status, applications }: { title: string; status
             ))
           ) : (
             <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200 dark:border-zinc-800">
-              <p className="text-sm text-gray-500 dark:text-zinc-400">Drop applicants here</p>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
+                Drop applicants here
+              </p>
             </div>
           )}
         </div>
@@ -101,11 +159,13 @@ const PipelineColumn = ({ title, status, applications }: { title: string; status
   );
 };
 
-// Main page component with updated layout and styling
+// ---------- MAIN PAGE ----------
 const JobPipelinePage = () => {
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
   const { data: job, isLoading, error } = useFetch<Position>(
-    agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}/pipeline` : null
+    agencyId && jobId
+      ? `/agencies/${agencyId}/jobs/${jobId}/pipeline`
+      : null
   );
 
   const [applications, setApplications] = useState<Application[]>([]);
@@ -113,17 +173,16 @@ const JobPipelinePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
+  // ---- Sensors ----
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
   });
-
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 250,
+      delay: 300, // long-press to drag on touch devices
       tolerance: 5,
     },
   });
-
   const sensors = useSensors(pointerSensor, touchSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -136,31 +195,35 @@ const JobPipelinePage = () => {
 
   const categorizedApps = useMemo(() => {
     const initialCategories: Record<ApplicationStatus, Application[]> = {
-      APPLIED: [], REVIEWING: [], INTERVIEW: [], OFFER: [], REJECTED: [], WITHDRAWN: [],
+      APPLIED: [],
+      REVIEWING: [],
+      INTERVIEW: [],
+      OFFER: [],
+      REJECTED: [],
+      WITHDRAWN: [],
     };
     return applications.reduce((acc, app) => {
-      if (acc[app.status]) {
-        acc[app.status].push(app);
-      }
+      if (acc[app.status]) acc[app.status].push(app);
       return acc;
     }, initialCategories);
   }, [applications]);
 
-  const allApplicationIds = useMemo(() => applications.map(app => app.id), [applications]);
+  const allApplicationIds = useMemo(
+    () => applications.map((app) => app.id),
+    [applications]
+  );
 
   useEffect(() => {
     if (job?.applications) {
       setApplications(job.applications);
     }
   }, [job]);
-  
+
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const { active } = event;
-    const app = applications.find(app => app.id === active.id);
-    if (app) {
-      setActiveApplication(app);
-    }
+    const app = applications.find((app) => app.id === active.id);
+    if (app) setActiveApplication(app);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -174,32 +237,43 @@ const JobPipelinePage = () => {
 
       if (sourceContainerId !== destinationContainerId) {
         const newStatus = destinationContainerId as ApplicationStatus;
-        setApplications((prevApps) => 
-          prevApps.map(app => 
+        setApplications((prev) =>
+          prev.map((app) =>
             app.id === applicationId ? { ...app, status: newStatus } : app
           )
         );
-        
+
         toast.promise(
-            applicationService.updateApplicationStatus(applicationId, newStatus),
-            {
-                loading: 'Updating status...',
-                success: 'Status updated successfully!',
-                error: (err) => {
-                    setApplications(job?.applications || []);
-                    return err.response?.data?.message || "Failed to update status.";
-                }
-            }
+          applicationService.updateApplicationStatus(applicationId, newStatus),
+          {
+            loading: 'Updating status...',
+            success: 'Status updated successfully!',
+            error: (err) => {
+              setApplications(job?.applications || []);
+              return (
+                err.response?.data?.message || 'Failed to update status.'
+              );
+            },
+          }
         );
       }
     }
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" /></div>;
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" />
+      </div>
+    );
   }
+
   if (error || !job) {
-    return <div className="text-center text-red-600 dark:text-red-400 p-10 bg-red-50 dark:bg-red-950/60 rounded-lg">Error loading job pipeline. Please try again later.</div>;
+    return (
+      <div className="text-center text-red-600 dark:text-red-400 p-10 bg-red-50 dark:bg-red-950/60 rounded-lg">
+        Error loading job pipeline. Please try again later.
+      </div>
+    );
   }
 
   return (
@@ -209,10 +283,15 @@ const JobPipelinePage = () => {
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             {job.title}
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">Drag and drop to manage your applicant pipeline.</p>
+          <p className="mt-2 text-gray-600 dark:text-zinc-300">
+            Drag and drop to manage your applicant pipeline.
+          </p>
         </div>
-        <Link to="/dashboard/agency/profile" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-            <ChevronLeft className="h-4 w-4 mr-1.5" />
+        <Link
+          to="/dashboard/agency/profile"
+          className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1.5" />
           Back to All Jobs
         </Link>
       </div>
@@ -228,19 +307,31 @@ const JobPipelinePage = () => {
           }
         >
           <SimpleDropdownItem onSelect={() => setActiveFilter(null)}>
-            {activeFilter === null && <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />}
+            {activeFilter === null && (
+              <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />
+            )}
             Show All
           </SimpleDropdownItem>
-          {pipelineColumns.map(col => (
-            <SimpleDropdownItem key={col.status} onSelect={() => setActiveFilter(col.status)}>
-              {activeFilter === col.status && <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />}
+          {pipelineColumns.map((col) => (
+            <SimpleDropdownItem
+              key={col.status}
+              onSelect={() => setActiveFilter(col.status)}
+            >
+              {activeFilter === col.status && (
+                <BadgeCheck className="h-4 w-4 mr-2 text-blue-500" />
+              )}
               {col.title}
             </SimpleDropdownItem>
           ))}
         </SimpleDropdown>
       </div>
-    
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCenter} // ensures accurate column detection
+      >
         <SortableContext items={allApplicationIds}>
           <div
             className={
@@ -250,7 +341,7 @@ const JobPipelinePage = () => {
                 : 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5')
             }
           >
-            {pipelineColumns.map(col => {
+            {pipelineColumns.map((col) => {
               const isVisible = !activeFilter || activeFilter === col.status;
               return (
                 <div
@@ -268,8 +359,11 @@ const JobPipelinePage = () => {
             })}
           </div>
         </SortableContext>
-        <DragOverlay>
-            {activeApplication ? <StaticApplicantCard application={activeApplication} /> : null}
+
+        <DragOverlay adjustScale={false} dropAnimation={null}>
+          {activeApplication ? (
+            <StaticApplicantCard application={activeApplication} />
+          ) : null}
         </DragOverlay>
       </DndContext>
     </div>
@@ -277,4 +371,3 @@ const JobPipelinePage = () => {
 };
 
 export default JobPipelinePage;
-
