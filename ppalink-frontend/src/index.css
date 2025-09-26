@@ -7,9 +7,10 @@
 @import "tailwindcss";
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-/* 3. Define custom theme variables */
+/* 3. Define custom theme variables (Light Mode Defaults) */
 
 @theme {
+    /* Primary Color Palette (Green) */
     --color-primary-50: #f0fdf4;
     --color-primary-100: #dcfce7;
     --color-primary-200: #bbf7d0;
@@ -21,16 +22,27 @@
     --color-primary-800: #166534;
     --color-primary-900: #14532d;
     --color-primary-950: #052e16;
-    --color-gray-50: #f8fafc;
-    --color-gray-100: #f1f5f9;
-    --color-gray-200: #e2e8f0;
-    --color-gray-300: #cbd5e1;
-    --color-gray-400: #94a3b8;
-    --color-gray-500: #64748b;
-    --color-gray-600: #475569;
-    --color-gray-700: #334155;
-    --color-gray-800: #1e293b;
-    --color-gray-900: #0f172a;
+    /* Neutral Gray Palette (Vercel-inspired) */
+    --color-gray-50: #fafafa;
+    /* Surfaces */
+    --color-gray-100: #f4f4f5;
+    /* Subtle BG */
+    --color-gray-200: #e4e4e7;
+    /* Borders */
+    --color-gray-300: #d4d4d8;
+    /* Subtle Borders */
+    --color-gray-400: #a1a1aa;
+    /* Muted Text */
+    --color-gray-500: #71717a;
+    /* Secondary Text */
+    --color-gray-600: #52525b;
+    --color-gray-700: #3f3f46;
+    --color-gray-800: #27272a;
+    /* Primary Text */
+    --color-gray-900: #18181b;
+    --color-gray-920: #101012;
+    --color-gray-950: #09090b;
+    /* Almost Black */
     --font-sans: "Inter", system-ui, sans-serif;
 }
 
@@ -38,22 +50,45 @@
 /* 4. Base layer */
 
 @layer base {
+    /* Base styles now use CSS variables, making them theme-aware */
     body {
-        background-color: #f8fafc;
-        /* Tailwind bg-gray-50 dark:bg-gray-950 */
-        color: #1f2937;
-        /* Tailwind text-gray-800 dark:text-gray-200 */
+        background-color: #ffffff;
+        color: var(--color-gray-800);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: var(--font-sans);
-        /* Use the custom font family variable */
+    }
+    /* Override variables when the dark theme is active */
+    [data-theme="dark"] {
+        /* Primary Colors (Brighter for Dark Mode) */
+        --color-primary-400: #4ade80;
+        --color-primary-500: #22c55e;
+        --color-primary-600: #16a34a;
+        /* Neutral Grays (Vercel Dark Theme) */
+        --color-gray-50: #000000;
+        /* Page Background */
+        --color-gray-100: #111111;
+        /* Card Background */
+        --color-gray-200: #222222;
+        /* Subtle Borders */
+        --color-gray-300: #333333;
+        /* Borders */
+        --color-gray-400: #888888;
+        /* Muted Text */
+        --color-gray-500: #aaaaaa;
+        /* Secondary Text */
+        --color-gray-800: #fafafa;
+        /* Primary Text */
+        --color-gray-900: #ffffff;
+        /* Pure White */
+        --color-gray-920: #141418;
+        --color-gray-950: #111111;
+        /* Card/Surface Background */
     }
     [data-theme="dark"] body {
-        background-color: var(--color-gray-900);
-        /* you already define --color-gray-900 */
-        color: var(--color-gray-100);
+        background-color: var(--color-gray-50);
+        color: var(--color-gray-800);
     }
-    /* Ensure all links and buttons have pointer cursor */
     a,
     button {
         @apply cursor-pointer;
@@ -64,18 +99,15 @@
 /* 5. Utilities */
 
 @layer utilities {
-    /* small helper so we can swap card backgrounds in one pass later */
-    .bg-surface {
-        background-color: #ffffff;
-    }
-    [data-theme="dark"] .bg-surface {
-        background-color: #0b1220;
-    }
     .main-background {
-        background-color: #f8fafc;
+        background-color: #ffffff;
         background-image: radial-gradient(at 20% 10%, #f0fdf4 0px, transparent 50%), radial-gradient(at 80% 90%, #f1f5f9 0px, transparent 50%);
     }
-    /* Custom scrollbar styling for Webkit browsers (Chrome, Safari) */
+    [data-theme="dark"] .main-background {
+        background-color: #000000;
+        background-image: radial-gradient(at 20% 10%, var(--color-primary-950) 0px, transparent 50%), radial-gradient(at 80% 90%, #111111 0px, transparent 50%);
+    }
+    /* Vercel-inspired scrollbar */
     .scrollbar-thin::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -84,19 +116,29 @@
         background: transparent;
     }
     .scrollbar-thin::-webkit-scrollbar-thumb {
-        background-color: #cbd5e1;
-        /* gray-300 */
+        background-color: var(--color-gray-300);
         border-radius: 9999px;
-        border: 2px solid transparent;
-        background-clip: content-box;
+    }
+    [data-theme="dark"] .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: var(--color-gray-700);
     }
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background-color: #94a3b8;
-        /* gray-400 */
+        background-color: var(--color-gray-400);
     }
-    /* Custom scrollbar styling for Firefox */
+    [data-theme="dark"] .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-gray-600);
+    }
     .scrollbar-thin {
         scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 transparent;
+        scrollbar-color: var(--color-gray-300) transparent;
+    }
+    [data-theme="dark"] .scrollbar-thin {
+        scrollbar-color: var(--color-gray-700) transparent;
+    }
+    .bg-zinc-920 {
+        background-color: var(--color-gray-920);
+    }
+    [data-theme="dark"] .bg-zinc-920 {
+        background-color: var(--color-gray-920);
     }
 }
