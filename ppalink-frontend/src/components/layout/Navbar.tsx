@@ -78,33 +78,36 @@ const Navbar = () => {
             }
           >
             <div className="p-2 text-sm border-b border-gray-100 dark:border-zinc-800">
-              <p className="font-semibold text-gray-800 dark:text-zinc-100 dark:text-gray-200">Signed in as</p>
+              <p className="font-semibold text-gray-800 dark:text-zinc-100 ">Signed in as</p>
               <p className="text-gray-500 dark:text-gray-500 truncate">{user?.email}</p>
             </div>
             {/* Polished dropdown items with gradient hover */}
             <div className="p-1">
-              {user?.role === 'AGENCY' && (
-                <>
-                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/profile')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 dark:from-primary-950 hover:to-green-50 dark:hover:to-green-950/60 dark:to-green-950">
-                    <Building className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-primary-400">Company Profile</span>
-                  </SimpleDropdownItem>
-                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/team')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 dark:from-primary-950 hover:to-green-50 dark:hover:to-green-950/60 dark:to-green-950">
-                    <Users className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-primary-400">Manage Team</span>
-                  </SimpleDropdownItem>
-                  <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/billing')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 dark:from-primary-950 hover:to-green-50 dark:hover:to-green-950/60 dark:to-green-950">
-                    <CreditCard className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-primary-400">Billing</span>
-                  </SimpleDropdownItem>
-                </>
-              )}
-              {user?.role === 'CANDIDATE' && (
-                <SimpleDropdownItem onSelect={() => navigate('/dashboard/candidate/profile')} className="group rounded-xl transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 dark:from-primary-950 hover:to-green-50 dark:hover:to-green-950/60 dark:to-green-950">
-                  <User className="mr-2 h-4 w-4" /> <span className="group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-primary-400">My Profile</span>
-                </SimpleDropdownItem>
-              )}
-              <SimpleDropdownItem onSelect={handleLogout} className="group rounded-xl transition-all hover:bg-red-50 dark:hover:bg-red-950/60 dark:bg-red-950 text-red-600 dark:text-red-400">
-                <LogOut className="mr-2 h-4 w-4" /> Logout
-              </SimpleDropdownItem>
-            </div>
+  {user?.role === 'AGENCY' && (
+    <>
+      <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/profile')}>
+        <Building className="mr-2 h-4 w-4" /> Company Profile
+      </SimpleDropdownItem>
+      <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/team')}>
+        <Users className="mr-2 h-4 w-4" /> Manage Team
+      </SimpleDropdownItem>
+      <SimpleDropdownItem onSelect={() => navigate('/dashboard/agency/billing')}>
+        <CreditCard className="mr-2 h-4 w-4" /> Billing
+      </SimpleDropdownItem>
+    </>
+  )}
+
+  {user?.role === 'CANDIDATE' && (
+    <SimpleDropdownItem onSelect={() => navigate('/dashboard/candidate/profile')}>
+      <User className="mr-2 h-4 w-4" /> My Profile
+    </SimpleDropdownItem>
+  )}
+
+  <SimpleDropdownItem onSelect={handleLogout} className="!text-red-600 dark:!text-red-400 hover:!text-red-700 dark:hover:!text-red-300">
+    <LogOut className="mr-2 h-4 w-4" /> Logout
+  </SimpleDropdownItem>
+</div>
+
           </SimpleDropdown>
         </div>
       </div>
