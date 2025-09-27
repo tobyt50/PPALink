@@ -37,7 +37,7 @@ import type {
 } from '../../types/application';
 import type { Position } from '../../types/job';
 
-/* ---------- STATIC CARD (for DragOverlay) ---------- */
+// ---------- STATIC CARD (used inside DragOverlay) ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -76,7 +76,7 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-/* ---------- SORTABLE CARD (remains in normal flow) ---------- */
+// ---------- SORTABLE CARD (hidden while dragging) ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
   const {
     attributes,
@@ -100,8 +100,7 @@ const ApplicantCard = ({ application }: { application: Application }) => {
       style={style}
       {...attributes}
       {...listeners}
-      /* ✅ keep relative positioning so the card scrolls naturally */
-      className="touch-none relative group"
+      className="relative group"
     >
       <Link to={`/dashboard/agency/applications/${application.id}`}>
         <StaticApplicantCard application={application} />
@@ -110,7 +109,7 @@ const ApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-/* ---------- PIPELINE COLUMN (scrollable container) ---------- */
+// ---------- PIPELINE COLUMN (pop-out when hovered) ----------
 const PipelineColumn = ({
   title,
   status,
@@ -132,7 +131,7 @@ const PipelineColumn = ({
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
-        min-h-[500px] overflow-hidden transition-all duration-200
+        min-h-[600px] overflow-hidden transition-all duration-200
         ${isOver ? 'scale-[1.03] ring-2 ring-primary-500 z-10' : ''}
       `}
     >
@@ -141,7 +140,6 @@ const PipelineColumn = ({
           {title} ({applications.length})
         </h2>
       </div>
-      {/* ✅ This inner div scrolls vertically */}
       <SortableContext items={applicationIds} strategy={verticalListSortingStrategy}>
         <div className="bg-gray-100 dark:bg-zinc-800 p-4 space-y-3 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           {applications.length > 0 ? (
@@ -161,7 +159,7 @@ const PipelineColumn = ({
   );
 };
 
-/* ---------- MAIN PAGE ---------- */
+// ---------- MAIN PAGE ----------
 const JobPipelinePage = () => {
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
   const { data: job, isLoading, error } = useFetch<Position>(
@@ -175,22 +173,23 @@ const JobPipelinePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
-  /* ---- Sensors ---- */
+  // ---- Sensors ----
   const isTouchDevice = () =>
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 300, // long-press to drag on touch
+      delay: 300, // long-press to drag on touch devices
       tolerance: 5,
     },
   });
 
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 }, // small move on desktop
+    activationConstraint: { distance: 8 }, // small move to start drag on desktop
   });
 
+  // Only TouchSensor on mobile, PointerSensor on desktop
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -202,7 +201,7 @@ const JobPipelinePage = () => {
   ];
 
   const categorizedApps = useMemo(() => {
-    const initial: Record<ApplicationStatus, Application[]> = {
+    const initialCategories: Record<ApplicationStatus, Application[]> = {
       APPLIED: [],
       REVIEWING: [],
       INTERVIEW: [],
@@ -213,7 +212,7 @@ const JobPipelinePage = () => {
     return applications.reduce((acc, app) => {
       if (acc[app.status]) acc[app.status].push(app);
       return acc;
-    }, initial);
+    }, initialCategories);
   }, [applications]);
 
   const allApplicationIds = useMemo(
@@ -222,13 +221,15 @@ const JobPipelinePage = () => {
   );
 
   useEffect(() => {
-    if (job?.applications) setApplications(job.applications);
+    if (job?.applications) {
+      setApplications(job.applications);
+    }
   }, [job]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const { active } = event;
-    const app = applications.find((a) => a.id === active.id);
+    const app = applications.find((app) => app.id === active.id);
     if (app) setActiveApplication(app);
   };
 
@@ -237,16 +238,18 @@ const JobPipelinePage = () => {
     setActiveApplication(null);
     const { active, over } = event;
     if (over && active.id) {
-      const source = active.data.current?.sortable.containerId;
-      const destination = over.id;
+      const sourceContainerId = active.data.current?.sortable.containerId;
+      const destinationContainerId = over.id;
       const applicationId = String(active.id);
-      if (source !== destination) {
-        const newStatus = destination as ApplicationStatus;
+
+      if (sourceContainerId !== destinationContainerId) {
+        const newStatus = destinationContainerId as ApplicationStatus;
         setApplications((prev) =>
           prev.map((app) =>
             app.id === applicationId ? { ...app, status: newStatus } : app
           )
         );
+
         toast.promise(
           applicationService.updateApplicationStatus(applicationId, newStatus),
           {
@@ -300,7 +303,6 @@ const JobPipelinePage = () => {
         </Link>
       </div>
 
-      {/* Mobile filter */}
       <div className="md:hidden">
         <SimpleDropdown
           isIndustryDropdown={false}
@@ -365,7 +367,6 @@ const JobPipelinePage = () => {
           </div>
         </SortableContext>
 
-        {/* ✅ Floating copy during drag */}
         <DragOverlay adjustScale={false} dropAnimation={null}>
           {activeApplication ? (
             <StaticApplicantCard application={activeApplication} />
