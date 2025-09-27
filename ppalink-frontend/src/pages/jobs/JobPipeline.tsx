@@ -16,7 +16,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import {
   BadgeCheck,
   ChevronLeft,
@@ -37,6 +36,13 @@ import type {
   ApplicationStatus,
 } from '../../types/application';
 import type { Position } from '../../types/job';
+
+// ---------- Custom Modifier (center overlay on pointer) ----------
+const centerToCursor = ({ transform }: { transform: any }) => {
+  const x = transform.x - transform.width / 2;
+  const y = transform.y - transform.height / 2;
+  return { ...transform, x, y };
+};
 
 // ---------- STATIC CARD (used inside DragOverlay) ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
@@ -129,7 +135,7 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
-      data-status={status} // ✅ added for scrollIntoView targeting
+      data-status={status} // ✅ for scrollIntoView targeting
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
@@ -180,16 +186,11 @@ const JobPipelinePage = () => {
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 300,
-      tolerance: 5,
-    },
+    activationConstraint: { delay: 300, tolerance: 5 },
   });
-
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
   });
-
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -221,9 +222,7 @@ const JobPipelinePage = () => {
   );
 
   useEffect(() => {
-    if (job?.applications) {
-      setApplications(job.applications);
-    }
+    if (job?.applications) setApplications(job.applications);
   }, [job]);
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -232,13 +231,17 @@ const JobPipelinePage = () => {
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
 
-    // ✅ Center source pipeline on screen
+    // ✅ Center the source pipeline horizontally & vertically
     const sourceId = active.data.current?.sortable.containerId;
-    const sourceColumn = document.querySelector(
+    const sourceColumn = document.querySelector<HTMLElement>(
       `[data-status="${sourceId}"]`
-    ) as HTMLElement | null;
+    );
     if (sourceColumn) {
-      sourceColumn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      sourceColumn.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      });
     }
   };
 
@@ -342,7 +345,7 @@ const JobPipelinePage = () => {
 
       <DndContext
         sensors={sensors}
-        modifiers={[snapCenterToCursor]}  // ✅ Center drag overlay
+        modifiers={[centerToCursor]} // ✅ center drag overlay
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         collisionDetection={closestCenter}
