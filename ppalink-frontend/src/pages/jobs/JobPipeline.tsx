@@ -23,7 +23,7 @@ import {
   Filter,
   Loader2,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -129,11 +129,11 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
-      data-status={status} // for targeting
+      data-status={status} // ✅ used for scrollIntoView targeting
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
-        min-h-[600px] overflow-hidden transition-all duration-200
+        min-h-[550px] overflow-hidden transition-all duration-200
         ${isOver ? 'scale-[1.05] ring-2 ring-primary-500 z-10' : ''}
       `}
     >
@@ -174,8 +174,6 @@ const JobPipelinePage = () => {
   const [activeApplication, setActiveApplication] = useState<Application | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
-
-  const wrapperRef = useRef<HTMLDivElement | null>(null); // ✅ reference to scroll wrapper
 
   const isTouchDevice = () =>
     typeof window !== 'undefined' &&
@@ -234,23 +232,13 @@ const JobPipelinePage = () => {
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
 
+    // ✅ Center source pipeline on screen
     const sourceId = active.data.current?.sortable.containerId;
     const sourceColumn = document.querySelector(
       `[data-status="${sourceId}"]`
     ) as HTMLElement | null;
-
-    // ✅ when we switch to horizontal, scroll wrapper to center origin column
-    if (sourceColumn && wrapperRef.current) {
-      // wait one frame so horizontal mode is applied
-      requestAnimationFrame(() => {
-        const wrapper = wrapperRef.current!;
-        const columnRect = sourceColumn.getBoundingClientRect();
-        const offset =
-          sourceColumn.offsetLeft -
-          wrapper.clientWidth / 2 +
-          columnRect.width / 2;
-        wrapper.scrollTo({ left: offset, behavior: 'smooth' });
-      });
+    if (sourceColumn) {
+      sourceColumn.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -282,6 +270,20 @@ const JobPipelinePage = () => {
             },
           }
         );
+
+        // ✅ After status update, auto-scroll target column into center
+        const targetColumn = document.querySelector(
+          `[data-status="${newStatus}"]`
+        ) as HTMLElement | null;
+        if (targetColumn) {
+          setTimeout(() => {
+            targetColumn.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              inline: 'center',
+            });
+          }, 250);
+        }
       }
     }
   };
@@ -361,7 +363,6 @@ const JobPipelinePage = () => {
       >
         <SortableContext items={allApplicationIds}>
           <div
-            ref={wrapperRef} // ✅ ref to horizontal scroll wrapper
             className={
               'pt-2 transition-all duration-300 ease-in-out ' +
               (isDragging
