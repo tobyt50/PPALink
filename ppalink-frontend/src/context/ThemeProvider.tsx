@@ -39,21 +39,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // apply theme to <html data-theme="...">
   const applyTheme = useCallback((r: "light" | "dark") => {
-    setResolvedTheme(r);
-    const root = document.documentElement;
-    root.setAttribute("data-theme", r === "dark" ? "dark" : "light");
+  setResolvedTheme(r);
+  const root = document.documentElement;
+  root.setAttribute("data-theme", r);
 
-    // optional: update meta theme-color to match current computed var (if you use it)
-    const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
-    if (meta) {
-      // fallbacks if you don't have CSS vars for meta:
-      const computed = getComputedStyle(root);
-      const candidate = r === "dark"
-        ? computed.getPropertyValue('--color-gray-900') || '#000000'
-        : computed.getPropertyValue('--color-gray-50') || '#ffffff';
-      meta.setAttribute("content", (candidate || (r === "dark" ? '#000000' : '#ffffff')).trim());
-    }
-  }, []);
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) {
+    meta.content = r === "dark" ? "#052e16" : "#ffffff";
+  }
+}, []);
 
   // init from storage + system preference
   useEffect(() => {
