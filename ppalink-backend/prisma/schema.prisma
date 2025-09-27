@@ -20,6 +20,7 @@ model User {
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  hasCompletedAdminOnboarding Boolean @default(false)
   auditLogs       AuditLog[] @relation("AdminActions")
   activityLogs    ActivityLog[]
   candidateProfile CandidateProfile?
@@ -90,6 +91,7 @@ model CandidateProfile {
   credentials     Credential[]
   applications    Application[]
   shortlists      Shortlist[]
+  hasCompletedOnboarding Boolean @default(false)
 }
 
 model WorkExperience {
@@ -194,6 +196,7 @@ model Agency {
   headquartersStateId Int?
   lgaId         Int?
   createdAt     DateTime       @default(now())
+  hasCompletedOnboarding  Boolean        @default(false)
 
   members       AgencyMember[]
   positions     Position[]

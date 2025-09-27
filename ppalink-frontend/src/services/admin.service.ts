@@ -183,6 +183,13 @@ class AdminService {
   async deleteAdmin(userId: string): Promise<void> {
     await apiClient.delete(`/admin/admins/${userId}`);
   }
+
+  /**
+   * Marks the admin's onboarding process as complete.
+   */
+  async markOnboardingComplete(): Promise<void> {
+    await apiClient.post('/admin/complete-onboarding');
+  }
 }
 
 export default new AdminService();

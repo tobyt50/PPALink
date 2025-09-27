@@ -1,7 +1,7 @@
 import { UserStatus } from '@prisma/client';
 import type { NextFunction, Request, Response } from 'express';
 import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById, getAllAdmins, createAdmin, deleteAdmin, updateAdminRole } from './admin.service';
-import { getAdminTimeSeriesAnalytics, getUserDetails, getJobsForAgencyUser, getApplicationsForCandidateUser, getAllJobs } from './admin.service';
+import { getAdminTimeSeriesAnalytics, getUserDetails, getJobsForAgencyUser, getApplicationsForCandidateUser, getAllJobs, markAdminOnboardingComplete } from './admin.service';
 import { generateImpersonationToken } from '../auth/auth.service';
 import { AuthRequest } from '../../middleware/auth';
 import { createAdminPortalSession } from '../billing/billing.service';
@@ -277,4 +277,12 @@ export async function deleteAdminHandler(req: AuthRequest, res: Response, next: 
       }
     next(error);
   }
+}
+
+export async function completeAdminOnboardingHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    await markAdminOnboardingComplete(req.user.id);
+    res.status(200).json({ success: true, message: 'Admin onboarding completed.' });
+  } catch (error) { next(error); }
 }

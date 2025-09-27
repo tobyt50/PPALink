@@ -1,6 +1,7 @@
 import { ApplicationStatus } from '@prisma/client';
 import prisma from '../../config/db';
 import { UpdateCandidateProfileInput } from './candidate.types';
+import { logActivity } from '../activity/activity.service';
 
 // Helper function to find or create skills and return their IDs for relation mapping.
 async function connectOrCreateSkills(skillNames: string[]) {
@@ -235,4 +236,94 @@ export async function getCandidateDashboardData(userId: string) {
     recentApplications,
     isVerified: profile.isVerified,
   };
+}
+
+/**
+ * Updates a candidate's professional summary.
+ * Intended for use during the onboarding process.
+ * @param userId The ID of the user whose profile is being updated.
+ * @param summary The new professional summary text.
+ */
+export async function updateCandidateSummary(userId: string, summary: string) {
+  return prisma.candidateProfile.update({
+    where: { userId },
+    data: { summary },
+  });
+}
+
+/**
+ * Marks the candidate's onboarding process as complete.
+ * @param userId The ID of the user to update.
+ */
+export async function markOnboardingAsComplete(userId: string) {
+  return prisma.candidateProfile.update({
+    where: { userId },
+    data: { hasCompletedOnboarding: true },
+  });
+}
+
+/**
+ * Overwrites a candidate's entire skill set.
+ * This finds or creates the necessary skills and connects them, deleting old ones.
+ * @param userId The ID of the user whose profile is being updated.
+ * @param skillNames An array of skill names (e.g., ["JavaScript", "React"]).
+ */
+export async function setCandidateSkills(userId: string, skillNames: string[]) {
+  const profile = await prisma.candidateProfile.findUnique({ where: { userId } });
+  if (!profile) throw new Error('Candidate profile not found.');
+
+  const getSkillIds = async (names: string[]) => {
+    if (names.length === 0) return [];
+    
+    const existingSkills = await prisma.skill.findMany({
+      where: { name: { in: names, mode: 'insensitive' } }
+    });
+    const existingNames = new Set(existingSkills.map(s => s.name.toLowerCase()));
+    
+    const newSkillsToCreate = names
+        .filter(name => !existingNames.has(name.toLowerCase()))
+        .map(name => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+
+    if (newSkillsToCreate.length > 0) {
+        await prisma.skill.createMany({ data: newSkillsToCreate, skipDuplicates: true });
+    }
+
+    const allSkills = await prisma.skill.findMany({ where: { name: { in: names, mode: 'insensitive' } } });
+   
+    return allSkills.map(skill => ({
+      skillId: skill.id,
+      level: 3, // Provide a default proficiency level (e.g., 3 out of 5)
+      years: 1, // Provide a default years of experience
+    }));
+  };
+
+  const skillDataToConnect = await getSkillIds(skillNames);
+
+  const updatedProfile = await prisma.candidateProfile.update({
+    where: { userId },
+    data: {
+      skills: {
+        deleteMany: {},
+        create: skillDataToConnect,
+      },
+    },
+  });
+
+  await logActivity(userId, 'profile.skills.update', {
+      skillsAdded: skillNames.length
+  });
+
+  return updatedProfile;
+}
+
+/**
+ * Updates the CV file key for a candidate's profile.
+ * @param userId The ID of the user whose profile is being updated.
+ * @param cvFileKey The new S3 file key for the uploaded CV.
+ */
+export async function updateCandidateCv(userId: string, cvFileKey: string) {
+  return prisma.candidateProfile.update({
+    where: { userId },
+    data: { cvFileKey },
+  });
 }

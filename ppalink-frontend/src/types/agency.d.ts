@@ -35,6 +35,7 @@ export interface Agency {
   domain: string | null;
   domainVerified: boolean;
   cacVerified: boolean;
+  hasCompletedOnboarding: boolean;
   logoKey: string | null;
   headquartersStateId: number | null;
   lgaId: number | null;

@@ -41,7 +41,7 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-920 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-white/90 dark:bg-zinc-900/90 px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

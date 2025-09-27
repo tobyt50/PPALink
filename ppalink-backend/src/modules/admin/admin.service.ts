@@ -568,3 +568,14 @@ export async function deleteAdmin(targetUserId: string, actorId: string) {
         deletedAdminRole: adminToDelete.role,
     });
 }
+
+/**
+ * Marks an admin's onboarding process as complete.
+ * @param adminUserId The ID of the admin user to update.
+ */
+export async function markAdminOnboardingComplete(adminUserId: string) {
+  return prisma.user.update({
+    where: { id: adminUserId },
+    data: { hasCompletedAdminOnboarding: true },
+  });
+}

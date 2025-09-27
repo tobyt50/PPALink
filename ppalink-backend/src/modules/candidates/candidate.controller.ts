@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth'; // Import our custom request type
-import { getCandidateProfileById, getCandidateProfileByUserId, getMyApplications, updateCandidateProfile, getCandidateDashboardData } from './candidate.service';
+import { getCandidateProfileById, getCandidateProfileByUserId, getMyApplications, updateCandidateProfile, getCandidateDashboardData, markOnboardingAsComplete, updateCandidateSummary, setCandidateSkills, updateCandidateCv } from './candidate.service';
 import { UpdateCandidateProfileInput } from './candidate.types';
 
 /**
@@ -96,4 +96,48 @@ export async function getCandidateDashboardDataHandler(req: AuthRequest, res: Re
     }
     next(error);
   }
+}
+
+export async function updateSummaryHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { summary } = req.body;
+    if (typeof summary !== 'string') {
+      return res.status(400).json({ success: false, message: 'Summary must be a string.' });
+    }
+    const profile = await updateCandidateSummary(req.user.id, summary);
+    res.status(200).json({ success: true, data: profile });
+  } catch (error) { next(error); }
+}
+
+export async function completeOnboardingHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    await markOnboardingAsComplete(req.user.id);
+    res.status(200).json({ success: true, message: 'Onboarding completed.' });
+  } catch (error) { next(error); }
+}
+
+export async function setSkillsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { skills } = req.body;
+    if (!Array.isArray(skills)) {
+      return res.status(400).json({ success: false, message: 'Skills must be an array of strings.' });
+    }
+    const profile = await setCandidateSkills(req.user.id, skills);
+    res.status(200).json({ success: true, data: profile });
+  } catch (error) { next(error); }
+}
+
+export async function updateCvHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { cvFileKey } = req.body;
+    if (!cvFileKey || typeof cvFileKey !== 'string') {
+      return res.status(400).json({ success: false, message: 'cvFileKey is required and must be a string.' });
+    }
+    const profile = await updateCandidateCv(req.user.id, cvFileKey);
+    res.status(200).json({ success: true, data: profile });
+  } catch (error) { next(error); }
 }

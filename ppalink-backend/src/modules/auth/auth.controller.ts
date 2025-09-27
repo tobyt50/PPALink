@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { login, registerAgency, registerCandidate } from './auth.service';
+import { getUserProfile, login, registerAgency, registerCandidate } from './auth.service';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
 import { AuthRequest } from '../../middleware/auth';
 import { changeUserPassword } from './auth.service';
@@ -76,4 +76,20 @@ export async function changePasswordHandler(req: AuthRequest, res: Response, nex
     await changeUserPassword(req.user.id, newPassword);
     res.status(200).json({ success: true, message: 'Password changed successfully.' });
   } catch (error) { next(error); }
+}
+
+/**
+ * Handler for fetching the full profile of the currently authenticated user.
+ * It uses the ID from the JWT, not a URL parameter.
+ */
+export async function getMyProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  try {
+    const userProfile = await getUserProfile(req.user.id);
+    res.status(200).json({ success: true, data: userProfile });
+  } catch (error) {
+    next(error);
+  }
 }

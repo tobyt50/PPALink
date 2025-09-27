@@ -19,6 +19,7 @@ export interface User {
   candidateProfile?: CandidateProfile;
   ownedAgencies?: Agency[];
   passwordResetRequired: boolean;
+  hasCompletedAdminOnboarding: boolean;
 }
 
 export interface ActivityLog {

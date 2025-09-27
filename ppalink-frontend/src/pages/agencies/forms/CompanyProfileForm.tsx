@@ -31,9 +31,10 @@ export type CompanyProfileFormValues = z.infer<typeof companyProfileSchema>;
 interface CompanyProfileFormProps {
   initialData?: Agency | null;
   onSubmit: (data: CompanyProfileFormValues) => Promise<void>;
+  submitButtonText?: string;
 }
 
-const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) => {
+const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Changes" }: CompanyProfileFormProps) => {
   const { industries, states } = useDataStore();
   const [industrySearch, setIndustrySearch] = useState('');
 
@@ -228,7 +229,7 @@ const CompanyProfileForm = ({ initialData, onSubmit }: CompanyProfileFormProps) 
 
       <div className="flex justify-end pt-4">
         <Button type="submit" isLoading={isSubmitting} className="justify-center">
-          Save Changes
+          {submitButtonText}
         </Button>
       </div>
     </form>

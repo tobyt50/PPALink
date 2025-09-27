@@ -1,7 +1,7 @@
 import apiClient from '../config/axios';
 import type { CandidateFilterValues } from '../pages/agencies/FilterSidebar';
 import type { ProfileFormValues } from '../pages/candidates/forms/ProfileForm';
-import type { CandidateProfile } from '../types/candidate';
+import type { CandidateProfile, Education, WorkExperience } from '../types/candidate';
 import type { VerificationRequest, VerificationType } from '../types/user';
 
 // Define the payload shape for the new function
@@ -16,6 +16,9 @@ interface VerificationSubmissionPayload {
 // Extend filters to also allow keyword search
 export type CandidateSearchParams = CandidateFilterValues & { q?: string };
 
+// Define the shape for the WorkExperience form payload
+type WorkExperiencePayload = Omit<WorkExperience, 'id' | 'candidateId'>;
+type EducationPayload = Omit<Education, 'id' | 'candidateId'>;
 class CandidateService {
   async getMyProfile(): Promise<CandidateProfile> {
     const response = await apiClient.get('/candidates/me');
@@ -84,6 +87,66 @@ class CandidateService {
    */
   async submitVerification(payload: VerificationSubmissionPayload): Promise<VerificationRequest> {
     const response = await apiClient.post('/candidates/verifications', payload);
+    return response.data.data;
+  }
+
+  /**
+   * Updates only the professional summary for the logged-in candidate.
+   * @param summary The new professional summary text.
+   */
+  async updateSummary(summary: string): Promise<CandidateProfile> {
+    const response = await apiClient.patch('/candidates/me/summary', { summary });
+    return response.data.data;
+  }
+
+  /**
+   * Marks the candidate's onboarding process as complete.
+   */
+  async markOnboardingComplete(): Promise<void> {
+    await apiClient.post('/candidates/me/complete-onboarding');
+  }
+
+  async addWorkExperience(data: WorkExperiencePayload): Promise<WorkExperience> {
+    const response = await apiClient.post('/candidates/me/experience', data);
+    return response.data.data;
+  }
+  async updateWorkExperience(experienceId: string, data: WorkExperiencePayload): Promise<WorkExperience> {
+    const response = await apiClient.patch(`/candidates/me/experience/${experienceId}`, data);
+    return response.data.data;
+  }
+  async deleteWorkExperience(experienceId: string): Promise<void> {
+    await apiClient.delete(`/candidates/me/experience/${experienceId}`);
+  }
+
+  async addEducation(data: EducationPayload): Promise<Education> {
+    const response = await apiClient.post('/candidates/me/education', data);
+    return response.data.data;
+  }
+
+  async updateEducation(educationId: string, data: EducationPayload): Promise<Education> {
+    const response = await apiClient.patch(`/candidates/me/education/${educationId}`, data);
+    return response.data.data;
+  }
+
+  async deleteEducation(educationId: string): Promise<void> {
+    await apiClient.delete(`/candidates/me/education/${educationId}`);
+  }
+
+  /**
+   * Sets (overwrites) the entire list of skills for the logged-in candidate.
+   * @param skills An array of skill names.
+   */
+  async setSkills(skills: string[]): Promise<CandidateProfile> {
+    const response = await apiClient.put('/candidates/me/skills', { skills });
+    return response.data.data;
+  }
+
+  /**
+   * Updates the CV file key for the logged-in candidate.
+   * @param cvFileKey The S3 file key of the uploaded CV.
+   */
+  async updateCv(cvFileKey: string): Promise<CandidateProfile> {
+    const response = await apiClient.put('/candidates/me/cv', { cvFileKey });
     return response.data.data;
   }
 }

@@ -71,7 +71,7 @@ const AcceptInvitePage = () => {
 
   // Polished Page Wrapper
   const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex min-h-[calc(100vh-150px)] items-center justify-center bg-gray-50 dark:bg-gray-920 px-4 py-12">
+    <div className="flex min-h-[calc(100vh-150px)] items-center justify-center bg-white/90 dark:bg-zinc-900/90 px-4 py-12">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="rounded-2xl bg-white dark:bg-zinc-900 p-8 shadow-2xl dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-black dark:ring-white/10/5">{children}</div>
       </motion.div>

@@ -33,6 +33,7 @@ export const educationSchema = z.object({
     (val) => !!val,
     { message: 'End date is required.' }
   ),
+  description: z.string().optional().nullable(),
   
 });
 

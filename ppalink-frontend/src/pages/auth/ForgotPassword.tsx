@@ -63,7 +63,7 @@ const ForgotPasswordPage = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 dark:bg-black/80 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
+          <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-sm p-6 shadow-lg md:p-10">
             {isSubmitted ? (
               <div className="text-center">
                 <Mail className="mx-auto h-12 w-12 text-primary-600 dark:text-primary-400" />
