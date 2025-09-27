@@ -38,7 +38,7 @@ import type {
 } from '../../types/application';
 import type { Position } from '../../types/job';
 
-// ---------- STATIC CARD (used inside DragOverlay) ----------
+// ---------- STATIC CARD ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -77,7 +77,7 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// ---------- SORTABLE CARD (hidden while dragging) ----------
+// ---------- SORTABLE CARD ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
   const {
     attributes,
@@ -130,7 +130,6 @@ const PipelineColumn = ({
     <div
       ref={setNodeRef}
       data-status={status}
-      style={{ scrollSnapAlign: 'center' }} // ✅ snap center horizontally
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
@@ -181,16 +180,11 @@ const JobPipelinePage = () => {
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 300,
-      tolerance: 5,
-    },
+    activationConstraint: { delay: 300, tolerance: 5 },
   });
-
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
   });
-
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -232,20 +226,6 @@ const JobPipelinePage = () => {
     const { active } = event;
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
-
-    // ✅ Center source pipeline horizontally in viewport
-    const sourceId = active.data.current?.sortable.containerId;
-    const sourceColumn = document.querySelector(
-      `[data-status="${sourceId}"]`
-    ) as HTMLElement | null;
-
-    if (sourceColumn) {
-      sourceColumn.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest', // keep vertical position
-        inline: 'center', // ✅ horizontal centering
-      });
-    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -348,7 +328,7 @@ const JobPipelinePage = () => {
 
       <DndContext
         sensors={sensors}
-        modifiers={[snapCenterToCursor]} // ✅ keep drag overlay under cursor
+        modifiers={[snapCenterToCursor]}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         collisionDetection={closestCenter}
@@ -357,10 +337,9 @@ const JobPipelinePage = () => {
           <div
             id="pipelineWrapper"
             className={
-              'pt-2 transition-all duration-300 ease-in-out flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory ' +
-              (isDragging
-                ? 'pb-4 md:scale-95'
-                : '')
+              isDragging
+                ? 'flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4'
+                : 'grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }
           >
             {pipelineColumns.map((col) => {
@@ -369,7 +348,7 @@ const JobPipelinePage = () => {
                 <div
                   key={col.status}
                   style={{ display: isVisible ? 'flex' : 'none' }}
-                  className={isDragging ? 'w-64 flex-shrink-0 md:w-auto' : ''}
+                  className={isDragging ? 'w-64 flex-shrink-0' : 'w-full'}
                 >
                   <PipelineColumn
                     title={col.title}
