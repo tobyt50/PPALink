@@ -38,7 +38,7 @@ import type {
 } from '../../types/application';
 import type { Position } from '../../types/job';
 
-// ---------- STATIC CARD ----------
+// ---------- STATIC CARD (used inside DragOverlay) ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -77,7 +77,7 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// ---------- SORTABLE CARD ----------
+// ---------- SORTABLE CARD (hidden while dragging) ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
   const {
     attributes,
@@ -129,7 +129,7 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
-      data-status={status}
+      data-status={status} // ✅ used for scrollIntoView targeting
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
@@ -181,13 +181,13 @@ const JobPipelinePage = () => {
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 300,
-      tolerance: 5,
+      delay: 400,    // increased for safer start
+      tolerance: 8,
     },
   });
 
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 },
+    activationConstraint: { distance: 12 }, // slightly higher distance
   });
 
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
@@ -236,53 +236,54 @@ const JobPipelinePage = () => {
     const sourceColumn = document.querySelector(
       `[data-status="${sourceId}"]`
     ) as HTMLElement | null;
-    sourceColumn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (sourceColumn) {
+      sourceColumn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    // ✅ Always reset first to avoid stuck horizontal view
     setIsDragging(false);
     setActiveApplication(null);
+
     const { active, over } = event;
-    if (over && active.id) {
-      const sourceContainerId = active.data.current?.sortable.containerId;
-      const destinationContainerId = over.id;
-      const applicationId = String(active.id);
+    if (!over || !active.id) return;
 
-      if (sourceContainerId !== destinationContainerId) {
-        const newStatus = destinationContainerId as ApplicationStatus;
+    const sourceContainerId = active.data.current?.sortable.containerId;
+    const destinationContainerId = over.id;
+    const applicationId = String(active.id);
 
-        // ✅ delay state update to avoid drag freeze
-        requestAnimationFrame(() => {
-          setApplications((prev) =>
-            prev.map((app) =>
-              app.id === applicationId ? { ...app, status: newStatus } : app
-            )
-          );
+    if (sourceContainerId !== destinationContainerId) {
+      const newStatus = destinationContainerId as ApplicationStatus;
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.id === applicationId ? { ...app, status: newStatus } : app
+        )
+      );
 
-          toast.promise(
-            applicationService.updateApplicationStatus(applicationId, newStatus),
-            {
-              loading: 'Updating status...',
-              success: 'Status updated successfully!',
-              error: (err) => {
-                setApplications(job?.applications || []);
-                return err.response?.data?.message || 'Failed to update status.';
-              },
-            }
-          );
+      toast.promise(
+        applicationService.updateApplicationStatus(applicationId, newStatus),
+        {
+          loading: 'Updating status...',
+          success: 'Status updated successfully!',
+          error: (err) => {
+            setApplications(job?.applications || []);
+            return err.response?.data?.message || 'Failed to update status.';
+          },
+        }
+      );
 
-          // ✅ smooth scroll to the target column after layout settles
-          setTimeout(() => {
-            const targetColumn = document.querySelector(
-              `[data-status="${newStatus}"]`
-            ) as HTMLElement | null;
-            targetColumn?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-              inline: 'center',
-            });
-          }, 250);
-        });
+      const targetColumn = document.querySelector(
+        `[data-status="${newStatus}"]`
+      ) as HTMLElement | null;
+      if (targetColumn) {
+        setTimeout(() => {
+          targetColumn.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          });
+        }, 250);
       }
     }
   };
@@ -358,6 +359,7 @@ const JobPipelinePage = () => {
         modifiers={[snapCenterToCursor]}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={() => setIsDragging(false)}   // ✅ reset if drag is cancelled
         collisionDetection={closestCenter}
       >
         <SortableContext items={allApplicationIds}>
