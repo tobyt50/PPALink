@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
 import verificationRoutes from '../verifications/verification.routes';
-import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler, getAdminTimeSeriesAnalyticsHandler, getUserDetailsHandler, getJobsForAgencyUserHandler, getApplicationsForCandidateUserHandler, sendSystemMessageHandler, impersonateUserHandler, getAllJobsHandler, adminUpdateJobHandler, adminUnpublishJobHandler, adminRepublishJobHandler, adminGetJobByIdHandler, createAdminPortalSessionHandler, getAllAdminsHandler, createAdminHandler, deleteAdminHandler, updateAdminRoleHandler } from './admin.controller';
+import { getAllUsersHandler, updateUserStatusHandler, getAdminDashboardAnalyticsHandler, getAdminTimeSeriesAnalyticsHandler, getUserDetailsHandler, getJobsForAgencyUserHandler, getApplicationsForCandidateUserHandler, sendSystemMessageHandler, impersonateUserHandler, getAllJobsHandler, adminUpdateJobHandler, adminUnpublishJobHandler, adminRepublishJobHandler, adminGetJobByIdHandler, createAdminPortalSessionHandler, getAllAdminsHandler, createAdminHandler, deleteAdminHandler, updateAdminRoleHandler, completeAdminOnboardingHandler } from './admin.controller';
 import { forceVerifyEmailHandler, forceVerifyNyscHandler, forceVerifyDomainHandler, forceVerifyCacHandler,
 } from './verification.controller';
 import { getActivityLogForUserHandler } from '../activity/activity.controller';
@@ -141,6 +141,10 @@ superAdminRouter.patch('/:userId/role', updateAdminRoleHandler);
 
 // DELETE /api/admin/admins/:userId
 superAdminRouter.delete('/:userId', deleteAdminHandler);
+
+// This must be accessible to admins who haven't completed onboarding yet.
+// POST /api/admin/complete-onboarding
+router.post('/complete-onboarding', completeAdminOnboardingHandler);
 
 // Mount the sub-router at /api/admin/admins
 router.use('/admins', superAdminRouter);

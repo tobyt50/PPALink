@@ -5,7 +5,7 @@ import ProtectedRoute from './ProtectedRoute';
 import PublicLayout from './PublicLayout';
 import RoleBasedLayout from './RoleBasedLayout';
 
-// Page Imports (assuming these paths are correct)
+// Page Imports
 import AdminDashboard from '../pages/admin/Dashboard';
 import ManageUsersPage from '../pages/admin/ManageUsers';
 import UserDetailsPage from '../pages/admin/UserDetails';
@@ -58,9 +58,22 @@ import InboxPage from '../pages/messaging/Inbox';
 import AboutPage from '../pages/misc/About';
 import TermsPage from '../pages/misc/Terms';
 import PrivacyPolicyPage from '../pages/misc/Privacy';
+import OnboardingGuard from './OnboardingGuard';
+import OnboardingLayout from './OnboardingLayout';
+import SummaryStep from '../pages/onboarding/candidate/SummaryStep';
+import WorkExperienceStep from '../pages/onboarding/candidate/WorkExperienceStep';
+import EducationStep from '../pages/onboarding/candidate/EducationStep';
+import SkillsStep from '../pages/onboarding/candidate/SkillsStep';
+import CvUploadStep from '../pages/onboarding/candidate/CvUploadStep';
+import AgencyProfileStep from '../pages/onboarding/agency/ProfileStep';
+import PostJobStep from '../pages/onboarding/agency/PostJobStep';
+import DiscoverStep from '../pages/onboarding/agency/DiscoverStep';
+import PipelineStep from '../pages/onboarding/agency/PipelineStep';
+import TeamStep from '../pages/onboarding/agency/TeamStep';
+import AdminWelcomePage from '../pages/onboarding/admin/AdminWelcome';
 
 const router = createBrowserRouter([
-  // --- Group 1: Public Routes (Unchanged) ---
+  // Group 1: Public Routes
   {
     path: '/',
     element: <PublicLayout />,
@@ -75,7 +88,7 @@ const router = createBrowserRouter([
       { path: 'accept-invite', element: <AcceptInvitePage /> },
       { path: 'accept-invite-authenticated', element: <AcceptInviteLoggedInPage /> },
       { path: 'verify-domain', element: <VerifyDomainPage /> },
-      { path: 'domain-verified', element: <DomainVerificationResultPage /> }, // Corrected path
+      { path: 'domain-verified', element: <DomainVerificationResultPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'terms', element: <TermsPage /> },
       { path: 'privacy', element: <PrivacyPolicyPage /> },
@@ -86,20 +99,73 @@ const router = createBrowserRouter([
   // This route is protected but uses a minimal layout (no sidebar/navbar)
   {
       path: '/change-password',
-      element: <ProtectedRoute />, // It's still protected by the login check
+      element: <ProtectedRoute />,
       children: [
           { index: true, element: <ChangePasswordPage /> }
       ]
   },
+
+  // Group 3: Candidate Onboarding Route
+  {
+    path: '/onboarding/candidate',
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <OnboardingLayout />,
+        children: [
+          { path: 'summary', element: <SummaryStep /> },
+          { path: 'work-experience', element: <WorkExperienceStep /> },
+          { path: 'education', element: <EducationStep /> },
+          { path: 'skills', element: <SkillsStep /> },
+          { path: 'cv-upload', element: <CvUploadStep /> },
+        ]
+      }
+    ]
+  },
+
+  // Group 4: Agency Onboarding Route
+  {
+    path: '/onboarding/agency',
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <OnboardingLayout />,
+        children: [
+          { path: 'profile', element: <AgencyProfileStep /> },
+          { path: 'post-job', element: <PostJobStep /> },
+          { path: 'discover', element: <DiscoverStep /> },
+          { path: 'pipeline', element: <PipelineStep /> },
+          { path: 'team', element: <TeamStep /> },
+        ]
+      }
+    ]
+  },
+  // Group 5: Admin Onboarding Route
+  {
+    path: '/onboarding/admin',
+    element: <ProtectedRoute />, // It is a protected route
+    children: [
+      {
+        // We can reuse the same minimal layout
+        element: <OnboardingLayout />,
+        children: [
+          { path: 'welcome', element: <AdminWelcomePage /> },
+        ]
+      }
+    ]
+  },
   
-  // --- Group 3: Other Authenticated Routes ---
+  // Group 6: Other Authenticated Routes
   {
     path: '/',
-    element: <ProtectedRoute />, // The master guard for all children
+    element: <ProtectedRoute />,
     children: [
-      // Sub-Group for pages using the standard DashboardLayout or AdminLayout
       {
-        element: <RoleBasedLayout />,
+        element: (
+          <OnboardingGuard>
+            <RoleBasedLayout />
+          </OnboardingGuard>
+        ),
         children: [
           // Candidate Dashboard Routes
           { path: 'dashboard/candidate', element: <CandidateDashboard /> },

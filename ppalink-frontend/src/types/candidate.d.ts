@@ -59,9 +59,9 @@ export interface CandidateProfile {
   portfolio: string | null;
   graduationYear: number | null;
   gpaBand: string | null;
-
   cvFileKey: string | null;
   nyscFileKey: string | null;
+  hasCompletedOnboarding: boolean;
   
   skills?: CandidateSkill[];
 

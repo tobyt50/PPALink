@@ -7,7 +7,7 @@ import { createCandidateApplicationHandler } from '../applications/application.c
 import experienceRoutes from '../experience/experience.routes';
 import { acceptInvitationLoggedInHandler } from '../invitations/invitation.controller';
 import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
-import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler, getCandidateDashboardDataHandler } from './candidate.controller';
+import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler, getCandidateDashboardDataHandler, completeOnboardingHandler, updateSummaryHandler, setSkillsHandler, updateCvHandler } from './candidate.controller';
 import { UpdateCandidateProfileSchema } from './candidate.types';
 
 const router = Router();
@@ -76,6 +76,38 @@ router.get(
   authenticate, 
   requireRole([Role.CANDIDATE]), 
   getCandidateDashboardDataHandler
+);
+
+// PATCH /api/candidates/me/summary
+router.patch(
+  '/me/summary', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  updateSummaryHandler
+);
+
+// POST /api/candidates/me/complete-onboarding
+router.post(
+  '/me/complete-onboarding', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  completeOnboardingHandler
+);
+
+// PUT /api/candidates/me/skills (PUT is appropriate for replacing a resource)
+router.put(
+  '/me/skills', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  setSkillsHandler
+);
+
+// PUT /api/candidates/me/cv
+router.put(
+  '/me/cv', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  updateCvHandler
 );
 
 // This will create routes like /api/candidates/me/experience

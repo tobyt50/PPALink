@@ -111,6 +111,13 @@ class AgencyService {
     const response = await apiClient.post('/agencies/verifications', payload);
     return response.data.data;
   }
+
+  /**
+   * Marks the agency's onboarding process as complete.
+   */
+  async markOnboardingComplete(): Promise<void> {
+    await apiClient.post('/agencies/complete-onboarding');
+  }
 }
 
 export default new AgencyService();

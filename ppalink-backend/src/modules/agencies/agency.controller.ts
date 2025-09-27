@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth';
-import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, removeShortlist, searchCandidates, shortlistCandidate, updateAgencyProfile } from './agency.service';
+import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, removeShortlist, searchCandidates, shortlistCandidate, updateAgencyProfile, markOnboardingAsComplete } from './agency.service';
 import { UpdateAgencyProfileInput } from './agency.types';
 
 export async function getAgencyProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
@@ -160,4 +160,13 @@ export async function removeShortlistHandler(req: AuthRequest, res: Response, ne
   } catch (error) {
     next(error);
   }
+}
+
+export async function completeOnboardingHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const agency = await getAgencyByUserId(req.user.id);
+    await markOnboardingAsComplete(agency.id);
+    res.status(200).json({ success: true, message: 'Onboarding completed.' });
+  } catch (error) { next(error); }
 }

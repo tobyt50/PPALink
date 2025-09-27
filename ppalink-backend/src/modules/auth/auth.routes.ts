@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { ZodObject, ZodRawShape } from 'zod';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
-import { loginHandler, registerAgencyHandler, registerCandidateHandler, changePasswordHandler } from './auth.controller';
+import { loginHandler, registerAgencyHandler, registerCandidateHandler, changePasswordHandler, getMyProfileHandler } from './auth.controller';
 import { LoginSchema, RegisterAgencySchema, RegisterCandidateSchema, changePasswordSchema } from './auth.types';
 
 const router = Router();
@@ -16,6 +16,12 @@ router.post(
   authenticate,
   validate(changePasswordSchema),
   changePasswordHandler
+);
+
+router.get(
+  '/me/profile',
+  authenticate,
+  getMyProfileHandler
 );
 
 export default router;

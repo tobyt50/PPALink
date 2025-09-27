@@ -379,3 +379,13 @@ export async function removeShortlist(agencyId: string, candidateProfileId: stri
   return result;
 }
 
+/**
+ * Marks the agency's onboarding process as complete.
+ * @param agencyId The ID of the agency to update.
+ */
+export async function markOnboardingAsComplete(agencyId: string) {
+  return prisma.agency.update({
+    where: { id: agencyId },
+    data: { hasCompletedOnboarding: true },
+  });
+}

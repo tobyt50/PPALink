@@ -22,7 +22,7 @@ const PublicHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 dark:backdrop-blur-sm backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-sm backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -52,7 +52,7 @@ const PublicHeader = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.1 }} // instant
-            className="w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900/80 dark:backdrop-blur-sm backdrop-blur-lg p-6 shadow-2xl dark:shadow-none dark:ring-1 dark:ring-white/10"
+            className="w-full max-w-lg rounded-2xl bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-sm backdrop-blur-lg p-6 shadow-2xl dark:shadow-none dark:ring-1 dark:ring-white/10"
           >
             <h2 className="text-2xl font-bold text-primary-600 dark:text-primary-400 text-center mb-6">
               Create Your Account

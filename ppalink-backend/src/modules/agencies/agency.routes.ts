@@ -5,7 +5,7 @@ import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
 import invitationRoutes from '../invitations/invitation.routes';
 import jobRoutes from '../jobs/job.routes'; // Import the nested job routes
-import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler } from './agency.controller';
+import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler, completeOnboardingHandler } from './agency.controller';
 import { updateAgencyProfileSchema } from './agency.types';
 import { getAgencyAnalyticsHandler, getAgencyDashboardDataHandler } from '../analytics/analytics.controller';
 import { initiateDomainVerificationHandler } from '../verifications/domain.controller';
@@ -52,5 +52,8 @@ router.post('/verify-domain', initiateDomainVerificationHandler);
 
 // POST /api/agencies/verifications
 router.post('/verifications', createVerificationSubmissionHandler);
+
+// POST /api/agencies/complete-onboarding
+router.post('/complete-onboarding', completeOnboardingHandler);
 
 export default router;

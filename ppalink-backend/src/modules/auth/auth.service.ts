@@ -190,3 +190,35 @@ export async function changeUserPassword(userId: string, newPassword: string) {
     },
   });
 }
+
+/**
+ * Fetches the full user object, including nested profiles, for the currently authenticated user.
+ * This is used by the frontend to get the most up-to-date user state after login.
+ * @param userId The ID of the user to fetch.
+ */
+export async function getUserProfile(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      candidateProfile: true, // Eagerly load the candidate profile
+      // We can also include agency relations here if needed in the future
+      ownedAgencies: {
+        include: {
+          subscriptions: {
+            include: {
+              plan: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
+  // Always omit the password hash
+  const { passwordHash, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+}
