@@ -174,16 +174,23 @@ const JobPipelinePage = () => {
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
   // ---- Sensors ----
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 },
-  });
+  const isTouchDevice = () =>
+    typeof window !== 'undefined' &&
+    ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
       delay: 300, // long-press to drag on touch devices
       tolerance: 5,
     },
   });
-  const sensors = useSensors(pointerSensor, touchSensor);
+
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: { distance: 8 }, // small move to start drag on desktop
+  });
+
+  // Only TouchSensor on mobile, PointerSensor on desktop
+  const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
     { title: 'Applied', status: 'APPLIED' },
@@ -330,7 +337,7 @@ const JobPipelinePage = () => {
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        collisionDetection={closestCenter} // ensures accurate column detection
+        collisionDetection={closestCenter}
       >
         <SortableContext items={allApplicationIds}>
           <div
