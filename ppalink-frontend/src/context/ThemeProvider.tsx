@@ -44,9 +44,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   root.setAttribute("data-theme", r);
 
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (meta) {
-    meta.content = r === "dark" ? "#052e16" : "#ffffff";
-  }
+if (meta) {
+  const exactColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--navbar-bg')
+    .trim();
+
+  // Always provide a fallback just in case
+  meta.content = exactColor || (r === "dark" ? "#111111" : "#f4f4f5");
+}
 }, []);
 
   // init from storage + system preference
