@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import {
   BadgeCheck,
   ChevronLeft,
@@ -109,7 +110,7 @@ const ApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// ---------- PIPELINE COLUMN (pop-out when hovered) ----------
+// ---------- PIPELINE COLUMN ----------
 const PipelineColumn = ({
   title,
   status,
@@ -128,11 +129,12 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
+      data-status={status} // ✅ added for scrollIntoView targeting
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
         min-h-[600px] overflow-hidden transition-all duration-200
-        ${isOver ? 'scale-[1.03] ring-2 ring-primary-500 z-10' : ''}
+        ${isOver ? 'scale-[1.05] ring-2 ring-primary-500 z-10' : ''}
       `}
     >
       <div className="p-5 border-b border-gray-200 dark:border-zinc-800 flex-shrink-0">
@@ -173,23 +175,21 @@ const JobPipelinePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
-  // ---- Sensors ----
   const isTouchDevice = () =>
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 300, // long-press to drag on touch devices
+      delay: 300,
       tolerance: 5,
     },
   });
 
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 }, // small move to start drag on desktop
+    activationConstraint: { distance: 8 },
   });
 
-  // Only TouchSensor on mobile, PointerSensor on desktop
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -201,7 +201,7 @@ const JobPipelinePage = () => {
   ];
 
   const categorizedApps = useMemo(() => {
-    const initialCategories: Record<ApplicationStatus, Application[]> = {
+    const initial: Record<ApplicationStatus, Application[]> = {
       APPLIED: [],
       REVIEWING: [],
       INTERVIEW: [],
@@ -212,7 +212,7 @@ const JobPipelinePage = () => {
     return applications.reduce((acc, app) => {
       if (acc[app.status]) acc[app.status].push(app);
       return acc;
-    }, initialCategories);
+    }, initial);
   }, [applications]);
 
   const allApplicationIds = useMemo(
@@ -229,8 +229,17 @@ const JobPipelinePage = () => {
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const { active } = event;
-    const app = applications.find((app) => app.id === active.id);
+    const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
+
+    // ✅ Center source pipeline on screen
+    const sourceId = active.data.current?.sortable.containerId;
+    const sourceColumn = document.querySelector(
+      `[data-status="${sourceId}"]`
+    ) as HTMLElement | null;
+    if (sourceColumn) {
+      sourceColumn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -257,9 +266,7 @@ const JobPipelinePage = () => {
             success: 'Status updated successfully!',
             error: (err) => {
               setApplications(job?.applications || []);
-              return (
-                err.response?.data?.message || 'Failed to update status.'
-              );
+              return err.response?.data?.message || 'Failed to update status.';
             },
           }
         );
@@ -335,6 +342,7 @@ const JobPipelinePage = () => {
 
       <DndContext
         sensors={sensors}
+        modifiers={[snapCenterToCursor]}  // ✅ Center drag overlay
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         collisionDetection={closestCenter}
