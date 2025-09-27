@@ -23,12 +23,7 @@ import {
   Filter,
   Loader2,
 } from 'lucide-react';
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -43,7 +38,7 @@ import type {
 } from '../../types/application';
 import type { Position } from '../../types/job';
 
-// ---------- STATIC CARD ----------
+// ---------- STATIC CARD (used inside DragOverlay) ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -82,7 +77,7 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// ---------- SORTABLE CARD ----------
+// ---------- SORTABLE CARD (hidden while dragging) ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
   const {
     attributes,
@@ -134,7 +129,7 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
-      data-status={status}
+      data-status={status} // for targeting
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
@@ -180,19 +175,23 @@ const JobPipelinePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
-  // reference to horizontal wrapper to enable scrollIntoView after switching
-  const horizontalWrapperRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null); // ✅ reference to scroll wrapper
 
   const isTouchDevice = () =>
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 300, tolerance: 5 },
+    activationConstraint: {
+      delay: 300,
+      tolerance: 5,
+    },
   });
+
   const pointerSensor = useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
   });
+
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
 
   const pipelineColumns: { title: string; status: ApplicationStatus }[] = [
@@ -224,39 +223,40 @@ const JobPipelinePage = () => {
   );
 
   useEffect(() => {
-    if (job?.applications) setApplications(job.applications);
+    if (job?.applications) {
+      setApplications(job.applications);
+    }
   }, [job]);
 
-  // --- drag handlers ---
   const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
     const { active } = event;
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
 
-    // 1. Switch to horizontal mode first
-    setIsDragging(true);
+    const sourceId = active.data.current?.sortable.containerId;
+    const sourceColumn = document.querySelector(
+      `[data-status="${sourceId}"]`
+    ) as HTMLElement | null;
 
-    // 2. After layout update, center the source column horizontally
-    requestAnimationFrame(() => {
-      const sourceId = active.data.current?.sortable.containerId;
-      if (!sourceId || !horizontalWrapperRef.current) return;
-      const sourceColumn = horizontalWrapperRef.current.querySelector(
-        `[data-status="${sourceId}"]`
-      ) as HTMLElement | null;
-      if (sourceColumn) {
-        sourceColumn.scrollIntoView({
-          behavior: 'smooth',
-          inline: 'center',
-          block: 'nearest',
-        });
-      }
-    });
+    // ✅ when we switch to horizontal, scroll wrapper to center origin column
+    if (sourceColumn && wrapperRef.current) {
+      // wait one frame so horizontal mode is applied
+      requestAnimationFrame(() => {
+        const wrapper = wrapperRef.current!;
+        const columnRect = sourceColumn.getBoundingClientRect();
+        const offset =
+          sourceColumn.offsetLeft -
+          wrapper.clientWidth / 2 +
+          columnRect.width / 2;
+        wrapper.scrollTo({ left: offset, behavior: 'smooth' });
+      });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
     setActiveApplication(null);
-
     const { active, over } = event;
     if (over && active.id) {
       const sourceContainerId = active.data.current?.sortable.containerId;
@@ -361,11 +361,11 @@ const JobPipelinePage = () => {
       >
         <SortableContext items={allApplicationIds}>
           <div
-            ref={horizontalWrapperRef}
+            ref={wrapperRef} // ✅ ref to horizontal scroll wrapper
             className={
               'pt-2 transition-all duration-300 ease-in-out ' +
               (isDragging
-                ? 'flex gap-3 overflow-x-auto pb-4 md:scale-95 md:gap-2'
+                ? 'flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:scale-95 md:gap-2'
                 : 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5')
             }
           >
