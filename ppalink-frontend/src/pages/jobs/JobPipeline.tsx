@@ -23,7 +23,12 @@ import {
   Filter,
   Loader2,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -175,6 +180,9 @@ const JobPipelinePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(null);
 
+  // reference to horizontal wrapper to enable scrollIntoView after switching
+  const horizontalWrapperRef = useRef<HTMLDivElement | null>(null);
+
   const isTouchDevice = () =>
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -216,21 +224,39 @@ const JobPipelinePage = () => {
   );
 
   useEffect(() => {
-    if (job?.applications) {
-      setApplications(job.applications);
-    }
+    if (job?.applications) setApplications(job.applications);
   }, [job]);
 
+  // --- drag handlers ---
   const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
     const { active } = event;
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
+
+    // 1. Switch to horizontal mode first
+    setIsDragging(true);
+
+    // 2. After layout update, center the source column horizontally
+    requestAnimationFrame(() => {
+      const sourceId = active.data.current?.sortable.containerId;
+      if (!sourceId || !horizontalWrapperRef.current) return;
+      const sourceColumn = horizontalWrapperRef.current.querySelector(
+        `[data-status="${sourceId}"]`
+      ) as HTMLElement | null;
+      if (sourceColumn) {
+        sourceColumn.scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest',
+        });
+      }
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
     setActiveApplication(null);
+
     const { active, over } = event;
     if (over && active.id) {
       const sourceContainerId = active.data.current?.sortable.containerId;
@@ -335,11 +361,12 @@ const JobPipelinePage = () => {
       >
         <SortableContext items={allApplicationIds}>
           <div
-            id="pipelineWrapper"
+            ref={horizontalWrapperRef}
             className={
-              isDragging
-                ? 'flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4'
-                : 'grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              'pt-2 transition-all duration-300 ease-in-out ' +
+              (isDragging
+                ? 'flex gap-3 overflow-x-auto pb-4 md:scale-95 md:gap-2'
+                : 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5')
             }
           >
             {pipelineColumns.map((col) => {
@@ -348,7 +375,7 @@ const JobPipelinePage = () => {
                 <div
                   key={col.status}
                   style={{ display: isVisible ? 'flex' : 'none' }}
-                  className={isDragging ? 'w-64 flex-shrink-0' : 'w-full'}
+                  className={isDragging ? 'w-64 flex-shrink-0 md:w-auto' : ''}
                 >
                   <PipelineColumn
                     title={col.title}
