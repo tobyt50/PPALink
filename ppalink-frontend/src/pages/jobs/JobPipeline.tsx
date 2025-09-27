@@ -38,7 +38,7 @@ import type {
 } from '../../types/application';
 import type { Position } from '../../types/job';
 
-// ---------- STATIC CARD (used inside DragOverlay) ----------
+// ---------- STATIC CARD ----------
 const StaticApplicantCard = ({ application }: { application: Application }) => {
   const { candidate } = application;
   return (
@@ -77,7 +77,7 @@ const StaticApplicantCard = ({ application }: { application: Application }) => {
   );
 };
 
-// ---------- SORTABLE CARD (hidden while dragging) ----------
+// ---------- SORTABLE CARD ----------
 const ApplicantCard = ({ application }: { application: Application }) => {
   const {
     attributes,
@@ -129,7 +129,7 @@ const PipelineColumn = ({
   return (
     <div
       ref={setNodeRef}
-      data-status={status} // ✅ used for scrollIntoView targeting
+      data-status={status}
       className={`
         rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none
         dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col
@@ -232,14 +232,11 @@ const JobPipelinePage = () => {
     const app = applications.find((a) => a.id === active.id);
     if (app) setActiveApplication(app);
 
-    // ✅ Center source pipeline on screen
     const sourceId = active.data.current?.sortable.containerId;
     const sourceColumn = document.querySelector(
       `[data-status="${sourceId}"]`
     ) as HTMLElement | null;
-    if (sourceColumn) {
-      sourceColumn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    sourceColumn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -253,37 +250,39 @@ const JobPipelinePage = () => {
 
       if (sourceContainerId !== destinationContainerId) {
         const newStatus = destinationContainerId as ApplicationStatus;
-        setApplications((prev) =>
-          prev.map((app) =>
-            app.id === applicationId ? { ...app, status: newStatus } : app
-          )
-        );
 
-        toast.promise(
-          applicationService.updateApplicationStatus(applicationId, newStatus),
-          {
-            loading: 'Updating status...',
-            success: 'Status updated successfully!',
-            error: (err) => {
-              setApplications(job?.applications || []);
-              return err.response?.data?.message || 'Failed to update status.';
-            },
-          }
-        );
+        // ✅ delay state update to avoid drag freeze
+        requestAnimationFrame(() => {
+          setApplications((prev) =>
+            prev.map((app) =>
+              app.id === applicationId ? { ...app, status: newStatus } : app
+            )
+          );
 
-        // ✅ After status update, auto-scroll target column into center
-        const targetColumn = document.querySelector(
-          `[data-status="${newStatus}"]`
-        ) as HTMLElement | null;
-        if (targetColumn) {
+          toast.promise(
+            applicationService.updateApplicationStatus(applicationId, newStatus),
+            {
+              loading: 'Updating status...',
+              success: 'Status updated successfully!',
+              error: (err) => {
+                setApplications(job?.applications || []);
+                return err.response?.data?.message || 'Failed to update status.';
+              },
+            }
+          );
+
+          // ✅ smooth scroll to the target column after layout settles
           setTimeout(() => {
-            targetColumn.scrollIntoView({
+            const targetColumn = document.querySelector(
+              `[data-status="${newStatus}"]`
+            ) as HTMLElement | null;
+            targetColumn?.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
               inline: 'center',
             });
           }, 250);
-        }
+        });
       }
     }
   };
