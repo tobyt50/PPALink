@@ -44,6 +44,10 @@
     --color-gray-950: #09090b;
     /* Almost Black */
     --font-sans: "Inter", system-ui, sans-serif;
+    --skeleton-base-color: #e2e8f0;
+    /* slate-200 */
+    --skeleton-highlight-color: #f1f5f9;
+    /* slate-100 */
 }
 
 
@@ -85,6 +89,10 @@
         --color-gray-950: #111111;
         /* Card/Surface Background */
         --navbar-bg: var(--color-gray-920);
+        --skeleton-base-color: #3f3f46;
+        /* zinc-700 */
+        --skeleton-highlight-color: #52525b;
+        /* zinc-600 */
     }
     [data-theme="dark"] body {
         background-color: var(--color-gray-50);
