@@ -11,7 +11,7 @@ import { ThemeProvider } from './context/ThemeProvider';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
+    <SkeletonTheme baseColor="var(--skeleton-base-color)" highlightColor="var(--skeleton-highlight-color)">
       <Toaster
         position="top-center"
         reverseOrder={false}
