@@ -1,7 +1,8 @@
 ﻿import { Analytics } from '@vercel/analytics/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster, ToastBar, type Toast } from 'react-hot-toast';
+import { X } from 'lucide-react';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './index.css';
@@ -11,29 +12,69 @@ import { ThemeProvider } from './context/ThemeProvider';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
-      <Toaster 
+      <Toaster
         position="top-center"
         reverseOrder={false}
-        gutter={8}
-        toastOptions={{
-          style: {
-            background: '#ffffff', // White background
-            color: '#1e293b',      // Dark text (slate-800)
-            border: '1px solid #e2e8f0', // Light border (slate-200)
-            borderRadius: '12px',   // Slightly rounded corners
-            fontSize: '14px',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', // Subtle shadow
-          },
-          success: {
-            duration: 3000,
-          },
-          error: {
-            duration: 4000,
-          },
-        }}
-      />
+        gutter={12}
+        toastOptions={{ duration: 4000 }}
+      >
+        {(t: Toast) => (
+          <ToastBar
+            toast={t}
+            style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}
+          >
+            {({ icon, message }) => (
+              <div
+  onClick={() => {
+    if ((t as any).link && (t as any).navigate) {
+      (t as any).navigate((t as any).link);
+      toast.dismiss(t.id);
+    }
+  }}
+  className={`${
+    t.visible ? 'animate-enter' : 'animate-leave'
+  } w-full max-w-sm transform-gpu rounded-2xl bg-white dark:bg-zinc-900 shadow-lg dark:shadow-md transition-all hover:bg-gray-50 dark:hover:bg-zinc-800/70 cursor-pointer`}
+>
+  <div className="flex items-center p-2">
+    {/* Icon */}
+    {icon && (
+      <div className="flex-shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
+          {icon}
+        </div>
+      </div>
+    )}
+
+    {/* Message Only */}
+    <div className="ml-3 flex-1">
+      <p className="text-sm text-gray-600 dark:text-zinc-300">{message}</p>
+    </div>
+
+    {/* Close Button */}
+    {t.type !== 'loading' && (
+      <div className="ml-3 flex flex-shrink-0">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toast.dismiss(t.id);
+          }}
+          className="inline-flex rounded-full p-1.5 text-gray-400 dark:text-zinc-500 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-600 dark:hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+          <span className="sr-only">Close</span>
+          <X className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
+
       <ThemeProvider>
-      <AppRouter />
+        <AppRouter />
       </ThemeProvider>
       <Analytics />
     </SkeletonTheme>

@@ -181,13 +181,14 @@ const JobPipelinePage = () => {
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 400,    // increased for safer start
+      delay: 400,    // unchanged — mobile behavior preserved
       tolerance: 8,
     },
   });
 
+  // ---------- only change: relaxed desktop pointer activation ----------
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 12 }, // slightly higher distance
+    activationConstraint: { distance: 4 }, // reduced from 12 → 4 for desktop
   });
 
   const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);

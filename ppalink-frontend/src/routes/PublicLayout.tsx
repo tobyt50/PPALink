@@ -8,7 +8,7 @@ const PublicLayout = () => {
       <PublicHeader />
 
       <div className="flex-1 overflow-y-auto scrollbar-thin">
-        <main className="pb-4">
+        <main className="pb-0">
           <Outlet />
         </main>
 
