@@ -21,6 +21,8 @@ model User {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   hasCompletedAdminOnboarding Boolean @default(false)
+  twoFactorSecret         String?  // The encrypted secret key for the authenticator app
+  isTwoFactorEnabled      Boolean  @default(false)
   auditLogs       AuditLog[] @relation("AdminActions")
   activityLogs    ActivityLog[]
   candidateProfile CandidateProfile?

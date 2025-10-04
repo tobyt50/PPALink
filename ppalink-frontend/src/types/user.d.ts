@@ -20,6 +20,7 @@ export interface User {
   ownedAgencies?: Agency[];
   passwordResetRequired: boolean;
   hasCompletedAdminOnboarding: boolean;
+  isTwoFactorEnabled: boolean;
 }
 
 export interface ActivityLog {

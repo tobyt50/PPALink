@@ -46,25 +46,29 @@ export async function registerAgencyHandler(
 }
 
 
-export async function loginHandler(
-    req: Request<{}, {}, LoginInput>,
-    res: Response,
-    next: NextFunction
-) {
-    try {
-        const { user, token } = await login(req.body);
-        return res.status(200).json({
-            success: true,
-            message: 'Login successful',
-            data: { user, token },
-        });
-    } catch (error: any) {
-        // For login, always return a generic error message for security
-        if (error.message.includes('Invalid')) {
-             return res.status(401).json({ success: false, message: 'Invalid email or password' });
-        }
-        next(error);
+export async function loginHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    // 1. The result from the service has a varying shape.
+    const result = await login(req.body as LoginInput);
+
+    // 2. Check for the 2FA required flag.
+    if ((result as any).twoFactorRequired) {
+      // If it exists, send the specific 2FA response shape.
+      return res.status(200).json({ success: true, twoFactorRequired: true });
     }
+
+    // 3. If the flag is NOT present, it means a full, successful login occurred.
+    // We must wrap the result in the standard AuthResponse envelope.
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: result, // result is { user, token }
+    });
+
+  } catch (error) {
+    // Errors like "Invalid password" or "Invalid 2FA token" are caught here.
+    next(error);
+  }
 }
 
 export async function changePasswordHandler(req: AuthRequest, res: Response, next: NextFunction) {

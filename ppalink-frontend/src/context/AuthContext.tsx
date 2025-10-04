@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { User } from '../types/user';
+import authService from '../services/auth.service';
 
 interface AuthState {
   user: User | null;
@@ -12,6 +13,7 @@ interface AuthState {
   logout: () => void;
   startImpersonation: (impersonatedUser: User, impersonationToken: string) => void;
   stopImpersonation: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 // Create the store
@@ -77,6 +79,16 @@ export const useAuthStore = create<AuthState>()(
           impersonator: null,
           isImpersonating: false,
         });
+      },
+      refreshUser: async () => {
+        try {
+            const freshUser = await authService.getMyProfile();
+            set({ user: freshUser });
+        } catch (error) {
+            console.error("Failed to refresh user session:", error);
+            // If the token is expired, this will fail. We should log the user out.
+            get().logout();
+        }
       },
     }),
     {
