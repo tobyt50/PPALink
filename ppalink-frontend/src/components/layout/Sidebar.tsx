@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, type LucideIcon, X } from 'lucide-react';
 import { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../context/AuthContext';
 import { useUIStore } from '../../context/UISlice';
 
@@ -12,7 +12,14 @@ export interface NavItem {
   end?: boolean;
 }
 
-const SidebarLink = ({ to, icon: Icon, text, isCollapsed, end, onClick }: NavItem & { isCollapsed: boolean; onClick?: () => void; }) => {
+const SidebarLink = ({
+  to,
+  icon: Icon,
+  text,
+  isCollapsed,
+  end,
+  onClick,
+}: NavItem & { isCollapsed: boolean; onClick?: () => void }) => {
   return (
     <NavLink
       to={to}
@@ -28,13 +35,13 @@ const SidebarLink = ({ to, icon: Icon, text, isCollapsed, end, onClick }: NavIte
     >
       <Icon className="h-5 w-5 flex-shrink-0" />
       {!isCollapsed && <span className="ml-3 truncate">{text}</span>}
-      
+
       {/* Tooltip for collapsed sidebar */}
       {isCollapsed && (
-          <div className="absolute left-full top-1/2 z-20 ml-4 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-900 dark:bg-zinc-100 px-2 py-1.5 text-xs font-medium text-white dark:text-zinc-100 opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
-            {text}
-          </div>
-        )}
+        <div className="absolute left-full top-1/2 z-20 ml-4 -translate-y-1/2 whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
+          {text}
+        </div>
+      )}
     </NavLink>
   );
 };
@@ -44,8 +51,11 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   const isCollapsed = !isSidebarOpen;
   const user = useAuthStore((state) => state.user);
 
-  const title = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? 'Admin Panel' : 'Quick Links';
-  
+  const title =
+    user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
+      ? 'Admin Panel'
+      : 'Quick Links';
+
   const handleLinkClick = () => {
     // Auto-close sidebar on mobile when a link is clicked
     if (window.innerWidth < 768 && isSidebarOpen) {
@@ -54,26 +64,49 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   };
 
   return (
-    <aside className={`flex flex-col flex-shrink-0 h-full bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-17.5'}`}>
-      <div className={`p-4 flex items-center h-14 border-b border-gray-100 dark:border-zinc-800 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-         {!isCollapsed && (
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-              {title}
-            </span>
-         )}
+    <aside
+      className={`flex flex-col flex-shrink-0 h-full bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800 transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'w-64' : 'w-17.5'
+      }`}
+    >
+      <div
+        className={`p-4 flex items-center h-14 border-b border-gray-100 dark:border-zinc-800 ${
+          isCollapsed ? 'justify-center' : 'justify-between'
+        }`}
+      >
+        {!isCollapsed && (
+          <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+            {title}
+          </span>
+        )}
         {/* Desktop Collapse Button */}
-        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 hidden md:block">
-          <ChevronLeft className={`h-5 w-5 text-gray-500 dark:text-zinc-400 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+        <button
+          onClick={toggleSidebar}
+          className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 hidden md:block"
+        >
+          <ChevronLeft
+            className={`h-5 w-5 text-gray-500 dark:text-zinc-400 transition-transform duration-300 ${
+              isCollapsed ? 'rotate-180' : ''
+            }`}
+          />
         </button>
-        {/* Mobile Close Button (now integrated here) */}
-        <button onClick={toggleSidebar} className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 md:hidden">
+        {/* Mobile Close Button */}
+        <button
+          onClick={toggleSidebar}
+          className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 md:hidden"
+        >
           <X className="h-5 w-5 text-gray-500 dark:text-zinc-400" />
         </button>
       </div>
 
       <nav className="flex-grow space-y-1.5 px-3 py-4">
         {navItems.map((item) => (
-          <SidebarLink key={item.to} {...item} isCollapsed={isCollapsed} onClick={handleLinkClick} />
+          <SidebarLink
+            key={item.to}
+            {...item}
+            isCollapsed={isCollapsed}
+            onClick={handleLinkClick}
+          />
         ))}
       </nav>
     </aside>
@@ -82,18 +115,12 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
 
 const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
   const { isSidebarOpen, setSidebarOpen, toggleSidebar } = useUIStore();
-  
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    const handleResize = () => setSidebarOpen(mediaQuery.matches);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [setSidebarOpen]);
+  const location = useLocation();
 
+  // Custom collapse for /inbox pages
   useEffect(() => {
     if (location.pathname.startsWith('/inbox')) {
-      setSidebarOpen(false); // collapsed state
+      setSidebarOpen(false);
     }
   }, [location.pathname, setSidebarOpen]);
 
@@ -133,4 +160,3 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
 };
 
 export default Sidebar;
-

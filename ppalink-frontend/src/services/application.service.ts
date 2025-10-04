@@ -1,6 +1,13 @@
 import apiClient from '../config/axios';
 import type { Application, ApplicationStatus } from '../types/application';
 
+interface PipelineQueryFilters {
+  q?: string;
+  skills?: string[];
+  appliedAfter?: string;
+  appliedBefore?: string;
+}
+
 class ApplicationService {
   /**
    * Creates an application, linking a candidate to a position.
@@ -40,6 +47,24 @@ class ApplicationService {
   async applyForJob(positionId: string): Promise<Application> {
     const response = await apiClient.post('/candidates/applications/apply', { positionId });
     return response.data.data;
+  }
+
+  /**
+   * Performs a comprehensive search and filter query within a job's pipeline.
+   * @param jobId The ID of the job to query.
+   * @param filters The search and filter criteria.
+   */
+  async queryPipeline(agencyId: string, jobId: string, filters: PipelineQueryFilters): Promise<Application[]> {
+    const response = await apiClient.post(`/agencies/${agencyId}/jobs/${jobId}/pipeline/query`, filters);
+    return response.data.data;
+  }
+
+  /**
+   * Deletes a specific application from a pipeline.
+   * @param applicationId The ID of the application to delete.
+   */
+  async deleteApplication(applicationId: string): Promise<void> {
+    await apiClient.delete(`/applications/${applicationId}`);
   }
 }
 

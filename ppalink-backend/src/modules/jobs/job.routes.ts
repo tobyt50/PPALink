@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { validate } from '../../middleware/validate';
-import { createJobHandler, deleteJobHandler, getAgencyJobsHandler, getJobDetailsHandler, getJobPipelineHandler, updateJobHandler } from './job.controller';
+import { createJobHandler, deleteJobHandler, exportPipelineHandler, getAgencyJobsHandler, getJobDetailsHandler, getJobPipelineHandler, updateJobHandler } from './job.controller';
 import { createJobPositionSchema, updateJobPositionSchema } from './job.types';
 
 const router = Router({ mergeParams: true }); // mergeParams is essential for nested routes
@@ -21,5 +21,8 @@ router.delete('/:jobId', deleteJobHandler);
 
 // GET /api/agencies/:agencyId/jobs/:jobId/pipeline
 router.get('/:jobId/pipeline', getJobPipelineHandler);
+
+// GET /api/agencies/:agencyId/jobs/:jobId/pipeline/export
+router.get('/:jobId/pipeline/export', exportPipelineHandler);
 
 export default router;

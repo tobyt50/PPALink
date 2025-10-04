@@ -3,7 +3,6 @@ import { Briefcase, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
-import { ThemeToggle } from '../ui/ThemeToggle';
 
 const PublicHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -31,7 +30,6 @@ const PublicHeader = () => {
 
           {/* Buttons */}
           <div className="flex items-center gap-2">
-  <ThemeToggle />
   <Link to="/login">
     <Button variant="ghost" className="whitespace-nowrap">Login</Button>
   </Link>

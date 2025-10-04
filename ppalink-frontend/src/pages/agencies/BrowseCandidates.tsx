@@ -1,5 +1,6 @@
 import { Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -17,8 +18,14 @@ import FilterSidebar, {
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
 
 const BrowseCandidatesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<CandidateFilterValues | null>(null);
+  const [searchParams] = useSearchParams();
+
+const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
+
+const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
+  const stored = searchParams.get("filters");
+  return stored ? JSON.parse(stored) : null;
+});
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -98,7 +105,14 @@ const BrowseCandidatesPage = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Sidebar */}
         <aside className="lg:col-span-1">
-          <div className="sticky top-20 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5">
+          <div className="
+    sticky top-2
+    max-h-[calc(100vh-5rem)]   /* don’t exceed the viewport */
+    overflow-auto              /* scroll internally if filters get tall */
+    rounded-2xl bg-white dark:bg-zinc-900
+    shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
+    p-5
+  ">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4">
               Filters
             </h2>
@@ -163,12 +177,13 @@ const BrowseCandidatesPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 {candidates.map((candidate) => (
                   <Link
-                    key={candidate.id}
-                    to={`/dashboard/agency/candidates/${candidate.id}/profile`}
-                    className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
-                  >
-                    <CandidateCard candidate={candidate} />
-                  </Link>
+  key={candidate.id}
+  to={`/dashboard/agency/candidates/${candidate.id}/profile?q=${encodeURIComponent(debouncedSearchQuery)}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
+  className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
+>
+  <CandidateCard candidate={candidate} />
+</Link>
+
                 ))}
               </div>
             )}

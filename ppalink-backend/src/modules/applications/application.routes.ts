@@ -2,7 +2,7 @@ import { Role } from '@prisma/client';
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { requireRole } from '../../middleware/rbac';
-import { createApplicationHandler, getApplicationDetailsHandler, updateApplicationHandler, } from './application.controller';
+import { createApplicationHandler, getApplicationDetailsHandler, updateApplicationHandler, deleteApplicationHandler } from './application.controller';
 
 const router = Router();
 
@@ -11,6 +11,7 @@ const agencyRouter = Router();
 agencyRouter.use(authenticate, requireRole([Role.AGENCY]));
 agencyRouter.post('/', createApplicationHandler);
 agencyRouter.patch('/:applicationId', updateApplicationHandler);
+agencyRouter.delete('/:applicationId', deleteApplicationHandler);
 
 // GET /api/applications/:applicationId
 agencyRouter.get('/:applicationId', getApplicationDetailsHandler);

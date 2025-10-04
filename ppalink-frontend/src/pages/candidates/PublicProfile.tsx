@@ -1,7 +1,7 @@
 import { BadgeCheck, Briefcase, CheckCircle, ChevronDown, ChevronLeft, GraduationCap, Heart, Loader2, MapPin, Tag, Trash2, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
 import { useDataStore } from '../../context/DataStore';
@@ -30,6 +30,11 @@ const PublicProfilePage = () => {
     
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAddToJobModalOpen, setIsAddToJobModalOpen] = useState(false);
+
+  const [searchParams] = useSearchParams();
+const backLink = `/dashboard/agency/candidates/browse${
+  searchParams.toString() ? `?${searchParams.toString()}` : ''
+}`;
 
   const handleToggleShortlist = async () => {
     if (!candidateId || isProcessing) return;
@@ -81,6 +86,8 @@ const PublicProfilePage = () => {
   
   const locationState = states.find(s => s.id === profile.primaryStateId)?.name;
 
+  const initials = `${profile.firstName?.[0] || ""}${profile.lastName?.[0] || ""}`;
+
   return (
     <>
       <AddToJobModal
@@ -91,10 +98,11 @@ const PublicProfilePage = () => {
 
       <div className="space-y-5">
         <div className="flex items-center justify-between">
-           <Link to="/dashboard/agency/candidates/browse" className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-            <ChevronLeft className="h-4 w-4 mr-1.5" />
-            Back to Search Results
-          </Link>
+           <Link to={backLink} className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+  <ChevronLeft className="h-4 w-4 mr-1.5" />
+  Back to Search Results
+</Link>
+
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -103,7 +111,12 @@ const PublicProfilePage = () => {
             {/* Profile Header Card */}
             <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
               <div className="flex items-start">
-                <div className="h-24 w-24 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0" />
+                {/* Avatar */}
+        <div
+  className="h-24 w-24 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 text-4xl font-bold"
+>
+  {initials}
+</div>
                 <div className="ml-6 flex-grow">
                   <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                     {profile.firstName} {profile.lastName}

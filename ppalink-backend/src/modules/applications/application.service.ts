@@ -1,5 +1,6 @@
 import { ApplicationStatus, NotificationType } from '@prisma/client';
 import type { Server } from 'socket.io';
+import { ioInstance, onlineUsers } from '../../config/socket';
 import prisma from '../../config/db';
 import { logActivity } from '../activity/activity.service';
 import { createNotification } from '../notifications/notification.service';
@@ -105,6 +106,23 @@ export async function updateApplication(
     }, io);
   }
 
+  const agencyMembers = await prisma.agencyMember.findMany({
+    where: { agencyId },
+    select: { userId: true },
+  });
+  
+  const onlineMemberSocketIds = agencyMembers
+    .map(member => onlineUsers.get(member.userId))
+    .filter(Boolean) as string[];
+
+  // If there are any online members, broadcast the update.
+  if (onlineMemberSocketIds.length > 0) {
+    io.to(onlineMemberSocketIds).emit('pipeline:application_updated', {
+      jobId: updatedApplication.positionId,
+      application: updatedApplication,
+    });
+  }
+
   return updatedApplication;
 }
   
@@ -188,4 +206,35 @@ export async function getApplicationDetails(applicationId: string, agencyId: str
   }
 
   return application;
+}
+
+/**
+ * Deletes a single application.
+ * Includes a security check to ensure the user is part of the correct agency.
+ * @param applicationId The ID of the application to delete.
+ * @param agencyId The ID of the agency performing the action.
+ * @param actorId The ID of the user performing the action (for auditing).
+ */
+export async function deleteApplication(applicationId: string, agencyId: string, actorId: string) {
+  // Find the application to ensure it belongs to the correct agency before deleting
+  const applicationToDelete = await prisma.application.findFirstOrThrow({
+    where: {
+      id: applicationId,
+      position: {
+        agencyId: agencyId,
+      },
+    },
+  });
+
+  const result = await prisma.application.delete({
+    where: { id: applicationId },
+  });
+
+  await logActivity(actorId, 'application.delete', {
+    applicationId: applicationToDelete.id,
+    candidateId: applicationToDelete.candidateId,
+    positionId: applicationToDelete.positionId,
+  });
+
+  return result;
 }
