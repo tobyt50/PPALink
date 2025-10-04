@@ -46,6 +46,7 @@ export const RegisterAgencySchema = z.object({
 export const LoginSchema = z.object({
   email: z.string().email('A valid email is required'),
   password: z.string().min(1, 'Password is required'),
+  twoFactorToken: z.string().optional(),
 });
 
 export const changePasswordSchema = z.object({

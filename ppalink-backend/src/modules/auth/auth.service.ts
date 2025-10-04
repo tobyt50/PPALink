@@ -5,6 +5,7 @@ import { hashPassword, signToken, verifyPassword } from '../utils/crypto';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
 import { logActivity } from '../activity/activity.service';
 import { logAdminAction } from '../auditing/audit.service';
+import { validateTwoFactorToken } from './2fa.service';
 
 // --- Candidate Registration Service ---
 export async function registerCandidate(input: RegisterCandidateInput) {
@@ -115,7 +116,7 @@ export async function registerAgency(input: RegisterAgencyInput) {
 
 // --- Login Service ---
 export async function login(input: LoginInput) {
-  const { email, password } = input;
+  const { email, password, twoFactorToken } = input;
   
   const user = await prisma.user.findUnique({ where: { email } });
   
@@ -126,6 +127,20 @@ export async function login(input: LoginInput) {
   const isPasswordValid = await verifyPassword(user.passwordHash, password);
   if (!isPasswordValid) {
       throw new Error('Invalid email or password');
+  }
+
+  if (user.isTwoFactorEnabled) {
+    if (!twoFactorToken) {
+      // 1. 2FA is required, but no token was provided.
+      // Signal to the frontend that the 2FA step is needed.
+      return { twoFactorRequired: true };
+    }
+
+    // 2. A 2FA token was provided, so we must validate it.
+    const isTokenValid = await validateTwoFactorToken(user.id, twoFactorToken);
+    if (!isTokenValid) {
+      throw new Error('Invalid 2FA token.');
+    }
   }
 
   await logActivity(user.id, 'user.login');
