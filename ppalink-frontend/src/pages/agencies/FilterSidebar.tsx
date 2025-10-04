@@ -109,6 +109,7 @@ const FilterSidebar = ({ onFilterChange, agency }: FilterSidebarProps) => {
         onSubmit={handleSubmit(handleApplyFilters)}
         className={`space-y-6 ${isCompactMobile ? 'hidden md:block' : 'block'}`}
       >
+        
         {/* --- Basic Filters (Always visible) --- */}
         <div className="flex flex-col space-y-1.5">
           <Label>Location State</Label>

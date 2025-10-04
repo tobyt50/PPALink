@@ -118,6 +118,19 @@ class AgencyService {
   async markOnboardingComplete(): Promise<void> {
     await apiClient.post('/agencies/complete-onboarding');
   }
+
+  /**
+   * Fetches the job pipeline data as a raw CSV string.
+   * @param agencyId The ID of the agency.
+   * @param jobId The ID of the job to export.
+   */
+  async exportPipeline(agencyId: string, jobId: string): Promise<string> {
+    const response = await apiClient.get(`/agencies/${agencyId}/jobs/${jobId}/pipeline/export`, {
+      // Tell axios to expect a plain text response
+      responseType: 'text',
+    });
+    return response.data;
+  }
 }
 
 export default new AgencyService();

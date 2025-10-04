@@ -2,7 +2,7 @@ import { ApplicationStatus } from '@prisma/client';
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '../../middleware/auth';
 import { getAgencyByUserId } from '../agencies/agency.service';
-import { createApplication, createCandidateApplication, getApplicationDetails, updateApplication, } from './application.service';
+import { createApplication, createCandidateApplication, getApplicationDetails, updateApplication, deleteApplication } from './application.service';
 
 /**
  * Handler for an agency to create a new application (add a candidate to a job pipeline).
@@ -122,6 +122,22 @@ export async function getApplicationDetailsHandler(req: AuthRequest, res: Respon
     const applicationDetails = await getApplicationDetails(applicationId, agency.id);
 
     return res.status(200).json({ success: true, data: applicationDetails });
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+}
+
+export async function deleteApplicationHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { applicationId } = req.params;
+    const agency = await getAgencyByUserId(req.user.id);
+
+    await deleteApplication(applicationId, agency.id, req.user.id);
+    res.status(204).send(); // 204 No Content for successful deletion
   } catch (error: any) {
     if (error.message.includes('not found')) {
       return res.status(404).json({ success: false, message: error.message });

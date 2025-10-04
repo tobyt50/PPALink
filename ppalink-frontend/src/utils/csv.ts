@@ -1,4 +1,5 @@
 import type { UserGrowthDataPoint, FunnelDataPoint, ReportFilters, CandidateInsightsData, AgencyInsightsData, JobMarketInsightsData } from '../types/analytics';
+import type { Application } from '../types/application';
 import type { AuditLog } from '../types/user';
 
 export function exportUserGrowthToCSV(data: UserGrowthDataPoint[], _filters: any) {
@@ -172,6 +173,40 @@ export function exportAuditLogsToCSV(data: AuditLog[]) {
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
   link.setAttribute("download", `ppalink_audit_log_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export function exportPipelineToCSV(data: Application[], jobTitle: string) {
+  if (!data || data.length === 0) {
+    alert("No applicant data to export.");
+    return;
+  }
+
+  const headers = [
+    'First Name', 'Last Name', 'Email', 'Current Stage',
+    'Date Applied', 'Skills', 'Verification Level', 'Profile Summary'
+  ];
+  
+  const rows = data.map(app => [
+    app.candidate.firstName,
+    app.candidate.lastName,
+    app.candidate.user?.email || 'N/A',
+    app.status,
+    new Date(app.createdAt).toISOString().split('T')[0],
+    app.candidate.skills?.map(s => s.skill.name).join(' | ') || '',
+    app.candidate.verificationLevel,
+    app.candidate.summary || ''
+  ]);
+
+  let csvContent = "data:text/csv;charset=utf-8," 
+    + [headers, ...rows].map(e => `"${e.map(String).join('","')}"`).join("\n");
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `${jobTitle.replace(/\s+/g, '_')}_pipeline_export.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

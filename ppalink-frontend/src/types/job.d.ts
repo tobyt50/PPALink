@@ -31,6 +31,8 @@ export interface Position {
   
   skills?: PositionSkill[];
   applications?: Application[]; 
+  pipelineInstitutions?: string[];
 
   agency?: Pick<Agency, 'id' | 'name' | 'domainVerified' | 'cacVerified'>;
+  metrics?: Record<ApplicationStatus, { avgDaysInStage: number }>;
 }

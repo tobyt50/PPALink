@@ -34,7 +34,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
           </p>
           <div className="mt-1 overflow-hidden">
   <p
-    className="text-sm text-gray-600 dark:text-zinc-300 leading-5 break-all"
+    className="text-sm text-gray-600 dark:text-zinc-300 leading-5 break-words"
     style={{
       display: '-webkit-box',
       WebkitBoxOrient: 'vertical',

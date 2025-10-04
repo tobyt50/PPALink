@@ -10,6 +10,7 @@ import { updateAgencyProfileSchema } from './agency.types';
 import { getAgencyAnalyticsHandler, getAgencyDashboardDataHandler } from '../analytics/analytics.controller';
 import { initiateDomainVerificationHandler } from '../verifications/domain.controller';
 import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
+import { queryApplicantsInPipelineHandler } from '../jobs/job.controller';
 
 const router = Router();
 // All routes below require the user to be an authenticated AGENCY user
@@ -55,5 +56,8 @@ router.post('/verifications', createVerificationSubmissionHandler);
 
 // POST /api/agencies/complete-onboarding
 router.post('/complete-onboarding', completeOnboardingHandler);
+
+// POST /api/agencies/:agencyId/jobs/:jobId/pipeline/query
+router.post('/:agencyId/jobs/:jobId/pipeline/query', queryApplicantsInPipelineHandler);
 
 export default router;

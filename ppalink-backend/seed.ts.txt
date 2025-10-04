@@ -1,0 +1,333 @@
+import { PrismaClient, Role, UserStatus, VerificationLevel } from '@prisma/client';
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+import { statesAndLgas } from './seed-data';
+import { industries } from './industries.data';
+import { 
+  nigerianFirstNames, 
+  nigerianLastNames, 
+  agencyNames, 
+  skillsList, 
+  degrees 
+} from './seed-candidates-agencies-data';
+
+const prisma = new PrismaClient();
+
+// Helper functions
+function rand<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randRange(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function createCandidates(count: number) {
+  console.log(`\n🌱 Creating ${count} Candidates...`);
+  
+  const allStates = await prisma.locationState.findMany();
+  const allLgas = await prisma.locationLGA.findMany();
+  const allIndustries = await prisma.industry.findMany();
+  const hashedPassword = await bcrypt.hash("Password123!", 10);
+
+  // Ensure skills exist, create if not
+  for (const skillName of skillsList) {
+    const slug = skillName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    await prisma.skill.upsert({
+      where: { name: skillName },
+      update: {}, // No need to update slug if it exists
+      create: {
+        name: skillName,
+        slug: slug, // Provide the generated slug
+      },
+    });
+}
+  const allSkills = await prisma.skill.findMany();
+
+  for (let i = 0; i < count; i++) {
+    const firstName = rand(nigerianFirstNames);
+    const lastName = rand(nigerianLastNames);
+    const email = faker.internet.email({ firstName, lastName }).toLowerCase();
+    const phone = `+23480${faker.string.numeric(8)}`;
+    const dob = faker.date.birthdate({ min: 22, max: 30, mode: 'age' });
+    const salaryMin = randRange(50000, 150000);
+    const salaryMax = salaryMin + randRange(20000, 100000);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        phone,
+        passwordHash: hashedPassword,
+        role: Role.CANDIDATE,
+        emailVerifiedAt: new Date(),
+        status: UserStatus.ACTIVE,
+        hasCompletedAdminOnboarding: faker.datatype.boolean(),
+      },
+    });
+
+    const candidate = await prisma.candidateProfile.create({
+      data: {
+        userId: user.id,
+        firstName,
+        lastName,
+        phone,
+        dob,
+        gender: faker.helpers.arrayElement(["Male", "Female"]),
+        nyscNumber: `NYSC/${faker.string.alphanumeric(6).toUpperCase()}`,
+        nyscBatch: faker.helpers.arrayElement(["A", "B", "C"]),
+        nyscStream: faker.helpers.arrayElement(["I", "II"]),
+        callupHash: faker.string.alphanumeric(12),
+        stateCode: faker.string.alphanumeric(6).toUpperCase(),
+        primaryStateId: rand(allStates).id,
+        lgaId: rand(allLgas).id,
+        disabilityInfo: faker.datatype.boolean() ? faker.lorem.sentence() : null,
+        isVerified: faker.datatype.boolean(),
+        verificationLevel: faker.helpers.arrayElement(Object.values(VerificationLevel)),
+        isRemote: faker.datatype.boolean(),
+        isOpenToReloc: faker.datatype.boolean(),
+        salaryMin,
+        salaryMax,
+        availability: faker.date.future(),
+        workAuth: "Nigerian Citizen",
+        summary: faker.lorem.paragraphs(2),
+        linkedin: `https://linkedin.com/in/${firstName.toLowerCase()}-${lastName.toLowerCase()}`,
+        portfolio: faker.internet.url(),
+        graduationYear: randRange(2015, 2023),
+        gpaBand: faker.helpers.arrayElement(["First Class", "Second Class Upper", "Second Class Lower", "Third Class"]),
+        cvFileKey: `cv_${faker.string.alphanumeric(8)}.pdf`,
+        nyscFileKey: `nysc_${faker.string.alphanumeric(8)}.pdf`,
+        hasCompletedOnboarding: true,
+      },
+    });
+
+    // Work Experience
+    for (let w = 0; w < randRange(1, 3); w++) {
+      const startDate = faker.date.past({ years: randRange(1, 5) });
+      const endDate = faker.datatype.boolean() ? faker.date.between({ from: startDate, to: new Date() }) : null;
+      await prisma.workExperience.create({
+        data: {
+          candidateId: candidate.id,
+          company: faker.company.name(),
+          title: faker.person.jobTitle(),
+          description: faker.lorem.sentences(2),
+          startDate,
+          endDate,
+          isCurrent: !endDate,
+        },
+      });
+    }
+
+    // Education
+    for (let e = 0; e < randRange(1, 2); e++) {
+        const startDate = faker.date.past({ years: randRange(4, 8) });
+        const endDate = faker.date.between({ from: startDate, to: new Date() });
+      await prisma.education.create({
+        data: {
+          candidateId: candidate.id,
+          institution: `${faker.company.name()} University`,
+          degree: rand(degrees),
+          field: faker.person.jobArea(),
+          grade: faker.helpers.arrayElement(["First Class", "Second Upper", "Second Lower"]),
+          startDate,
+          endDate,
+        },
+      });
+    }
+
+    // Skills
+    const skillSubset = faker.helpers.arrayElements(allSkills, randRange(3, 6));
+    for (const skill of skillSubset) {
+      await prisma.candidateSkill.create({
+        data: {
+          candidateId: candidate.id,
+          skillId: skill.id,
+          level: randRange(1, 5),
+          years: randRange(1, 7),
+        },
+      });
+    }
+
+    // Certificates
+    for (let c = 0; c < randRange(0, 2); c++) {
+      await prisma.candidateCertificate.create({
+        data: {
+          candidateId: candidate.id,
+          title: `${faker.person.jobTitle()} Certificate`,
+          issuer: faker.company.name(),
+          issuedAt: faker.date.past(),
+          fileKey: faker.system.fileName(),
+          fileHash: faker.string.alphanumeric(12),
+          verified: faker.datatype.boolean(),
+        },
+      });
+    }
+
+    // Credentials
+    for (let c = 0; c < randRange(0, 2); c++) {
+      await prisma.credential.create({
+        data: {
+          candidateId: candidate.id,
+          fileUrl: faker.internet.url(),
+          type: faker.helpers.arrayElement(["Transcript", "Recommendation", "Portfolio"]),
+          hash: faker.string.alphanumeric(12),
+          verified: faker.datatype.boolean(),
+        },
+      });
+    }
+  }
+  console.log(`✅ ${count} Candidates created.`);
+}
+
+async function createAgencies(count: number) {
+  console.log(`\n🌱 Creating ${count} Agencies...`);
+
+  const allStates = await prisma.locationState.findMany();
+  const allLgas = await prisma.locationLGA.findMany();
+  const allIndustries = await prisma.industry.findMany();
+  const hashedPassword = await bcrypt.hash("Password123!", 10);
+
+  for (let i = 0; i < count; i++) {
+    const name = `${rand(agencyNames)} ${faker.helpers.arrayElement(["Ltd", "Inc", "Consulting", "Resources"])}`;
+    const email = faker.internet.email({ firstName: name.replace(/\s/g, '') }).toLowerCase();
+    const phone = `+23490${faker.string.numeric(8)}`;
+
+    const owner = await prisma.user.create({
+      data: {
+        email,
+        phone,
+        passwordHash: hashedPassword,
+        role: Role.AGENCY,
+        emailVerifiedAt: new Date(),
+        status: UserStatus.ACTIVE,
+        hasCompletedAdminOnboarding: faker.datatype.boolean(),
+      },
+    });
+
+    await prisma.agency.create({
+      data: {
+        ownerUserId: owner.id,
+        name,
+        rcNumber: `RC${faker.string.numeric(6)}`,
+        industryId: rand(allIndustries).id,
+        website: faker.internet.url(),
+        domain: faker.internet.domainName(),
+        sizeRange: faker.helpers.arrayElement(["1-10", "11-50", "51-200", "200+"]),
+        domainVerified: faker.datatype.boolean(),
+        cacVerified: faker.datatype.boolean(),
+        logoKey: `logo_${faker.string.alphanumeric(6)}.png`,
+        headquartersStateId: rand(allStates).id,
+        lgaId: rand(allLgas).id,
+        hasCompletedOnboarding: true,
+      },
+    });
+  }
+  console.log(`✅ ${count} Agencies created.`);
+}
+
+async function main() {
+  console.log('💧 Starting database seeding...');
+
+  // -----------------------------
+  // Seed States & LGAs
+  // -----------------------------
+  console.log('\n🌍 Seeding states and LGAs...');
+
+  // Delete LGAs first due to foreign key constraints
+  await prisma.locationLGA.deleteMany({});
+  await prisma.locationState.deleteMany({});
+  console.log('Cleared existing location data.');
+
+  for (const stateData of statesAndLgas) {
+    const state = await prisma.locationState.create({
+      data: { name: stateData.state },
+    });
+    console.log(`Created state: ${state.name}`);
+
+    if (stateData.lgas && stateData.lgas.length > 0) {
+      const lgasToCreate = stateData.lgas.map((lgaName) => ({
+        name: lgaName,
+        stateId: state.id,
+      }));
+
+      await prisma.locationLGA.createMany({
+        data: lgasToCreate,
+      });
+
+      console.log(` -> Created ${lgasToCreate.length} LGAs for ${state.name}.`);
+    }
+  }
+
+  // -----------------------------
+  // Seed Industries
+  // -----------------------------
+  console.log('\n🏭 Seeding industries...');
+
+  await prisma.industry.deleteMany({});
+  console.log('Cleared existing industries.');
+
+  await prisma.industry.createMany({
+    data: industries.map((i) => ({
+      name: i.name.trim(),
+      isHeading: i.isHeading ?? false,
+      order: i.order,
+    })),
+  });
+
+  console.log(`Created ${industries.length} industries with headings + order.`);
+
+  console.log('\n✅ Database seeding completed successfully.');
+
+  console.log('Seeding platform settings...');
+  await prisma.setting.upsert({
+    where: { key: 'maintenanceMode' },
+    update: {},
+    create: {
+      key: 'maintenanceMode',
+      value: false,
+      description: 'If true, the entire public-facing site will be disabled.',
+    },
+  });
+
+  console.log('Seeding feature flags...');
+  await prisma.featureFlag.upsert({
+    where: { name: 'enableAiRecommendations' },
+    update: {},
+    create: {
+      name: 'enableAiRecommendations',
+      description: 'Enables the AI-powered candidate matching feature for Enterprise agencies.',
+      isEnabled: false, // Default to off
+    },
+  });
+
+  await prisma.setting.upsert({
+      where: { key: 'freeJobPostLimit' },
+      update: {},
+      create: {
+          key: 'freeJobPostLimit',
+          value: 1, // Store as a number
+          description: "The number of open jobs an agency on the 'Free' plan can have."
+      }
+  });
+  
+  await prisma.setting.upsert({
+      where: { key: 'freeMemberLimit' },
+      update: {},
+      create: {
+          key: 'freeMemberLimit',
+          value: 1,
+          description: "The number of team members an agency on the 'Free' plan can have."
+      }
+  });
+
+  console.log('Seeding complete.');
+}
+
+// Execute main and ensure Prisma disconnects
+main()
+  .catch((e) => {
+    console.error('❌ An error occurred during seeding:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

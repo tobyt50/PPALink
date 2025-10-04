@@ -1,6 +1,7 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response, Request } from 'express';
 import { AuthRequest } from '../../middleware/auth';
-import { checkAgencyMembership } from '../agencies/agency.service';
+import { checkAgencyMembership, getAgencyByUserId } from '../agencies/agency.service';
+import { exportPipelineToCSV } from './job.service';
 
 // Direct imports from job.service
 import {
@@ -12,6 +13,7 @@ import {
   getPublicJobById,
   getPublicJobs,
   updateJobPosition,
+  queryApplicantsInPipeline
 } from './job.service';
 
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
@@ -162,6 +164,39 @@ export async function getPublicJobByIdHandler(req: AuthRequest, res: Response, n
     if (error.message.includes('Job not found')) {
       return res.status(404).json({ success: false, message: error.message });
     }
+    next(error);
+  }
+}
+
+export async function queryApplicantsInPipelineHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { jobId } = req.params;
+    // The rich filter object comes from the request body
+    const filters = req.body;
+
+    const results = await queryApplicantsInPipeline(jobId, filters);
+    res.status(200).json({ success: true, data: results });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function exportPipelineHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { jobId } = req.params;
+    const agency = await getAgencyByUserId(req.user.id);
+    
+    const csvData = await exportPipelineToCSV(jobId, agency.id);
+
+    // 2. Set the correct headers for a CSV file download
+    res.header('Content-Type', 'text/csv');
+    res.attachment(`pipeline-export-${jobId}.csv`);
+    
+    // 3. Send the CSV data as the response
+    return res.send(csvData);
+
+  } catch (error) {
     next(error);
   }
 }
