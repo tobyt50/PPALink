@@ -4,6 +4,7 @@ import { useAuthStore } from '../context/AuthContext';
 import { useDataStore } from '../context/DataStore';
 import { useShortlistStore } from '../context/ShortlistStore';
 import { SocketProvider } from '../context/SocketContext';
+import { useNotificationStore } from '../context/NotificationStore';
 
 const ProtectedRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -11,15 +12,17 @@ const ProtectedRoute = () => {
   
   const fetchLookupData = useDataStore((state) => state.fetchLookupData);
   const fetchShortlist = useShortlistStore((state) => state.fetchShortlist);
+  const fetchNotificationStatus = useNotificationStore((state) => state.fetchStatus);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchLookupData();
+      fetchNotificationStatus();
       if (user?.role === 'AGENCY') {
         fetchShortlist();
       }
     }
-  }, [isAuthenticated, user?.role, fetchLookupData, fetchShortlist]);
+  }, [isAuthenticated, user?.role, fetchLookupData, fetchShortlist, fetchNotificationStatus]);
 
   if (!isAuthenticated) {
     // Store the original intended location so we can redirect back to it after login

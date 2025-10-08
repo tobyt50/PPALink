@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '../../../components/ui/Button';
 import { Label } from '../../../components/ui/Label';
+import { Textarea } from '../../../components/forms/Textarea';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { Send } from 'lucide-react';
@@ -19,23 +20,6 @@ interface SendMessageFormProps {
   onSubmit: (data: MessageFormValues) => Promise<void>;
   recipientEmail: string;
 }
-
-const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: boolean }) => {
-    const { error, ...rest } = props;
-    return (
-        <textarea
-            className={`
-                flex w-full rounded-xl border bg-white dark:bg-zinc-900 px-3 py-2 text-sm
-                transition-colors duration-150
-                placeholder:text-gray-400 dark:placeholder:text-zinc-600
-                focus-visible:outline-none focus-visible:ring-1
-                disabled:cursor-not-allowed disabled:opacity-50
-                ${error ? "border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 placeholder:text-red-400 dark:placeholder:text-red-500/80 focus-visible:ring-red-400 dark:focus-visible:ring-red-500" : "border-gray-200 dark:border-zinc-800 focus-visible:ring-primary-600"}
-            `}
-            {...rest}
-        />
-    );
-};
 
 export const SendMessageFormModal = ({ isOpen, onClose, onSubmit, recipientEmail }: SendMessageFormProps) => {
   const {
@@ -73,11 +57,11 @@ export const SendMessageFormModal = ({ isOpen, onClose, onSubmit, recipientEmail
                 <form onSubmit={handleSubmit(processSubmit)} className="mt-4 space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="message">Message</Label>
-                    <Textarea id="message" rows={6} {...register('message')} error={!!errors.message} />
+                    <Textarea id="message" rows={6} error={!!errors.message} {...register('message')} />
                     {errors.message && <p className="text-xs text-red-500">{errors.message.message}</p>}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-zinc-400">
-                    This message will be sent from the official System account and will appear in the user's PPAHire inbox.
+                    This message will be sent from the official System account and will appear in the user's PPALink inbox.
                   </p>
                   <div className="mt-6 flex justify-end space-x-2 pt-4 border-t border-gray-100 dark:border-zinc-800">
                     <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>

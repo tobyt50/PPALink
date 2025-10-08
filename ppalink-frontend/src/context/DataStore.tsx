@@ -1,3 +1,4 @@
+// DataStore.tsx
 import { create } from 'zustand';
 import apiClient from '../config/axios';
 import type { Industry } from '../types/agency';
@@ -22,15 +23,24 @@ export interface Degree {
   name: string;
 }
 
+export interface Skill {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface DataState {
   industries: Industry[];
   states: LocationState[];
   universities: University[];
   courses: string[];
   degrees: Degree[];
+  skills: Skill[];
+  verifiableSkills: Skill[];
   isLoading: boolean;
   hasFetched: boolean;
   fetchLookupData: () => Promise<void>;
+  fetchSkills: () => Promise<void>;
 }
 
 export const useDataStore = create<DataState>((set, get) => ({
@@ -39,6 +49,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   universities: [],
   courses: [],
   degrees: [],
+  skills: [],
+  verifiableSkills: [],
   isLoading: false,
   hasFetched: false,
 
@@ -50,12 +62,14 @@ export const useDataStore = create<DataState>((set, get) => ({
     set({ isLoading: true });
 
     try {
-      const [industriesRes, statesRes, unisRes, coursesRes, degreesRes] = await Promise.all([
+      const [industriesRes, statesRes, unisRes, coursesRes, degreesRes, skillsRes, verifiableSkillsRes] = await Promise.all([
         apiClient.get('/utils/industries'),
         apiClient.get('/utils/location-states'),
         apiClient.get('/utils/universities'),
         apiClient.get('/utils/courses'),
         apiClient.get('/utils/degrees'),
+        apiClient.get('/utils/skills'),
+        apiClient.get('/utils/verifiable-skills'),
       ]);
 
       set({
@@ -64,12 +78,23 @@ export const useDataStore = create<DataState>((set, get) => ({
         universities: unisRes.data.data,
         courses: coursesRes.data.data,
         degrees: degreesRes.data.data,
+        skills: skillsRes.data.data,
+        verifiableSkills: verifiableSkillsRes.data.data,
         hasFetched: true,
       });
     } catch (error) {
       console.error("Failed to fetch lookup data:", error);
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  fetchSkills: async () => {
+    try {
+        const skillsRes = await apiClient.get('/utils/skills');
+        set({ skills: skillsRes.data.data });
+    } catch (error) {
+        console.error("Failed to re-fetch skills", error);
     }
   },
 }));

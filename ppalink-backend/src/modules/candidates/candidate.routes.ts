@@ -7,8 +7,9 @@ import { createCandidateApplicationHandler } from '../applications/application.c
 import experienceRoutes from '../experience/experience.routes';
 import { acceptInvitationLoggedInHandler } from '../invitations/invitation.controller';
 import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
-import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler, getCandidateDashboardDataHandler, completeOnboardingHandler, updateSummaryHandler, setSkillsHandler, updateCvHandler } from './candidate.controller';
+import { getMyApplicationsHandler, getMyProfileHandler, getPublicCandidateProfileHandler, updateMyProfileHandler, getCandidateDashboardDataHandler, completeOnboardingHandler, updateSummaryHandler, setSkillsHandler, updateCvHandler, getRecommendedJobsHandler } from './candidate.controller';
 import { UpdateCandidateProfileSchema } from './candidate.types';
+import { findSimilarJobsHandler } from '../jobs/job.controller';
 
 const router = Router();
 
@@ -108,6 +109,19 @@ router.put(
   authenticate, 
   requireRole([Role.CANDIDATE]),
   updateCvHandler
+);
+
+// GET /api/candidates/me/recommended-jobs
+router.get('/me/recommended-jobs', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  getRecommendedJobsHandler
+);
+
+router.get('/me/jobs/:jobId/similar', 
+  authenticate, 
+  requireRole([Role.CANDIDATE]),
+  findSimilarJobsHandler
 );
 
 // This will create routes like /api/candidates/me/experience

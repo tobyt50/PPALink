@@ -57,22 +57,23 @@ class CandidateService {
    * Searches for candidates based on filter criteria + optional keyword (q).
    */
   async searchCandidates(filters: CandidateSearchParams | null): Promise<CandidateProfile[]> {
-    if (!filters) {
-      return [];
-    }
+  if (!filters) {
+    return [];
+  }
 
-    const params = new URLSearchParams();
+  const params = new URLSearchParams();
 
-    if (filters.stateId) params.append('stateId', String(filters.stateId));
-    if (filters.nyscBatch) params.append('nyscBatch', filters.nyscBatch);
-    if (filters.skills) params.append('skills', filters.skills);
-    if (filters.isRemote) params.append('isRemote', 'true');
-    if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
-    if (filters.university) params.append('university', filters.university);
-    if (filters.courseOfStudy) params.append('courseOfStudy', filters.courseOfStudy);
-    if (filters.degree) params.append('degree', filters.degree);
-    if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
-    if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
+  if (filters.stateId) params.append('stateId', String(filters.stateId));
+  if (filters.nyscBatch) params.append('nyscBatch', filters.nyscBatch);
+  if (filters.skills && filters.skills.length > 0) params.append('skills', filters.skills.join(','));
+  if (filters.verifiedSkillIds && filters.verifiedSkillIds.length > 0) params.append('verifiedSkillIds', filters.verifiedSkillIds.join(','));
+  if (filters.isRemote) params.append('isRemote', 'true');
+  if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
+  if (filters.university) params.append('university', filters.university);
+  if (filters.courseOfStudy) params.append('courseOfStudy', filters.courseOfStudy);
+  if (filters.degree) params.append('degree', filters.degree);
+  if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
+  if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
 
 
     // Include search query if present

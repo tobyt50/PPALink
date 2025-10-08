@@ -5,7 +5,7 @@ import { requireRole } from '../../middleware/rbac';
 import { validate } from '../../middleware/validate';
 import invitationRoutes from '../invitations/invitation.routes';
 import jobRoutes from '../jobs/job.routes'; // Import the nested job routes
-import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler, completeOnboardingHandler } from './agency.controller';
+import { getAgencyProfileHandler, getMyAgencyHandler, getShortlistedCandidatesHandler, removeShortlistHandler, searchCandidatesHandler, shortlistCandidateHandler, updateAgencyProfileHandler, updateMyAgencyHandler, completeOnboardingHandler, getInterviewPipelineHandler } from './agency.controller';
 import { updateAgencyProfileSchema } from './agency.types';
 import { getAgencyAnalyticsHandler, getAgencyDashboardDataHandler } from '../analytics/analytics.controller';
 import { initiateDomainVerificationHandler } from '../verifications/domain.controller';
@@ -59,5 +59,8 @@ router.post('/complete-onboarding', completeOnboardingHandler);
 
 // POST /api/agencies/:agencyId/jobs/:jobId/pipeline/query
 router.post('/:agencyId/jobs/:jobId/pipeline/query', queryApplicantsInPipelineHandler);
+
+// GET /api/agencies/me/interviews
+router.get('/me/interviews', getInterviewPipelineHandler);
 
 export default router;

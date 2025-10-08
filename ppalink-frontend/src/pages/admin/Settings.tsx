@@ -148,7 +148,7 @@ const SettingsPage = () => {
                     <ShieldCheck className="h-5 w-5 mr-3 flex-shrink-0" />
                     <div>
                       <strong>Status:</strong>{" "}
-                      <span className="font-bold">ENABLED</span>.
+                      <span className="font-bold">ENABLED</span>
                     </div>
                   </div>
                   <Button
@@ -156,7 +156,7 @@ const SettingsPage = () => {
                     size="sm"
                     onClick={() => setIsDisableModalOpen(true)}
                   >
-                    Disable 2FA
+                    Disable
                   </Button>
                 </div>
               ) : (
@@ -169,7 +169,7 @@ const SettingsPage = () => {
                     </div>
                   </div>
                   <Button onClick={() => setIsSetupModalOpen(true)}>
-                    Enable 2FA
+                    Enable
                   </Button>
                 </div>
               )}

@@ -20,6 +20,7 @@ import VerificationQueuePage from '../pages/admin/VerificationQueue';
 import AuditLogsPage from '../pages/admin/AuditLogs';
 import AuditLogDetailsPage from '../pages/admin/AuditLogDetails';
 import ManageAdminsPage from '../pages/admin/ManageAdmins';
+import ManageQuizzesPage from '../pages/admin/ManageQuizzes';
 import BillingPage from '../pages/agencies/Billing';
 import BrowseCandidatesPage from '../pages/agencies/BrowseCandidates';
 import CompanyProfilePage from '../pages/agencies/CompanyProfile';
@@ -50,6 +51,9 @@ import MyApplicationsPage from '../pages/candidates/MyApplications';
 import CandidateProfilePage from '../pages/candidates/Profile';
 import PublicProfilePage from '../pages/candidates/PublicProfile';
 import SubmitVerificationPage from '../pages/candidates/SubmitVerification';
+import AssessmentsPage from '../pages/candidates/Assessments';
+import TakeQuizPage from '../pages/candidates/TakeQuiz';
+import StatusDispatcher from '../pages/applications/StatusDispatcher';
 import JobDetailsPage from '../pages/jobs/JobDetails';
 import JobPipelinePage from '../pages/jobs/JobPipeline';
 import PublicJobDetailsPage from '../pages/jobs/PublicJobDetails';
@@ -71,6 +75,7 @@ import DiscoverStep from '../pages/onboarding/agency/DiscoverStep';
 import PipelineStep from '../pages/onboarding/agency/PipelineStep';
 import TeamStep from '../pages/onboarding/agency/TeamStep';
 import AdminWelcomePage from '../pages/onboarding/admin/AdminWelcome';
+import ManageInterviewsPage from '../pages/agencies/ManageInterviews';
 
 const router = createBrowserRouter([
   // Group 1: Public Routes
@@ -174,6 +179,9 @@ const router = createBrowserRouter([
           { path: 'dashboard/candidate/applications', element: <MyApplicationsPage /> },
           { path: 'dashboard/candidate/verifications/submit', element: <SubmitVerificationPage /> },
           { path: 'dashboard/candidate/jobs/browse', element: <BrowseJobsPage /> },
+          { path: 'dashboard/candidate/assessments', element: <AssessmentsPage /> },
+          { path: 'dashboard/candidate/assessments/:quizId', element: <TakeQuizPage /> },
+          { path: 'dashboard/candidate/applications/:applicationId/status', element: <StatusDispatcher /> },
 
           // Agency Dashboard Routes
           { path: 'dashboard/agency', element: <AgencyDashboard /> },
@@ -182,6 +190,7 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/billing', element: <BillingPage /> },
           { path: 'dashboard/agency/team', element: <TeamManagementPage /> },
           { path: 'dashboard/agency/analytics', element: <AnalyticsPage /> },
+          { path: 'dashboard/agency/interviews', element: <ManageInterviewsPage /> },
           { path: 'dashboard/agency/jobs', element: <JobPostsPage /> },
           { path: 'dashboard/agency/jobs/create', element: <CreateJobPage /> },
           { path: 'dashboard/agency/:agencyId/jobs/:jobId/edit', element: <EditJobPage /> },
@@ -207,6 +216,7 @@ const router = createBrowserRouter([
           { path: 'admin/audit-logs', element: <AuditLogsPage /> },
           { path: 'admin/audit-logs/:logId', element: <AuditLogDetailsPage /> },
           { path: 'admin/admins', element: <ManageAdminsPage /> },
+          { path: 'admin/quizzes', element: <ManageQuizzesPage /> },
 
           // Shared Routes
           { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },

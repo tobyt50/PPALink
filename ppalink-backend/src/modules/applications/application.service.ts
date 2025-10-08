@@ -4,6 +4,7 @@ import { ioInstance, onlineUsers } from '../../config/socket';
 import prisma from '../../config/db';
 import { logActivity } from '../activity/activity.service';
 import { createNotification } from '../notifications/notification.service';
+import { calculateMatchScore } from '../scoring/scoring.service';
 
 interface CreateApplicationInput {
   positionId: string;
@@ -144,21 +145,25 @@ export async function createCandidateApplication(positionId: string, userId: str
     throw new Error('You have already applied for this position.');
   }
 
+  // Calculate the match score BEFORE creating the application record
+  const matchScore = await calculateMatchScore(candidateProfile.id, positionId);
+
+  // Create the application, now including the calculated score
   const application = await prisma.application.create({
     data: {
       positionId,
       candidateId: candidateProfile.id,
       status: ApplicationStatus.APPLIED,
+      matchScore: matchScore, // STORE THE SCORE
     },
   });
 
-  // --- Detailed Logging ---
   await logActivity(userId, 'application.submit', {
     applicationId: application.id,
     positionId: positionId,
     source: 'job_board',
+    matchScore: matchScore,
   });
-  // --- End of Logging ---
 
   return application;
 }
@@ -196,6 +201,12 @@ export async function getApplicationDetails(applicationId: string, agencyId: str
               email: true,
             }
           },
+          quizAttempts: {
+        where: { passed: true },
+        include: {
+          skill: true,
+        },
+      },
         },
       },
     },
@@ -237,4 +248,54 @@ export async function deleteApplication(applicationId: string, agencyId: string,
   });
 
   return result;
+}
+
+/**
+ * Fetches a single application for the CANDIDATE who owns it.
+ * Includes a security check.
+ * @param applicationId The ID of the application to fetch.
+ * @param userId The ID of the logged-in candidate.
+ */
+export async function getApplicationForCandidate(applicationId: string, userId: string) {
+  // Find the candidate profile ID associated with the user
+  const candidateProfile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (!candidateProfile) throw new Error('Candidate profile not found.');
+
+  const application = await prisma.application.findFirst({
+    where: {
+      id: applicationId,
+      candidateId: candidateProfile.id, // Security check: ensure this candidate owns the application
+    },
+    include: {
+      position: {
+        include: {
+          agency: { select: { name: true } },
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+        },
+      },
+      interviews: {
+        orderBy: {
+          scheduledAt: 'desc',
+        },
+      },
+      offers: {
+        orderBy: {
+            startDate: 'desc'
+        }
+      }
+    },
+  });
+
+  if (!application) {
+    throw new Error('Application not found or you do not have permission to view it.');
+  }
+
+  return application;
 }

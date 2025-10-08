@@ -39,7 +39,7 @@ export const ConfirmationModal = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0" 
         >
-          <div className="fixed inset-0 bg-gray-900 dark:bg-black/70 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900/25 dark:bg-black/70 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">

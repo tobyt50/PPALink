@@ -77,3 +77,21 @@ export async function getAllDegreesHandler(req: Request, res: Response, next: Ne
     next(error);
   }
 }
+
+export async function getAllSkillsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const skills = await utilsService.getAllSkills();
+    res.status(200).json({ success: true, data: skills });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getVerifiableSkillsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const skills = await utilsService.getVerifiableSkills();
+    res.status(200).json({ success: true, data: skills });
+  } catch (error) {
+    next(error);
+  }
+}

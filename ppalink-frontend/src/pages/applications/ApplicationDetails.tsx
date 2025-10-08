@@ -1,4 +1,5 @@
 import {
+  Award,
   Briefcase,
   Calendar,
   ChevronLeft,
@@ -6,7 +7,9 @@ import {
   Loader2,
   MessageSquare,
   Tag,
+  Gift,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DebouncedTextarea } from "../../components/forms/DebouncedTextArea";
@@ -17,9 +20,16 @@ import applicationService from "../../services/application.service";
 import type { Application } from "../../types/application";
 import EducationSection from "../candidates/sections/EducationSection";
 import WorkExperienceSection from "../candidates/sections/WorkExperienceSection";
-import ProfileField from "../candidates/ProfileField"; // Using the polished ProfileField
+import ProfileField from "../candidates/ProfileField";
+import {
+  ScheduleInterviewFormModal,
+  type InterviewFormValues,
+} from "./forms/ScheduleInterviewForm";
+import {
+  CreateOfferFormModal,
+  type OfferFormValues,
+} from "./forms/CreateOfferForm";
 
-// Polished Candidate Snapshot Card
 const CandidateProfileSnapshot = ({
   candidate,
   onMessage,
@@ -30,13 +40,10 @@ const CandidateProfileSnapshot = ({
   const initials = `${candidate.firstName?.[0] || ""}${
     candidate.lastName?.[0] || ""
   }`;
-
   return (
     <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-      {/* Card Header */}
       <div className="p-5">
         <div className="flex items-center">
-          {/* Avatar */}
           <div className="h-16 w-16 text-2xl rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 font-bold">
             {initials}
           </div>
@@ -50,15 +57,13 @@ const CandidateProfileSnapshot = ({
           </div>
         </div>
       </div>
-
-      {/* Card Body */}
       <div className="px-6 pb-6 space-y-6">
         {candidate.summary && (
           <div>
             <h3 className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
               Summary
             </h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-gray-920 p-3 rounded-lg">
+            <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-800/50 p-3 rounded-lg">
               {candidate.summary}
             </p>
           </div>
@@ -91,15 +96,12 @@ const CandidateProfileSnapshot = ({
           </div>
         </div>
       </div>
-
-      {/* Card Footer */}
       <div className="p-4 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-zinc-800">
         <Button
           onClick={onMessage}
-          size="lg"
-          className="w-full rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
+          className="w-full"
         >
-          <MessageSquare className="h-5 w-5 mr-2" />
+          <MessageSquare className="mr-2 h-4 w-4" />
           Message Candidate
         </Button>
       </div>
@@ -115,9 +117,74 @@ const ApplicationDetailsPage = () => {
     data: application,
     isLoading,
     error,
+    refetch,
   } = useFetch<Application>(
     applicationId ? `/applications/${applicationId}` : null
   );
+
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
+
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+
+  const handleCreateOffer = async (data: OfferFormValues) => {
+    if (!applicationId) return;
+
+    const payload = {
+      ...data,
+      startDate: data.startDate
+        ? new Date(data.startDate).toISOString()
+        : undefined,
+    };
+
+    const offerPromise = applicationService.createOffer(applicationId, payload);
+    await toast.promise(offerPromise, {
+      loading: "Sending offer...",
+      success: () => {
+        refetch();
+        return "Offer sent to candidate!";
+      },
+      error: (err) => err.response?.data?.message || "Failed to send offer.",
+    });
+    setIsOfferModalOpen(false);
+  };
+
+  const displaySkills = useMemo(() => {
+    if (!application) return [];
+    const { candidate } = application;
+    const selfReportedSkills = candidate.skills || [];
+    const passedAttempts =
+      candidate.quizAttempts?.filter((a) => a.passed && a.skillId) || [];
+    const verifiedSkillMap = new Map<number, { score: number }>();
+    passedAttempts.forEach((attempt) => {
+      if (attempt.skillId) {
+        const currentScore = verifiedSkillMap.get(attempt.skillId)?.score || 0;
+        if (attempt.score > currentScore) {
+          verifiedSkillMap.set(attempt.skillId, { score: attempt.score });
+        }
+      }
+    });
+    const allSkillsMap = new Map<
+      number,
+      { id: number; name: string; isVerified: boolean; score?: number }
+    >();
+    selfReportedSkills.forEach((s) => {
+      allSkillsMap.set(s.skill.id, { ...s.skill, isVerified: false });
+    });
+    passedAttempts.forEach((attempt) => {
+      if (attempt.skillId && attempt.skill) {
+        allSkillsMap.set(attempt.skillId, {
+          ...attempt.skill,
+          isVerified: true,
+          score: verifiedSkillMap.get(attempt.skillId)?.score,
+        });
+      }
+    });
+    const combinedSkills = Array.from(allSkillsMap.values());
+    combinedSkills.sort(
+      (a, b) => (b.isVerified ? 1 : 0) - (a.isVerified ? 1 : 0)
+    );
+    return combinedSkills;
+  }, [application]);
 
   const handleSaveNotes = async (notes: string) => {
     if (!applicationId) return;
@@ -145,6 +212,24 @@ const ApplicationDetailsPage = () => {
     navigate("/inbox", { state: { activeConversation: conversationState } });
   };
 
+  const handleScheduleInterview = async (data: InterviewFormValues) => {
+    if (!applicationId) return;
+    const schedulePromise = applicationService.scheduleInterview(
+      applicationId,
+      { ...data, scheduledAt: new Date(data.scheduledAt).toISOString() }
+    );
+    await toast.promise(schedulePromise, {
+      loading: "Scheduling interview...",
+      success: () => {
+        refetch();
+        return "Interview scheduled and candidate notified!";
+      },
+      error: (err) =>
+        err.response?.data?.message || "Failed to schedule interview.",
+    });
+    setIsInterviewModalOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-80 items-center justify-center">
@@ -163,149 +248,146 @@ const ApplicationDetailsPage = () => {
   const { candidate, position } = application;
 
   return (
-    <div className="space-y-5">
-      {/* Polished Header */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            {candidate.firstName} {candidate.lastName}
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            Application for{" "}
-            <span className="font-semibold text-gray-800 dark:text-zinc-100">
-              {position.title}
-            </span>
-          </p>
-        </div>
-        <Link
-          to={`/dashboard/agency/${position.agencyId}/jobs/${position.id}/pipeline`}
-          className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1.5" />
-          Back to Pipeline
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Sidebar (Candidate Snapshot + Application Details + Skills) */}
-        <div className="lg:col-span-1 lg:sticky top-24 space-y-8">
-          <CandidateProfileSnapshot
-            candidate={candidate}
-            onMessage={handleMessageCandidate}
-          />
-
-          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                Skills
-              </h2>
-            </div>
-            <div className="p-6 flex flex-wrap gap-2">
-              {candidate.skills && candidate.skills.length > 0 ? (
-                candidate.skills.map(({ skill }) => (
-                  <span
-                    key={skill.id}
-                    className="inline-flex items-center rounded-full bg-green-100 
-                    dark:bg-green-950/60 px-3 py-1 text-sm font-medium text-green-800 
-                    dark:text-green-200"
-                  >
-                    <Tag className="h-4 w-4 mr-1.5" />
-                    {skill.name}
-                  </span>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-zinc-400">
-                  No skills listed by the candidate.
-                </p>
-              )}
-            </div>
+    <>
+      <ScheduleInterviewFormModal
+        isOpen={isInterviewModalOpen}
+        onClose={() => setIsInterviewModalOpen(false)}
+        onSubmit={handleScheduleInterview}
+      />
+      <CreateOfferFormModal
+        isOpen={isOfferModalOpen}
+        onClose={() => setIsOfferModalOpen(false)}
+        onSubmit={handleCreateOffer}
+      />
+      <div className="space-y-5">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+              {candidate.firstName} {candidate.lastName}
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-zinc-300">
+              Application for{" "}
+              <span className="font-semibold text-gray-800 dark:text-zinc-100">
+                {position.title}
+              </span>
+            </p>
           </div>
-
-          {/* Skills (Sidebar for Desktop) */}
-          <div
-            className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none 
-            dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden"
+          <Link
+            to={`/dashboard/agency/${position.agencyId}/jobs/${position.id}/pipeline`}
+            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                Application Details
-              </h2>
-            </div>
-            <div className="p-6 space-y-5">
-              <ProfileField
-                icon={Briefcase}
-                label="Position"
-                value={position.title}
-              />
-              <ProfileField
-                icon={Calendar}
-                label="Applied On"
-                value={new Date(application.createdAt).toLocaleDateString()}
-              />
-            </div>
-          </div>
+            <ChevronLeft className="h-4 w-4 mr-1.5" />
+            Back to Pipeline
+          </Link>
         </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Skills (Mobile view in main column) */}
-          <div
-            className="lg:hidden rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none 
-            dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden"
-          >
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                Skills
-              </h2>
-            </div>
-            <div className="p-6 flex flex-wrap gap-2">
-              {candidate.skills && candidate.skills.length > 0 ? (
-                candidate.skills.map(({ skill }) => (
-                  <span
-                    key={skill.id}
-                    className="inline-flex items-center rounded-full bg-green-100 
-                    dark:bg-green-950/60 px-3 py-1 text-sm font-medium text-green-800 
-                    dark:text-green-200"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-1 lg:sticky top-24 space-y-8">
+            <CandidateProfileSnapshot
+              candidate={candidate}
+              onMessage={handleMessageCandidate}
+            />
+            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                  Application Details
+                </h2>
+              </div>
+              <div className="p-6 space-y-5">
+                <ProfileField
+                  icon={Briefcase}
+                  label="Position"
+                  value={position.title}
+                />
+                <ProfileField
+                  icon={Calendar}
+                  label="Applied On"
+                  value={new Date(application.createdAt).toLocaleDateString()}
+                />
+                <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 space-y-3">
+                  <Button
+                    onClick={() => setIsInterviewModalOpen(true)}
+                    className="w-full"
                   >
-                    <Tag className="h-4 w-4 mr-1.5" />
-                    {skill.name}
-                  </span>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-zinc-400">
-                  No skills listed by the candidate.
-                </p>
-              )}
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Schedule Interview
+                  </Button>
+                  <Button
+                    onClick={() => setIsOfferModalOpen(true)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Gift className="mr-2 h-4 w-4" />
+                    Extend Offer
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-
-          <WorkExperienceSection
-            experiences={candidate.workExperiences || []}
-            isOwner={false}
-          />
-          <EducationSection
-            educationHistory={candidate.education || []}
-            isOwner={false}
-          />
-
-          {/* Internal Notes (moved below work & education) */}
-          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                Internal Notes
-              </h2>
+          <div className="lg:col-span-2 space-y-8">
+            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                  Skills
+                </h2>
+              </div>
+              <div className="p-6 flex flex-wrap gap-2">
+                {displaySkills.length > 0 ? (
+                  displaySkills.map((skill) => (
+                    <div key={skill.id} className="relative inline-block">
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium cursor-default peer ${
+                          skill.isVerified
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                            : "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-200"
+                        }`}
+                      >
+                        {skill.isVerified ? (
+                          <Award className="h-4 w-4 mr-1.5" />
+                        ) : (
+                          <Tag className="h-4 w-4 mr-1.5" />
+                        )}
+                        {skill.name}
+                      </span>
+                      <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white opacity-0 shadow-lg transition-opacity duration-200 peer-hover:opacity-100 pointer-events-none">
+                        {skill.isVerified
+                          ? `Verified Skill - Score: ${skill.score}%`
+                          : "Unverified skill"}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-zinc-400">
+                    No skills listed by the candidate.
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="p-6">
-              <DebouncedTextarea
-                initialValue={application.notes || ""}
-                onSave={handleSaveNotes}
-                placeholder="Add private notes for your team (auto-saves)..."
-              />
+            <WorkExperienceSection
+              experiences={candidate.workExperiences || []}
+              isOwner={false}
+            />
+            <EducationSection
+              educationHistory={candidate.education || []}
+              isOwner={false}
+            />
+            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                  Internal Notes
+                </h2>
+              </div>
+              <div className="p-6">
+                <DebouncedTextarea
+                  initialValue={application.notes || ""}
+                  onSave={handleSaveNotes}
+                  placeholder="Add private notes for your team (auto-saves)..."
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

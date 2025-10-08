@@ -3,6 +3,8 @@ import type { Position } from '../types/job';
 import type { User, VerificationRequest } from '../types/user';
 import type { SubscriptionPlan } from '../types/subscription';
 import type { AuditLog, PaginatedResponse, Role } from '../types/user';
+import type { AdminQuiz } from '../types/quiz';
+import type { Skill } from '../types/job';
 
 export interface AdminUser {
     id: string;
@@ -189,6 +191,39 @@ class AdminService {
    */
   async markOnboardingComplete(): Promise<void> {
     await apiClient.post('/admin/complete-onboarding');
+  }
+
+  async getAllQuizzes(): Promise<AdminQuiz[]> {
+    const response = await apiClient.get('/admin/quizzes');
+    return response.data.data;
+  }
+
+  async getQuizById(quizId: string): Promise<AdminQuiz> {
+    const response = await apiClient.get(`/admin/quizzes/${quizId}`);
+    return response.data.data;
+  }
+
+  async createQuiz(quizData: any): Promise<AdminQuiz> {
+    const response = await apiClient.post('/admin/quizzes', quizData);
+    return response.data.data;
+  }
+
+  async updateQuiz(quizId: string, quizData: any): Promise<AdminQuiz> {
+    const response = await apiClient.patch(`/admin/quizzes/${quizId}`, quizData);
+    return response.data.data;
+  }
+
+  async deleteQuiz(quizId: string): Promise<void> {
+    await apiClient.delete(`/admin/quizzes/${quizId}`);
+  }
+
+  /**
+   * Allows an admin to create a new skill directly.
+   * @param name The name of the new skill.
+   */
+  async createSkill(name: string): Promise<Skill> {
+    const response = await apiClient.post('/admin/skills', { name });
+    return response.data.data;
   }
 }
 

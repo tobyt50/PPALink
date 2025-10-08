@@ -1,6 +1,11 @@
-import { AgencyRole, ShortlistSource } from '@prisma/client';
-import prisma from '../../config/db';
-import { UpdateAgencyProfileInput } from './agency.types';
+import { AgencyRole, ShortlistSource } from "@prisma/client";
+import { Prisma, QuizLevel, Role } from "@prisma/client";
+import prisma from "../../config/db";
+import { UpdateAgencyProfileInput } from "./agency.types";
+
+// Helper to convert level string to a numerical score for comparison
+const levelToScore = (level: QuizLevel): number =>
+  ({ BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 }[level]);
 
 /**
  * Checks if a user is an authorized member (Owner or Manager) of a specific agency.
@@ -18,11 +23,12 @@ export async function checkAgencyMembership(userId: string, agencyId: string) {
   });
 
   if (!member) {
-    throw new Error('Forbidden: User is not an authorized member of this agency.');
+    throw new Error(
+      "Forbidden: User is not an authorized member of this agency."
+    );
   }
   return member;
 }
-
 
 /**
  * Retrieves an agency's profile by its ID.
@@ -45,7 +51,10 @@ export async function getAgencyById(agencyId: string) {
  * @param agencyId The ID of the agency to update.
  * @param data The data to update.
  */
-export async function updateAgencyProfile(agencyId: string, data: UpdateAgencyProfileInput) {
+export async function updateAgencyProfile(
+  agencyId: string,
+  data: UpdateAgencyProfileInput
+) {
   return prisma.agency.update({
     where: { id: agencyId },
     data,
@@ -53,59 +62,63 @@ export async function updateAgencyProfile(agencyId: string, data: UpdateAgencyPr
 }
 
 export async function getAgencyByUserId(userId: string) {
- const agencyMember
-  = await prisma.agencyMember.findFirst({
-   where: { userId },
-    include:
-    {
-      agency: {
+  const agencyMember = await prisma.agencyMember.findFirst({
+    where: { userId },
     include: {
-      industry: true,
-      subscriptions: {
+      agency: {
         include: {
-          plan: true,
-        },
+          industry: true,
+          subscriptions: {
+            include: {
+              plan: true,
+            },
           },
           members: {
             include: {
-              user: { // Include user details for each member
+              user: {
+                // Include user details for each member
                 select: {
                   id: true,
                   email: true,
                   status: true,
-                  candidateProfile: { select: { firstName: true, lastName: true } }
-                }
-              }
-            }
+                  candidateProfile: {
+                    select: { firstName: true, lastName: true },
+                  },
+                },
+              },
+            },
           },
-          invitations: { // Include pending invitations
-            where: { status: 'PENDING' },
-            orderBy: { createdAt: 'desc' }
-          }
-    },
+          invitations: {
+            // Include pending invitations
+            where: { status: "PENDING" },
+            orderBy: { createdAt: "desc" },
+          },
+        },
       },
     }, // Include the full agency details
- });
+  });
 
- if (!agencyMember) {
-   throw new Error('User is not associated with any agency.');
- }
+  if (!agencyMember) {
+    throw new Error("User is not associated with any agency.");
+  }
 
- const hasActiveSub = agencyMember.agency.subscriptions.some(s => s.status === 'ACTIVE');
+  const hasActiveSub = agencyMember.agency.subscriptions.some(
+    (s) => s.status === "ACTIVE"
+  );
   let freePlanSettings = null;
 
   if (!hasActiveSub) {
     const [jobLimit, memberLimit] = await prisma.$transaction([
-        prisma.setting.findUnique({ where: { key: 'freeJobPostLimit' } }),
-        prisma.setting.findUnique({ where: { key: 'freeMemberLimit' } })
+      prisma.setting.findUnique({ where: { key: "freeJobPostLimit" } }),
+      prisma.setting.findUnique({ where: { key: "freeMemberLimit" } }),
     ]);
     freePlanSettings = {
-        jobPostLimit: jobLimit?.value as number ?? 1,
-        memberLimit: memberLimit?.value as number ?? 1
+      jobPostLimit: (jobLimit?.value as number) ?? 1,
+      memberLimit: (memberLimit?.value as number) ?? 1,
     };
   }
 
- return {...agencyMember.agency, freePlanSettings};
+  return { ...agencyMember.agency, freePlanSettings };
 }
 
 /**
@@ -125,17 +138,18 @@ export async function searchCandidates(userId: string, queryParams: any) {
     courseOfStudy,
     degree,
     q,
+    verifiedSkillIds,
   } = queryParams;
 
   // --- Subscription check ---
   const agency = await getAgencyByUserId(userId);
   const activeSub = agency.subscriptions?.[0];
-  const isPaid = activeSub && activeSub.plan.name.toUpperCase() !== 'BASIC';
+  const isPaid = activeSub && activeSub.plan.name.toUpperCase() !== "BASIC";
 
   // Free tier: block advanced filters
   if (!isPaid && (university || courseOfStudy || degree)) {
     throw new Error(
-      'Upgrade required: University, Course of Study, and Degree filters are only available on paid plans.'
+      "Upgrade required: University, Course of Study, and Degree filters are only available on paid plans."
     );
   }
 
@@ -143,106 +157,182 @@ export async function searchCandidates(userId: string, queryParams: any) {
     AND: [], // combine all filters
   };
 
+  const andConditions = where.AND as Prisma.CandidateProfileWhereInput[];
+
   // --- Build the query dynamically ---
   if (stateId) {
     where.AND.push({ primaryStateId: parseInt(stateId, 10) });
   }
 
   if (nyscBatch) {
-    where.AND.push({ nyscBatch: { equals: nyscBatch, mode: 'insensitive' } });
+    where.AND.push({ nyscBatch: { equals: nyscBatch, mode: "insensitive" } });
   }
 
-  if (isRemote === 'true') {
-    where.AND.push({ isRemote: true });
+  let skillIds: number[] = [];
+  if (skills) {
+    if (typeof skills === "string") {
+      skillIds = skills
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !isNaN(n));
+    } else if (Array.isArray(skills)) {
+      skillIds = skills
+        .map((s) => parseInt(String(s), 10))
+        .filter((n) => !isNaN(n));
+    }
+  }
+  if (skillIds.length > 0) {
+    andConditions.push({
+      skills: {
+        some: {
+          skillId: { in: skillIds },
+        },
+      },
+    });
   }
 
-  if (isOpenToReloc === 'true') {
-    where.AND.push({ isOpenToReloc: true });
+  let verifiedIds: number[] = [];
+  if (verifiedSkillIds) {
+    if (typeof verifiedSkillIds === "string") {
+      verifiedIds = verifiedSkillIds
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !isNaN(n));
+    } else if (Array.isArray(verifiedSkillIds)) {
+      verifiedIds = verifiedSkillIds
+        .map((s) => parseInt(String(s), 10))
+        .filter((n) => !isNaN(n));
+    }
+  }
+  if (verifiedIds.length > 0) {
+    andConditions.push({
+      quizAttempts: {
+        some: {
+          skillId: { in: verifiedIds },
+          passed: true,
+        },
+      },
+    });
+  }
+
+  if (isRemote) {
+    andConditions.push({ isRemote: true });
+  }
+
+  if (isOpenToReloc) {
+    andConditions.push({ isOpenToReloc: true });
   }
 
   // Map alternative GPA inputs to standard grades
   const gpaInputMap: Record<string, string> = {
-    '1st': 'First Class',
-    'first': 'First Class',
-    '2:1': 'Second Class Upper',
-    '2i': 'Second Class Upper',
-    '2nd': 'Second Class Upper',
-    '2:2': 'Second Class Lower',
-    '2ii': 'Second Class Lower',
-    'third': 'Third Class',
-    '3rd': 'Third Class',
+    "1st": "First Class",
+    first: "First Class",
+    "2:1": "Second Class Upper",
+    "2i": "Second Class Upper",
+    "2nd": "Second Class Upper",
+    "2:2": "Second Class Lower",
+    "2ii": "Second Class Lower",
+    third: "Third Class",
+    "3rd": "Third Class",
   };
 
   if (gpaBand) {
     const normalizedGpa = gpaInputMap[gpaBand.toLowerCase()] || gpaBand;
-    where.AND.push({
+    andConditions.push({
       education: {
         some: {
-          grade: { equals: normalizedGpa, mode: 'insensitive' },
+          grade: { equals: normalizedGpa, mode: "insensitive" },
         },
       },
     });
   }
 
   if (graduationYear) {
-    where.AND.push({ graduationYear: parseInt(graduationYear, 10) });
-  }
-
-  if (university && isPaid) {
-    where.AND.push({
-      education: { some: { institution: { contains: university, mode: 'insensitive' } } },
+    const year = parseInt(graduationYear as string, 10);
+    andConditions.push({
+      education: {
+        some: {
+          endDate: {
+            gte: new Date(year, 0, 1),
+            lt: new Date(year + 1, 0, 1),
+          },
+        },
+      },
     });
   }
 
-  if (courseOfStudy && isPaid) {
-    where.AND.push({
-      education: { some: { field: { contains: courseOfStudy, mode: 'insensitive' } } },
+  if (university) {
+    andConditions.push({
+      education: {
+        some: {
+          institution: { contains: university, mode: "insensitive" },
+        },
+      },
     });
   }
 
-  if (degree && isPaid) {
-    where.AND.push({
-      education: { some: { degree: { contains: degree, mode: 'insensitive' } } },
+  if (courseOfStudy) {
+    andConditions.push({
+      education: {
+        some: {
+          field: { contains: courseOfStudy, mode: "insensitive" },
+        },
+      },
     });
   }
 
-  if (skills) {
-    const skillsArray = skills.split(',').map((skill: string) => skill.trim());
-    if (skillsArray.length > 0) {
-      where.AND.push({
-        skills: {
-          some: {
-            skill: {
-              name: { in: skillsArray, mode: 'insensitive' },
+  if (degree) {
+    andConditions.push({
+      education: {
+        some: {
+          degree: { contains: degree, mode: "insensitive" },
+        },
+      },
+    });
+  }
+
+  const searchQuery: string = (q ? String(q) : "").trim();
+
+  if (searchQuery) {
+    andConditions.push({
+      OR: [
+        // Name
+        {
+          firstName: {
+            contains: searchQuery,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          lastName: {
+            contains: searchQuery,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+
+        // Associated user
+        {
+          user: {
+            email: {
+              contains: searchQuery,
+              mode: Prisma.QueryMode.insensitive,
             },
           },
         },
-      });
-    }
-  }
-
-  if (q) {
-    const searchQuery = String(q).trim();
-    where.AND.push({
-      OR: [
-        // Basic profile fields
-        { firstName: { contains: searchQuery, mode: 'insensitive' } },
-        { lastName: { contains: searchQuery, mode: 'insensitive' } },
-        { phone: { contains: searchQuery, mode: 'insensitive' } },
-        { gender: { contains: searchQuery, mode: 'insensitive' } },
-        { nyscBatch: { contains: searchQuery, mode: 'insensitive' } },
-        { nyscStream: { contains: searchQuery, mode: 'insensitive' } },
-        { stateCode: { contains: searchQuery, mode: 'insensitive' } },
-        { gpaBand: { contains: searchQuery, mode: 'insensitive' } },
-        { summary: { contains: searchQuery, mode: 'insensitive' } },
-        { linkedin: { contains: searchQuery, mode: 'insensitive' } },
-        { portfolio: { contains: searchQuery, mode: 'insensitive' } },
-
-        // Related user
-        { user: { email: { contains: searchQuery, mode: 'insensitive' } } },
 
         // Skills
-        { skills: { some: { skill: { name: { contains: searchQuery, mode: 'insensitive' } } } } },
+        {
+          skills: {
+            some: {
+              skill: {
+                name: {
+                  contains: searchQuery,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+            },
+          },
+        },
 
         // Education (paid)
         ...(isPaid
@@ -251,9 +341,24 @@ export async function searchCandidates(userId: string, queryParams: any) {
                 education: {
                   some: {
                     OR: [
-                      { institution: { contains: searchQuery, mode: 'insensitive' } },
-                      { degree: { contains: searchQuery, mode: 'insensitive' } },
-                      { field: { contains: searchQuery, mode: 'insensitive' } },
+                      {
+                        institution: {
+                          contains: searchQuery,
+                          mode: Prisma.QueryMode.insensitive,
+                        },
+                      },
+                      {
+                        degree: {
+                          contains: searchQuery,
+                          mode: Prisma.QueryMode.insensitive,
+                        },
+                      },
+                      {
+                        field: {
+                          contains: searchQuery,
+                          mode: Prisma.QueryMode.insensitive,
+                        },
+                      },
                     ],
                   },
                 },
@@ -266,9 +371,24 @@ export async function searchCandidates(userId: string, queryParams: any) {
           workExperiences: {
             some: {
               OR: [
-                { company: { contains: searchQuery, mode: 'insensitive' } },
-                { title: { contains: searchQuery, mode: 'insensitive' } },
-                { description: { contains: searchQuery, mode: 'insensitive' } },
+                {
+                  company: {
+                    contains: searchQuery,
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+                {
+                  title: {
+                    contains: searchQuery,
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+                {
+                  description: {
+                    contains: searchQuery,
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
               ],
             },
           },
@@ -281,16 +401,22 @@ export async function searchCandidates(userId: string, queryParams: any) {
     where: {
       ...where,
       user: {
-        role: 'CANDIDATE', // ✅ only users with candidate role
+        role: "CANDIDATE", // only users with candidate role
       },
     },
     include: {
       user: { select: { email: true, role: true } }, // role included for debugging/verification
       skills: { include: { skill: true } },
       education: true,
+      quizAttempts: {
+        where: { passed: true },
+        include: {
+          skill: true,
+        },
+      },
     },
     take: 50,
-  });  
+  });
 }
 
 /**
@@ -299,7 +425,10 @@ export async function searchCandidates(userId: string, queryParams: any) {
  * @param agencyId The ID of the agency shortlisting the candidate.
  * @param candidateProfileId The ID of the candidate's profile to shortlist.
  */
-export async function shortlistCandidate(agencyId: string, candidateProfileId: string) {
+export async function shortlistCandidate(
+  agencyId: string,
+  candidateProfileId: string
+) {
   // First, check if this candidate is already shortlisted by this agency
   const existingShortlist = await prisma.shortlist.findFirst({
     where: {
@@ -348,13 +477,13 @@ export async function getShortlistedCandidates(agencyId: string) {
       },
     },
     orderBy: {
-      createdAt: 'desc', // Show the most recently shortlisted first
+      createdAt: "desc", // Show the most recently shortlisted first
     },
   });
 
   // The result is an array of Shortlist objects, each containing a 'candidate' property.
   // We want to return just the array of candidate profiles.
-  return shortlists.map(shortlist => shortlist.candidate);
+  return shortlists.map((shortlist) => shortlist.candidate);
 }
 
 /**
@@ -362,7 +491,10 @@ export async function getShortlistedCandidates(agencyId: string) {
  * @param agencyId The ID of the agency.
  * @param candidateProfileId The ID of the candidate's profile to remove.
  */
-export async function removeShortlist(agencyId: string, candidateProfileId: string) {
+export async function removeShortlist(
+  agencyId: string,
+  candidateProfileId: string
+) {
   const result = await prisma.shortlist.deleteMany({
     where: {
       agencyId: agencyId,
@@ -373,7 +505,7 @@ export async function removeShortlist(agencyId: string, candidateProfileId: stri
   // deleteMany returns a count of deleted records.
   // We can check if any records were actually deleted.
   if (result.count === 0) {
-    throw new Error('Shortlist entry not found or already removed.');
+    throw new Error("Shortlist entry not found or already removed.");
   }
 
   return result;
@@ -388,4 +520,41 @@ export async function markOnboardingAsComplete(agencyId: string) {
     where: { id: agencyId },
     data: { hasCompletedOnboarding: true },
   });
+}
+
+/**
+ * Fetches all interview-related applications for an agency,
+ * categorized into 'scheduled' and 'unscheduled'.
+ * @param agencyId The ID of the agency.
+ */
+export async function getInterviewPipeline(agencyId: string, positionId?: string) {
+  const whereClause: Prisma.ApplicationWhereInput = {
+    position: { agencyId: agencyId },
+    status: "INTERVIEW",
+  };
+
+  if (positionId) {
+    whereClause.positionId = positionId;
+  }
+
+  const applicationsInInterviewStage = await prisma.application.findMany({
+    where: whereClause,
+    include: {
+      interviews: true,
+      candidate: { select: { id: true, firstName: true, lastName: true } },
+      position: { select: { id: true, title: true } },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const unscheduled = applicationsInInterviewStage.filter(
+    (app) => app.interviews.length === 0
+  );
+  const scheduled = applicationsInInterviewStage.filter(
+    (app) => app.interviews.length > 0
+  );
+
+  return { unscheduled, scheduled };
 }

@@ -1,7 +1,8 @@
-import { ApplicationStatus } from '@prisma/client';
+import { ApplicationStatus, Prisma } from '@prisma/client';
 import prisma from '../../config/db';
 import { UpdateCandidateProfileInput } from './candidate.types';
 import { logActivity } from '../activity/activity.service';
+import { getPublicJobs } from '../jobs/job.service';
 
 // Helper function to find or create skills and return their IDs for relation mapping.
 async function connectOrCreateSkills(skillNames: string[]) {
@@ -35,32 +36,6 @@ async function connectOrCreateSkills(skillNames: string[]) {
     skillId: skill.id,
     level: 1, // Default skill level to satisfy the schema
   }));
-}
-
-/**
- * Fetches a candidate's profile using their user ID.
- * Throws an error if the profile is not found.
- * @param userId - The ID of the user whose profile is being fetched.
- */
-export async function getCandidateProfileByUserId(userId: string) {
-  const profile = await prisma.candidateProfile.findUnique({
-    where: { userId },
-    include: {
-      workExperiences: { orderBy: { startDate: 'desc' } },
-      education: { orderBy: { startDate: 'desc' } },
-      skills: {
-        include: {
-          skill: true,
-        },
-      },
-    },
-  });
-
-  if (!profile) {
-    throw new Error('Candidate profile not found');
-  }
-
-  return profile;
 }
 
 /**
@@ -116,6 +91,13 @@ export async function getCandidateProfileById(profileId: string) {
       },
       workExperiences: { orderBy: { startDate: 'desc' } },
       education: { orderBy: { startDate: 'desc' } },
+      quizAttempts: {
+        where: { passed: true }, // Only show passed attempts publicly
+        include: {
+            quiz: { select: { title: true } },
+            skill: true
+        }
+      }
     },
   });
 
@@ -175,22 +157,21 @@ export async function getCandidateDashboardData(userId: string) {
 
   if (!profile) throw new Error('Candidate profile not found.');
 
-  // Type-safe transaction
   const [
     applicationStatusCountsRaw,
     recentApplications,
     totalApplications,
     workExperienceCount,
     educationCount,
+    passedQuizzesCount,
+    skillsCount,
   ] = await prisma.$transaction([
-    // Group applications by status with count
     prisma.application.groupBy({
       by: ['status'],
       where: { candidateId: profile.id },
       _count: { _all: true },
-      orderBy: { status: 'asc' }, // required by Prisma TS
+      orderBy: { status: 'asc' },
     }),
-    // 3 most recent applications
     prisma.application.findMany({
       where: { candidateId: profile.id },
       orderBy: { createdAt: 'desc' },
@@ -201,17 +182,19 @@ export async function getCandidateDashboardData(userId: string) {
         },
       },
     }),
-    // Total applications
     prisma.application.count({ where: { candidateId: profile.id } }),
-    // Work experience count
     prisma.workExperience.count({ where: { candidateId: profile.id } }),
-    // Education count
     prisma.education.count({ where: { candidateId: profile.id } }),
+    prisma.quizAttempt.count({
+      where: {
+        candidateId: profile.id,
+        passed: true,
+      },
+    }),
+    prisma.candidateSkill.count({ where: { candidateId: profile.id } }),
   ]);
 
-  // Type-safe mapping of groupBy results
   type CountedApplication = typeof applicationStatusCountsRaw[number] & { _count: { _all: number } };
-
   const applicationStatusCounts = applicationStatusCountsRaw as CountedApplication[];
 
   const applicationStats = applicationStatusCounts.reduce((acc, group) => {
@@ -219,19 +202,22 @@ export async function getCandidateDashboardData(userId: string) {
     return acc;
   }, {} as Record<ApplicationStatus, number>);
 
-  // Profile completeness calculation
-  let completeness = 20; // Base
-  if (profile.summary) completeness += 20;
-  if (profile.cvFileKey) completeness += 20;
-  if (workExperienceCount > 0) completeness += 20;
-  if (educationCount > 0) completeness += 20;
+  let completeness = 10; // Base for account
+  if (profile.summary) completeness += 15;
+  if (profile.cvFileKey) completeness += 15;
+  if (workExperienceCount > 0) completeness += 15;
+  if (educationCount > 0) completeness += 15;
+  if (skillsCount > 0) completeness += 15; // Add points for adding any skills
+  const skillsBonus = Math.min(15, passedQuizzesCount * 5); // Add up to 15 bonus points for verified skills
+  completeness += skillsBonus;
 
   return {
-    profileCompleteness: Math.min(100, completeness),
+    profileCompleteness: Math.min(100, completeness), // Ensure score doesn't exceed 100
     stats: {
       totalApplications,
       interviews: applicationStats.INTERVIEW || 0,
       offers: applicationStats.OFFER || 0,
+      verifiedSkills: passedQuizzesCount,
     },
     recentApplications,
     isVerified: profile.isVerified,
@@ -326,4 +312,100 @@ export async function updateCandidateCv(userId: string, cvFileKey: string) {
     where: { userId },
     data: { cvFileKey },
   });
+}
+
+/**
+ * Fetches the candidate profile for the currently authenticated user.
+ * @param userId The ID of the logged-in user.
+ */
+export async function getMyCandidateProfile(userId: string) {
+  const profile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+    include: {
+      user: { select: { id: true, email: true } },
+      skills: { include: { skill: true } },
+      workExperiences: { orderBy: { startDate: 'desc' } },
+      education: { orderBy: { startDate: 'desc' } },
+      quizAttempts: {
+        include: {
+          quiz: {
+            select: {
+              title: true,
+            },
+          },
+          skill: true,
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+      },
+    },
+  });
+  if (!profile) {
+    throw new Error('Candidate profile not found for the current user.');
+  }
+  return profile;
+}
+
+/**
+ * Generates a personalized list of recommended jobs for a candidate.
+ * @param userId The ID of the candidate's user account.
+ */
+export async function getRecommendedJobs(userId: string, filters: { stateId?: number; isRemote?: boolean }) {
+  const profile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+    include: {
+      skills: { include: { skill: true } },
+      workExperiences: { take: 3, orderBy: { startDate: 'desc' } }, // Get recent job titles
+      education: { take: 1, orderBy: { endDate: 'desc' } }, // Get most recent field of study
+    },
+  });
+
+  if (!profile) return [];
+
+  // 1. Gather all keywords from the candidate's profile
+  const skillNames = profile.skills.map(s => s.skill.name);
+  const jobTitleKeywords = profile.workExperiences.flatMap(exp => exp.title.toLowerCase().split(' '));
+  const educationKeywords = profile.education.flatMap(edu => edu.field?.toLowerCase().split(' ') || []);
+  
+  const allKeywords = [...new Set([...skillNames, ...jobTitleKeywords, ...educationKeywords])];
+
+  if (allKeywords.length === 0) {
+    // If profile is empty, just return the latest jobs
+    return getPublicJobs({});
+  }
+
+  const descriptionFilters = allKeywords.map(kw => ({
+    description: { contains: kw, mode: 'insensitive' as const }
+  }));
+
+  const whereClause: Prisma.PositionWhereInput = {
+    visibility: 'PUBLIC',
+    status: 'OPEN',
+    OR: [
+      { title: { in: allKeywords, mode: 'insensitive' } },
+      ...descriptionFilters,
+      { skills: { some: { skill: { name: { in: profile.skills.map(s => s.skill.name), mode: 'insensitive' } } } } },
+    ],
+  };
+
+  // 2. Conditionally add the new filters if they are provided
+  if (filters.stateId) {
+    whereClause.stateId = filters.stateId;
+  }
+  if (filters.isRemote) {
+    whereClause.isRemote = true;
+  }
+
+  // 2. Find jobs that match these keywords
+  const recommendedJobs = await prisma.position.findMany({
+    where: whereClause,
+    include: {
+      agency: { select: { name: true, domainVerified: true, cacVerified: true } },
+      skills: { include: { skill: true } },
+    },
+    take: 20, // Limit the recommendations
+  });
+
+  return recommendedJobs;
 }

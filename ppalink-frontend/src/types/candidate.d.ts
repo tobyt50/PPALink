@@ -1,3 +1,5 @@
+import type { QuizAttempt } from './quiz';
+
 export interface WorkExperience {
   id: string;
   candidateId: string;
@@ -72,4 +74,5 @@ export interface CandidateProfile {
 
   workExperiences?: WorkExperience[];
   education?: Education[];
+  quizAttempts?: QuizAttempt[];
 }

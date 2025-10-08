@@ -50,27 +50,6 @@ export const nigerianUniversities: string[] = [
     "Tai Solarin University of Education", "Ondo State University of Science and Technology"
 ];
 
-export const skillsList: string[] = [
-    // Technical
-    "Software Development", "Frontend Development", "Backend Development", "Mobile App Development", "UI/UX Design", "Data Analysis",
-    "Data Science", "Machine Learning", "Cybersecurity", "Network Engineering", "Cloud Computing (AWS/Azure/GCP)", "DevOps",
-    "Database Management (SQL/NoSQL)", "Quality Assurance", "Technical Writing", "Hardware Engineering",
-    
-    // Business & Finance
-    "Accounting", "Financial Analysis", "Auditing", "Investment Management", "Risk Management", "Business Analysis",
-    "Project Management", "Product Management", "Business Strategy", "Human Resources", "Recruitment", "Sales",
-    "Business Development", "Supply Chain Management", "Logistics", "Operations Management",
-    
-    // Marketing & Creative
-    "Digital Marketing", "Search Engine Optimization (SEO)", "Content Marketing", "Social Media Management", "Email Marketing",
-    "Graphic Design", "Brand Management", "Public Relations", "Corporate Communications", "Video Production",
-    "Creative Writing", "Market Research",
-    
-    // General Professional
-    "Customer Service", "Data Entry", "Administrative Support", "Legal Compliance", "Contract Negotiation", "Leadership",
-    "Team Management", "Public Speaking", "Problem Solving", "Critical Thinking"
-];
-
 export const careerArchetypes = [
     {
         name: "Software Developer",

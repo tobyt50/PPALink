@@ -1,11 +1,23 @@
 import apiClient from '../config/axios';
-import type { Application, ApplicationStatus } from '../types/application';
+import type { Application, ApplicationStatus, Interview, InterviewMode, Offer } from '../types/application';
 
 interface PipelineQueryFilters {
   q?: string;
   skills?: string[];
   appliedAfter?: string;
   appliedBefore?: string;
+}
+
+interface ScheduleInterviewPayload {
+    scheduledAt: string; // ISO String
+    mode: InterviewMode;
+    location?: string;
+    details?: string;
+}
+
+interface CreateOfferPayload {
+    salary?: number;
+    startDate?: string; // ISO String
 }
 
 class ApplicationService {
@@ -65,6 +77,36 @@ class ApplicationService {
    */
   async deleteApplication(applicationId: string): Promise<void> {
     await apiClient.delete(`/applications/${applicationId}`);
+  }
+
+  /**
+   * Schedules an interview for a specific application.
+   * @param applicationId The ID of the application.
+   * @param data The interview details.
+   */
+  async scheduleInterview(applicationId: string, data: ScheduleInterviewPayload): Promise<Interview> {
+    const response = await apiClient.post(`/applications/${applicationId}/interviews`, data);
+    return response.data.data;
+  }
+
+  /**
+   * Creates and extends a job offer for an application.
+   * @param applicationId The ID of the application.
+   * @param data The offer details.
+   */
+  async createOffer(applicationId: string, data: CreateOfferPayload): Promise<Offer> {
+    const response = await apiClient.post(`/applications/${applicationId}/offers`, data);
+    return response.data.data;
+  }
+
+  /**
+   * Allows a candidate to respond to a job offer.
+   * @param offerId The ID of the offer.
+   * @param response 'ACCEPTED' or 'DECLINED'.
+   */
+  async respondToOffer(offerId: string, response: 'ACCEPTED' | 'DECLINED'): Promise<Offer> {
+      const res = await apiClient.post(`/applications/offers/${offerId}/respond`, { response });
+      return res.data;
   }
 }
 

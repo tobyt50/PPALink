@@ -6,6 +6,7 @@ interface Skill {
   name: string;
 }
 interface PositionSkill {
+  requiredLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   skill: Skill;
 }
 

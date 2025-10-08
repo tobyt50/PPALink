@@ -1,9 +1,6 @@
 import { NextFunction, Response, Request } from 'express';
 import { AuthRequest } from '../../middleware/auth';
 import { checkAgencyMembership, getAgencyByUserId } from '../agencies/agency.service';
-import { exportPipelineToCSV } from './job.service';
-
-// Direct imports from job.service
 import {
   createJobPosition,
   deleteJobPosition,
@@ -13,9 +10,10 @@ import {
   getPublicJobById,
   getPublicJobs,
   updateJobPosition,
-  queryApplicantsInPipeline
+  queryApplicantsInPipeline,
+  exportPipelineToCSV, 
+  findSimilarJobs,
 } from './job.service';
-
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
 // Controller to create a new job
@@ -196,6 +194,17 @@ export async function exportPipelineHandler(req: AuthRequest, res: Response, nex
     // 3. Send the CSV data as the response
     return res.send(csvData);
 
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function findSimilarJobsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { jobId } = req.params;
+    const similarJobs = await findSimilarJobs(jobId, req.user.id);
+    res.status(200).json({ success: true, data: similarJobs });
   } catch (error) {
     next(error);
   }

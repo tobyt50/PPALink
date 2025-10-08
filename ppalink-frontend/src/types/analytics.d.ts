@@ -144,6 +144,7 @@ export interface CandidateDashboardData {
     totalApplications: number;
     interviews: number;
     offers: number;
+    verifiedSkills: number;
   };
   recentApplications: (Pick<Application, 'id' | 'status'> & {
     position: Pick<Position, 'title'> & {

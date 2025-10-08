@@ -70,3 +70,26 @@ export async function getAllDegrees() {
   });
   return degrees.map(d => ({ name: d.degree }));
 }
+
+/**
+ * Fetches all skills from the database.
+ */
+export async function getAllSkills() {
+  return prisma.skill.findMany({
+    orderBy: { name: 'asc' },
+  });
+}
+
+/**
+ * Fetches all verifiable skills (skills with associated quizzes) from the database.
+ */
+export async function getVerifiableSkills() {
+  return prisma.skill.findMany({
+    where: {
+      quizzes: {
+        some: {},
+      },
+    },
+    orderBy: { name: 'asc' },
+  });
+}

@@ -17,22 +17,24 @@ export const NotificationBell = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const refetch = async () => {
-    try {
-      const fetched = await notificationService.getMyNotifications();
-      setNotifications(fetched);
-    } catch (error) {
-      console.error('Failed to fetch notifications');
-    }
-  };
+  useEffect(() => {
+    const initialFetch = async () => {
+      try {
+        const fetched = await notificationService.getMyNotifications();
+        setNotifications(fetched);
+      } catch (error) {
+        console.error('Failed to fetch notifications');
+      }
+    };
+    initialFetch();
+  }, []);
 
   useEffect(() => {
-    refetch();
-
     if (!socket) return;
 
     const handleNewNotification = (newNotification: Notification) => {
-      refetch();
+      setNotifications((prev) => [newNotification, ...prev].slice(0, 20));
+
       toast.custom((t) => (
         <InteractiveToast
           t={t}
@@ -57,7 +59,7 @@ export const NotificationBell = () => {
     if (unreadCount === 0) return;
     try {
       await notificationService.markAllAsRead('GENERIC');
-      refetch();
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (error) {
       toast.error('Failed to mark notifications as read.');
     }
@@ -67,7 +69,6 @@ export const NotificationBell = () => {
     if (!notif.read) {
       try {
         await notificationService.markOneAsRead(notif.id);
-        // Optimistically update the UI
         setNotifications((prev) =>
           prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
         );
@@ -78,7 +79,6 @@ export const NotificationBell = () => {
     navigate(notif.link || '#');
   };
 
-  // Polished Dropdown Trigger
   const DropdownTrigger = (
     <Button
           size="icon"
@@ -98,7 +98,6 @@ export const NotificationBell = () => {
       widthClass="w-[16rem] sm:w-[24rem]"
       maxHeight="max-h-[16rem] sm:max-h-[28rem]"
     >
-      {/* Polished and Compact Header */}
       <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
         <h3 className="font-semibold text-gray-900 dark:text-zinc-50">Notifications</h3>
         {unreadCount > 0 && (
@@ -113,20 +112,16 @@ export const NotificationBell = () => {
       </div>
       {notifications.length > 0 ? (
         notifications.map((notif) => (
-          // Polished Item with reduced padding via className override
           <BellDropdownItem
             key={notif.id}
             onSelect={() => handleNotificationClick(notif)}
-            className="!px-3 !py-2.5" // Reduced padding
+            className="!px-3 !py-2.5"
           >
             <div className="flex items-start gap-3 w-full">
-              {/* Polished Unread Indicator */}
               {!notif.read && (
                  <div className="h-2 w-2 rounded-full bg-primary-500 dark:bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
               )}
-              {/* Read items have a placeholder for alignment */}
               {notif.read && <div className="w-2 flex-shrink-0" />}
-
               <div className="flex-grow">
                 <p className={`text-sm ${!notif.read ? 'font-semibold text-gray-800 dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-300'}`}>{notif.message}</p>
                 <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
@@ -137,7 +132,6 @@ export const NotificationBell = () => {
           </BellDropdownItem>
         ))
       ) : (
-        // Polished Empty State
         <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-zinc-400">
           You're all caught up!
         </div>

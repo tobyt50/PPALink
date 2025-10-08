@@ -1,15 +1,39 @@
-import { UserStatus } from '@prisma/client';
-import type { NextFunction, Request, Response } from 'express';
-import { getAdminDashboardAnalytics, getAllUsers, updateUserStatus, sendSystemMessage, adminUpdateJob, adminUnpublishJob, adminRepublishJob, adminGetJobById, getAllAdmins, createAdmin, deleteAdmin, updateAdminRole } from './admin.service';
-import { getAdminTimeSeriesAnalytics, getUserDetails, getJobsForAgencyUser, getApplicationsForCandidateUser, getAllJobs, markAdminOnboardingComplete } from './admin.service';
-import { generateImpersonationToken } from '../auth/auth.service';
-import { AuthRequest } from '../../middleware/auth';
-import { createAdminPortalSession } from '../billing/billing.service';
+import { UserStatus } from "@prisma/client";
+import type { NextFunction, Request, Response } from "express";
+import {
+  getAdminDashboardAnalytics,
+  getAllUsers,
+  updateUserStatus,
+  sendSystemMessage,
+  adminUpdateJob,
+  adminUnpublishJob,
+  adminRepublishJob,
+  adminGetJobById,
+  getAllAdmins,
+  createAdmin,
+  deleteAdmin,
+  updateAdminRole,
+} from "./admin.service";
+import {
+  getAdminTimeSeriesAnalytics,
+  getUserDetails,
+  getJobsForAgencyUser,
+  getApplicationsForCandidateUser,
+  getAllJobs,
+  markAdminOnboardingComplete,
+} from "./admin.service";
+import { generateImpersonationToken } from "../auth/auth.service";
+import { AuthRequest } from "../../middleware/auth";
+import { createAdminPortalSession } from "../billing/billing.service";
 
 /**
  * Handler for an admin to get a list of all users.
  */
-export async function getAllUsersHandler(req: Request, res: Response, next: NextFunction) {
+export async function getAllUsersHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const users = await getAllUsers(req.query);
     return res.status(200).json({ success: true, data: users });
@@ -21,14 +45,20 @@ export async function getAllUsersHandler(req: Request, res: Response, next: Next
 /**
  * Handler for an admin to update a user's status.
  */
-export async function updateUserStatusHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function updateUserStatusHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.params;
     const { status } = req.body;
 
     // Validate the incoming status
     if (!status || !Object.values(UserStatus).includes(status)) {
-      return res.status(400).json({ success: false, message: 'A valid user status is required.' });
+      return res
+        .status(400)
+        .json({ success: false, message: "A valid user status is required." });
     }
 
     const updatedUser = await updateUserStatus(userId, status, req.user.id);
@@ -39,10 +69,10 @@ export async function updateUserStatusHandler(req: AuthRequest, res: Response, n
       data: updatedUser,
     });
   } catch (error: any) {
-    if (error.message.includes('not found')) {
+    if (error.message.includes("not found")) {
       return res.status(404).json({ success: false, message: error.message });
     }
-     if (error.message.includes('Cannot change the status of an admin')) {
+    if (error.message.includes("Cannot change the status of an admin")) {
       return res.status(403).json({ success: false, message: error.message });
     }
     next(error);
@@ -52,7 +82,11 @@ export async function updateUserStatusHandler(req: AuthRequest, res: Response, n
 /**
  * Handler for fetching admin dashboard analytics.
  */
-export async function getAdminDashboardAnalyticsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getAdminDashboardAnalyticsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const analytics = await getAdminDashboardAnalytics();
     res.status(200).json({ success: true, data: analytics });
@@ -64,7 +98,11 @@ export async function getAdminDashboardAnalyticsHandler(req: Request, res: Respo
 /**
  * Handler for fetching time-series analytics for the admin dashboard charts.
  */
-export async function getAdminTimeSeriesAnalyticsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getAdminTimeSeriesAnalyticsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const timeSeriesData = await getAdminTimeSeriesAnalytics();
     res.status(200).json({ success: true, data: timeSeriesData });
@@ -76,13 +114,17 @@ export async function getAdminTimeSeriesAnalyticsHandler(req: Request, res: Resp
 /**
  * Handler for fetching the details of a single user.
  */
-export async function getUserDetailsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getUserDetailsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.params;
     const userDetails = await getUserDetails(userId);
     res.status(200).json({ success: true, data: userDetails });
   } catch (error: any) {
-    if (error.message.includes('not found')) {
+    if (error.message.includes("not found")) {
       return res.status(404).json({ success: false, message: error.message });
     }
     next(error);
@@ -92,7 +134,11 @@ export async function getUserDetailsHandler(req: Request, res: Response, next: N
 /**
  * Handler for fetching jobs posted by a specific agency user.
  */
-export async function getJobsForAgencyUserHandler(req: Request, res: Response, next: NextFunction) {
+export async function getJobsForAgencyUserHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.params;
     const jobs = await getJobsForAgencyUser(userId);
@@ -105,7 +151,11 @@ export async function getJobsForAgencyUserHandler(req: Request, res: Response, n
 /**
  * Handler for fetching applications submitted by a specific candidate user.
  */
-export async function getApplicationsForCandidateUserHandler(req: Request, res: Response, next: NextFunction) {
+export async function getApplicationsForCandidateUserHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.params;
     const applications = await getApplicationsForCandidateUser(userId);
@@ -115,15 +165,23 @@ export async function getApplicationsForCandidateUserHandler(req: Request, res: 
   }
 }
 
-export async function sendSystemMessageHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function sendSystemMessageHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.params;
     const { message } = req.body;
     if (!message) {
-      return res.status(400).json({ success: false, message: 'Message body is required.' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Message body is required." });
     }
     await sendSystemMessage(userId, message, req.user.id);
-    res.status(200).json({ success: true, message: 'Message sent successfully.' });
+    res
+      .status(200)
+      .json({ success: true, message: "Message sent successfully." });
   } catch (error) {
     next(error);
   }
@@ -132,24 +190,33 @@ export async function sendSystemMessageHandler(req: AuthRequest, res: Response, 
 /**
  * Handler for an admin to initiate a user impersonation session.
  */
-export async function impersonateUserHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function impersonateUserHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.user) {
-    return res.status(401).json({ success: false, message: 'Unauthorized' });
+    return res.status(401).json({ success: false, message: "Unauthorized" });
   }
   try {
     const { userId: targetUserId } = req.params;
     const adminUserId = req.user.id;
 
     if (targetUserId === adminUserId) {
-      return res.status(400).json({ success: false, message: "You cannot impersonate yourself." });
+      return res
+        .status(400)
+        .json({ success: false, message: "You cannot impersonate yourself." });
     }
 
-    const { token, user } = await generateImpersonationToken(targetUserId, adminUserId);
-    
+    const { token, user } = await generateImpersonationToken(
+      targetUserId,
+      adminUserId
+    );
+
     // Return both the token and the user object to the frontend
     res.status(200).json({ success: true, data: { token, user } });
   } catch (error: any) {
-    if (error.message.includes('not found')) {
+    if (error.message.includes("not found")) {
       return res.status(404).json({ success: false, message: error.message });
     }
     next(error);
@@ -159,7 +226,11 @@ export async function impersonateUserHandler(req: AuthRequest, res: Response, ne
 /**
  * Handler for fetching all job postings on the platform.
  */
-export async function getAllJobsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getAllJobsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const jobs = await getAllJobs(req.query);
     res.status(200).json({ success: true, data: jobs });
@@ -168,121 +239,186 @@ export async function getAllJobsHandler(req: Request, res: Response, next: NextF
   }
 }
 
-export async function adminUpdateJobHandler(req: Request, res: Response, next: NextFunction) {
+export async function adminUpdateJobHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { jobId } = req.params;
     const updatedJob = await adminUpdateJob(jobId, req.body);
-    res.status(200).json({ success: true, data: updatedJob, message: 'Job updated successfully.' });
+    res
+      .status(200)
+      .json({
+        success: true,
+        data: updatedJob,
+        message: "Job updated successfully.",
+      });
   } catch (error) {
     next(error);
   }
 }
 
-export async function adminUnpublishJobHandler(req: Request, res: Response, next: NextFunction) {
+export async function adminUnpublishJobHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { jobId } = req.params;
     await adminUnpublishJob(jobId);
-    res.status(200).json({ success: true, message: 'Job has been unpublished.' });
+    res
+      .status(200)
+      .json({ success: true, message: "Job has been unpublished." });
   } catch (error) {
     next(error);
   }
 }
 
-export async function adminRepublishJobHandler(req: Request, res: Response, next: NextFunction) {
+export async function adminRepublishJobHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { jobId } = req.params;
     await adminRepublishJob(jobId);
-    res.status(200).json({ success: true, message: 'Job has been republished.' });
+    res
+      .status(200)
+      .json({ success: true, message: "Job has been republished." });
   } catch (error) {
     next(error);
   }
 }
 
-export async function adminGetJobByIdHandler(req: Request, res: Response, next: NextFunction) {
+export async function adminGetJobByIdHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { jobId } = req.params;
     const job = await adminGetJobById(jobId);
     res.status(200).json({ success: true, data: job });
   } catch (error: any) {
-    if (error.message.includes('not found')) {
+    if (error.message.includes("not found")) {
       return res.status(404).json({ success: false, message: error.message });
     }
     next(error);
   }
 }
 
-export async function createAdminPortalSessionHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const { agencyId } = req.body;
-        if (!agencyId) {
-            return res.status(400).json({ success: false, message: 'Agency ID is required.' });
-        }
-        const { url } = await createAdminPortalSession(agencyId);
-        res.status(200).json({ success: true, data: { url } });
-    } catch (error: any) {
-        res.status(400).json({ success: false, message: error.message });
+export async function createAdminPortalSessionHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { agencyId } = req.body;
+    if (!agencyId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Agency ID is required." });
     }
+    const { url } = await createAdminPortalSession(agencyId);
+    res.status(200).json({ success: true, data: { url } });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 }
 
-export async function getAllAdminsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getAllAdminsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const admins = await getAllAdmins(req.query);
     res.status(200).json({ success: true, data: admins });
-  } catch (error) { next(error); }
+  } catch (error) {
+    next(error);
+  }
 }
 
-export async function createAdminHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function createAdminHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.user) return res.status(401).send();
   try {
     const { email, role } = req.body;
     if (!email || !role) {
-      return res.status(400).json({ success: false, message: 'Email and role are required.' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and role are required." });
     }
     const newAdmin = await createAdmin(email, role, req.user.id);
     res.status(201).json({ success: true, data: newAdmin });
   } catch (error: any) {
-    if (error.message.includes('already exists')) {
+    if (error.message.includes("already exists")) {
       return res.status(409).json({ success: false, message: error.message });
     }
     next(error);
   }
 }
 
-export async function updateAdminRoleHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function updateAdminRoleHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.user) return res.status(401).send();
   try {
     const { userId } = req.params;
     const { role } = req.body;
-    if (!role) return res.status(400).json({ success: false, message: 'Role is required.' });
-    
+    if (!role)
+      return res
+        .status(400)
+        .json({ success: false, message: "Role is required." });
+
     await updateAdminRole(userId, role, req.user.id);
-    res.status(200).json({ success: true, message: 'Admin role updated successfully.' });
+    res
+      .status(200)
+      .json({ success: true, message: "Admin role updated successfully." });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }
 }
 
-export async function deleteAdminHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function deleteAdminHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.user) return res.status(401).send();
   try {
     const { userId } = req.params;
     await deleteAdmin(userId, req.user.id);
     res.status(204).send();
   } catch (error: any) {
-      if (error.message.includes('your own account')) {
-          return res.status(403).json({ success: false, message: error.message });
-      }
-      if (error.message.includes('not found')) {
-          return res.status(404).json({ success: false, message: error.message });
-      }
+    if (error.message.includes("your own account")) {
+      return res.status(403).json({ success: false, message: error.message });
+    }
+    if (error.message.includes("not found")) {
+      return res.status(404).json({ success: false, message: error.message });
+    }
     next(error);
   }
 }
 
-export async function completeAdminOnboardingHandler(req: AuthRequest, res: Response, next: NextFunction) {
+export async function completeAdminOnboardingHandler(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.user) return res.status(401).send();
   try {
     await markAdminOnboardingComplete(req.user.id);
-    res.status(200).json({ success: true, message: 'Admin onboarding completed.' });
-  } catch (error) { next(error); }
+    res
+      .status(200)
+      .json({ success: true, message: "Admin onboarding completed." });
+  } catch (error) {
+    next(error);
+  }
 }

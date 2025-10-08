@@ -12,20 +12,20 @@ import candidateService, {
 import type { Agency } from "../../types/agency";
 import type { CandidateProfile } from "../../types/candidate";
 import CandidateCard from "./CandidateCard";
-import FilterSidebar, {
-  type CandidateFilterValues,
-} from "./FilterSidebar";
+import FilterSidebar, { type CandidateFilterValues } from "./FilterSidebar";
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
 
 const BrowseCandidatesPage = () => {
   const [searchParams] = useSearchParams();
 
-const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("q") || ""
+  );
 
-const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
-  const stored = searchParams.get("filters");
-  return stored ? JSON.parse(stored) : null;
-});
+  const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
+    const stored = searchParams.get("filters");
+    return stored ? JSON.parse(stored) : null;
+  });
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -36,6 +36,25 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
   // fetch current agency (to know plan type)
   const { data: agency, isLoading: isLoadingAgency } =
     useFetch<Agency>("/agencies/me");
+
+  // Sync state from URL params (e.g., on back navigation)
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    setSearchQuery(q);
+
+    const storedFilters = searchParams.get("filters");
+    if (storedFilters) {
+      try {
+        const parsedFilters = JSON.parse(storedFilters);
+        setFilters(parsedFilters);
+      } catch (e) {
+        console.error("Failed to parse filters from URL:", e);
+        setFilters(null);
+      }
+    } else {
+      setFilters(null);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const performSearch = async () => {
@@ -55,7 +74,8 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
         const combinedFilters: CandidateSearchParams = {
           stateId: filters?.stateId ?? null,
           nyscBatch: filters?.nyscBatch ?? null,
-          skills: filters?.skills ?? null,
+          skills: filters?.skills ?? [],
+          verifiedSkillIds: filters?.verifiedSkillIds ?? [],
           isRemote: filters?.isRemote ?? false,
           isOpenToReloc: filters?.isOpenToReloc ?? false,
           gpaBand: filters?.gpaBand ?? null,
@@ -67,13 +87,13 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
           q: debouncedSearchQuery?.trim() || undefined,
         };
 
-        const results =
-          await candidateService.searchCandidates(combinedFilters);
+        const results = await candidateService.searchCandidates(
+          combinedFilters
+        );
         setCandidates(results);
       } catch (error: any) {
         toast.error(
-          error.response?.data?.message ||
-            "An error occurred while searching."
+          error.response?.data?.message || "An error occurred while searching."
         );
       } finally {
         setIsLoading(false);
@@ -105,14 +125,16 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Sidebar */}
         <aside className="lg:col-span-1">
-          <div className="
+          <div
+            className="
     sticky top-2
     max-h-[calc(100vh-5rem)]   /* don’t exceed the viewport */
     overflow-auto              /* scroll internally if filters get tall */
     rounded-2xl bg-white dark:bg-zinc-900
     shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
     p-5
-  ">
+  "
+          >
             <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4">
               Filters
             </h2>
@@ -125,6 +147,7 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
               <FilterSidebar
                 onFilterChange={handleFilterChange}
                 agency={agency}
+                currentFilters={filters || undefined}
               />
             )}
           </div>
@@ -177,13 +200,16 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 {candidates.map((candidate) => (
                   <Link
-  key={candidate.id}
-  to={`/dashboard/agency/candidates/${candidate.id}/profile?q=${encodeURIComponent(debouncedSearchQuery)}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
-  className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
->
-  <CandidateCard candidate={candidate} />
-</Link>
-
+                    key={candidate.id}
+                    to={`/dashboard/agency/candidates/${
+                      candidate.id
+                    }/profile?q=${encodeURIComponent(
+                      debouncedSearchQuery
+                    )}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
+                    className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
+                  >
+                    <CandidateCard candidate={candidate} />
+                  </Link>
                 ))}
               </div>
             )}
@@ -195,5 +221,3 @@ const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
 };
 
 export default BrowseCandidatesPage;
-
-

@@ -1,19 +1,18 @@
 import { NextFunction, Response } from 'express';
-import { AuthRequest } from '../../middleware/auth'; // Import our custom request type
-import { getCandidateProfileById, getCandidateProfileByUserId, getMyApplications, updateCandidateProfile, getCandidateDashboardData, markOnboardingAsComplete, updateCandidateSummary, setCandidateSkills, updateCandidateCv } from './candidate.service';
+import { AuthRequest } from '../../middleware/auth';
+import { getCandidateProfileById, getMyApplications, updateCandidateProfile, getCandidateDashboardData, markOnboardingAsComplete, updateCandidateSummary, setCandidateSkills, updateCandidateCv, getMyCandidateProfile, getRecommendedJobs } from './candidate.service';
 import { UpdateCandidateProfileInput } from './candidate.types';
 
 /**
  * Handler to get the profile of the currently authenticated user.
  */
 export async function getMyProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
-  // req.user is populated by the 'authenticate' middleware
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
   try {
-    const profile = await getCandidateProfileByUserId(req.user.id);
+    const profile = await getMyCandidateProfile(req.user.id);
     return res.status(200).json({ success: true, data: profile });
   } catch (error) {
     next(error);
@@ -139,5 +138,17 @@ export async function updateCvHandler(req: AuthRequest, res: Response, next: Nex
     }
     const profile = await updateCandidateCv(req.user.id, cvFileKey);
     res.status(200).json({ success: true, data: profile });
+  } catch (error) { next(error); }
+}
+
+export async function getRecommendedJobsHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const filters = {
+        stateId: req.query.stateId ? Number(req.query.stateId) : undefined,
+        isRemote: req.query.isRemote === 'true' ? true : undefined,
+    };
+    const jobs = await getRecommendedJobs(req.user.id, filters);
+    res.status(200).json({ success: true, data: jobs });
   } catch (error) { next(error); }
 }

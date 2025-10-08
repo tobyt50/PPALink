@@ -1,5 +1,5 @@
 import apiClient from '../config/axios';
-import type { Notification } from '../types/notification';
+import type { Notification, NotificationType } from '../types/notification';
 
 class NotificationService {
   /**
@@ -16,8 +16,13 @@ class NotificationService {
   }
   
   // Function to mark all of a specific type as read
-  async markAllAsRead(type: 'GENERIC' | 'MESSAGE'): Promise<void> {
+  async markAllAsRead(type: NotificationType): Promise<void> {
     await apiClient.post('/notifications/read', { type });
+  }
+
+  async getNotificationStatus(): Promise<Record<NotificationType, number>> {
+    const response = await apiClient.get('/notifications/status');
+    return response.data.data;
   }
 }
 

@@ -3,9 +3,10 @@ import { ChevronDown, XCircle } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FileUpload } from '../../../components/forms/FileUpload';
 import { Input } from '../../../components/forms/Input';
+import { Textarea } from '../../../components/forms/Textarea';
 import { Button } from '../../../components/ui/Button';
 import { DropdownTrigger } from '../../../components/ui/DropdownTrigger';
 import { Label } from '../../../components/ui/Label';
@@ -14,8 +15,6 @@ import { useDataStore } from '../../../context/DataStore';
 import type { CandidateProfile } from '../../../types/candidate';
 import { NYSC_BATCHES, NYSC_STREAMS } from '../../../utils/constants';
 
-// --- Schema ---
-// 1. Changed skills to be an array of strings, like in JobForm.
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required.'),
   lastName: z.string().min(2, 'Last name is required.'),
@@ -34,7 +33,7 @@ const profileSchema = z.object({
   cvFileKey: z.string().optional().nullable(),
   nyscFileKey: z.string().optional().nullable(),
   primaryStateId: z.coerce.number().optional().nullable(),
-  skills: z.array(z.string()).optional(), // Changed from z.array(z.object({ name: z.string() }))
+  skills: z.array(z.string()).optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -48,7 +47,7 @@ interface ProfileFormProps {
 }
 
 const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' }: ProfileFormProps) => {
-  const { states } = useDataStore();
+  const { states, skills: allSkills } = useDataStore(); // 1. Get all skills from the data store
 
   const {
     register,
@@ -77,7 +76,6 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
       cvFileKey: initialData?.cvFileKey ?? null,
       nyscFileKey: initialData?.nyscFileKey ?? null,
       primaryStateId: initialData?.primaryStateId ?? undefined,
-      // 2. Updated default values to map to a simple string array.
       skills: initialData?.skills?.map(s => s.skill.name) || [],
     },
   });
@@ -85,31 +83,31 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
   const watchedNyscBatch = watch('nyscBatch');
   const watchedNyscStream = watch('nyscStream');
   const watchedStateId = watch('primaryStateId');
-  const watchedSkills = watch('skills');
+  const watchedSkills = watch('skills') || [];
 
   const selectedStateName = states.find(s => s.id === watchedStateId)?.name || 'Select State...';
 
-  // 3. Replaced `useFieldArray` with the same state management as JobForm.
-  const [skillInput, setSkillInput] = useState('');
+  // --- THIS IS THE NEW, SUPERIOR SKILL MANAGEMENT LOGIC ---
+  const [skillSearch, setSkillSearch] = useState('');
 
-  const addSkill = () => {
-    const normalized = skillInput.trim();
-    if (!normalized) return;
+  // Filter the master list of skills based on the search input
+  const filteredSkills = useMemo(() => {
+    return allSkills.filter(skill => 
+        skill.name.toLowerCase().includes(skillSearch.toLowerCase()) &&
+        !watchedSkills.includes(skill.name) // Don't show skills that are already selected
+    );
+  }, [allSkills, skillSearch, watchedSkills]);
 
-    // Prevent duplicates
-    if ((watchedSkills || []).includes(normalized)) {
-      setSkillInput('');
-      return;
+  const addSkill = (skillName: string) => {
+    if (!watchedSkills.includes(skillName)) {
+      setValue('skills', [...watchedSkills, skillName], { shouldDirty: true });
     }
-
-    setValue('skills', [...(watchedSkills || []), normalized], { shouldDirty: true });
-    setSkillInput('');
   };
 
   const removeSkill = (index: number) => {
     setValue(
       'skills',
-      watchedSkills?.filter((_, i) => i !== index) || [],
+      watchedSkills.filter((_, i) => i !== index),
       { shouldDirty: true }
     );
   };
@@ -161,7 +159,7 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
         </div>
         <div className="space-y-2">
           <Label htmlFor="summary">Professional Summary</Label>
-          <textarea id="summary" rows={5} className="flex w-full rounded-md border border-gray-300 dark:border-zinc-800" {...register('summary')} />
+          <Textarea id="summary" rows={5} {...register('summary')} />
         </div>
       </section>
 
@@ -270,32 +268,44 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
           </div>
         </div>
         <div className="space-y-2">
-          <h4 className="text-sm font-medium">Skills</h4>
-          <div className="flex gap-2">
-            <Input
-              value={skillInput}
-              onChange={e => setSkillInput(e.target.value)}
-              placeholder="Type a skill and press Enter"
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addSkill();
-                }
-              }}
-            />
-            <Button type="button" onClick={addSkill} variant="outline">
-              Add
-            </Button>
-          </div>
-          {/* 4. Updated skill rendering logic. */}
+          <Label>Skills</Label>
+          <p className="text-sm text-gray-500 dark:text-zinc-400">Select your key skills from the list. This helps recruiters find you.</p>
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span>Add Skills</span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+            isIndustryDropdown // Reuse the wider style
+          >
+              <div className="p-2 border-b border-gray-100 dark:border-zinc-800">
+                <Input
+                    type="text"
+                    value={skillSearch}
+                    onChange={(e) => setSkillSearch(e.target.value)}
+                    placeholder="Search skills..."
+                    className="w-full text-sm"
+                />
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {filteredSkills.map(skill => (
+                    <SimpleDropdownItem key={skill.id} onSelect={() => addSkill(skill.name)}>
+                        {skill.name}
+                    </SimpleDropdownItem>
+                ))}
+                {filteredSkills.length === 0 && <p className="p-2 text-xs text-gray-500">No matching skills found.</p>}
+              </div>
+          </SimpleDropdown>
+
           <div className="flex flex-wrap gap-2 pt-2 min-h-[2.5rem]">
-            {watchedSkills?.map((skill, index) => (
+            {watchedSkills.map((skill, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/50 px-3 py-1 text-sm font-medium text-primary-800"
+                className="flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-900/50 px-3 py-1 text-sm font-medium text-primary-800 dark:text-primary-300"
               >
                 <span>{skill}</span>
-                <button type="button" onClick={() => removeSkill(index)}>
+                <button type="button" onClick={() => removeSkill(index)} className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200">
                   <XCircle size={16} />
                 </button>
               </div>
@@ -326,4 +336,3 @@ const ProfileForm = ({ initialData, onSubmit, submitButtonText = 'Save Changes' 
 };
 
 export default ProfileForm;
-
