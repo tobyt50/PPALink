@@ -1,11 +1,11 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '../../middleware/auth';
-import { getCandidateProfileById } from '../candidates/candidate.service';
+import { getCandidateProfileByUserId } from '../candidates/candidate.service';
 import * as experienceService from './experience.service';
 
 // Helper remains the same
 async function getProfileId(userId: string) {
-  const profile = await getCandidateProfileById(userId);
+  const profile = await getCandidateProfileByUserId(userId);
   if (!profile) throw new Error('Candidate profile not found.');
   return profile.id;
 }
