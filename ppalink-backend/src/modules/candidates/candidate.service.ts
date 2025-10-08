@@ -108,6 +108,27 @@ export async function getCandidateProfileById(profileId: string) {
   return profile;
 }
 
+export async function getCandidateProfileByUserId(userId: string) {
+  const profile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+    include: {
+      workExperiences: { orderBy: { startDate: 'desc' } },
+      education: { orderBy: { startDate: 'desc' } },
+      skills: {
+        include: {
+          skill: true,
+        },
+      },
+    },
+  });
+
+  if (!profile) {
+    throw new Error('Candidate profile not found');
+  }
+
+  return profile;
+}
+
 /**
  * Fetches all applications for a specific candidate.
  * @param user The authenticated user object.
