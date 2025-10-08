@@ -57,19 +57,23 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
     );
 
   const categorizedApps = useMemo(() => {
-    const initial: Record<ApplicationStatus, Application[]> = {
-      APPLIED: [],
-      REVIEWING: [],
-      INTERVIEW: [],
-      OFFER: [],
-      REJECTED: [],
-      WITHDRAWN: [],
-    };
-    return applications.reduce((acc, app) => {
-      if (acc[app.status]) acc[app.status].push(app);
+    const initial: Record<ApplicationStatus, Application[]> = { APPLIED: [], REVIEWING: [], INTERVIEW: [], OFFER: [], HIRED: [], REJECTED: [], WITHDRAWN: [] };
+    
+    // Use the raw, unsorted applications list as the base for sorting
+    const sourceList = isFilteredView ? queryResults! : applications;
+    
+    // Sort the source list by matchScore in descending order.
+    // Applications without a score are treated as 0 and placed at the bottom.
+    const sortedSource = [...sourceList].sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+    
+    // Reduce the sorted list into categorized columns.
+    return sortedSource.reduce((acc, app) => {
+      if (acc[app.status]) {
+        acc[app.status].push(app);
+      }
       return acc;
     }, initial);
-  }, [applications]);
+  }, [applications, queryResults, isFilteredView]);
 
   const focusedStageData = useMemo(() => {
     if (focusedStage && !isFilteredView && job?.metrics) {

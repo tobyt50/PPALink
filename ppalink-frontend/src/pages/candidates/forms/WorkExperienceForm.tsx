@@ -4,6 +4,7 @@ import { Fragment, useEffect } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import { z } from 'zod';
 import { Input } from '../../../components/forms/Input';
+import { Textarea } from '../../../components/forms/Textarea';
 import { Button } from '../../../components/ui/Button';
 import { Label } from '../../../components/ui/Label';
 import type { WorkExperience } from '../../../types/candidate';
@@ -91,7 +92,7 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900 dark:bg-black/70 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900/25 dark:bg-black/70 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
@@ -146,10 +147,9 @@ export const WorkExperienceFormModal = ({ isOpen, onClose, onSubmit, initialData
 
                   <div className="space-y-1">
                     <Label htmlFor="description">Description</Label>
-                    <textarea
+                    <Textarea
                       id="description"
                       rows={4}
-                      className="w-full rounded-md border-gray-300 dark:border-zinc-800 text-sm shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10"
                       {...register('description')}
                     />
                   </div>

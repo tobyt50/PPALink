@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo, useState } from "react";
 import {
+  Award,
   BadgeCheck,
   CheckSquare,
+  Flame,
   Heart,
   Mail,
   Square,
@@ -14,7 +16,6 @@ import { toast } from "react-hot-toast";
 import { useShortlistStore } from "../../context/ShortlistStore";
 import agencyService from "../../services/agency.service";
 import type { Application } from "../../types/application";
-import { useMemo, useState } from 'react';
 
 export const StaticApplicantCard = ({
   application,
@@ -38,6 +39,49 @@ export const StaticApplicantCard = ({
     [shortlistedIds, candidate.id]
   );
   const [showCheckbox, setShowCheckbox] = useState(false);
+
+  const topSkills = useMemo(() => {
+    const selfReportedSkills = candidate.skills || [];
+    const passedAttempts = (candidate.quizAttempts || []).filter(
+      (a) => a.passed && a.skillId
+    );
+
+    const verifiedSkillMap = new Map<number, { score: number }>();
+    passedAttempts.forEach((attempt) => {
+      if (attempt.skillId) {
+        const currentScore = verifiedSkillMap.get(attempt.skillId)?.score || 0;
+        if (attempt.score > currentScore) {
+          verifiedSkillMap.set(attempt.skillId, { score: attempt.score });
+        }
+      }
+    });
+
+    const allSkillsMap = new Map<
+      number,
+      { id: number; name: string; isVerified: boolean; score?: number }
+    >();
+    selfReportedSkills.forEach((s) => {
+      allSkillsMap.set(s.skill.id, { ...s.skill, isVerified: false });
+    });
+
+    passedAttempts.forEach((attempt) => {
+      if (attempt.skillId && attempt.skill) {
+        allSkillsMap.set(attempt.skillId, {
+          ...attempt.skill,
+          isVerified: true,
+          score: verifiedSkillMap.get(attempt.skillId)?.score,
+        });
+      }
+    });
+
+    const combinedSkills = Array.from(allSkillsMap.values());
+    combinedSkills.sort(
+      (a, b) => (b.isVerified ? 1 : 0) - (a.isVerified ? 1 : 0)
+    );
+
+    return combinedSkills.slice(0, 2);
+  }, [candidate.skills, candidate.quizAttempts]);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     const pressTimer = setTimeout(() => setShowCheckbox(true), 500);
     const clear = () => clearTimeout(pressTimer);
@@ -123,6 +167,14 @@ export const StaticApplicantCard = ({
             <p className="font-semibold text-sm text-gray-800 transition-all dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal break-words">
               {candidate.firstName} {candidate.lastName}
             </p>
+            {application.matchScore != null && (
+              <div className="mt-1 flex items-center">
+                <span className="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/50 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:text-orange-300">
+                  <Flame className="h-3 w-3 mr-1" />
+                  {application.matchScore}% Match
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-zinc-400">
@@ -130,22 +182,40 @@ export const StaticApplicantCard = ({
           <span>{candidate.verificationLevel.replace("_", " ")}</span>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {candidate.skills && candidate.skills.length > 0 ? (
-          candidate.skills.slice(0, 2).map((skillInfo) => (
-            <span
-              key={skillInfo.skill.id}
-              className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-950/60 dark:text-green-300"
-            >
-              {skillInfo.skill.name}
-            </span>
-          ))
-        ) : (
-          <p className="italic text-xs text-gray-400 dark:text-zinc-500">
-            No skills listed
-          </p>
-        )}
+      <div className="mt-3 flex flex-wrap gap-1.5 min-h-[26px]">
+  {topSkills.length > 0 ? (
+    topSkills.map((skill) => (
+      <div key={skill.id} className="relative inline-block">
+        <span
+          className={`flex items-center rounded-full px-2.5 py-1 text-xs font-medium cursor-default peer ${
+            skill.isVerified
+              ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+              : "bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300"
+          }`}
+        >
+          {skill.isVerified && <Award className="h-3 w-3 mr-1" />}
+          {skill.name}
+        </span>
+
+        {/* Tooltip (triggered only when hovering this chip) */}
+        <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 
+          whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 
+          text-xs font-medium text-zinc-900 dark:text-white opacity-0 
+          shadow-lg transition-opacity duration-300 peer-hover:opacity-100 
+          pointer-events-none max-w-[calc(100vw-2rem)]">
+          {skill.isVerified
+            ? `Verified Skill - Score: ${skill.score}%`
+            : "Unverified skill"}
+        </div>
       </div>
+    ))
+  ) : (
+    <p className="italic text-xs text-gray-400 dark:text-zinc-500">
+      No skills listed
+    </p>
+  )}
+</div>
+
       <div className="mt-4 flex items-center justify-center gap-3 opacity-0 max-h-0 overflow-hidden transition-all duration-200 group-hover:mt-4 group-hover:opacity-100 group-hover:max-h-16">
         <button
           onClick={handleMessage}
@@ -177,66 +247,65 @@ export const StaticApplicantCard = ({
 };
 
 export const DraggableCard = ({
-    app,
-    onCardClick,
-    onPreview,
-    isFocused,
-    isSelected,
-    isFilteredView,
-    onDelete,
-  }: {
-    app: Application;
-    onCardClick: (e: React.MouseEvent) => void;
-    onPreview: (application: Application) => void;
-    isFocused: boolean;
-    isSelected: boolean;
-    isFilteredView: boolean;
-    onDelete: (applicationId: string) => void;
-  }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging: isItemDragging,
-    } = useSortable({ id: app.id });
-
-    const style: React.CSSProperties = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isItemDragging ? 0.4 : 1,
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-        className="cursor-pointer touch-none"
-        data-application-id={app.id}
-        onClick={(e) => {
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            onCardClick(e);
-          } else {
-            onPreview(app);
-          }
-        }}
-      >
-        <StaticApplicantCard
-          application={app}
-          isSelected={isSelected}
-          onSelectToggle={(e) => onCardClick(e)}
-          isFocused={isFocused}
-          onDelete={onDelete}
-        />
-        {isFilteredView && (
-          <div className="text-xs text-center text-gray-500 mt-1">
-            In: {app.status}
-          </div>
-        )}
-      </div>
-    );
+  app,
+  onCardClick,
+  onPreview,
+  isFocused,
+  isSelected,
+  isFilteredView,
+  onDelete,
+}: {
+  app: Application;
+  onCardClick: (e: React.MouseEvent) => void;
+  onPreview: (application: Application) => void;
+  isFocused: boolean;
+  isSelected: boolean;
+  isFilteredView: boolean;
+  onDelete: (applicationId: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isItemDragging,
+  } = useSortable({ id: app.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isItemDragging ? 0.4 : 1,
   };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-pointer touch-none"
+      data-application-id={app.id}
+      onClick={(e) => {
+        if (e.ctrlKey || e.metaKey || e.shiftKey) {
+          e.preventDefault();
+          onCardClick(e);
+        } else {
+          onPreview(app);
+        }
+      }}
+    >
+      <StaticApplicantCard
+        application={app}
+        isSelected={isSelected}
+        onSelectToggle={onCardClick}
+        isFocused={isFocused}
+        onDelete={onDelete}
+      />
+      {isFilteredView && (
+        <div className="text-xs text-center text-gray-500 mt-1">
+          In: {app.status}
+        </div>
+      )}
+    </div>
+  );
+};

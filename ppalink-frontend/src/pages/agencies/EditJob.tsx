@@ -1,6 +1,6 @@
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import jobService from "../../services/job.service";
 import type { Position } from "../../types/job";
@@ -56,6 +56,7 @@ const EditJobPage = () => {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Edit Job Posting
@@ -63,8 +64,13 @@ const EditJobPage = () => {
         <p className="mt-2 text-gray-600 dark:text-zinc-300">
           Make changes to your open position details.
         </p>
+        
       </div>
-
+      <Link to={`/dashboard/agency/${agencyId}/jobs/${jobId}`} className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <ChevronLeft className="h-4 w-4 mr-1.5" />
+            Back to Job
+      </Link>
+</div>
       {/* Form Card */}
       <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
         <JobForm

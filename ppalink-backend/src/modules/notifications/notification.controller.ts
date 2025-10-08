@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '../../middleware/auth';
-import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from './notification.service';
+import { getNotifications, getUnreadNotificationStatus, markAllNotificationsAsRead, markNotificationAsRead } from './notification.service';
 
 // HANDLER to fetch all notifications
 export async function getMyNotificationsHandler(req: AuthRequest, res: Response, next: NextFunction) {
@@ -40,4 +40,17 @@ export async function markOneAsReadHandler(req: AuthRequest, res: Response, next
         await markNotificationAsRead(notificationId, req.user.id);
         res.status(200).json({ success: true, message: 'Notification marked as read.' });
     } catch (error) { next(error); }
+}
+
+/**
+ * Handler for fetching the count of unread notifications by type.
+ */
+export async function getNotificationStatusHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const status = await getUnreadNotificationStatus(req.user.id);
+    res.status(200).json({ success: true, data: status });
+  } catch (error) {
+    next(error);
+  }
 }

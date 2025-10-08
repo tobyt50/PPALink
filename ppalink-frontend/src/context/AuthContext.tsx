@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { User } from '../types/user';
 import authService from '../services/auth.service';
+import { useNotificationStore } from './NotificationStore';
 
 interface AuthState {
   user: User | null;
@@ -34,6 +35,7 @@ export const useAuthStore = create<AuthState>()(
           token,
           isAuthenticated: true,
         });
+        useNotificationStore.getState().fetchStatus();
       },
       logout: () => {
         set({
@@ -62,6 +64,7 @@ export const useAuthStore = create<AuthState>()(
           impersonator: { user: adminUser, token: adminToken }, // Store the full session
           isImpersonating: true,
         });
+        useNotificationStore.getState().fetchStatus();
       },
       stopImpersonation: () => {
         const adminSession = get().impersonator;
@@ -79,11 +82,13 @@ export const useAuthStore = create<AuthState>()(
           impersonator: null,
           isImpersonating: false,
         });
+        useNotificationStore.getState().fetchStatus();
       },
       refreshUser: async () => {
         try {
             const freshUser = await authService.getMyProfile();
             set({ user: freshUser });
+            useNotificationStore.getState().fetchStatus();
         } catch (error) {
             console.error("Failed to refresh user session:", error);
             // If the token is expired, this will fail. We should log the user out.

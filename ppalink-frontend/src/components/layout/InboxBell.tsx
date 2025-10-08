@@ -3,7 +3,7 @@ import { Mail, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useMessageNotificationStore } from '../../context/MessageNotificationStore';
+import { useNotificationStore } from '../../context/NotificationStore';
 import { useSocket } from '../../context/SocketContext';
 import messageService from '../../services/message.service';
 import notificationService from '../../services/notification.service';
@@ -16,13 +16,15 @@ export const InboxBell = () => {
   const navigate = useNavigate();
   const { socket } = useSocket();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const { unreadMessageCount, setUnreadMessageCount } = useMessageNotificationStore();
+  
+  const messageCount = useNotificationStore((state) => state.messageCount());
+  const markMessagesAsRead = useNotificationStore((state) => state.markAsRead);
+  const incrementMessageCount = useNotificationStore((state) => state.incrementCount);
 
   const refetch = async () => {
     try {
       const fetched = await messageService.getMyMessageNotifications();
       setNotifications(fetched);
-      setUnreadMessageCount(fetched.filter((n) => !n.read).length);
     } catch (error) {
       console.error('Failed to fetch message notifications');
     }
@@ -37,6 +39,7 @@ export const InboxBell = () => {
 
     const handleNewMessageNotification = (newNotification: Notification) => {
       refetch();
+      incrementMessageCount('MESSAGE');
       toast.custom((t) => (
         <InteractiveToast
           t={t}
@@ -51,7 +54,7 @@ export const InboxBell = () => {
     };
 
     const handleNewMessage = () => {
-        refetch();
+        refetch(); // Refetch list when a new message arrives in an open conversation
     };
 
     socket.on('new_message_notification', handleNewMessageNotification);
@@ -61,13 +64,14 @@ export const InboxBell = () => {
       socket.off('new_message_notification', handleNewMessageNotification);
       socket.off('new_message', handleNewMessage);
     };
-  }, [socket, navigate]);
+  }, [socket, navigate, incrementMessageCount]);
 
   const handleMarkAllAsRead = async () => {
-    if (unreadMessageCount === 0) return;
+    if (messageCount === 0) return;
     try {
-      await notificationService.markAllAsRead('MESSAGE');
-      refetch();
+      await markMessagesAsRead('MESSAGE'); // Use the action from the global store
+      // Optimistically update the local list view
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (error) {
       toast.error('Failed to mark messages as read.');
     }
@@ -77,7 +81,8 @@ export const InboxBell = () => {
     if (!notif.read) {
       try {
         await notificationService.markOneAsRead(notif.id);
-        refetch();
+        refetch(); // Refetch the list to ensure counts are accurate
+        // We can also manually decrement the global count here for faster UI response
       } catch (error) {
         console.error('Failed to mark notification as read');
       }
@@ -85,32 +90,36 @@ export const InboxBell = () => {
     navigate(notif.link || '/inbox');
   };
 
-  // Polished Dropdown Trigger
   const DropdownTrigger = (
-  <Button
-          size="icon"
-          className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
-          variant="ghost"
-        >
-    <Mail className="h-5 w-5 text-gray-600 dark:text-zinc-300" />
-    {unreadMessageCount > 0 && (
-      <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 dark:bg-red-500 text-white dark:text-zinc-100 font-bold border-2 border-white dark:border-black">
-        {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
-      </span>
-    )}
-  </Button>
-);
+    <Button
+      size="icon"
+      className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
+      variant="ghost"
+    >
+      <Mail className="h-5 w-5 text-gray-600 dark:text-zinc-300" />
+      {messageCount > 0 && (
+        <span className="absolute top-0 right-0 h-5 min-w-[1.25rem] px-1 text-xs flex items-center justify-center rounded-full bg-red-500 dark:bg-red-500 text-white dark:text-zinc-100 font-bold border-2 border-white dark:border-black">
+          {messageCount > 9 ? '9+' : messageCount}
+        </span>
+      )}
+    </Button>
+  );
 
   return (
     <BellDropdown
       trigger={DropdownTrigger}
       widthClass="w-[16rem] sm:w-[24rem]"
       maxHeight="max-h-[16rem] sm:max-h-[28rem]"
+      onOpenChange={(isOpen) => {
+          // When the dropdown is opened, mark all as read
+          if (isOpen && messageCount > 0) {
+              handleMarkAllAsRead();
+          }
+      }}
     >
-      {/* Polished and Compact Header */}
       <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
         <h3 className="font-semibold text-gray-900 dark:text-zinc-50">Messages</h3>
-        {unreadMessageCount > 0 && (
+        {messageCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
             className="flex items-center text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:underline"
@@ -122,19 +131,16 @@ export const InboxBell = () => {
       </div>
       {notifications.length > 0 ? (
         notifications.map((notif) => (
-          // Polished Item with reduced padding
           <BellDropdownItem
             key={notif.id}
             onSelect={() => handleNotificationClick(notif)}
             className="!px-3 !py-2.5"
           >
             <div className="flex items-start gap-3 w-full">
-               {/* Polished Unread Indicator */}
               {!notif.read && (
                  <div className="h-2 w-2 rounded-full bg-primary-500 dark:bg-primary-500 mt-1.5 flex-shrink-0" aria-label="Unread" />
               )}
               {notif.read && <div className="w-2 flex-shrink-0" />}
-
               <div className="flex-grow overflow-hidden">
                 <p className={`text-sm truncate ${!notif.read ? 'font-semibold text-gray-800 dark:text-zinc-100' : 'font-medium text-gray-700 dark:text-zinc-200'}`}>
                   {notif.message.replace('You have a new message from ', '')}
@@ -150,7 +156,6 @@ export const InboxBell = () => {
           </BellDropdownItem>
         ))
       ) : (
-        // Polished Empty State
         <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-zinc-400">
           You have no new messages.
         </div>

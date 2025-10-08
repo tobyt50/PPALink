@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '../../../components/ui/Button';
+import { Textarea } from '../../../components/forms/Textarea';
 import { Label } from '../../../components/ui/Label';
 import useFetch from '../../../hooks/useFetch';
 import candidateService from '../../../services/candidate.service';
@@ -65,20 +66,10 @@ const SummaryStep = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-1.5">
                     <Label htmlFor="summary">Tell us about your skills, experience, and career goals.</Label>
-                    <textarea
+                    <Textarea
                         id="summary"
                         rows={6}
-                        className={`flex w-full rounded-xl border bg-white px-3 py-2 text-sm text-gray-900
-                        transition-colors duration-150
-                        placeholder:text-gray-400
-                        focus-visible:outline-none focus-visible:ring-1
-                        disabled:cursor-not-allowed disabled:opacity-50
-                        dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500
-                        ${
-                            errors.summary
-                            ? "border-red-300 text-red-600 placeholder:text-red-400 focus-visible:ring-red-400 dark:border-red-500 dark:text-red-400 dark:focus-visible:ring-red-500"
-                            : "border-gray-200 focus-visible:ring-primary-600 dark:focus-visible:ring-primary-500"
-                        }`}
+                        error={!!errors.summary}
                         placeholder="e.g., A highly motivated recent graduate with a First Class degree in Computer Science, proficient in JavaScript and Python, seeking a challenging role in a fast-paced tech environment..."
                         {...register('summary')}
                     />

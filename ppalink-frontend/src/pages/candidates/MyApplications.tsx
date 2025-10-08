@@ -2,28 +2,23 @@ import { ArrowRight, Briefcase, Building, Calendar, PackageSearch, Search } from
 import { Link } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import useFetch from '../../hooks/useFetch';
-import type { Application } from '../../types/application';
+import type { Application, ApplicationStatus } from '../../types/application';
 import { ApplicationCardSkeleton } from './skeletons/ApplicationCardSkeleton';
 import { Button } from '../../components/ui/Button';
 
-// Polished Application Status Badge (replicated from CandidateDashboard)
 const ApplicationStatusBadge = ({ status }: { status: Application['status'] }) => {
-  const statusStyles: Record<Application['status'], { text: string; className: string }> = {
-    APPLIED: { text: 'Applied', className: 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200' },
-    REVIEWING: { text: 'In Review', className: 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400' },
-    INTERVIEW: { text: 'Interview', className: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400' },
-    OFFER: { text: 'Offer', className: 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300' },
-    REJECTED: { text: 'Rejected', className: 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400' },
-    WITHDRAWN: { text: 'Withdrawn', className: 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-400' },
+  const labelMap: Record<ApplicationStatus, { text: string; color: string }> = {
+    APPLIED: { text: 'Applied', color: 'text-gray-700 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800' },
+    REVIEWING: { text: 'In Review', color: 'text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/60' },
+    INTERVIEW: { text: 'Interview', color: 'text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60' },
+    OFFER: { text: 'Offer', color: 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-950/60' },
+    REJECTED: { text: 'Rejected', color: 'text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-950/60' },
+    WITHDRAWN: { text: 'Withdrawn', color: 'text-pink-700 dark:text-pink-400 bg-pink-100 dark:bg-pink-950/60' },
+    HIRED: { text: 'Hired', color: 'text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60' },
   };
 
-  const { text, className } = statusStyles[status] ?? { text: status, className: 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200' };
-
-  return (
-    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${className}`}>
-      {text}
-    </span>
-  );
+  const { text, color } = labelMap[status] ?? { text: status, className: 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200' };
+  return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${color}`}>{text}</span>;
 };
 
 const MyApplicationsPage = () => {
@@ -31,7 +26,6 @@ const MyApplicationsPage = () => {
 
   return (
     <div className="space-y-5">
-      {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
@@ -50,10 +44,9 @@ const MyApplicationsPage = () => {
         </Link>
       </div>
 
-      {/* Replicated Card Styling */}
       <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
         {isLoading ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
             <ApplicationCardSkeleton />
             <ApplicationCardSkeleton />
             <ApplicationCardSkeleton />
@@ -61,11 +54,16 @@ const MyApplicationsPage = () => {
         ) : error ? (
             <div className="p-8 text-center text-red-600 dark:text-red-400">Could not load your applications. Please try again later.</div>
         ) : applications && applications.length > 0 ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
             {applications.map((app) => (
               <li key={app.id}>
-                {/* Polished and Interactive List Item */}
-                <div className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60">
+                {/* --- THIS IS THE DEFINITIVE FIX --- */}
+                {/* The Link now points to the dynamic status dispatcher route */}
+                <Link
+                  to={`/dashboard/candidate/applications/${app.id}/status`}
+                  className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
+                >
+                {/* --- END OF FIX --- */}
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div className="flex-grow">
                       <p className="font-semibold text-primary-600 dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">{app.position?.title}</p>
@@ -85,7 +83,7 @@ const MyApplicationsPage = () => {
                        <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-primary-500 transition-colors hidden sm:block" />
                     </div>
                   </div>
-                </div>
+                </Link>
               </li>
             ))}
           </ul>
@@ -105,4 +103,3 @@ const MyApplicationsPage = () => {
 };
 
 export default MyApplicationsPage;
-

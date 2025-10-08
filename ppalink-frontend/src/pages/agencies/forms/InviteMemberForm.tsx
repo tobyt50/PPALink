@@ -43,7 +43,7 @@ export const InviteMemberFormModal = ({ isOpen, onClose, onSubmit }: InviteMembe
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={handleClose}>
         <Transition.Child as={Fragment} {...{/* backdrop transition */}}>
-          <div className="fixed inset-0 bg-gray-900 dark:bg-black/70 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-gray-900/25 dark:bg-black/70 backdrop-blur-sm" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600">
           <div className="flex min-h-full items-center justify-center p-4 text-center">

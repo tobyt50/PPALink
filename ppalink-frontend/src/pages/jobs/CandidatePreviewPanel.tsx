@@ -1,6 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
-import { Briefcase, GraduationCap, Loader2, User, X } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import {
+  Award,
+  Briefcase,
+  GraduationCap,
+  Loader2,
+  User,
+  X,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import DocumentLink from "../../components/ui/DocumentLink";
@@ -12,6 +19,51 @@ interface CandidatePreviewPanelProps {
   applicationId: string | null;
   onClose: () => void;
 }
+
+const VerifiedSkillsPreview = ({ profile }: { profile: CandidateProfile }) => {
+  const verifiedSkills = useMemo(() => {
+    const passedAttempts =
+      profile.quizAttempts?.filter((a) => a.passed && a.skillId) || [];
+    const skillMap = new Map<number, { name: string; score: number }>();
+    passedAttempts.forEach((attempt) => {
+      const skill = profile.skills?.find(
+        (s) => s.skill.id === attempt.skillId
+      )?.skill;
+      if (skill) {
+        if (
+          !skillMap.has(skill.id) ||
+          (skillMap.get(skill.id)?.score ?? 0) < attempt.score
+        ) {
+          skillMap.set(skill.id, { name: skill.name, score: attempt.score });
+        }
+      }
+    });
+    return Array.from(skillMap.values());
+  }, [profile.quizAttempts, profile.skills]);
+
+  if (verifiedSkills.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      <h3 className="font-semibold text-gray-800 dark:text-zinc-200 mb-2">
+        Verified Skills
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        {verifiedSkills.map((skill) => (
+          <div
+            key={skill.name}
+            className="flex items-center rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 px-3 py-1 text-sm font-semibold"
+          >
+            <Award className="h-4 w-4 mr-1.5" />
+            {skill.name} (Score: {skill.score}%)
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const CandidatePreviewPanel = ({
   candidateId,
@@ -31,12 +83,12 @@ export const CandidatePreviewPanel = ({
     : "";
 
   useEffect(() => {
-  const handleEsc = (e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
-  };
-  window.addEventListener("keydown", handleEsc);
-  return () => window.removeEventListener("keydown", handleEsc);
-}, [onClose]);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
 
   return (
     <AnimatePresence>
@@ -56,7 +108,6 @@ export const CandidatePreviewPanel = ({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="fixed top-0 right-0 h-full w-full max-w-lg bg-white dark:bg-zinc-900 z-50 flex flex-col"
           >
-            {/* Panel Header */}
             <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center text-gray-900 dark:text-zinc-100">
                 <User className="mr-2 h-5 w-5" />
@@ -69,8 +120,6 @@ export const CandidatePreviewPanel = ({
                 <X className="text-gray-700 dark:text-zinc-300" />
               </button>
             </div>
-
-            {/* Panel Body */}
             <div className="flex-grow p-6 space-y-6 overflow-y-auto text-gray-900 dark:text-zinc-100">
               {isLoading && (
                 <div className="flex justify-center pt-20">
@@ -82,10 +131,8 @@ export const CandidatePreviewPanel = ({
                   Failed to load profile.
                 </div>
               )}
-
               {profile && (
                 <div className="space-y-8">
-                  {/* Profile Header */}
                   <div className="flex items-center">
                     <div className="h-20 w-20 text-3xl rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white font-bold">
                       {initials}
@@ -100,7 +147,9 @@ export const CandidatePreviewPanel = ({
                     </div>
                   </div>
 
-                  {/* Summary */}
+                  {/* --- THIS IS THE FIX: Added the VerifiedSkillsPreview component --- */}
+                  <VerifiedSkillsPreview profile={profile} />
+
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-zinc-200 mb-2">
                       Professional Summary
@@ -109,8 +158,6 @@ export const CandidatePreviewPanel = ({
                       {profile.summary || "N/A"}
                     </p>
                   </div>
-
-                  {/* Documents */}
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-zinc-200 mb-2">
                       Documents
@@ -130,8 +177,6 @@ export const CandidatePreviewPanel = ({
                       )}
                     </div>
                   </div>
-
-                  {/* Work Experience */}
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-zinc-200 mb-2 flex items-center">
                       <Briefcase className="mr-2 h-4 w-4" />
@@ -154,8 +199,6 @@ export const CandidatePreviewPanel = ({
                       ))}
                     </div>
                   </div>
-
-                  {/* Education */}
                   <div>
                     <h3 className="font-semibold text-gray-800 dark:text-zinc-200 mb-2 flex items-center">
                       <GraduationCap className="mr-2 h-4 w-4" />
@@ -177,8 +220,6 @@ export const CandidatePreviewPanel = ({
                 </div>
               )}
             </div>
-
-            {/* Panel Footer */}
             <div className="p-4 border-t border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950 flex justify-end space-x-2 flex-shrink-0">
               <Button variant="outline" onClick={onClose}>
                 Close

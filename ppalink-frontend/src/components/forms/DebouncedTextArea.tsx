@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDebounce } from "../../hooks/useDebounce";
+import { Textarea } from "../../components/forms/Textarea";
 
 type SavingState = "idle" | "saving" | "saved";
 
@@ -8,7 +9,7 @@ interface DebouncedTextareaProps {
   initialValue: string;
   onSave: (value: string) => Promise<void>;
   placeholder?: string;
-  className?: string; // ✅ allow passing className
+  className?: string; // allow passing className
 }
 
 export const DebouncedTextarea = ({
@@ -46,7 +47,7 @@ export const DebouncedTextarea = ({
 
   return (
     <div>
-      <textarea
+      <Textarea
         rows={6}
         placeholder={placeholder}
         value={text}
@@ -54,10 +55,7 @@ export const DebouncedTextarea = ({
           setText(e.target.value);
           setSavingState("idle"); // Reset saved status on new input
         }}
-        className={`w-full rounded-md border-gray-300 dark:border-zinc-800 text-sm shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10 
-          focus:border-primary-500 focus:ring-primary-500 
-          placeholder:text-gray-400 dark:placeholder:text-zinc-500
-          ${className || ""}`}
+        className={className || ""}
       />
       <div className="text-right h-4 mt-1">
         <SavingIndicator />

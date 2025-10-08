@@ -166,12 +166,11 @@ const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Ch
                 isIndustryDropdown
               >
                 <div className="px-2 py-1">
-                  <input
+                  <Input
                     type="text"
                     value={industrySearch}
                     onChange={(e) => setIndustrySearch(e.target.value)}
                     placeholder="Search industries..."
-                    className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring focus:border-blue-300"
                   />
                 </div>
 

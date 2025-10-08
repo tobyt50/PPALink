@@ -3,6 +3,7 @@ import type { Server } from 'socket.io';
 import prisma from '../../config/db';
 import { onlineUsers } from '../../config/socket';
 
+
 interface CreateNotificationInput {
   userId: string;
   message: string;
@@ -32,9 +33,12 @@ export async function createNotification(data: CreateNotificationInput, io: Serv
   if (recipientSocketId) {
       if (data.type === 'MESSAGE') {
         io.to(recipientSocketId).emit('new_message_notification', notification);
-    } else {
+      } else if (data.type === 'NEW_QUIZ') {
+        io.to(recipientSocketId).emit('new_quiz_notification', notification);
+      }
+      else {
         io.to(recipientSocketId).emit('new_notification', notification);
-    }
+      }
   }
 
   return notification;
@@ -86,5 +90,64 @@ export async function markAllNotificationsAsRead(userId: string, type?: Notifica
     data: {
       read: true,
     },
+  }); 
+}
+
+/**
+ * Fetches the count of unread notifications for a user, grouped by type.
+ * @param userId The ID of the user.
+ */
+export async function getUnreadNotificationStatus(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return {};
+  
+  const counts = await prisma.notification.groupBy({
+    by: ['type'],
+    where: {
+      userId: userId,
+      read: false,
+    },
+    _count: {
+      _all: true,
+    },
   });
+
+  // Convert the array of groups into a simple key-value object
+  const status = counts.reduce((acc, group) => {
+    acc[group.type] = group._count._all;
+    return acc;
+  }, {} as Record<NotificationType, number>);
+
+  if (user.role === 'CANDIDATE') {
+    const profile = await prisma.candidateProfile.findUnique({ where: { userId } });
+    if (profile) {
+        // Find all skills the candidate has on their profile
+        const candidateSkills = await prisma.candidateSkill.findMany({
+            where: { candidateId: profile.id },
+            select: { skillId: true }
+        });
+        const candidateSkillIds = candidateSkills.map(s => s.skillId);
+
+        // Find all skills they have already verified by passing a quiz
+        const verifiedSkillAttempts = await prisma.quizAttempt.findMany({
+            where: { candidateId: profile.id, passed: true, skillId: { not: null } },
+            select: { skillId: true }
+        });
+        const verifiedSkillIds = new Set(verifiedSkillAttempts.map(a => a.skillId));
+
+        // Find the skills that are on their profile but NOT yet verified
+        const unverifiedSkillIds = candidateSkillIds.filter(id => !verifiedSkillIds.has(id));
+
+        // Count how many of those unverified skills have an official quiz available
+        const verifiableCount = await prisma.quiz.count({
+            where: {
+                skillId: { in: unverifiedSkillIds }
+            }
+        });
+        
+        status.NEW_QUIZ = verifiableCount;
+    }
+  }
+
+  return status;
 }

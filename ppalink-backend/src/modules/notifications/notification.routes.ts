@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
-import { getMyMessageNotificationsHandler, getMyNotificationsHandler, markAllAsReadHandler, markOneAsReadHandler } from './notification.controller';
+import { getMyMessageNotificationsHandler, getMyNotificationsHandler, getNotificationStatusHandler, markAllAsReadHandler, markOneAsReadHandler } from './notification.controller';
 
 const router = Router();
 router.use(authenticate);
@@ -13,5 +13,7 @@ router.get('/messages', getMyMessageNotificationsHandler);
 router.post('/read', markAllAsReadHandler);
 // POST /api/notifications/:notificationId/read
 router.post('/:notificationId/read', markOneAsReadHandler);
+// GET /api/notifications/status
+router.get('/status', getNotificationStatusHandler);
 
 export default router;

@@ -1,4 +1,4 @@
-import { ApplicationStatus, Prisma, PositionStatus, PositionVisibility } from '@prisma/client';
+import { ApplicationStatus, Prisma, PositionStatus, PositionVisibility, QuizLevel } from '@prisma/client';
 import prisma from '../../config/db';
 import { emitToAdmins } from '../../config/socket';
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
@@ -14,12 +14,19 @@ interface PipelineQueryFilters {
   institution?: string;
 }
 
-async function connectOrCreateSkills(skillNames: string[]) {
-  const skills = await prisma.skill.findMany({
+async function connectOrCreateSkills(skillsData: { name: string; requiredLevel: QuizLevel }[]) {
+  if (!skillsData || skillsData.length === 0) {
+    return [];
+  }
+
+  // 2. Extract just the names for querying.
+  const skillNames = skillsData.map(s => s.name);
+
+  const existingSkills = await prisma.skill.findMany({
     where: { name: { in: skillNames, mode: 'insensitive' } },
   });
   
-  const existingSkillNames = new Set(skills.map(s => s.name.toLowerCase()));
+  const existingSkillNames = new Set(existingSkills.map(s => s.name.toLowerCase()));
   const newSkillsToCreate = skillNames
     .filter(name => !existingSkillNames.has(name.toLowerCase()))
     .map(name => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
@@ -35,7 +42,14 @@ async function connectOrCreateSkills(skillNames: string[]) {
       where: { name: { in: skillNames, mode: 'insensitive' } }
   });
 
-  return allSkills.map(skill => ({ skillId: skill.id }));
+  // 3. Map the final array, pairing the correct skill ID with its required level from the input.
+  return skillsData.map(inputSkill => {
+      const dbSkill = allSkills.find(s => s.name.toLowerCase() === inputSkill.name.toLowerCase());
+      return {
+          skillId: dbSkill!.id,
+          requiredLevel: inputSkill.requiredLevel,
+      };
+  });
 }
 
 export async function createJobPosition(agencyId: string, data: CreateJobPositionInput) {
@@ -216,12 +230,7 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
       applications: {
         include: {
           candidate: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              summary: true,
-              verificationLevel: true,
+            include: {
               skills: {
                 include: {
                   skill: true,
@@ -231,6 +240,12 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
                 select: {
                   id: true,
                   email: true,
+                }
+              },
+              quizAttempts: {
+                where: { passed: true },
+                include: {
+                    skill: true,
                 }
               }
             },
@@ -289,11 +304,13 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
 }
 
 export async function getPublicJobs(queryParams: any) {
-  const { q } = queryParams;
+  const { q, stateId, isRemote } = queryParams;
   
   const where: any = {
     visibility: PositionVisibility.PUBLIC,
     status: PositionStatus.OPEN,
+    ...(isRemote === 'true' && { isRemote: true }),
+    ...(stateId && { stateId: Number(stateId) }),
   };
 
   if (q) {
@@ -410,6 +427,10 @@ export async function queryApplicantsInPipeline(jobId: string, filters: Pipeline
         select: {
           id: true, firstName: true, lastName: true, summary: true, verificationLevel: true,
           skills: { include: { skill: true } },
+          quizAttempts: {
+            where: { passed: true },
+            include: { skill: true },
+          },
           user: { select: { id: true, email: true } },
         },
       },
@@ -462,4 +483,60 @@ export async function exportPipelineToCSV(jobId: string, agencyId:string) {
   const csv = Papa.unparse(dataForCSV);
 
   return csv;
+}
+
+/**
+ * Finds publicly available jobs that are similar to a given job.
+ * Similarity is based on title keywords and shared skills.
+ * @param jobId The ID of the source job to find similarities for.
+ * @param userId The ID of the candidate requesting, to exclude jobs they've already applied to.
+ */
+export async function findSimilarJobs(jobId: string, userId: string) {
+  // 1. Fetch the source job to get its title and skills
+  const sourceJob = await prisma.position.findUnique({
+    where: { id: jobId },
+    include: { skills: { select: { skillId: true } } },
+  });
+
+  if (!sourceJob) {
+    throw new Error('Source job not found.');
+  }
+
+  // 2. Find all jobs the candidate has already applied to, so we can exclude them
+  const candidate = await prisma.candidateProfile.findUnique({ where: { userId } });
+  const appliedJobIds = await prisma.application.findMany({
+      where: { candidateId: candidate?.id },
+      select: { positionId: true }
+  }).then(apps => apps.map(app => app.positionId));
+
+  // 3. Extract keywords from the title
+  const titleKeywords = sourceJob.title.toLowerCase().split(' ').filter(word => word.length > 3); // Ignore short words
+  const sourceSkillIds = sourceJob.skills.map(s => s.skillId);
+
+  // 4. Construct the complex "similarity" query
+  const similarJobs = await prisma.position.findMany({
+    where: {
+      // Basic requirements: Must be open, public, and not the source job itself
+      AND: [ // Use an explicit AND to combine the ID checks
+        { id: { not: jobId } },
+        { id: { notIn: appliedJobIds } },
+      ],
+      status: 'OPEN',
+      visibility: 'PUBLIC',
+
+      // The core "OR" logic for similarity
+      OR: [
+        // Option A: Title contains similar keywords
+        { title: { contains: titleKeywords[0], mode: 'insensitive' } }, // Simple match on first keyword
+        // Option B: Job shares at least one skill with the source job
+        { skills: { some: { skillId: { in: sourceSkillIds } } } },
+      ],
+    },
+    include: {
+        agency: { select: { name: true } }
+    },
+    take: 5, // Limit to 5 similar jobs
+  });
+
+  return similarJobs;
 }

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { AuthRequest } from '../../middleware/auth';
-import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, removeShortlist, searchCandidates, shortlistCandidate, updateAgencyProfile, markOnboardingAsComplete } from './agency.service';
+import { checkAgencyMembership, getAgencyById, getAgencyByUserId, getShortlistedCandidates, removeShortlist, searchCandidates, shortlistCandidate, updateAgencyProfile, markOnboardingAsComplete, getInterviewPipeline } from './agency.service';
 import { UpdateAgencyProfileInput } from './agency.types';
 
 export async function getAgencyProfileHandler(req: AuthRequest, res: Response, next: NextFunction) {
@@ -169,4 +169,16 @@ export async function completeOnboardingHandler(req: AuthRequest, res: Response,
     await markOnboardingAsComplete(agency.id);
     res.status(200).json({ success: true, message: 'Onboarding completed.' });
   } catch (error) { next(error); }
+}
+
+export async function getInterviewPipelineHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const agency = await getAgencyByUserId(req.user.id);
+    const positionId = req.query.positionId as string | undefined;
+    const pipelineData = await getInterviewPipeline(agency.id, positionId);
+    res.status(200).json({ success: true, data: pipelineData });
+  } catch (error) {
+    next(error);
+  }
 }

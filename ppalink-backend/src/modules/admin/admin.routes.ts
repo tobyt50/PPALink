@@ -13,6 +13,7 @@ import { userGrowthReportHandler, applicationFunnelReportHandler, candidateInsig
 import { reportFiltersSchema } from '../analytics/reporting.types'; // 1. Import the schema
 import { validate } from '../../middleware/validate';
 import { exportAuditLogsHandler, getAuditLogsHandler, getAuditLogByIdHandler } from '../auditing/audit.controller';
+import { createQuizHandler, createSkillHandler, deleteQuizHandler, getAllQuizzesHandler, getQuizByIdHandler, updateQuizHandler } from './quiz.controller';
 
 const router = Router();
 
@@ -148,5 +149,25 @@ router.post('/complete-onboarding', completeAdminOnboardingHandler);
 
 // Mount the sub-router at /api/admin/admins
 router.use('/admins', superAdminRouter);
+
+// QUIZ MANAGEMENT ROUTES
+const quizRouter = Router();
+// These routes are already protected by the master admin guard
+
+// GET /api/admin/quizzes
+quizRouter.get('/', getAllQuizzesHandler);
+// POST /api/admin/quizzes
+quizRouter.post('/', createQuizHandler);
+// GET /api/admin/quizzes/:quizId
+quizRouter.get('/:quizId', getQuizByIdHandler);
+// PATCH /api/admin/quizzes/:quizId
+quizRouter.patch('/:quizId', updateQuizHandler);
+// DELETE /api/admin/quizzes/:quizId
+quizRouter.delete('/:quizId', deleteQuizHandler);
+// POST /api/admin/skills
+router.post('/skills', createSkillHandler);
+
+router.use('/quizzes', quizRouter); // Mount at /api/admin/quizzes
+
 
 export default router;

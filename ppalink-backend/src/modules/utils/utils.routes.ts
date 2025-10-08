@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllCoursesHandler, getAllDegreesHandler, getAllIndustriesHandler, getAllLocationStatesHandler, getAllUniversitiesHandler, getLgasByStateIdHandler } from './utils.controller';
+import { getAllCoursesHandler, getAllDegreesHandler, getAllIndustriesHandler, getAllLocationStatesHandler, getAllSkillsHandler, getAllUniversitiesHandler, getLgasByStateIdHandler, getVerifiableSkillsHandler } from './utils.controller';
 
 const router = Router();
 
@@ -17,5 +17,7 @@ router.get('/location-states/:stateId/lgas', getLgasByStateIdHandler);
 router.get('/universities', getAllUniversitiesHandler);
 router.get('/courses', getAllCoursesHandler);
 router.get('/degrees', getAllDegreesHandler);
+router.get('/skills', getAllSkillsHandler);
+router.get('/verifiable-skills', getVerifiableSkillsHandler);
 
 export default router;

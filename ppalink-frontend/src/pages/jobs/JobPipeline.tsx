@@ -469,15 +469,14 @@ const JobPipelinePage = () => {
     }
   }, [focusedCardId]);
 
-  const isTouchDevice = () =>
-    "ontouchstart" in window || navigator.maxTouchPoints > 0;
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 400, tolerance: 8 },
-  });
-  const pointerSensor = useSensor(PointerSensor, {
+  const sensors = useSensors(
+  useSensor(PointerSensor, {
     activationConstraint: { distance: 4 },
-  });
-  const sensors = useSensors(isTouchDevice() ? touchSensor : pointerSensor);
+  }),
+  useSensor(TouchSensor, {
+    activationConstraint: { delay: 150, tolerance: 10 },
+  })
+);
 
   if (isLoading)
     return (
@@ -500,7 +499,6 @@ const JobPipelinePage = () => {
           strategy={rectSwappingStrategy}
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-            {/* -- FIXED: Added conditional check -- */}
             {queryResults &&
               queryResults.map((app) => (
                 <DraggableCard
@@ -666,7 +664,6 @@ const JobPipelinePage = () => {
           <div className="space-y-4">
             <div className="p-4 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900 rounded-lg">
               <div className="flex justify-between items-center">
-                {/* -- FIXED: Added optional chaining -- */}
                 <p className="font-semibold text-blue-800 dark:text-blue-200">
                   Showing {queryResults?.length || 0} search result(s)
                 </p>

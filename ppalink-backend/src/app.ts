@@ -19,6 +19,7 @@ import uploadRoutes from './modules/uploads/upload.routes';
 import utilRoutes from './modules/utils/utils.routes';
 import { authenticate } from "./middleware/auth";
 import { forcePasswordChange } from "./middleware/forcePasswordChange";
+import quizRoutes from './modules/quizzes/quiz.routes';
 
 const app = express();
 
@@ -110,6 +111,7 @@ app.use('/api/messages', authenticate, forcePasswordChange, messageRoutes);
 app.use('/api/notifications', authenticate, forcePasswordChange, notificationRoutes);
 app.use('/api/billing', authenticate, forcePasswordChange, billingRoutes);
 app.use('/api/utils', authenticate, forcePasswordChange, utilRoutes);
+app.use('/api/quizzes', authenticate, forcePasswordChange, quizRoutes);
 
 // Error handler
 app.use(errorHandler);

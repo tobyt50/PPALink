@@ -57,8 +57,8 @@ const Login = () => {
         setLoginPayload(data);
         setIsTwoFactorStep(true);
       } else if (response.success) {
-        toast.success(response.message);
         const { user, token } = response.data;
+        loginToStore(user, token);
         loginToStore(user, token);
         if (location.state?.from?.pathname === "/handle-invite") {
           const token = new URLSearchParams(location.state.from.search).get(
@@ -102,8 +102,8 @@ const Login = () => {
         twoFactorToken: data.token,
       });
       if (response.success) {
-        toast.success("Login successful!");
         const { user, token } = response.data;
+        loginToStore(user, token);
         loginToStore(user, token);
         if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
           navigate("/admin/dashboard");

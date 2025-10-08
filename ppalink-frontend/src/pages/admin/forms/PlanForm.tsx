@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/forms/Input';
+import { Textarea } from '../../../components/forms/Textarea';
 import { Label } from '../../../components/ui/Label';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -121,7 +122,7 @@ export const PlanFormModal = ({ isOpen, onClose, onSubmit, initialData }: PlanFo
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="features">Features (comma separated)</Label>
-                        <textarea id="features" rows={3} className={`flex w-full rounded-xl border bg-white dark:bg-zinc-900 px-3 py-2 text-sm transition-colors duration-150 placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 ${errors.features ? 'border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 placeholder:text-red-400 dark:placeholder:text-red-500/80 focus-visible:ring-red-400 dark:focus-visible:ring-red-500' : 'border-gray-200 dark:border-zinc-800 focus-visible:ring-primary-600'}`} {...register('features')}/>
+                        <Textarea id="features" rows={3} error={!!errors.features} {...register('features')} />
                         {errors.features && <p className="text-xs text-red-500">{errors.features.message}</p>}
                     </div>
                      <div className="grid grid-cols-2 gap-4">

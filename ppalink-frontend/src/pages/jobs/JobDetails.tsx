@@ -11,7 +11,7 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -21,6 +21,29 @@ import { useDataStore } from "../../context/DataStore";
 import useFetch from "../../hooks/useFetch";
 import jobService from "../../services/job.service";
 import type { Position } from "../../types/job";
+
+const SmartDescription = ({ text }: { text: string }) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g); // Split by bold tags
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return <strong key={index}>{part.slice(2, -2)}</strong>;
+        }
+        return (
+          <React.Fragment key={index}>
+            {part.split("\n").map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < part.split("\n").length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+};
 
 const DetailField = ({
   icon: Icon,
@@ -36,7 +59,9 @@ const DetailField = ({
   <div className="flex items-start">
     <Icon className="h-5 w-5 flex-shrink-0 text-gray-400 dark:text-zinc-500 mt-1" />
     <div className="ml-3">
-      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">{label}</p>
+      <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">
+        {label}
+      </p>
       <div className="mt-1 text-base text-gray-800 dark:text-zinc-100">
         {children || value || "N/A"}
       </div>
@@ -48,7 +73,11 @@ const JobDetailsPage = () => {
   const navigate = useNavigate();
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
 
-  const { data: job, isLoading, error } = useFetch<Position>(
+  const {
+    data: job,
+    isLoading,
+    error,
+  } = useFetch<Position>(
     agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}` : null
   );
 
@@ -60,7 +89,6 @@ const JobDetailsPage = () => {
       toast.error("Could not verify agency and job ID.");
       return;
     }
-
     try {
       await jobService.deleteJob(agencyId, jobId);
       toast.success("Job posting deleted successfully.");
@@ -92,6 +120,14 @@ const JobDetailsPage = () => {
     ? states.find((s) => s.id === job.stateId)?.name
     : undefined;
 
+  const levelColorMap = {
+    BEGINNER:
+      "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+    INTERMEDIATE:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+    ADVANCED: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+  };
+
   return (
     <>
       <ConfirmationModal
@@ -105,7 +141,6 @@ const JobDetailsPage = () => {
       />
 
       <div className="mx-auto max-w-5xl space-y-6">
-        {/* Back link */}
         <div>
           <Link
             to="/dashboard/agency/jobs"
@@ -116,9 +151,7 @@ const JobDetailsPage = () => {
           </Link>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-          {/* Header */}
           <div className="p-6 border-b border-gray-100 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
@@ -166,9 +199,7 @@ const JobDetailsPage = () => {
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left column */}
             <div className="md:col-span-1 space-y-6">
               <DetailField
                 icon={Wallet}
@@ -179,7 +210,11 @@ const JobDetailsPage = () => {
                     : "Not specified"
                 }
               />
-              <DetailField icon={Globe} label="Visibility" value={job.visibility} />
+              <DetailField
+                icon={Globe}
+                label="Visibility"
+                value={job.visibility}
+              />
               <DetailField icon={CheckCircle} label="Status">
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -198,19 +233,16 @@ const JobDetailsPage = () => {
               />
             </div>
 
-            {/* Right column */}
             <div className="md:col-span-2 space-y-6">
-              {/* Description */}
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                   Job Description
                 </h2>
-                <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">
-                  {job.description}
+                <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300">
+                  <SmartDescription text={job.description} />
                 </div>
               </div>
 
-              {/* Skills */}
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                   Skills Required
@@ -218,13 +250,21 @@ const JobDetailsPage = () => {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Array.isArray(job.skills) && job.skills.length > 0 ? (
                     job.skills.map((positionSkill) => (
-                      <span
+                      <div
                         key={positionSkill.skill.id}
-                        className="inline-flex items-center rounded-full bg-primary-50 dark:bg-primary-950/60 px-3 py-1 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-100 transition"
+                        className="flex items-center gap-x-2 rounded-full bg-primary-50 dark:bg-primary-950/60 p-1 pr-3 text-sm font-medium text-primary-700 dark:text-primary-300 transition"
                       >
-                        <Tag className="h-4 w-4 mr-1.5" />
-                        {positionSkill.skill.name}
-                      </span>
+                        <Tag className="h-4 w-4 ml-1" />
+                        <span>{positionSkill.skill.name}</span>
+                        <span
+                          className={`px-2 py-0.5 text-xs rounded-full ${
+                            levelColorMap[positionSkill.requiredLevel] ||
+                            "bg-gray-200"
+                          }`}
+                        >
+                          {positionSkill.requiredLevel}
+                        </span>
+                      </div>
                     ))
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-zinc-400">
@@ -242,5 +282,3 @@ const JobDetailsPage = () => {
 };
 
 export default JobDetailsPage;
-
-
