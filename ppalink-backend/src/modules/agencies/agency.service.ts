@@ -549,6 +549,13 @@ export async function getInterviewPipeline(agencyId: string, positionId?: string
     },
   });
 
+  const jobsInPipeline = applicationsInInterviewStage.reduce((acc, app) => {
+      if (!acc.some(job => job.id === app.position.id)) {
+          acc.push(app.position);
+      }
+      return acc;
+  }, [] as { id: string; title: string }[]);
+
   const unscheduled = applicationsInInterviewStage.filter(
     (app) => app.interviews.length === 0
   );
@@ -556,5 +563,5 @@ export async function getInterviewPipeline(agencyId: string, positionId?: string
     (app) => app.interviews.length > 0
   );
 
-  return { unscheduled, scheduled };
+  return { unscheduled, scheduled, jobsInPipeline };
 }
