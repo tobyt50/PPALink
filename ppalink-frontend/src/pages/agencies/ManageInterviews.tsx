@@ -30,7 +30,6 @@ import {
   SimpleDropdownItem,
 } from "../../components/ui/SimpleDropdown";
 import { DropdownTrigger } from "../../components/ui/DropdownTrigger";
-import type { Position } from "../../types/job";
 
 const InterviewCard = ({
   application,
@@ -89,10 +88,6 @@ const ManageInterviewsPage = () => {
 
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
-  // 1. Fetch all of the agency's jobs to populate the filter dropdown.
-  const { data: allJobs } = useFetch<Position[]>("/agencies/me/jobs");
-
-  // 2. Make the main data fetch dynamic based on the selected job filter.
   const interviewPipelineUrl = selectedJobId
     ? `/agencies/me/interviews?positionId=${selectedJobId}`
     : "/agencies/me/interviews";
@@ -104,6 +99,7 @@ const ManageInterviewsPage = () => {
     refetch,
   } = useFetch<InterviewPipelineData>(interviewPipelineUrl);
 
+  const allJobs = pipelineData?.jobsInPipeline || [];
   const selectedJobTitle =
     allJobs?.find((job) => job.id === selectedJobId)?.title || "All Jobs";
 
@@ -189,47 +185,52 @@ const ManageInterviewsPage = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-zinc-800 mb-6 pb-3">
-  <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-    {TABS.map((tab) => (
-      <button
-        key={tab.id}
-        onClick={() => setActiveTab(tab.id as any)}
-        className={`${
-          activeTab === tab.id
-            ? "border-primary-500 text-primary-600"
-            : "border-transparent text-gray-500 hover:text-gray-700"
-        } flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
-      >
-        {tab.label} (
-        {(pipelineData?.[tab.id as keyof InterviewPipelineData] || []).length}
-        )
-      </button>
-    ))}
-  </nav>
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`${
+                  activeTab === tab.id
+                    ? "border-primary-500 text-primary-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                } flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
+              >
+                {tab.label} (
+                {
+                  (pipelineData?.[tab.id as keyof InterviewPipelineData] || [])
+                    .length
+                }
+                )
+              </button>
+            ))}
+          </nav>
 
-  <div className="mt-3 sm:mt-0 flex justify-end">
-  <SimpleDropdown
-    trigger={
-      <div className="w-64">
-        <DropdownTrigger className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800">
-          <span className="truncate">{selectedJobTitle}</span>
-          <ChevronDown className="h-4 w-4" />
-        </DropdownTrigger>
-      </div>
-    }
-  >
-      <SimpleDropdownItem onSelect={() => setSelectedJobId(null)}>
-        All Jobs
-      </SimpleDropdownItem>
-      {allJobs?.map((job) => (
-        <SimpleDropdownItem key={job.id} onSelect={() => setSelectedJobId(job.id)}>
-          {job.title}
-        </SimpleDropdownItem>
-      ))}
-    </SimpleDropdown>
-  </div>
-</div>
-
+          <div className="mt-3 sm:mt-0 flex justify-end">
+            <SimpleDropdown
+              trigger={
+                <div className="w-64">
+                  <DropdownTrigger className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                    <span className="truncate">{selectedJobTitle}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </DropdownTrigger>
+                </div>
+              }
+            >
+              <SimpleDropdownItem onSelect={() => setSelectedJobId(null)}>
+                All Jobs
+              </SimpleDropdownItem>
+              {allJobs?.map((job) => (
+                <SimpleDropdownItem
+                  key={job.id}
+                  onSelect={() => setSelectedJobId(job.id)}
+                >
+                  {job.title}
+                </SimpleDropdownItem>
+              ))}
+            </SimpleDropdown>
+          </div>
+        </div>
 
         {isLoading && (
           <div className="flex justify-center p-12">
@@ -243,7 +244,6 @@ const ManageInterviewsPage = () => {
         )}
 
         <div className="space-y-4">
-          {/* --- THIS IS THE FIX --- */}
           {activeTab === "unscheduled" &&
             pipelineData?.unscheduled.map((app) => (
               <InterviewCard
@@ -268,7 +268,6 @@ const ManageInterviewsPage = () => {
                 }
               />
             ))}
-          {/* --- END OF FIX --- */}
         </div>
       </div>
     </>

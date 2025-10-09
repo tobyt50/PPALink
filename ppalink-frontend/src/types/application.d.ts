@@ -41,4 +41,5 @@ export interface Offer {
 export interface InterviewPipelineData {
   unscheduled: Application[];
   scheduled: Application[];
+  jobsInPipeline: Pick<Position, 'id' | 'title'>[];
 }
