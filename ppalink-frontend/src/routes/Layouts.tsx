@@ -20,7 +20,7 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
   const { pathname } = useLocation();
   const isInbox = pathname.startsWith('/inbox');
 
-  const mainClassName = `flex-1 overflow-y-auto scrollbar-thin pb-0 md:pb-[calc(4rem+env(safe-area-inset-bottom,0px))]`;
+  const mainClassName = `flex-1 min-h-0 overflow-y-auto scrollbar-thin pb-[calc(5rem+env(safe-area-inset-bottom,0px))]`;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
