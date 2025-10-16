@@ -107,7 +107,7 @@ const FeedPage = () => {
         <div className="lg:hidden space-y-3">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent flex-1 pr-4">
-              Discover Feed
+              Discover
             </h1>
             <div className="flex space-x-2">
               <Link to="/feed/create">
@@ -134,7 +134,7 @@ const FeedPage = () => {
         {/* Desktop header */}
         <div className="hidden lg:flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            Discover Feed
+            Discover
           </h1>
           <div className="flex items-center gap-4">
             <Input
