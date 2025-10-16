@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const PublicFooter = () => {
   return (
     // Replicated modern, subtle background and border
-    <footer className="bg-gray-50 dark:bg-gray-920 border-t border-gray-100 dark:border-zinc-800">
+    <footer className="hidden md:block bg-gray-50 dark:bg-gray-920 border-t border-gray-100 dark:border-zinc-800">
       <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:px-8">
         {/* Polished layout for logo, nav, and copyright */}
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
