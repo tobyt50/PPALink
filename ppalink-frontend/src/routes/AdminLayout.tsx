@@ -13,7 +13,7 @@ const AdminLayout = () => {
   const fullNavItems = user?.role === 'SUPER_ADMIN' ? SUPER_ADMIN_NAV_ITEMS : ADMIN_NAV_ITEMS;
   const essentialNavItems = user?.role === 'SUPER_ADMIN' ? ESSENTIAL_SUPER_ADMIN_NAV_ITEMS : ESSENTIAL_ADMIN_NAV_ITEMS;
 
-  const mainClassName = `flex-1 overflow-y-auto scrollbar-thin pb-16 md:pb-0`;
+  const mainClassName = `flex-1 overflow-y-auto scrollbar-thin pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0`;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
