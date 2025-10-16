@@ -48,7 +48,7 @@ const BottomNav = ({ navItems }: { navItems: NavItem[] }) => {
   });
 
   return (
-    <div className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-50 md:hidden bg-white dark:bg-zinc-900 rounded-t-[2rem] overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/20">
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white dark:bg-zinc-900 rounded-t-[2rem] overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/20">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 dark:via-primary-400/30 to-transparent" />
       <nav className="flex h-16 px-4">
         {navItemsWithNotif.map((item) => (
