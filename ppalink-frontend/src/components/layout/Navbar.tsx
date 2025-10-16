@@ -171,7 +171,8 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="sticky top-0 z-40 w-full border-b border-gray-100 dark:border-zinc-800 bg-surface/95 backdrop-blur-sm"
+      className="sticky top-0 z-40 hidden w-full border-b border-gray-100 dark:border-zinc-800 bg-surface/95 backdrop-blur-sm md:flex"
+
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left side: Logo and main navigation */}
