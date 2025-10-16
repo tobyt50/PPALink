@@ -16,6 +16,7 @@ export const registerCandidateSchema = z.object({
   lastName: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
+  profileType: z.enum(['NYSC', 'PROFESSIONAL', 'STUDENT']).optional(),
 });
 export type RegisterCandidatePayload = z.infer<typeof registerCandidateSchema>;
 

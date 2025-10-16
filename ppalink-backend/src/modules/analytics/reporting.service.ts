@@ -10,6 +10,12 @@ type GpaGroup = { grade: string | null; _count: { _all: number } };
 type SkillGroup = { skillId: number; _count: { _all: number } };
 type CountGroupBy<T> = { [key in keyof T]: T[key] } & { _count: { _all: number } };
 
+interface SalaryInsightsFilters {
+  stateId?: number;
+  industryId?: number;
+  skillId?: number;
+}
+
 /**
  * Generates a comprehensive Candidate Insights report based on dynamic filters.
  */

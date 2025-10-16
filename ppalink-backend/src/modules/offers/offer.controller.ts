@@ -42,7 +42,7 @@ export async function respondToOfferHandler(req: AuthRequest, res: Response, nex
         }
 
         const profile = await getMyCandidateProfile(req.user.id);
-        const updatedOffer = await respondToOffer(offerId, profile.id, response);
+        const updatedOffer = await respondToOffer(offerId, profile.id, response, req.app.io);
 
         res.status(200).json({ success: true, data: updatedOffer });
     } catch (error) {

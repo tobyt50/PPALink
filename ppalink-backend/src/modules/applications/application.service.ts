@@ -96,7 +96,6 @@ export async function updateApplication(
       });
     }
   }
-  // --- End of Logging ---
 
   if (data.status && data.status !== application.status) {
     await createNotification({

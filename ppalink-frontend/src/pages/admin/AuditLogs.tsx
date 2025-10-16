@@ -206,6 +206,7 @@ const FilterBar = ({
           </Button>
           <Button
             type="submit"
+            size="sm"
             isLoading={isLoading}
             className="w-1/2 sm:w-auto"
           >
@@ -293,11 +294,12 @@ const AuditLogsPage = () => {
           </p>
         </div>
         <Button
+        size="sm"
           onClick={handleExport}
           disabled={isLoading || !logs || logs.length === 0}
         >
           <Download className="mr-2 h-4 w-4" />
-          Export Full Log
+          Export CSV
         </Button>
       </div>
 
@@ -307,92 +309,125 @@ const AuditLogsPage = () => {
         onReset={handleResetFilters}
       />
 
-      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50 dark:bg-gray-920">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
-                  Admin
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
-                  Action
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
-                  Target
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
-                  Timestamp
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
-              {isLoading && (
-                <tr>
-                  <td colSpan={4} className="p-12 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600 dark:text-primary-400" />
-                  </td>
-                </tr>
-              )}
-
-              {error && (
-                <tr>
-                  <td colSpan={4}>
-                    <div className="m-4 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-sm dark:shadow-none dark:ring-1 dark:ring-white/10">
-                        {error}
-                    </div>
-                  </td>
-                </tr>
-              )}
-
-              {!isLoading && !error && logs?.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="p-12 text-center text-gray-500 dark:text-zinc-400">
-                    No audit logs found for the selected filters.
-                  </td>
-                </tr>
-              )}
-
-              {!isLoading &&
-                !error &&
-                logs?.map(log => (
-                  <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">
-                      {log.actor.email}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-zinc-200">
-                      {formatLogMessage(log)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400 font-mono">
-                      <Link
-                        to={`/admin/audit-logs/${log.id}`}
-                        className="hover:underline text-primary-600 dark:text-primary-400"
-                      >
-                        {log.targetId || 'N/A'}
-                      </Link>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">
-                      {format(new Date(log.createdAt), 'MMM d, yyyy, h:mm a')}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+      {isLoading && (
+        <div className="flex h-80 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" />
         </div>
+      )}
 
-        {meta && meta.totalPages > 1 && (
-          <div className="p-5 border-t border-gray-100 dark:border-zinc-800">
-            <Pagination
-              currentPage={meta.page}
-              totalPages={meta.totalPages}
-              onPageChange={handlePageChange}
-            />
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">
+          {error}
+        </div>
+      )}
+
+      {!isLoading && !error && logs && (
+        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+          <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Audit Logs ({logs.length})</h2>
           </div>
-        )}
-      </div>
+
+          <div className="hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50 dark:bg-gray-920">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                      Admin
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                      Action
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                      Target
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                      Timestamp
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
+                  {logs.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="p-12 text-center text-gray-500 dark:text-zinc-400">
+                        No audit logs found for the selected filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    logs.map(log => (
+                      <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">
+                          {log.actor.email}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-zinc-200">
+                          {formatLogMessage(log)}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400 font-mono">
+                          <Link
+                            to={`/admin/audit-logs/${log.id}`}
+                            className="hover:underline text-primary-600 dark:text-primary-400"
+                          >
+                            {log.targetId || 'N/A'}
+                          </Link>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">
+                          {format(new Date(log.createdAt), 'MMM d, yyyy, h:mm a')}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="md:hidden">
+            {logs.length === 0 ? (
+              <div className="p-8 text-center text-gray-500 dark:text-zinc-400">No audit logs found for the selected filters.</div>
+            ) : (
+              <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                {logs.map((log) => {
+                  const timestamp = format(new Date(log.createdAt), 'MMM d, yyyy, h:mm a');
+                  return (
+                    <div key={log.id} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-gray-900 dark:text-zinc-50 text-base">{log.actor.email}</h3>
+                          </div>
+                          <p className="text-sm text-gray-700 dark:text-zinc-200 mb-2">{formatLogMessage(log)}</p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm text-gray-500 dark:text-zinc-400 font-mono">Target:</span>
+                            <Link
+                              to={`/admin/audit-logs/${log.id}`}
+                              className="hover:underline text-primary-600 dark:text-primary-400 text-sm"
+                            >
+                              {log.targetId || 'N/A'}
+                            </Link>
+                          </div>
+                          <p className="text-sm text-gray-500 dark:text-zinc-400">{timestamp}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {meta && meta.totalPages > 1 && (
+            <div className="p-5 border-t border-gray-100 dark:border-zinc-800">
+              <Pagination
+                currentPage={meta.page}
+                totalPages={meta.totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 export default AuditLogsPage;
-

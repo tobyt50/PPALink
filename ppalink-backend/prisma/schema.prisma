@@ -32,11 +32,14 @@ model User {
 
   verifications    Verification[] @relation("UserVerifications")
   reviewsDone      Verification[] @relation("UserReviewedVerifications")
-
+  followingAgencies AgencyFollow[]
   verifiedCertificates CandidateCertificate[] @relation("UserVerifiedCertificates")
   ownedAgencies Agency[]
   notifications Notification[]
   sentInvitations Invitation[] @relation("SentInvitations")
+  jobViews JobView[]
+  feedItems FeedItem[]
+  feedBoosts  FeedBoost[]
 }
 
 enum Role {
@@ -52,12 +55,19 @@ enum UserStatus {
   DELETED
 }
 
+enum CandidateProfileType {
+  NYSC
+  PROFESSIONAL
+  STUDENT
+}
+
 model CandidateProfile {
   id              String     @id @default(uuid())
   userId          String     @unique
   user            User       @relation(fields: [userId], references: [id])
   firstName       String
   lastName        String
+  profileType     CandidateProfileType @default(NYSC) // Default to NYSC for backward compatibility
   phone           String?    @unique
   dob             DateTime?
   gender          String?
@@ -108,9 +118,23 @@ model WorkExperience {
   startDate   DateTime
   endDate     DateTime? // Optional: null if it's the current job
   isCurrent   Boolean   @default(false)
-  
+  verification WorkVerification?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model WorkVerification {
+  id                String   @id @default(uuid())
+  
+  workExperienceId  String   @unique // Each work experience can only have one verification
+  workExperience    WorkExperience @relation(fields: [workExperienceId], references: [id], onDelete: Cascade)
+  
+  verifyingAgencyId String
+  verifyingAgency   Agency   @relation(fields: [verifyingAgencyId], references: [id])
+  
+  verifierName      String?  // Name of the person at the agency who verified
+  verifierTitle     String?  // Their title
+  verifiedAt        DateTime @default(now())
 }
 
 model Education {
@@ -202,12 +226,14 @@ model Agency {
   lgaId         Int?
   createdAt     DateTime       @default(now())
   hasCompletedOnboarding  Boolean        @default(false)
-
+  followers AgencyFollow[]
   members       AgencyMember[]
   positions     Position[]
   shortlists    Shortlist[]
   subscriptions AgencySubscription[]
   invitations   Invitation[]
+  issuedVerifications WorkVerification[]
+  feedItems FeedItem[]
 }
 
 model AgencyMember {
@@ -217,6 +243,18 @@ model AgencyMember {
   userId    String
   user      User    @relation(fields: [userId], references: [id])
   role      AgencyRole
+}
+
+model AgencyFollow {
+  followerId String
+  follower   User   @relation(fields: [followerId], references: [id], onDelete: Cascade)
+  
+  agencyId   String
+  agency     Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@id([followerId, agencyId]) // Composite primary key ensures a user can only follow an agency once
 }
 
 enum AgencyRole {
@@ -242,7 +280,7 @@ model Position {
   status       PositionStatus @default(OPEN)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-
+  views JobView[]
   applications Application[]
   skills       PositionSkill[]
 }
@@ -264,6 +302,20 @@ enum PositionStatus {
   DRAFT
   OPEN
   CLOSED
+}
+
+model JobView {
+  id        String   @id @default(uuid())
+  jobId     String
+  job       Position @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  // We can optionally track who viewed it, if they are logged in
+  viewerId  String?
+  viewer    User?    @relation(fields: [viewerId], references: [id])
+  
+  viewedAt  DateTime @default(now())
+
+  @@index([jobId])
 }
 
 model Application {
@@ -602,4 +654,99 @@ model QuizAttempt {
   completedAt  DateTime?
 
   nextRetryAvailableAt DateTime?
+}
+
+enum FeedType {
+  ARTICLE
+  JOB_POST
+  EVENT
+  WEBINAR
+  INSIGHT
+  SUCCESS_STORY
+}
+
+enum FeedCategory {
+  LEARN_GROW
+  FROM_EMPLOYERS
+  CAREER_INSIGHT
+  RECOMMENDATION
+  SUCCESS_STORY
+}
+
+enum FeedAudience {
+  ALL
+  CANDIDATE
+  AGENCY
+}
+
+
+model FeedItem {
+  id          String        @id @default(uuid())
+  type        FeedType      @default(ARTICLE)
+  category    FeedCategory
+  audience    FeedAudience  @default(ALL)
+  
+  title       String
+  content     String
+  imageUrl    String?
+  link        String?
+  ctaText     String?       // "Call to Action" text, e.g., "Apply Now", "Learn More"
+  
+  // For advanced targeting, e.g., { skills: ["React"], location: "Lagos" }
+  targetingCriteria Json?
+  
+  // Link to an agency if it's a sponsored post or job
+  agencyId    String?
+  agency      Agency?       @relation(fields: [agencyId], references: [id])
+  
+  // Link to a user if it's a personal success story
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id])
+
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  boosts      FeedBoost[]
+  @@index([category])
+  @@index([audience])
+}
+
+enum BoostStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  FAILED
+}
+
+model FeedBoost {
+  id           String      @id @default(uuid())
+  feedItemId   String
+  feedItem     FeedItem    @relation(fields: [feedItemId], references: [id], onDelete: Cascade)
+  
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  
+  tierId       String
+  tier         BoostTier   @relation(fields: [tierId], references: [id])
+  amount       Int         // The amount paid for the boost
+  status       BoostStatus @default(PENDING)
+  startDate    DateTime
+  endDate      DateTime
+  
+  // For linking to the Stripe transaction
+  stripeCheckoutId String? @unique
+
+  @@index([feedItemId])
+}
+
+model BoostTier {
+  id              String   @id @default(uuid())
+  name            String   @unique // e.g., "STANDARD", "PREMIUM"
+  price           Int      // The price in Naira, e.g., 5000
+  durationInDays  Int
+  reachMultiplier Int      // e.g., 2 for 2x reach
+  description     String
+  
+  stripePriceId   String   @unique
+
+  boosts          FeedBoost[]
 }

@@ -1,7 +1,7 @@
 import { Edit, Eye, EyeOff, Loader2, Search, ChevronDown, MoreHorizontal } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ConfirmationModal } from '../../components/ui/Modal';
 import { useDebounce } from '../../hooks/useDebounce';
 import adminService from '../../services/admin.service';
@@ -12,17 +12,22 @@ import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDr
 import { DropdownTrigger } from '../../components/ui/DropdownTrigger';
 import { Input } from '../../components/forms/Input';
 
-const JobStatusBadge = ({ status }: { status: Position['status'] }) => {
-    const statusStyles: Record<Position['status'], string> = {
-      OPEN: 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200',
-      CLOSED: 'bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100',
-      DRAFT: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300',
-    };
-    return (
-      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[status]}`}>
-        {status}
-      </span>
-    );
+const JobStatusIcon = ({ status }: { status: Position['status'] }) => {
+  const statusStyles: Record<Position['status'], string> = {
+    OPEN: 'text-green-600 dark:text-green-400',
+    CLOSED: 'text-gray-600 dark:text-gray-400',
+    DRAFT: 'text-yellow-600 dark:text-yellow-400',
+  };
+  const statusIcons: Record<Position['status'], React.ReactNode> = {
+    OPEN: <Eye className="h-4 w-4" />,
+    CLOSED: <EyeOff className="h-4 w-4" />,
+    DRAFT: <Edit className="h-4 w-4" />,
+  };
+  return (
+    <span className={`inline-flex items-center ${statusStyles[status]}`}>
+      {statusIcons[status]}
+    </span>
+  );
 };
 
 const ManageJobsPage = () => {
@@ -93,7 +98,7 @@ const ManageJobsPage = () => {
       />
       <div className="space-y-5">
         <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Job Post Management</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Job Management</h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Oversee and moderate all job postings on the platform.</p>
         </div>
 
@@ -129,57 +134,109 @@ const ManageJobsPage = () => {
 
         {!isLoading && !error && jobs && (
             <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-100">
-                        <thead className="bg-gray-50 dark:bg-gray-920">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Job Title</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Agency</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Visibility</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Date Posted</th>
-                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
-                            {jobs.length === 0 ? (
-                                <tr><td colSpan={6} className="text-center p-8 text-gray-500 dark:text-zinc-400">No jobs found matching your criteria.</td></tr>
-                            ) : (
-                                jobs.map((job) => (
-                                    <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold"><Link to={`/admin/jobs/${job.id}`} className="text-primary-600 dark:text-primary-400 hover:underline">{job.title}</Link></td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{job.agency?.name}</td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm"><JobStatusBadge status={job.status} /></td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{job.visibility}</td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{new Date(job.createdAt).toLocaleDateString()}</td>
-                                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
-                                            <SimpleDropdown
-                                                trigger={
-                                                    <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
-                                                        <MoreHorizontal className="h-5 w-5" />
-                                                    </button>
-                                                }
-                                            >
-                                                <SimpleDropdownItem onSelect={() => navigate(`/admin/jobs/${job.id}/edit`)} className="group text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800">
-                                                    <Edit className="mr-2 h-4 w-4" /> <span>Edit Job</span>
+            
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-100">
+                    <thead className="bg-gray-50 dark:bg-gray-920">
+                        <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Job Title</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Agency</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Visibility</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Date Posted</th>
+                            <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
+                        {jobs.length === 0 ? (
+                            <tr><td colSpan={6} className="text-center p-8 text-gray-500 dark:text-zinc-400">No jobs found matching your criteria.</td></tr>
+                        ) : (
+                            jobs.map((job) => (
+                                <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/jobs/${job.id}`)}>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">{job.title}</td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{job.agency?.name}</td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm"><JobStatusIcon status={job.status} /></td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{job.visibility}</td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{new Date(job.createdAt).toLocaleDateString()}</td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
+                                        <SimpleDropdown
+                                            trigger={
+                                                <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                                    <MoreHorizontal className="h-5 w-5" />
+                                                </button>
+                                            }
+                                        >
+                                            <SimpleDropdownItem onSelect={() => navigate(`/admin/jobs/${job.id}/edit`)} className="group text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                                                <Edit className="mr-2 h-4 w-4" /> <span>Edit Job</span>
+                                            </SimpleDropdownItem>
+                                            {job.visibility === 'PRIVATE' ? (
+                                                 <SimpleDropdownItem onSelect={() => openModal(job, 'republish')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
+                                                    <Eye className="mr-2 h-4 w-4" /> <span>Republish Job</span>
                                                 </SimpleDropdownItem>
-                                                {job.visibility === 'PRIVATE' ? (
-                                                     <SimpleDropdownItem onSelect={() => openModal(job, 'republish')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
-                                                        <Eye className="mr-2 h-4 w-4" /> <span>Republish Job</span>
-                                                    </SimpleDropdownItem>
-                                                ) : (
-                                                    <SimpleDropdownItem onSelect={() => openModal(job, 'unpublish')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
-                                                        <EyeOff className="mr-2 h-4 w-4" /> <span>Unpublish Job</span>
-                                                    </SimpleDropdownItem>
-                                                )}
-                                            </SimpleDropdown>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                            ) : (
+                                                <SimpleDropdownItem onSelect={() => openModal(job, 'unpublish')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
+                                                    <EyeOff className="mr-2 h-4 w-4" /> <span>Unpublish Job</span>
+                                                </SimpleDropdownItem>
+                                            )}
+                                        </SimpleDropdown>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="md:hidden">
+              {jobs.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-zinc-400">No jobs found matching your criteria.</div>
+              ) : (
+                <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                  {jobs.map((job) => {
+                    const postedDate = new Date(job.createdAt).toLocaleDateString();
+                    return (
+                      <div key={job.id} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/jobs/${job.id}`)}>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-gray-900 dark:text-zinc-50 text-base">{job.title}</h3>
+                              <JobStatusIcon status={job.status} />
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400 mb-1">{job.agency?.name || 'N/A'}</p>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400 mb-1">Visibility: {job.visibility}</p>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">Posted on {postedDate}</p>
+                          </div>
+                          <div className="ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <SimpleDropdown
+                              trigger={
+                                <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                  <MoreHorizontal className="h-5 w-5" />
+                                </button>
+                              }
+                            >
+                              <SimpleDropdownItem onSelect={() => navigate(`/admin/jobs/${job.id}/edit`)} className="group text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                                <Edit className="mr-2 h-4 w-4" /> <span>Edit Job</span>
+                              </SimpleDropdownItem>
+                              {job.visibility === 'PRIVATE' ? (
+                                <SimpleDropdownItem onSelect={() => openModal(job, 'republish')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
+                                  <Eye className="mr-2 h-4 w-4" /> <span>Republish Job</span>
+                                </SimpleDropdownItem>
+                              ) : (
+                                <SimpleDropdownItem onSelect={() => openModal(job, 'unpublish')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
+                                  <EyeOff className="mr-2 h-4 w-4" /> <span>Unpublish Job</span>
+                                </SimpleDropdownItem>
+                              )}
+                            </SimpleDropdown>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              )}
+            </div>
             </div>
         )}
       </div>
@@ -188,4 +245,3 @@ const ManageJobsPage = () => {
 };
 
 export default ManageJobsPage;
-

@@ -37,22 +37,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       : "light";
   });
 
-  // apply theme to <html data-theme="...">
+  // apply theme to <html data-theme="..." class="dark">
   const applyTheme = useCallback((r: "light" | "dark") => {
-  setResolvedTheme(r);
-  const root = document.documentElement;
-  root.setAttribute("data-theme", r);
+    setResolvedTheme(r);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", r);
+    if (r === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
 
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-if (meta) {
-  const exactColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--navbar-bg')
-    .trim();
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) {
+      const exactColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--navbar-bg')
+        .trim();
 
-  // Always provide a fallback just in case
-  meta.content = exactColor || (r === "dark" ? "#111111" : "#f4f4f5");
-}
-}, []);
+      // Always provide a fallback just in case
+      meta.content = exactColor || (r === "dark" ? "#111111" : "#f4f4f5");
+    }
+  }, []);
 
   // init from storage + system preference
   useEffect(() => {
@@ -94,9 +99,8 @@ if (meta) {
   }, [applyTheme]);
 
   const toggle = () => {
-  setTheme(theme === "dark" ? "light" : "dark");
-};
-
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggle }}>
@@ -110,4 +114,3 @@ export function useTheme() {
   if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
   return ctx;
 }
-

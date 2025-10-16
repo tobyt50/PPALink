@@ -37,6 +37,7 @@ import AcceptInvitePage from '../pages/auth/AcceptInvite';
 import AcceptInviteLoggedInPage from '../pages/auth/AcceptInviteLoggedIn';
 import VerifyDomainPage from '../pages/agencies/VerifyDomain';
 import DomainVerificationResultPage from '../pages/agencies/DomainVerificationResult';
+import PublicAgencyProfilePage from '../pages/agencies/PublicAgencyProfile';
 import ForgotPasswordPage from '../pages/auth/ForgotPassword';
 import HandleInvitePage from '../pages/auth/HandleInvite';
 import Login from '../pages/auth/Login';
@@ -76,6 +77,10 @@ import PipelineStep from '../pages/onboarding/agency/PipelineStep';
 import TeamStep from '../pages/onboarding/agency/TeamStep';
 import AdminWelcomePage from '../pages/onboarding/admin/AdminWelcome';
 import ManageInterviewsPage from '../pages/agencies/ManageInterviews';
+import HybridLayout from './HybridLayout';
+import FeedPage from '../pages/feed/FeedPage';
+import FeedItemFormPage from '../pages/feed/FeedItemForm';
+import ManageFeedPage from '../pages/feed/ManageFeed';
 
 const router = createBrowserRouter([
   // Group 1: Public Routes
@@ -98,6 +103,15 @@ const router = createBrowserRouter([
       { path: 'terms', element: <TermsPage /> },
       { path: 'privacy', element: <PrivacyPolicyPage /> },
     ],
+  },
+
+  {
+    path: '/',
+    element: <HybridLayout />,
+    children: [
+      { path: 'agencies/:agencyId/profile', element: <PublicAgencyProfilePage /> },
+      { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },
+    ]
   },
 
   // Group 2: Special Authenticated Route (for password change)
@@ -200,7 +214,7 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/candidates/shortlisted', element: <ShortlistedCandidatesPage /> },
           { path: 'dashboard/agency/candidates/:candidateId/profile', element: <PublicProfilePage /> },
           { path: 'dashboard/agency/applications/:applicationId', element: <ApplicationDetailsPage /> },
-          
+
           // Admin Dashboard Routes
           { path: 'admin/dashboard', element: <AdminDashboard /> },
           { path: 'admin/users', element: <ManageUsersPage /> },
@@ -217,9 +231,14 @@ const router = createBrowserRouter([
           { path: 'admin/audit-logs/:logId', element: <AuditLogDetailsPage /> },
           { path: 'admin/admins', element: <ManageAdminsPage /> },
           { path: 'admin/quizzes', element: <ManageQuizzesPage /> },
+          
+           // --- UNIVERSAL FEED ROUTES (accessible to all logged-in users) ---
+          { path: 'feed/create', element: <FeedItemFormPage /> },
+          { path: 'feed/:itemId/edit', element: <FeedItemFormPage /> },
+          { path: 'feed', element: <FeedPage /> },
+          { path: 'feed/manage', element: <ManageFeedPage /> },
 
           // Shared Routes
-          { path: 'jobs/:jobId/details', element: <PublicJobDetailsPage /> },
           { path: 'inbox', element: <InboxPage /> }
         ]
       },

@@ -176,9 +176,9 @@ const TeamManagementPage = () => {
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Invite and manage members of your agency.</p>
           </div>
           {canInviteMember ? (
-            <Button onClick={() => setIsInviteModalOpen(true)}>
+            <Button size="sm" onClick={() => setIsInviteModalOpen(true)}>
               <UserPlus className="mr-2 h-5 w-5" />
-              Invite Member
+              Invite
             </Button>
           ) : (
              <div className="text-right">

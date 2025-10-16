@@ -16,6 +16,7 @@ export interface User {
   emailVerifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  followedAgencyIds?: string[];
   candidateProfile?: CandidateProfile;
   ownedAgencies?: Agency[];
   passwordResetRequired: boolean;
@@ -47,6 +48,7 @@ export interface PaginatedResponse<T> {
     limit: number;
     totalPages: number;
   };
+  nextCursor?: string | null;
 }
 export interface AuditLog {
   id: string;

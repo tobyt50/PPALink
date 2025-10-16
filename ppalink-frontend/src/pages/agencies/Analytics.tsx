@@ -52,7 +52,7 @@ const AnalyticsPage = () => {
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            Analytics Dashboard
+            Analytics
           </h1>
           <p className="mt-2 text-gray-600 dark:text-zinc-300">
             Insights into your recruitment performance.
@@ -60,7 +60,7 @@ const AnalyticsPage = () => {
         </div>
         <Link to="/dashboard/agency/billing">
           <Button
-            size="lg"
+            size="sm"
             className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             Upgrade Plan

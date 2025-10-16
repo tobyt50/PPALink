@@ -1,4 +1,4 @@
-import { ChevronDown, Loader2, MoreHorizontal, Search, UserCheck, UserX } from 'lucide-react';
+import { ChevronDown, Loader2, MoreHorizontal, Search, UserCheck, UserX, Pause } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -26,15 +26,20 @@ const UserRoleBadge = ({ role }: { role: User['role'] }) => {
   );
 };
 
-const UserStatusBadge = ({ status }: { status: User['status'] }) => {
+const UserStatusIcon = ({ status }: { status: User['status'] }) => {
   const statusStyles: Record<User['status'], string> = {
-    ACTIVE: 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200',
-    SUSPENDED: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-800 dark:text-yellow-300',
-    DEACTIVATED: 'bg-red-100 dark:bg-red-950/60 text-red-800',
+    ACTIVE: 'text-green-600 dark:text-green-400',
+    SUSPENDED: 'text-yellow-600 dark:text-yellow-400',
+    DEACTIVATED: 'text-red-600 dark:text-red-400',
+  };
+  const statusIcons: Record<User['status'], React.ReactNode> = {
+    ACTIVE: <UserCheck className="h-4 w-4" />,
+    SUSPENDED: <Pause className="h-4 w-4" />,
+    DEACTIVATED: <UserX className="h-4 w-4" />,
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[status]}`}>
-      {status}
+    <span className={`inline-flex items-center ${statusStyles[status]}`}>
+      {statusIcons[status]}
     </span>
   );
 };
@@ -146,7 +151,6 @@ const ManageUsersPage = () => {
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Platform Users ({users.length})</h2>
                 <div className="flex items-center gap-2 min-w-0 whitespace-nowrap">
-                    <span className="text-sm text-gray-500 dark:text-zinc-400">Sort by:</span>
                     <SimpleDropdown
                       trigger={
                         <Button variant="ghost" size="sm">
@@ -164,55 +168,106 @@ const ManageUsersPage = () => {
                 </div>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50 dark:bg-gray-920">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Email</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Role</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Joined On</th>
-                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
-                  {users.length === 0 ? (
-                    <tr><td colSpan={6} className="text-center p-8 text-gray-500 dark:text-zinc-400">No users found matching your criteria.</td></tr>
-                  ) : (
-                    users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">{user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A')}</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{user.email}</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm"><UserRoleBadge role={user.role} /></td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm"><UserStatusBadge status={user.status} /></td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
-                           {user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && (
-                             <SimpleDropdown
-                               trigger={
-                                 <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
-                                   <MoreHorizontal className="h-5 w-5" />
-                                 </button>
-                               }
-                             >
-                               {user.status === 'ACTIVE' ? (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
-                                   <UserX className="mr-2 h-4 w-4" /> <span>Suspend Account</span>
-                                 </SimpleDropdownItem>
-                               ) : (
-                                 <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
-                                   <UserCheck className="mr-2 h-4 w-4" /> <span>Reactivate Account</span>
-                                 </SimpleDropdownItem>
-                               )}
-                             </SimpleDropdown>
-                           )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-100">
+                  <thead className="bg-gray-50 dark:bg-gray-920">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Name</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Email</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Role</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Status</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">Joined On</th>
+                      <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
+                    {users.length === 0 ? (
+                      <tr><td colSpan={6} className="text-center p-8 text-gray-500 dark:text-zinc-400">No users found matching your criteria.</td></tr>
+                    ) : (
+                      users.map((user) => (
+                        <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-zinc-50">{user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A')}</td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{user.email}</td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm"><UserRoleBadge role={user.role} /></td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm"><UserStatusIcon status={user.status} /></td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-zinc-400">{new Date(user.createdAt).toLocaleDateString()}</td>
+                          <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
+                             {user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && (
+                               <SimpleDropdown
+                                 trigger={
+                                   <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                     <MoreHorizontal className="h-5 w-5" />
+                                   </button>
+                                 }
+                               >
+                                 {user.status === 'ACTIVE' ? (
+                                   <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
+                                     <UserX className="mr-2 h-4 w-4" /> <span>Suspend Account</span>
+                                   </SimpleDropdownItem>
+                                 ) : (
+                                   <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
+                                     <UserCheck className="mr-2 h-4 w-4" /> <span>Reactivate Account</span>
+                                   </SimpleDropdownItem>
+                                 )}
+                               </SimpleDropdown>
+                             )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="md:hidden">
+              {users.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-zinc-400">No users found matching your criteria.</div>
+              ) : (
+                <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                  {users.map((user) => {
+                    const name = user.candidateProfile ? `${user.candidateProfile.firstName} ${user.candidateProfile.lastName}` : (user.ownedAgencies?.[0]?.name || 'N/A');
+                    const joinedDate = new Date(user.createdAt).toLocaleDateString();
+                    return (
+                      <div key={user.id} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-gray-900 dark:text-zinc-50 text-base">{name}</h3>
+                              <UserRoleBadge role={user.role} />
+                              <UserStatusIcon status={user.status} />
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400 mb-2">{user.email}</p>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">Joined on {joinedDate}</p>
+                          </div>
+                          <div className="ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                            {user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN' && (
+                              <SimpleDropdown
+                                trigger={
+                                  <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                    <MoreHorizontal className="h-5 w-5" />
+                                  </button>
+                                }
+                              >
+                                {user.status === 'ACTIVE' ? (
+                                  <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'SUSPENDED')} className="group text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800 dark:hover:text-yellow-100">
+                                    <UserX className="mr-2 h-4 w-4" /> <span>Suspend Account</span>
+                                  </SimpleDropdownItem>
+                                ) : (
+                                  <SimpleDropdownItem onSelect={() => openConfirmationModal(user, 'ACTIVE')} className="group text-green-700 dark:text-green-300 hover:bg-green-50 hover:text-green-800">
+                                    <UserCheck className="mr-2 h-4 w-4" /> <span>Reactivate Account</span>
+                                  </SimpleDropdownItem>
+                                )}
+                              </SimpleDropdown>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -222,4 +277,3 @@ const ManageUsersPage = () => {
 };
 
 export default ManageUsersPage;
-

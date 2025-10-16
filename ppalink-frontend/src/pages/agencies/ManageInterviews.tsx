@@ -89,8 +89,8 @@ const ManageInterviewsPage = () => {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   const interviewPipelineUrl = selectedJobId
-    ? `/agencies/me/interviews?positionId=${selectedJobId}`
-    : "/agencies/me/interviews";
+    ? `/agencies/interviews?positionId=${selectedJobId}`
+    : "/agencies/interviews";
 
   const {
     data: pipelineData,

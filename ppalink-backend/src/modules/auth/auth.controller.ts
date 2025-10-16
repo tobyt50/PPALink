@@ -31,11 +31,11 @@ export async function registerAgencyHandler(
   next: NextFunction
 ) {
   try {
-    const { owner, agency } = await registerAgency(req.body);
+    const { owner, agency, token } = await registerAgency(req.body);
     return res.status(201).json({
       success: true,
       message: 'Agency registered successfully',
-      data: { owner, agency },
+      data: { user: owner, token, agency },
     });
   } catch (error: any) {
      if (error.message.includes('already exists')) {

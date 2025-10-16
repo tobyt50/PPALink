@@ -11,7 +11,7 @@ import candidateService, {
 } from "../../services/candidate.service";
 import type { Agency } from "../../types/agency";
 import type { CandidateProfile } from "../../types/candidate";
-import CandidateCard from "./CandidateCard";
+import CandidateCard from "../../components/ui/CandidateCard";
 import FilterSidebar, { type CandidateFilterValues } from "./FilterSidebar";
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
 

@@ -35,7 +35,7 @@ const MyApplicationsPage = () => {
         </div>
          <Link to="/dashboard/candidate/jobs/browse">
           <Button
-            size="lg"
+            size="sm"
             className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             <Search className="mr-2 h-5 w-5" />

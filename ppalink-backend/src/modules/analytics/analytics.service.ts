@@ -25,7 +25,7 @@ export async function getAgencyAnalytics(agencyId: string) {
   if (planName === 'Free') return freeAnalytics;
 
   // ✅ Pro and Enterprise common data
-  const [totalJobsPosted, totalApplications, recentApplications] = await prisma.$transaction([
+  const [totalJobsPosted, totalApplications, recentApplications, totalJobViews] = await prisma.$transaction([
     prisma.position.count({ where: { agencyId } }),
     prisma.application.count({ where: { position: { agencyId } } }),
     prisma.application.findMany({
@@ -36,6 +36,9 @@ export async function getAgencyAnalytics(agencyId: string) {
       select: { createdAt: true },
       orderBy: { createdAt: 'asc' },
     }),
+    prisma.jobView.count({
+        where: { job: { agencyId: agencyId } }
+    })
   ]);
 
   const rawAppStatusCounts = await prisma.application.groupBy({
@@ -64,6 +67,7 @@ export async function getAgencyAnalytics(agencyId: string) {
     totalShortlisted: await prisma.shortlist.count({ where: { agencyId } }),
     applicationStatusDistribution: statusDistribution,
     applicationTrends,
+    totalJobViews,
   };
   if (planName === 'Pro') return proAnalytics;
 
@@ -129,7 +133,8 @@ export async function getAgencyDashboardData(agencyId: string) {
     activeJobs,
     openJobsCount,
     totalApplications,
-    totalShortlisted
+    totalShortlisted,
+    totalJobViews,
   ] = await prisma.$transaction([
     prisma.application.findMany({
       where: { position: { agencyId } },
@@ -155,6 +160,7 @@ export async function getAgencyDashboardData(agencyId: string) {
     prisma.position.count({ where: { agencyId, status: 'OPEN' } }),
     prisma.application.count({ where: { position: { agencyId } } }),
     prisma.shortlist.count({ where: { agencyId } }),
+    prisma.jobView.count({ where: { job: { agencyId: agencyId } } })
   ]);
 
   return {
@@ -166,6 +172,7 @@ export async function getAgencyDashboardData(agencyId: string) {
       openJobs: openJobsCount,
       totalApps: totalApplications,
       totalShortlisted,
+      totalJobViews,
     },
     recentApplications,
     activeJobs,

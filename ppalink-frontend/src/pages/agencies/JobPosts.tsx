@@ -50,9 +50,9 @@ const JobPostsPage = () => {
           <div className="h-10 w-32 bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse"></div>
         ) : canPostNewJob ? (
           <Link to="/dashboard/agency/jobs/create">
-            <Button>
+            <Button size="sm">
               <PlusCircle className="mr-2 h-5 w-5" />
-              Create New Job
+              New Job
             </Button>
           </Link>
         ) : (

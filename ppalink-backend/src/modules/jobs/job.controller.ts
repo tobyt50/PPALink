@@ -13,6 +13,7 @@ import {
   queryApplicantsInPipeline,
   exportPipelineToCSV, 
   findSimilarJobs,
+  recordJobView,
 } from './job.service';
 import { CreateJobPositionInput, UpdateJobPositionInput } from './job.types';
 
@@ -205,6 +206,20 @@ export async function findSimilarJobsHandler(req: AuthRequest, res: Response, ne
     const { jobId } = req.params;
     const similarJobs = await findSimilarJobs(jobId, req.user.id);
     res.status(200).json({ success: true, data: similarJobs });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function recordJobViewHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { jobId } = req.params;
+    // The user might be null if they are not logged in, which is okay.
+    const userId = req.user?.id;
+    
+    await recordJobView(jobId, userId);
+    // Send a 204 No Content response as we don't need to return data
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

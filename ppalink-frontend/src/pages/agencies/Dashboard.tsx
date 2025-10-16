@@ -7,13 +7,21 @@ import {
   PlusCircle,
   UserPlus,
   Users,
+  Star,
+  BookOpen,
+  BrainCircuit,
+  TrendingUp,
+  List,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { StatCard } from "../../components/ui/StatCard";
+import { FeedCard } from "../../components/ui/FeedCard";
 import useFetch from "../../hooks/useFetch";
+import { useState, useMemo } from "react";
 import type { Agency } from "../../types/agency";
 import type { AgencyAnalyticsData, AgencyDashboardData } from "../../types/analytics";
+import type { FeedItem } from "../../types/feed";
 
 // Reusable TodoItem with hover transition
 const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
@@ -31,6 +39,125 @@ const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
     </Link>
   </li>
 );
+
+const DiscoveryFeed = () => {
+  const [activeTab, setActiveTab] = useState("RECOMMENDATION");
+
+  const tabs = [
+    { id: "ALL", label: "All", icon: List },
+    { id: "RECOMMENDATION", label: "For You", icon: Star },
+    { id: "LEARN_GROW", label: "Learning", icon: BookOpen },
+    { id: "CAREER_INSIGHT", label: "Insights", icon: BrainCircuit },
+    { id: "SUCCESS_STORY", label: "Success", icon: TrendingUp },
+  ];
+
+  const feedUrl = useMemo(() => {
+    if (activeTab === "ALL") {
+      return "/feed/";
+    }
+    return `/feed/?category=${activeTab}`;
+  }, [activeTab]);
+
+  const { data: feedResponse, isLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>(feedUrl);
+
+  const feedItems = feedResponse?.data;
+
+  const itemsToShow = useMemo(() => {
+    return feedItems?.slice(0, 4) || [];
+  }, [feedItems]);
+
+  const buttonBaseStyle =
+    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap";
+  const activeButtonStyle =
+    "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-50 font-semibold";
+  const inactiveButtonStyle =
+    "text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50";
+
+  if (isLoading) {
+    return (
+      <div className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+      {/* Header */}
+      <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+            Talent Discovery
+          </h2>
+          <Link to="/feed/create">
+            <Button size="sm" variant="outline">
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Post
+            </Button>
+          </Link>
+        </div>
+        <div className="flex flex-row overflow-x-auto gap-2 px-3 scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${buttonBaseStyle} ${
+                activeTab === tab.id ? activeButtonStyle : inactiveButtonStyle
+              }`}
+            >
+              <tab.icon className="h-5 w-5 mr-3 flex-shrink-0" /> {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Feed Items */}
+      {!feedItems || feedItems.length === 0 ? (
+        <div className="p-8 text-center text-gray-500 dark:text-zinc-400">
+          <p>
+            Your personalized feed is being prepared. Verify your profile to
+            get better recommendations!
+          </p>
+        </div>
+      ) : (
+        <div className="relative">
+          {/* Feed cards container */}
+          <div className="p-6 space-y-6 overflow-hidden pb-20">
+            {itemsToShow.map((item, index) => (
+              <div
+                key={item.id}
+                className={`transition-transform duration-500 ease-out ${
+                  index === itemsToShow.length - 1 ? "translate-y-6" : ""
+                }`}
+              >
+                <FeedCard item={item} />
+              </div>
+            ))}
+          </div>
+
+          {/* Gradient fade overlay + See More */}
+          <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end 
+                          bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent 
+                          after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-r after:from-white dark:after:from-zinc-900 after:via-transparent after:to-white dark:after:to-zinc-900 after:pointer-events-none">
+            <Link
+  to={`/feed${activeTab && activeTab !== "ALL" ? `?category=${activeTab}` : ""}`}
+  className="relative z-10 pb-4"
+>
+  <Button
+    variant="ghost"
+    className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
+  >
+    See More →
+  </Button>
+</Link>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AgencyDashboard = () => {
   const { data: dashboardData, isLoading: isLoadingDashboard } =
@@ -69,17 +196,14 @@ const AgencyDashboard = () => {
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            Agency Dashboard
+            Agency Overview
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            Welcome back 👋 — here’s a summary of your activity.
-          </p>
         </div>
         {canPostNewJob ? (
             <Link to="/dashboard/agency/jobs/create">
-              <Button size="lg" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
+              <Button size="sm" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
                 <PlusCircle className="mr-2 h-5 w-5" />
-                Post a New Job
+                New Job
               </Button>
             </Link>
         ) : (
@@ -136,6 +260,11 @@ const AgencyDashboard = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-8">
+          <DiscoveryFeed />
+        </div>
+
+        {/* Right column */}
+        <div className="lg:col-span-1 space-y-8">
           {/* Recent Applications */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
@@ -175,7 +304,6 @@ const AgencyDashboard = () => {
               </ul>
             )}
           </div>
-
           {/* Active Jobs */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
@@ -207,10 +335,6 @@ const AgencyDashboard = () => {
               </ul>
             )}
           </div>
-        </div>
-
-        {/* Right column */}
-        <div className="lg:col-span-1 space-y-8">
           {/* Next Steps */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
@@ -347,5 +471,3 @@ const AgencyDashboard = () => {
 };
 
 export default AgencyDashboard;
-
-

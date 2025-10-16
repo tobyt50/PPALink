@@ -2,14 +2,18 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { ImpersonationBar } from '../components/layout/ImpersonationBar';
 import Navbar from '../components/layout/Navbar';
 import Sidebar from '../components/layout/Sidebar';
-import { ADMIN_NAV_ITEMS, SUPER_ADMIN_NAV_ITEMS } from '../utils/constants';
+import BottomNav from '../components/layout/BottomNav';
+import { ADMIN_NAV_ITEMS, SUPER_ADMIN_NAV_ITEMS, ESSENTIAL_ADMIN_NAV_ITEMS, ESSENTIAL_SUPER_ADMIN_NAV_ITEMS } from '../utils/constants';
 import { useAuthStore } from '../context/AuthContext';
 
 const AdminLayout = () => {
   const user = useAuthStore((state) => state.user);
   const { pathname } = useLocation();
   const isInbox = pathname.startsWith('/inbox');
-  const navItems = user?.role === 'SUPER_ADMIN' ? SUPER_ADMIN_NAV_ITEMS : ADMIN_NAV_ITEMS;
+  const fullNavItems = user?.role === 'SUPER_ADMIN' ? SUPER_ADMIN_NAV_ITEMS : ADMIN_NAV_ITEMS;
+  const essentialNavItems = user?.role === 'SUPER_ADMIN' ? ESSENTIAL_SUPER_ADMIN_NAV_ITEMS : ESSENTIAL_ADMIN_NAV_ITEMS;
+
+  const mainClassName = `flex-1 overflow-y-auto scrollbar-thin pb-16 md:pb-0`;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
@@ -17,15 +21,17 @@ const AdminLayout = () => {
       <Navbar />
 
       <div className="flex flex-grow overflow-y-hidden">
-        <Sidebar navItems={navItems} />
+        <Sidebar navItems={fullNavItems} />
 
-        <main className="flex-1 overflow-y-auto scrollbar-thin">
+        <BottomNav navItems={essentialNavItems} />
+
+        <main className={mainClassName}>
           {isInbox ? (
             <Outlet />
           ) : (
-          <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5">
-            <Outlet />
-          </div>
+            <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5">
+              <Outlet />
+            </div>
           )}
         </main>
       </div>

@@ -89,13 +89,33 @@ export async function getCandidateProfileById(profileId: string) {
           skill: true,
         },
       },
-      workExperiences: { orderBy: { startDate: 'desc' } },
+      workExperiences: {
+        orderBy: { startDate: 'desc' },
+        include: {
+          verification: {
+            include: {
+              verifyingAgency: { select: { name: true } }
+            }
+          }
+        }
+      },
       education: { orderBy: { startDate: 'desc' } },
       quizAttempts: {
-        where: { passed: true }, // Only show passed attempts publicly
+        where: { passed: true },
         include: {
             quiz: { select: { title: true } },
             skill: true
+        }
+      },
+      applications: {
+        where: { status: 'HIRED' },
+        select: {
+          status: true,
+          position: {
+            select: {
+              agencyId: true
+            }
+          }
         }
       }
     },
@@ -196,7 +216,7 @@ export async function getCandidateDashboardData(userId: string) {
     prisma.application.findMany({
       where: { candidateId: profile.id },
       orderBy: { createdAt: 'desc' },
-      take: 3,
+      take: 20,
       include: {
         position: {
           select: { title: true, agency: { select: { name: true } } },
@@ -429,4 +449,77 @@ export async function getRecommendedJobs(userId: string, filters: { stateId?: nu
   });
 
   return recommendedJobs;
+}
+
+/**
+ * Allows a candidate to follow an agency.
+ * @param userId The ID of the candidate (follower).
+ * @param agencyId The ID of the agency to follow.
+ */
+export async function followAgency(userId: string, agencyId: string) {
+  // Check if the follow relationship already exists to prevent duplicate errors
+  const existingFollow = await prisma.agencyFollow.findUnique({
+    where: { followerId_agencyId: { followerId: userId, agencyId } },
+  });
+
+  if (existingFollow) {
+    return existingFollow;
+  }
+
+  return prisma.agencyFollow.create({
+    data: {
+      followerId: userId,
+      agencyId: agencyId,
+    },
+  });
+}
+
+/**
+ * Allows a candidate to unfollow an agency.
+ * @param userId The ID of the candidate (follower).
+ * @param agencyId The ID of the agency to unfollow.
+ */
+export async function unfollowAgency(userId: string, agencyId: string) {
+  return prisma.agencyFollow.delete({
+    where: {
+      followerId_agencyId: {
+        followerId: userId,
+        agencyId: agencyId,
+      },
+    },
+  });
+}
+
+/**
+ * Fetches the agencies a candidate is following, along with their recent job postings.
+ * @param userId The ID of the candidate.
+ */
+export async function getFollowingFeed(userId: string) {
+  // 1. Find all agencies the user is following
+  const followedAgencies = await prisma.agencyFollow.findMany({
+    where: { followerId: userId },
+    include: {
+      agency: {
+        include: {
+          // 2. For each followed agency, fetch their 3 most recent OPEN and PUBLIC jobs
+          positions: {
+            where: {
+              status: 'OPEN',
+              visibility: 'PUBLIC',
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 3,
+          },
+        },
+      },
+    },
+    orderBy: {
+        createdAt: 'desc'
+    }
+  });
+
+  // 3. We only want to return agencies that actually have recent open jobs
+  return followedAgencies
+    .map(follow => follow.agency)
+    .filter(agency => agency.positions.length > 0);
 }

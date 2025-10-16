@@ -52,6 +52,23 @@ class JobService {
     // A DELETE request typically doesn't return a body, so we expect a 204 No Content response.
     await apiClient.delete(`/agencies/${agencyId}/jobs/${jobId}`);
   }
+
+  /**
+   * Records a view for a public job posting.
+   * This is a "fire-and-forget" call.
+   * @param jobId The ID of the job that was viewed.
+   */
+  async recordJobView(jobId: string): Promise<void> {
+    try {
+        // We don't need to await this or handle the response.
+        // The `Authorization` header will be automatically attached by our axios interceptor if the user is logged in.
+        apiClient.post(`/public/jobs/${jobId}/view`);
+    } catch (error) {
+        // We intentionally swallow errors here. A failed view count should not
+        // break the user experience of viewing a job.
+        console.error("Failed to record job view:", error);
+    }
+  }
 }
 
 export default new JobService();

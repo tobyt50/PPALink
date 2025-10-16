@@ -1,7 +1,9 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Briefcase, Rocket, Users } from "lucide-react";
+import { ArrowRight, Briefcase, Building, Rocket, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import useFetch from "../hooks/useFetch";
+import type { Agency } from "../types/agency";
 
 const fadeInUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -9,10 +11,26 @@ const fadeInUp = (delay = 0) => ({
   transition: { duration: 0.6, delay },
 });
 
+const AgencyCard = ({ agency }: { agency: Agency }) => (
+    <Link to={`/agencies/${agency.id}/profile`}>
+        <motion.div
+            whileHover={{ y: -5, scale: 1.03 }}
+            className="rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
+        >
+            <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center mb-4">
+                <Building className="h-8 w-8 text-gray-400 dark:text-zinc-500" />
+            </div>
+            <h3 className="font-semibold text-white">{agency.name}</h3>
+            <p className="mt-1 text-green-300 text-sm">{agency.industry?.name || 'Various Industries'}</p>
+        </motion.div>
+    </Link>
+);
+
 const LandingPage = () => {
   // Parallax background
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 100]);
+  const { data: featuredAgencies } = useFetch<Agency[]>('/public/featured-agencies');
 
   return (
     <div className="w-full min-h-screen relative overflow-hidden text-white">
@@ -100,7 +118,7 @@ const LandingPage = () => {
       </section>
 
       {/* Why Choose Section (continuous bg — only overlay here) */}
-      <section className="relative py-20">
+      <section className="relative py-12">
         {/* Only overlay — NO background image rendering here so it feels continuous */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80 pointer-events-none" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
@@ -149,6 +167,27 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {featuredAgencies && featuredAgencies.length > 0 && (
+          <section className="relative pb-12">
+            <div className="absolute inset-0 bg-black/80 pointer-events-none" />
+            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+              <motion.h2 {...fadeInUp(0.1)} className="text-3xl font-bold sm:text-4xl text-zinc-50">
+                Hiring Now
+              </motion.h2>
+              <motion.p {...fadeInUp(0.2)} className="mt-4 max-w-2xl mx-auto text-gray-200 dark:text-zinc-300">
+                Explore opportunities from some of the top agencies on our platform.
+              </motion.p>
+              <div className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                  {featuredAgencies.map((agency, i) => (
+                      <motion.div key={agency.id} {...fadeInUp(0.3 + i * 0.05)}>
+                          <AgencyCard agency={agency} />
+                      </motion.div>
+                  ))}
+              </div>
+            </div>
+          </section>
+      )}
 
       {/* CTA Section (darker primary gradient) */}
       <section className="relative py-20 bg-gradient-to-r from-primary-700 to-primary-600 text-center">
