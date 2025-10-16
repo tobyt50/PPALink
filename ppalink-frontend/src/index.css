@@ -145,3 +145,31 @@
         scrollbar-color: var(--color-gray-700) transparent;
     }
 }
+
+
+/* --- Fix: Android Chrome bottom safe-area bleed --- */
+
+html,
+body {
+    background-color: transparent !important;
+    overscroll-behavior-y: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: env(safe-area-inset-bottom);
+    background-color: #ffffff;
+    /* same as BottomNav bg-light */
+    z-index: 49;
+    /* one less than BottomNav's z-50 */
+    pointer-events: none;
+}
+
+[data-theme="dark"] body::after {
+    background-color: #09090b;
+    /* your dark gray-950 */
+}
