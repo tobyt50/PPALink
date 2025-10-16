@@ -8,7 +8,11 @@ export const workExperienceSchema = z.object({
     (val) => !!val,
     { message: 'Start date is required.' }
   ),
-  endDate: z.coerce.date().optional().nullable(),
+  endDate: z.preprocess(
+  (val) => (val === '' || val === null ? undefined : val),
+  z.coerce.date().optional()
+),
+
   isCurrent: z.boolean().default(false),
   description: z.string().optional().nullable(),
 }).refine(data => !data.isCurrent ? !!data.endDate : true, {

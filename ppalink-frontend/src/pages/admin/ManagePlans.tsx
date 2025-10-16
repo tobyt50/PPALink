@@ -85,9 +85,9 @@ const ManagePlansPage = () => {
             </h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Create, edit, and manage subscription plans for agencies.</p>
           </div>
-          <Button size="lg" onClick={handleCreate}>
+          <Button size="sm" onClick={handleCreate}>
             <PlusCircle className="mr-2 h-5 w-5" />
-            Create New Plan
+            New Plan
           </Button>
         </div>
 

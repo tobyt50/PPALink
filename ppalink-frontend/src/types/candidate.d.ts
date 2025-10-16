@@ -9,6 +9,15 @@ export interface WorkExperience {
   startDate: string;
   endDate: string | null;
   isCurrent: boolean;
+  verification?: WorkVerification | null;
+}
+export interface WorkVerification {
+  id: string;
+  workExperienceId: string;
+  verifyingAgencyId: string;
+  verifierName: string | null;
+  verifierTitle: string | null;
+  verifiedAt: string;
 }
 
 export interface Education {
@@ -64,7 +73,8 @@ export interface CandidateProfile {
   cvFileKey: string | null;
   nyscFileKey: string | null;
   hasCompletedOnboarding: boolean;
-  
+  profileType: CandidateProfileType;
+  applications?: Partial<Application>[];
   skills?: CandidateSkill[];
 
   user?: {

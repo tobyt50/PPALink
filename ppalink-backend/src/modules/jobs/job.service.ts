@@ -540,3 +540,17 @@ export async function findSimilarJobs(jobId: string, userId: string) {
 
   return similarJobs;
 }
+
+/**
+ * Records a view for a specific job post.
+ * @param jobId The ID of the job being viewed.
+ * @param userId The optional ID of the logged-in user who is viewing.
+ */
+export async function recordJobView(jobId: string, userId?: string) {
+  return prisma.jobView.create({
+    data: {
+      jobId: jobId,
+      viewerId: userId,
+    },
+  });
+}

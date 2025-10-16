@@ -14,6 +14,7 @@ import { reportFiltersSchema } from '../analytics/reporting.types'; // 1. Import
 import { validate } from '../../middleware/validate';
 import { exportAuditLogsHandler, getAuditLogsHandler, getAuditLogByIdHandler } from '../auditing/audit.controller';
 import { createQuizHandler, createSkillHandler, deleteQuizHandler, getAllQuizzesHandler, getQuizByIdHandler, updateQuizHandler } from './quiz.controller';
+import { getAllFeedItemsHandler, createFeedItemHandler, getFeedItemByIdHandler, updateFeedItemHandler, deleteFeedItemHandler } from '../feed/feed.controller';
 
 const router = Router();
 
@@ -169,5 +170,21 @@ router.post('/skills', createSkillHandler);
 
 router.use('/quizzes', quizRouter); // Mount at /api/admin/quizzes
 
+const feedRouter = Router();
+
+// GET /api/admin/feed
+feedRouter.get('/', getAllFeedItemsHandler);
+// POST /api/admin/feed
+feedRouter.post('/', createFeedItemHandler);
+
+// GET /api/admin/feed/:itemId
+feedRouter.get('/:itemId', getFeedItemByIdHandler);
+// PATCH /api/admin/feed/:itemId
+feedRouter.patch('/:itemId', updateFeedItemHandler);
+// DELETE /api/admin/feed/:itemId
+feedRouter.delete('/:itemId', deleteFeedItemHandler);
+
+// Mount at /api/admin/feed
+router.use('/feed', feedRouter);
 
 export default router;

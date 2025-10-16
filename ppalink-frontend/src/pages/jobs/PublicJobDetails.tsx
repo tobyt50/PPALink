@@ -5,19 +5,23 @@ import {
   CheckCircle,
   ChevronLeft,
   Globe,
+  Heart,
   Loader2,
   MapPin,
   Tag,
   Wallet,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { useDataStore } from "../../context/DataStore";
 import useFetch from "../../hooks/useFetch";
 import applicationService from "../../services/application.service";
 import type { Position } from "../../types/job";
+import { useAuthStore } from "../../context/AuthContext";
+import candidateService from "../../services/candidate.service";
+import jobService from "../../services/job.service";
 
 const DetailItem = ({
   icon: Icon,
@@ -60,7 +64,8 @@ const SmartDescription = ({ text }: { text: string }) => {
 const PublicJobDetailsPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const { user, login, isAuthenticated } = useAuthStore();
   const {
     data: job,
     isLoading,
@@ -70,8 +75,20 @@ const PublicJobDetailsPage = () => {
   const { states } = useDataStore();
   const [isApplying, setIsApplying] = useState(false);
 
+  useEffect(() => {
+        if (jobId) {
+            jobService.recordJobView(jobId);
+        }
+        // The empty dependency array ensures this effect runs only once on mount.
+    }, [jobId]);
+
   const handleApply = async () => {
     if (!jobId) return;
+    if (!isAuthenticated) {
+      toast.error("Please log in or create an account to apply.");
+      navigate("/login", { state: { from: location } });
+      return;
+    }
     setIsApplying(true);
     try {
       await applicationService.applyForJob(jobId);
@@ -84,6 +101,37 @@ const PublicJobDetailsPage = () => {
     } finally {
       setIsApplying(false);
     }
+  };
+
+  const handleToggleFollow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please log in to follow agencies.");
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+    if (!job?.agencyId) return;
+    const isFollowing = user.followedAgencyIds?.includes(job.agencyId);
+    const actionPromise = isFollowing
+      ? candidateService.unfollowAgency(job.agencyId)
+      : candidateService.followAgency(job.agencyId);
+    await toast.promise(actionPromise, {
+      loading: isFollowing ? "Unfollowing..." : "Following...",
+      success: () => {
+        const currentFollowed = user.followedAgencyIds || [];
+        const newFollowed = isFollowing
+          ? currentFollowed.filter((id) => id !== job.agencyId)
+          : [...currentFollowed, job.agencyId!];
+        login(
+          { ...user, followedAgencyIds: newFollowed },
+          useAuthStore.getState().token!
+        );
+        return isFollowing
+          ? "Agency unfollowed."
+          : "Agency followed successfully!";
+      },
+      error: "An error occurred.",
+    });
   };
 
   if (isLoading) {
@@ -101,6 +149,7 @@ const PublicJobDetailsPage = () => {
     );
   }
 
+  const isFollowing = user?.followedAgencyIds?.includes(job?.agencyId || "");
   const locationState = job.isRemote
     ? "Remote"
     : job.stateId
@@ -112,7 +161,6 @@ const PublicJobDetailsPage = () => {
       : job.minSalary
       ? `From ₦${job.minSalary.toLocaleString()}`
       : "Not specified";
-
   const levelColorMap = {
     BEGINNER:
       "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
@@ -122,14 +170,18 @@ const PublicJobDetailsPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
+    <div
+      className={`mx-auto max-w-5xl space-y-5 ${
+        !isAuthenticated ? "py-6 px-4 sm:px-6 lg:px-8" : ""
+      }`}
+    >
       <div className="flex items-center justify-between">
         <Link
-          to="/dashboard/candidate/jobs/browse"
+          to={isAuthenticated ? "/dashboard/candidate/jobs/browse" : "/"}
           className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
         >
           <ChevronLeft className="h-4 w-4 mr-1.5" />
-          Back to All Jobs
+          {isAuthenticated ? "Back to All Jobs" : "Back to Home"}
         </Link>
       </div>
 
@@ -141,10 +193,13 @@ const PublicJobDetailsPage = () => {
                 {job.title}
               </h1>
               <div className="mt-2 flex items-center flex-wrap gap-x-3 gap-y-2 text-gray-600 dark:text-zinc-300">
-                <span className="flex items-center text-sm">
+                <Link
+                  to={`/agencies/${job.agencyId}/profile`}
+                  className="flex items-center text-sm hover:text-primary-600 dark:hover:text-primary-400"
+                >
                   <Building className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
                   {job.agency?.name}
-                </span>
+                </Link>
                 {job.agency?.cacVerified && (
                   <span className="flex items-center text-xs font-medium text-green-800 dark:text-green-200 bg-green-100 dark:bg-green-950/60 px-2.5 py-1 rounded-full">
                     <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
@@ -157,6 +212,18 @@ const PublicJobDetailsPage = () => {
                     Verified Domain
                   </span>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleToggleFollow}
+                >
+                  <Heart
+                    className={`h-4 w-4 mr-2 ${
+                      isFollowing ? "text-red-500 fill-current" : ""
+                    }`}
+                  />
+                  {isFollowing ? "Following" : "Follow Agency"}
+                </Button>
               </div>
             </div>
             <div className="flex-shrink-0 w-full sm:w-auto">
@@ -172,7 +239,6 @@ const PublicJobDetailsPage = () => {
             </div>
           </div>
         </div>
-
         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
             <DetailItem
@@ -192,7 +258,6 @@ const PublicJobDetailsPage = () => {
               value={new Date(job.createdAt).toLocaleDateString()}
             />
           </div>
-
           <div className="lg:col-span-2 space-y-8">
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -202,7 +267,6 @@ const PublicJobDetailsPage = () => {
                 <SmartDescription text={job.description} />
               </div>
             </div>
-
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                 Skills Required

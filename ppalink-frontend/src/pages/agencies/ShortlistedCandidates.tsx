@@ -4,7 +4,7 @@ import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import useFetch from "../../hooks/useFetch";
 import type { CandidateProfile } from "../../types/candidate";
-import CandidateCard from "./CandidateCard";
+import CandidateCard from "../../components/ui/CandidateCard";
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
 
 const ShortlistedCandidatesPage = () => {
@@ -28,10 +28,10 @@ const ShortlistedCandidatesPage = () => {
         </div>
         <Link to="/dashboard/agency/candidates/browse">
           <Button
-            size="lg"
+            size="sm"
             className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
-            Find More Candidates
+            Find Candidates
           </Button>
         </Link>
       </div>

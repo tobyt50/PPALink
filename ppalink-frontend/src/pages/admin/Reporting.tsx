@@ -201,7 +201,7 @@ const ReportFilterBar = ({
             </div>
           )}
         </div>
-        <Button type="submit" isLoading={isLoading} size="lg" className="w-full sm:w-auto">
+        <Button size="sm" type="submit" isLoading={isLoading} className="w-full sm:w-auto">
           Generate Report
         </Button>
       </div>

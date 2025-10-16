@@ -165,10 +165,10 @@ const SettingsPage = () => {
                     <Lock className="h-5 w-5 mr-3 flex-shrink-0" />
                     <div>
                       <strong>Status:</strong>{" "}
-                      <span className="font-bold">DISABLED</span>.
+                      <span className="font-bold">DISABLED</span>
                     </div>
                   </div>
-                  <Button onClick={() => setIsSetupModalOpen(true)}>
+                  <Button size="sm" onClick={() => setIsSetupModalOpen(true)}>
                     Enable
                   </Button>
                 </div>
@@ -272,6 +272,7 @@ const SettingsPage = () => {
             <div className="p-5 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-zinc-800 flex justify-end">
               <Button
                 type="submit"
+                size="sm"
                 isLoading={isSubmitting}
                 disabled={!isDirty}
               >

@@ -150,6 +150,14 @@ class CandidateService {
     const response = await apiClient.put('/candidates/me/cv', { cvFileKey });
     return response.data.data;
   }
+
+  async followAgency(agencyId: string): Promise<void> {
+    await apiClient.post(`/candidates/me/${agencyId}/follow`);
+  }
+
+  async unfollowAgency(agencyId: string): Promise<void> {
+    await apiClient.delete(`/candidates/me/${agencyId}/follow`);
+  }
 }
 
 export default new CandidateService();

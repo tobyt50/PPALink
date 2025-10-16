@@ -112,7 +112,7 @@ const AssessmentsPage = () => {
                 </div>
                 <Link to={`/dashboard/candidate/assessments/${quiz.id}`}>
                   <Button variant="outline">
-                    Start Quiz <ChevronRight className="h-4 w-4 ml-2" />
+                    Start <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
               </div>

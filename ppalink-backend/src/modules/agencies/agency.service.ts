@@ -527,7 +527,10 @@ export async function markOnboardingAsComplete(agencyId: string) {
  * categorized into 'scheduled' and 'unscheduled'.
  * @param agencyId The ID of the agency.
  */
-export async function getInterviewPipeline(agencyId: string, positionId?: string) {
+export async function getInterviewPipeline(
+  agencyId: string,
+  positionId?: string
+) {
   const whereClause: Prisma.ApplicationWhereInput = {
     position: { agencyId: agencyId },
     status: "INTERVIEW",
@@ -550,10 +553,10 @@ export async function getInterviewPipeline(agencyId: string, positionId?: string
   });
 
   const jobsInPipeline = applicationsInInterviewStage.reduce((acc, app) => {
-      if (!acc.some(job => job.id === app.position.id)) {
-          acc.push(app.position);
-      }
-      return acc;
+    if (!acc.some((job) => job.id === app.position.id)) {
+      acc.push(app.position);
+    }
+    return acc;
   }, [] as { id: string; title: string }[]);
 
   const unscheduled = applicationsInInterviewStage.filter(
@@ -564,4 +567,115 @@ export async function getInterviewPipeline(agencyId: string, positionId?: string
   );
 
   return { unscheduled, scheduled, jobsInPipeline };
+}
+
+/**
+ * Allows an agency to issue a "Work Verification Certificate" for a candidate's
+ * specific work experience, but only if they have previously hired that candidate.
+ * @param agencyId The ID of the agency issuing the verification.
+ * @param workExperienceId The ID of the WorkExperience record to verify.
+ * @param actorId The ID of the person verifying.
+ */
+export async function issueWorkVerification(
+  agencyId: string,
+  workExperienceId: string,
+  actorId: string
+) {
+  // 1. Fetch the work experience and the candidate who owns it
+  const workExperience = await prisma.workExperience.findUnique({
+    where: { id: workExperienceId },
+    select: { candidateId: true },
+  });
+  if (!workExperience) throw new Error("Work experience not found.");
+
+  // 2. Security Check: Verify that this agency has a `HIRED` application for this candidate.
+  const hireRecord = await prisma.application.findFirst({
+    where: {
+      candidateId: workExperience.candidateId,
+      position: { agencyId: agencyId },
+      status: "HIRED",
+    },
+  });
+  if (!hireRecord) {
+    throw new Error(
+      "You can only verify experience for candidates you have hired through PPAHire."
+    );
+  }
+
+  const actor = await prisma.user.findUnique({
+    where: { id: actorId },
+    include: {
+      candidateProfile: { select: { firstName: true, lastName: true } },
+    }, // Assuming admins might have a name in candidateProfile
+  });
+
+  const verifierName = `${actor?.candidateProfile?.firstName || "Agency"} ${
+    actor?.candidateProfile?.lastName || "Representative"
+  }`;
+
+  // 3. Create the verification record
+  return prisma.workVerification.create({
+    data: {
+      workExperienceId,
+      verifyingAgencyId: agencyId,
+      verifierName: verifierName,
+    },
+  });
+}
+
+/**
+ * Fetches the public profile for a single agency, including its open, public jobs.
+ * @param agencyId The ID of the agency to fetch.
+ */
+export async function getPublicAgencyProfile(agencyId: string) {
+  const agency = await prisma.agency.findUnique({
+    where: { id: agencyId },
+    select: {
+      // Select only the fields that are safe to be public
+      id: true,
+      name: true,
+      website: true,
+      domain: true,
+      logoKey: true,
+      domainVerified: true,
+      cacVerified: true,
+      industry: { select: { name: true } },
+      positions: {
+        where: {
+          status: 'OPEN',
+          visibility: 'PUBLIC',
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+            skills: { include: { skill: true } }
+        }
+      },
+    },
+  });
+
+  if (!agency) {
+    throw new Error('Agency profile not found or is private.');
+  }
+
+  return agency;
+}
+
+/**
+ * Fetches a list of featured agencies for the public landing page.
+ * Prioritizes agencies that are CAC verified.
+ */
+export async function getFeaturedAgencies() {
+  return prisma.agency.findMany({
+    where: {
+      cacVerified: true,
+      // We could add more criteria here, like having a logo or open jobs
+    },
+    select: {
+      id: true,
+      name: true,
+      logoKey: true,
+      industry: { select: { name: true } },
+    },
+    take: 6, // Limit to a nice grid of 6 agencies
+  });
 }

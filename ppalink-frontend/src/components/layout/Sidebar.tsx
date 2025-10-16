@@ -1,10 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronLeft,
   type LucideIcon,
-  X,
   FileQuestion,
-  Package,
 } from "lucide-react";
 import { useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -69,7 +66,7 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   const user = useAuthStore((state) => state.user);
   const title =
     user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
-      ? "Admin Panel"
+      ? "Control Panel"
       : "Quick Links";
   const handleLinkClick = () => {
     if (window.innerWidth < 768 && isSidebarOpen) {
@@ -102,12 +99,6 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
             }`}
           />
         </button>
-        <button
-          onClick={toggleSidebar}
-          className="p-1.5 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-zinc-800 md:hidden"
-        >
-          <X className="h-5 w-5 text-gray-500 dark:text-zinc-400" />
-        </button>
       </div>
       <nav className="flex-grow space-y-1.5 px-3 py-4">
         {navItems.map((item) => (
@@ -124,10 +115,11 @@ const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
 };
 
 const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
-  const { isSidebarOpen, setSidebarOpen, toggleSidebar } = useUIStore();
+  const { setSidebarOpen } = useUIStore();
   const location = useLocation();
   const navigate = useNavigate();
   const { socket } = useSocket();
+  const user = useAuthStore((state) => state.user);
 
   const hasNewQuiz = useNotificationStore((state) => state.hasNewQuiz());
   const hasNewGeneric = useNotificationStore((state) => state.hasNewGeneric());
@@ -135,7 +127,7 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
   const markAsRead = useNotificationStore((state) => state.markAsRead);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !user || user.role !== "CANDIDATE") return;
     const handleNewQuiz = (notification: Notification) => {
       incrementCount("NEW_QUIZ");
       toast.custom(
@@ -153,30 +145,12 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
         { duration: 6000 }
       );
     };
-    const handleNewGeneric = (notification: Notification) => {
-      incrementCount("GENERIC");
-      toast.custom(
-        (t) => (
-          <InteractiveToast
-            t={t}
-            Icon={Package}
-            iconColorClass="text-indigo-500"
-            title="Application Update"
-            message={notification.message}
-            link={notification.link || "#"}
-            navigate={navigate}
-          />
-        ),
-        { duration: 6000 }
-      );
-    };
+    
     socket.on("new_quiz_notification", handleNewQuiz);
-    socket.on("new_notification", handleNewGeneric);
     return () => {
       socket.off("new_quiz_notification", handleNewQuiz);
-      socket.off("new_notification", handleNewGeneric);
     };
-  }, [socket, incrementCount, navigate]);
+  }, [socket, user, incrementCount, navigate]);
 
   useEffect(() => {
     if (
@@ -194,6 +168,7 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
   }, [location.pathname, hasNewQuiz, hasNewGeneric, markAsRead]);
 
   const navItemsWithNotif = navItems.map((item) => {
+    // Only apply notifications for candidate paths
     if (item.to === "/dashboard/candidate/assessments") {
       return { ...item, hasNotification: hasNewQuiz };
     }
@@ -223,34 +198,9 @@ const Sidebar = ({ navItems }: { navItems: NavItem[] }) => {
   }, [location.pathname, setSidebarOpen]);
 
   return (
-    <>
-      <div className="hidden md:block">
-        <SidebarContent navItems={navItemsWithNotif} />
-      </div>
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={toggleSidebar}
-              className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 md:hidden"
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed top-0 left-0 h-full z-50 md:hidden shadow-xl"
-            >
-              <SidebarContent navItems={navItemsWithNotif} />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+    <div className="hidden md:block">
+      <SidebarContent navItems={navItemsWithNotif} />
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CandidateProfileType } from '@prisma/client';
 
 // Candidate registration schema (matches User + CandidateProfile)
 export const RegisterCandidateSchema = z.object({
@@ -7,6 +8,7 @@ export const RegisterCandidateSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().optional(),
+  profileType: z.nativeEnum(CandidateProfileType).optional(),
   dob: z.string().optional(), // ISO date string, can parse to Date later
   gender: z.enum(['male', 'female']).optional(),
   nyscNumber: z.string().optional(),

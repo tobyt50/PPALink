@@ -1,20 +1,25 @@
 import {
   ArrowRight,
-  Award,
-  Package,
-  MessageSquare,
-  Gift,
   CheckCircle,
   Search,
+  Building,
+  Star,
+  BookOpen,
+  BrainCircuit,
+  TrendingUp,
+  PlusCircle,
+  List,
 } from "lucide-react";
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
-import { StatCard } from "../../components/ui/StatCard";
 import useFetch from "../../hooks/useFetch";
 import type { CandidateDashboardData } from "../../types/analytics";
 import type { ApplicationStatus } from "../../types/application";
 import type { CandidateProfile } from "../../types/candidate";
+import type { Agency } from "../../types/agency";
+import type { FeedItem } from "../../types/feed";
+import { FeedCard } from "../../components/ui/FeedCard";
+import { useState, useMemo } from "react";
 
 const ProfileCompleteness = ({ score }: { score: number }) => {
   const clampedScore = Math.min(100, Math.max(0, score));
@@ -65,7 +70,7 @@ const ApplicationStatusBadge = ({ status }: { status: ApplicationStatus }) => {
     REVIEWING: {
       text: "In Review",
       color:
-        "text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/60",
+        "text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/60",
     },
     INTERVIEW: {
       text: "Interview",
@@ -101,72 +106,187 @@ const ApplicationStatusBadge = ({ status }: { status: ApplicationStatus }) => {
   );
 };
 
-const VerifiedSkillsSection = ({
-  profile,
-}: {
-  profile: CandidateProfile | undefined | null;
-}) => {
-  const verifiedSkills = useMemo(() => {
-    if (!profile) return [];
-    const passedAttempts =
-      profile.quizAttempts?.filter((a) => a.passed && a.skillId) || [];
-    const skillMap = new Map<number, { name: string; score: number }>();
-    passedAttempts.forEach((attempt) => {
-      const skill = profile.skills?.find(
-        (s) => s.skill.id === attempt.skillId
-      )?.skill;
-      if (skill) {
-        if (
-          !skillMap.has(skill.id) ||
-          (skillMap.get(skill.id)?.score ?? 0) < attempt.score
-        ) {
-          skillMap.set(skill.id, { name: skill.name, score: attempt.score });
-        }
-      }
-    });
-    return Array.from(skillMap.values());
-  }, [profile?.quizAttempts, profile?.skills]);
-
-  if (verifiedSkills.length === 0) {
+const FollowingFeed = () => {
+  const { data: followedAgencies, isLoading } = useFetch<Agency[]>(
+    "/candidates/me/following-feed"
+  );
+  if (isLoading) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-        <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-            Verified Skills
-          </h2>
-        </div>
-        <div className="p-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Prove your expertise to stand out.
-          </p>
-          <Link to="/dashboard/candidate/assessments" className="mt-4 inline-block">
-            <Button variant="outline" size="sm">
-              Take a Skill Quiz
-            </Button>
-          </Link>
-        </div>
+      <div className="h-48 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+    );
+  }
+  if (!followedAgencies || followedAgencies.length === 0) {
+    return (
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 text-center p-8">
+        <p className="text-sm text-gray-500 dark:text-zinc-400">
+          New jobs from agencies you follow will appear here.
+        </p>
+        <Link
+          to="/dashboard/candidate/jobs/browse"
+          className="mt-4 inline-block"
+        >
+          <Button variant="outline" size="sm">
+            <Search className="mr-2 h-4 w-4" />
+            Find Agencies to Follow
+          </Button>
+        </Link>
       </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+          Updates from Followed Agencies
+        </h2>
+      </div>
+      <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
+        {followedAgencies.map((agency) => (
+          <li
+            key={agency.id}
+            className="p-4 hover:bg-gray-50/70 dark:hover:bg-zinc-800/40 transition-colors"
+          >
+            <Link
+              to={`/agencies/${agency.id}/profile`}
+              className="font-semibold flex items-center text-gray-800 dark:text-zinc-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+              <Building className="h-4 w-4 mr-2 text-primary-600 dark:text-primary-400" />
+              {agency.name}
+            </Link>
+            <ul className="mt-2 pl-6 space-y-2">
+              {agency.positions?.map((job) => (
+                <li key={job.id}>
+                  <Link
+                    to={`/jobs/${job.id}/details`}
+                    className="text-primary-600 dark:text-primary-400 hover:underline text-sm"
+                  >
+                    {job.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const DiscoveryFeed = () => {
+  const [activeTab, setActiveTab] = useState("RECOMMENDATION");
+
+  const tabs = [
+    { id: "ALL", label: "All", icon: List },
+    { id: "RECOMMENDATION", label: "For You", icon: Star },
+    { id: "LEARN_GROW", label: "Learning", icon: BookOpen },
+    { id: "CAREER_INSIGHT", label: "Insights", icon: BrainCircuit },
+    { id: "SUCCESS_STORY", label: "Success", icon: TrendingUp },
+  ];
+
+  const feedUrl = useMemo(() => {
+    if (activeTab === "ALL") {
+      return "/feed/";
+    }
+    return `/feed/?category=${activeTab}`;
+  }, [activeTab]);
+
+  const { data: feedResponse, isLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>(feedUrl);
+
+  const feedItems = feedResponse?.data;
+
+  const itemsToShow = useMemo(() => {
+    return feedItems?.slice(0, 4) || [];
+  }, [feedItems]);
+
+  const buttonBaseStyle =
+    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap";
+  const activeButtonStyle =
+    "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-50 font-semibold";
+  const inactiveButtonStyle =
+    "text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50";
+
+  if (isLoading) {
+    return (
+      <div className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
     );
   }
 
   return (
     <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+      {/* Header */}
       <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-          Verified Skills
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+            Career Discovery
+          </h2>
+          <Link to="/feed/create">
+            <Button size="sm" variant="outline">
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Post
+            </Button>
+          </Link>
+        </div>
+        <div className="flex flex-row overflow-x-auto gap-2 px-3 scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`${buttonBaseStyle} ${
+                activeTab === tab.id ? activeButtonStyle : inactiveButtonStyle
+              }`}
+            >
+              <tab.icon className="h-5 w-5 mr-3 flex-shrink-0" /> {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="p-6 flex flex-wrap gap-3">
-        {verifiedSkills.map((skill) => (
-          <div
-            key={skill.name}
-            className="flex items-center rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 px-3 py-1 text-sm font-semibold"
-          >
-            <Award className="h-4 w-4 mr-1.5" />
-            {skill.name} ({skill.score}%)
+
+      {/* Feed Items */}
+      {!feedItems || feedItems.length === 0 ? (
+        <div className="p-8 text-center text-gray-500 dark:text-zinc-400">
+          <p>
+            Your personalized feed is being prepared. Complete your profile to
+            get better recommendations!
+          </p>
+        </div>
+      ) : (
+        <div className="relative">
+          {/* Feed cards container */}
+          <div className="p-6 space-y-6 overflow-hidden pb-20">
+            {itemsToShow.map((item, index) => (
+              <div
+                key={item.id}
+                className={`transition-transform duration-500 ease-out ${
+                  index === itemsToShow.length - 1 ? "translate-y-6" : ""
+                }`}
+              >
+                <FeedCard item={item} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Gradient fade overlay + See More */}
+          <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end 
+                          bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent 
+                          after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-r after:from-white dark:after:from-zinc-900 after:via-transparent after:to-white dark:after:to-zinc-900 after:pointer-events-none">
+<Link
+  to={`/feed${activeTab && activeTab !== "ALL" ? `?category=${activeTab}` : ""}`}
+  className="relative z-10 pb-4"
+>
+  <Button
+    variant="ghost"
+    className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
+  >
+    See More →
+  </Button>
+</Link>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -174,9 +294,8 @@ const VerifiedSkillsSection = ({
 const CandidateDashboard = () => {
   const { data: dashboardData, isLoading: isLoadingDashboard } =
     useFetch<CandidateDashboardData>("/candidates/me/dashboard");
-  const { data: profile, isLoading: isLoadingProfile } =
+  const { data: _profile, isLoading: isLoadingProfile } =
     useFetch<CandidateProfile>("/candidates/me");
-
   const isLoading = isLoadingDashboard || isLoadingProfile;
 
   if (isLoading || !dashboardData) {
@@ -189,8 +308,7 @@ const CandidateDashboard = () => {
           </div>
           <div className="h-10 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
         </div>
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
           <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
@@ -201,6 +319,7 @@ const CandidateDashboard = () => {
             <div className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           </div>
           <div className="lg:col-span-1 space-y-8">
+            <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
             <div className="h-48 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
             <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
           </div>
@@ -209,8 +328,7 @@ const CandidateDashboard = () => {
     );
   }
 
-  const { stats, recentApplications, profileCompleteness, isVerified } =
-    dashboardData;
+  const { recentApplications, profileCompleteness, isVerified } = dashboardData;
 
   return (
     <div className="space-y-5">
@@ -219,13 +337,10 @@ const CandidateDashboard = () => {
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             My Dashboard
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            Welcome! Here's an overview of your job search journey.
-          </p>
         </div>
         <Link to="/dashboard/candidate/jobs/browse">
           <Button
-            size="lg"
+            size="sm"
             className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
             <Search className="mr-2 h-5 w-5" />
@@ -233,41 +348,11 @@ const CandidateDashboard = () => {
           </Button>
         </Link>
       </div>
-
-      <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-        <StatCard
-          icon={Package}
-          label="Applications Sent"
-          value={stats.totalApplications}
-          linkTo="/dashboard/candidate/applications"
-          color="green"
-        />
-          <StatCard
-            icon={Award}
-            label="Verified Skills"
-            value={stats.verifiedSkills}
-            linkTo="/dashboard/candidate/assessments"
-            color="blue"
-          />
-        <StatCard
-          icon={MessageSquare}
-          label="Interviews"
-          value={stats.interviews}
-          linkTo="/dashboard/candidate/applications"
-          color="green"
-        />
-        <StatCard
-          icon={Gift}
-          label="Offers Received"
-          value={stats.offers}
-          linkTo="/dashboard/candidate/applications"
-          color="green"
-        />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
-          <VerifiedSkillsSection profile={profile} />
+          <DiscoveryFeed />
+        </div>
+        <div className="lg:col-span-1 space-y-8">
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -286,10 +371,10 @@ const CandidateDashboard = () => {
               </p>
             ) : (
               <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
-                {recentApplications.map((app) => (
+                {recentApplications.slice(0, 4).map((app) => (
                   <li key={app.id}>
                     <Link
-                      to={`/dashboard/candidate/applications`}
+                      to={`/dashboard/candidate/applications/${app.id}/status`}
                       className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
                     >
                       <div className="flex items-center justify-between">
@@ -312,9 +397,8 @@ const CandidateDashboard = () => {
               </ul>
             )}
           </div>
-        </div>
-        <div className="lg:col-span-1 space-y-8">
           <ProfileCompleteness score={profileCompleteness} />
+          <FollowingFeed />
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -329,6 +413,7 @@ const CandidateDashboard = () => {
                 </div>
               ) : (
                 <>
+                  {" "}
                   <p className="text-sm text-gray-600 dark:text-zinc-300">
                     Get your profile verified to stand out and build trust with
                     recruiters.

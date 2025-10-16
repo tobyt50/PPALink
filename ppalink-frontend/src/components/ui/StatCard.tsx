@@ -51,7 +51,7 @@ export const StatCard = ({
       to={linkTo}
       className={clsx(
         baseClasses,
-        "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        "focus:outline-none focus:ring-0.5 focus:ring-offset-0.5 focus:ring-primary-500"
       )}
     >
       {cardInner}

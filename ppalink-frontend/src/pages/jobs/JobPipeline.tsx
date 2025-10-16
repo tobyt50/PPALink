@@ -474,7 +474,7 @@ const JobPipelinePage = () => {
     activationConstraint: { distance: 4 },
   }),
   useSensor(TouchSensor, {
-    activationConstraint: { delay: 150, tolerance: 10 },
+    activationConstraint: { delay: 250, tolerance: 15 },
   })
 );
 
@@ -591,13 +591,13 @@ const JobPipelinePage = () => {
         className={`pt-2 transition-all duration-300 ease-in-out ${
           isDragging
             ? "flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-5 md:scale-95 md:gap-2"
-            : "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            : "flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-6 md:overflow-visible md:pb-0"
         }`}
       >
         {pipelineColumns.map((col) => (
           <div
             key={col.status}
-            className={isDragging ? "w-64 flex-shrink-0 md:w-auto" : ""}
+            className="flex-shrink-0 w-80 md:w-auto"
           >
             <PipelineColumn
               title={col.title}

@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client';
+import { CandidateProfileType, Role } from '@prisma/client';
 import prisma from '../../config/db';
 import { emitToAdmins } from '../../config/socket';
 import { hashPassword, signToken, verifyPassword } from '../utils/crypto';
@@ -9,7 +9,7 @@ import { validateTwoFactorToken } from './2fa.service';
 
 // --- Candidate Registration Service ---
 export async function registerCandidate(input: RegisterCandidateInput) {
-  const { email, password, firstName, lastName, phone } = input;
+  const { email, password, firstName, lastName, phone, profileType } = input;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
@@ -29,6 +29,7 @@ export async function registerCandidate(input: RegisterCandidateInput) {
           firstName,
           lastName,
           phone,
+          profileType: profileType || CandidateProfileType.NYSC,
         },
       },
     },
@@ -215,8 +216,12 @@ export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      candidateProfile: true, // Eagerly load the candidate profile
-      // We can also include agency relations here if needed in the future
+      candidateProfile: true,
+      followingAgencies: {
+        select: {
+          agencyId: true,
+        },
+      },
       ownedAgencies: {
         include: {
           subscriptions: {
@@ -233,7 +238,12 @@ export async function getUserProfile(userId: string) {
     throw new Error('User not found.');
   }
 
+  const followedAgencyIds = user.followingAgencies.map(f => f.agencyId);
+
   // Always omit the password hash
-  const { passwordHash, ...userWithoutPassword } = user;
-  return userWithoutPassword;
+  const { passwordHash, followingAgencies, ...userWithoutPassword } = user;
+  return {
+    ...userWithoutPassword,
+    followedAgencyIds,
+  };
 }

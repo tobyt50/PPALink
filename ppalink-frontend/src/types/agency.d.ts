@@ -1,5 +1,6 @@
 import type { SubscriptionPlan } from './subscription';
 import type { AgencyMember } from './user';
+import type { Position } from './job';
 
 export interface AgencySubscription {
   id: string;
@@ -47,6 +48,10 @@ export interface Agency {
   freePlanSettings?: {
     jobPostLimit: number;
     memberLimit: number;
+  };
+  positions?: Position[];
+  industry?: {
+      name: string;
   };
 }
 

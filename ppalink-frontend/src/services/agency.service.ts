@@ -1,7 +1,7 @@
 import apiClient from '../config/axios';
 import type { CompanyProfileFormValues } from '../pages/agencies/forms/CompanyProfileForm';
 import type { Agency, Invitation } from '../types/agency';
-import type { CandidateProfile } from '../types/candidate';
+import type { CandidateProfile, WorkVerification } from '../types/candidate';
 import type { VerificationRequest, VerificationType } from '../types/user';
 
 interface VerificationSubmissionPayload {
@@ -130,6 +130,16 @@ class AgencyService {
       responseType: 'text',
     });
     return response.data;
+  }
+
+   /**
+   * Issues a work verification for a specific work experience record.
+   * The backend now handles the verifier's details automatically.
+   * @param workExperienceId The ID of the work experience to verify.
+   */
+  async issueWorkVerification(workExperienceId: string): Promise<WorkVerification> {
+    const response = await apiClient.post(`/agencies/work-experience/${workExperienceId}/verify`);
+    return response.data.data;
   }
 }
 

@@ -1,4 +1,4 @@
-import { ArrowUpDown, Loader2, PlusCircle, Search, Shield, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Loader2, PlusCircle, Search, Shield, Trash2, UserCheck, UserX, MoreHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +10,31 @@ import type { User, Role } from '../../types/user';
 import { AdminFormModal, type AdminFormValues } from './forms/AdminForm';
 import { RoleUpdateModal } from './forms/RoleUpdateModal';
 import { Input } from '../../components/forms/Input';
+import { SimpleDropdown, SimpleDropdownItem } from '../../components/ui/SimpleDropdown';
+
+const AdminRoleBadge = ({ role }: { role: User['role'] }) => {
+  const roleStyles: Record<User['role'], string> = {
+    ADMIN: 'bg-red-100 dark:bg-red-950/60 text-red-800',
+    SUPER_ADMIN: 'bg-purple-100 text-purple-800',
+    CANDIDATE: '',
+    AGENCY: ''
+  };
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${roleStyles[role] || 'bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100'}`}>
+      {role}
+    </span>
+  );
+};
+
+const AdminStatusIcon = ({ status }: { status: User['status'] }) => {
+  const icon = status === 'ACTIVE' ? <UserCheck className="h-4 w-4" /> : <UserX className="h-4 w-4" />;
+  const colorClass = status === 'ACTIVE' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400';
+  return (
+    <span className={`inline-flex items-center ${colorClass}`}>
+      {icon}
+    </span>
+  );
+};
 
 const ManageAdminsPage = () => {
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams({ sortBy: 'createdAt', sortOrder: 'desc' }));
@@ -104,52 +129,119 @@ const ManageAdminsPage = () => {
             <div className="relative flex-grow">
                 <Input icon={Search} type="search" placeholder="Search by email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
-            <Button onClick={() => setIsFormModalOpen(true)}><PlusCircle className="mr-2 h-5 w-5" />Create</Button>
+            <Button size="sm" onClick={() => setIsFormModalOpen(true)}><PlusCircle className="mr-2 h-5 w-5" />Create</Button>
           </div>
         </div>
 
         {error && <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/60 p-8 text-center text-red-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10">Could not load admin accounts. It's likely you do not have SUPER_ADMIN privileges.</div>}
         
-        <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-                <thead className="bg-gray-50 dark:bg-gray-920">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+        {!error && (
+          <>
+            {isLoading && <div className="flex h-80 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400" /></div>}
+            {!isLoading && admins && (
+              <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Admin Accounts ({admins.length})</h2>
+                </div>
+                <div className="hidden md:block">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-100">
+                      <thead className="bg-gray-50 dark:bg-gray-920">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                             <button onClick={() => handleSort('email')} className="flex items-center group">EMAIL <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                             <button onClick={() => handleSort('role')} className="flex items-center group">ROLE <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">STATUS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">STATUS</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-zinc-400">
                             <button onClick={() => handleSort('createdAt')} className="flex items-center group">CREATED ON <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400 dark:text-zinc-500 group-hover:text-gray-600"/></button>
-                        </th>
-                        <th className="relative px-6 py-3"><span className="sr-only">ACTIONS</span></th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
-                    {isLoading && <tr><td colSpan={5} className="p-12 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600 dark:text-primary-400" /></td></tr>}
-                    {!isLoading && admins?.map((admin) => (
-                        <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-zinc-50">{admin.email}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{admin.role}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${admin.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100'}`}>{admin.status}</span></td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{new Date(admin.createdAt).toLocaleDateString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
-                                <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50" onClick={() => setRoleModalState({ isOpen: true, admin })}><Shield className="h-4 w-4"/></Button>
-                                <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/60" onClick={() => openDeleteModal(admin)}><Trash2 className="h-4 w-4" /></Button>
-                            </td>
+                          </th>
+                          <th className="relative px-6 py-3"><span className="sr-only">ACTIONS</span></th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-          </div>
-        </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white dark:bg-zinc-900">
+                        {admins.length === 0 ? (
+                          <tr><td colSpan={5} className="text-center p-8 text-gray-500 dark:text-zinc-400">No admin accounts found.</td></tr>
+                        ) : (
+                          admins.map((admin) => (
+                            <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-zinc-50">{admin.email}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm"><AdminRoleBadge role={admin.role} /></td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm"><AdminStatusIcon status={admin.status} /></td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">{new Date(admin.createdAt).toLocaleDateString()}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
+                                <SimpleDropdown
+                                  trigger={
+                                    <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                      <MoreHorizontal className="h-5 w-5" />
+                                    </button>
+                                  }
+                                >
+                                  <SimpleDropdownItem onSelect={() => setRoleModalState({ isOpen: true, admin })} className="group text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                                    <Shield className="mr-2 h-4 w-4" /> <span>Update Role</span>
+                                  </SimpleDropdownItem>
+                                  <SimpleDropdownItem onSelect={() => openDeleteModal(admin)} className="group text-red-700 hover:bg-red-50 hover:text-red-800 dark:hover:text-red-100">
+                                    <Trash2 className="mr-2 h-4 w-4" /> <span>Delete Admin</span>
+                                  </SimpleDropdownItem>
+                                </SimpleDropdown>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="md:hidden">
+                  {admins.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500 dark:text-zinc-400">No admin accounts found.</div>
+                  ) : (
+                    <div className="divide-y divide-gray-100 dark:divide-zinc-800">
+                      {admins.map((admin) => {
+                        const createdDate = new Date(admin.createdAt).toLocaleDateString();
+                        return (
+                          <div key={admin.id} className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-800/70 transition-colors">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-gray-900 dark:text-zinc-50 text-base mb-1">{admin.email}</h3>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <AdminRoleBadge role={admin.role} />
+                                  <AdminStatusIcon status={admin.status} />
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-zinc-400">Created on {createdDate}</p>
+                              </div>
+                              <div className="ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                <SimpleDropdown
+                                  trigger={
+                                    <button className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 dark:text-zinc-400 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-800 dark:hover:text-zinc-200">
+                                      <MoreHorizontal className="h-5 w-5" />
+                                    </button>
+                                  }
+                                >
+                                  <SimpleDropdownItem onSelect={() => setRoleModalState({ isOpen: true, admin })} className="group text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                                    <Shield className="mr-2 h-4 w-4" /> <span>Update Role</span>
+                                  </SimpleDropdownItem>
+                                  <SimpleDropdownItem onSelect={() => openDeleteModal(admin)} className="group text-red-700 hover:bg-red-50 hover:text-red-800 dark:hover:text-red-100">
+                                    <Trash2 className="mr-2 h-4 w-4" /> <span>Delete Admin</span>
+                                  </SimpleDropdownItem>
+                                </SimpleDropdown>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </>
   );
 };
 
 export default ManageAdminsPage;
-

@@ -66,7 +66,7 @@ export const PipelineToolbar = ({
           className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
         >
           <ChevronLeft className="h-4 w-4 mr-1.5" />
-          Back to All Jobs
+          All Jobs
         </Link>
       </div>
     </div>
