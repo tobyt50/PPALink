@@ -283,6 +283,14 @@ model Position {
   views JobView[]
   applications Application[]
   skills       PositionSkill[]
+  level        JobLevel    @default(ENTRY)
+}
+
+enum JobLevel {
+  ENTRY
+  INTERMEDIATE
+  SENIOR
+  PRINCIPAL
 }
 
 enum EmploymentType {

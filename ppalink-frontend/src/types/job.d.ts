@@ -13,6 +13,7 @@ interface PositionSkill {
 export type EmploymentType = 'INTERN' | 'NYSC' | 'FULLTIME' | 'PARTTIME' | 'CONTRACT';
 export type PositionVisibility = 'PUBLIC' | 'PRIVATE';
 export type PositionStatus = 'DRAFT' | 'OPEN' | 'CLOSED';
+export type JobLevel = 'ENTRY' | 'INTERMEDIATE' | 'SENIOR' | 'PRINCIPAL';
 
 export interface Position {
   id: string;
@@ -29,7 +30,7 @@ export interface Position {
   status: PositionStatus;
   createdAt: string;
   updatedAt: string;
-  
+  level: JobLevel;
   skills?: PositionSkill[];
   applications?: Application[]; 
   pipelineInstitutions?: string[];

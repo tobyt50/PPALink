@@ -5,11 +5,15 @@ import {
   ChevronLeft,
   Edit,
   Globe,
+  GraduationCap,
   Loader2,
   MapPin,
   Tag,
   Trash2,
+  User,
   Wallet,
+  Crown,
+  Award,
 } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -84,6 +88,32 @@ const JobDetailsPage = () => {
   const { states } = useDataStore();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const levelIconMap = {
+    ENTRY: GraduationCap,
+    INTERMEDIATE: User,
+    SENIOR: Crown,
+    PRINCIPAL: Award,
+  };
+
+  const formatEmploymentType = (type: string): string => {
+    switch (type) {
+      case 'PARTTIME':
+        return 'Part-time';
+      case 'FULLTIME':
+        return 'Full-time';
+      case 'NYSC':
+        return 'NYSC';
+      default:
+        return type.charAt(0) + type.slice(1).toLowerCase();
+    }
+  };
+
+  const formatLevel = (level: string): string => {
+    return level.charAt(0) + level.slice(1).toLowerCase();
+  };
+
+  const LevelIcon = job?.level ? levelIconMap[job.level as keyof typeof levelIconMap] : undefined;
+
   const handleDeleteJob = async () => {
     if (!agencyId || !jobId) {
       toast.error("Could not verify agency and job ID.");
@@ -120,14 +150,6 @@ const JobDetailsPage = () => {
     ? states.find((s) => s.id === job.stateId)?.name
     : undefined;
 
-  const levelColorMap = {
-    BEGINNER:
-      "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-    INTERMEDIATE:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-    ADVANCED: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-  };
-
   return (
     <>
       <ConfirmationModal
@@ -160,7 +182,7 @@ const JobDetailsPage = () => {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-zinc-400 mt-2">
                 <span className="flex items-center">
                   <Briefcase className="h-4 w-4 mr-1.5" />
-                  {job.employmentType}
+                  {formatEmploymentType(job.employmentType)}
                 </span>
                 {!job.isRemote && locationState && (
                   <span className="flex items-center">
@@ -172,6 +194,12 @@ const JobDetailsPage = () => {
                   <span className="flex items-center">
                     <Globe className="h-4 w-4 mr-1.5" />
                     Remote
+                  </span>
+                )}
+                {job.level && LevelIcon && (
+                  <span className="flex items-center">
+                    <LevelIcon className="h-4 w-4 mr-1.5" />
+                    {formatLevel(job.level)}
                   </span>
                 )}
               </div>
@@ -256,13 +284,8 @@ const JobDetailsPage = () => {
                       >
                         <Tag className="h-4 w-4 ml-1" />
                         <span>{positionSkill.skill.name}</span>
-                        <span
-                          className={`px-2 py-0.5 text-xs rounded-full ${
-                            levelColorMap[positionSkill.requiredLevel] ||
-                            "bg-gray-200"
-                          }`}
-                        >
-                          {positionSkill.requiredLevel}
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100">
+                          {formatLevel(positionSkill.requiredLevel)}
                         </span>
                       </div>
                     ))

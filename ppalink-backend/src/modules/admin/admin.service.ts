@@ -137,6 +137,8 @@ export async function getAdminDashboardAnalytics() {
     totalApplications,
     // 5. Get count of pending verifications
     pendingVerifications,
+    // 6. Get total job views
+    totalJobViews,
   ] = await prisma.$transaction([
     prisma.user.count(),
     prisma.user.groupBy({
@@ -153,6 +155,7 @@ export async function getAdminDashboardAnalytics() {
     prisma.verification.count({
       where: { status: VerificationStatus.PENDING },
     }),
+    prisma.jobView.count(),
   ]);
 
   // 6. Process the grouped data into a more friendly format
@@ -173,6 +176,7 @@ export async function getAdminDashboardAnalytics() {
     totalJobs,
     totalApplications,
     pendingVerifications,
+    totalJobViews,
   };
 }
 
