@@ -13,6 +13,7 @@ export interface AdminDashboardAnalytics {
     admins: number;
   };
   totalJobs: number;
+  totalJobViews: number;
   totalApplications: number;
   pendingVerifications: number;
 }

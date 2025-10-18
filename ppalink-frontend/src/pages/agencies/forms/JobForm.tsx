@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "../../../components/forms/Input";
@@ -14,7 +14,7 @@ import {
 } from "../../../components/ui/SimpleDropdown";
 import apiClient from "../../../config/axios";
 import { useDataStore } from "../../../context/DataStore";
-import type { Position } from "../../../types/job";
+import type { Position, JobLevel } from "../../../types/job";
 import type { QuizLevel } from "../../../types/quiz";
 
 interface Lga {
@@ -46,6 +46,7 @@ const jobFormSchema = z
         requiredLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
       })
     ),
+    level: z.enum(['ENTRY', 'INTERMEDIATE', 'SENIOR', 'PRINCIPAL']),
     visibility: z.enum(["PUBLIC", "PRIVATE"]),
     status: z.enum(["DRAFT", "OPEN", "CLOSED"]),
   })
@@ -79,6 +80,7 @@ const JobForm = ({
   submitButtonText = "Create Job",
 }: JobFormProps) => {
   const states = useDataStore((state) => state.states);
+  const allSkills = useDataStore((state) => state.skills);
   const isLoadingDataStore = useDataStore((state) => state.isLoading);
 
   const [lgas, setLgas] = useState<Lga[]>([]);
@@ -108,40 +110,46 @@ const JobForm = ({
           name: s.skill.name,
           requiredLevel: s.requiredLevel,
         })) || [],
+      level: initialData?.level || 'ENTRY',
       visibility: initialData?.visibility || "PUBLIC",
       status: initialData?.status || "OPEN",
     },
   });
 
   const skills = watch("skills");
-  const [skillInput, setSkillInput] = useState("");
+  const [skillSearch, setSkillSearch] = useState("");
+  const [tempSkill, setTempSkill] = useState<string | null>(null);
   const [skillLevel, setSkillLevel] = useState<QuizLevel>("BEGINNER");
 
   const watchedStateId = watch("stateId");
   const watchedLgaId = watch("lgaId");
+  const watchedLevel = watch('level');
 
   const selectedStateName =
     states.find((s) => s.id === watchedStateId)?.name || "Select a state...";
   const selectedLgaName =
     lgas.find((l) => l.id === watchedLgaId)?.name || "Select an LGA...";
 
+  const filteredSkills = useMemo(() => {
+    return allSkills.filter((skill) =>
+      skill.name.toLowerCase().includes(skillSearch.toLowerCase()) &&
+      !skills.some((s) => s.name.toLowerCase() === skill.name.toLowerCase())
+    );
+  }, [allSkills, skillSearch, skills]);
+
   const addSkill = () => {
-    const normalized = skillInput.trim();
-    if (
-      !normalized ||
-      (skills || []).some(
-        (s) => s.name.toLowerCase() === normalized.toLowerCase()
-      )
-    ) {
-      setSkillInput("");
+    if (!tempSkill || skills.some((s) => s.name.toLowerCase() === tempSkill.toLowerCase())) {
+      setTempSkill(null);
+      setSkillSearch("");
       return;
     }
     setValue(
       "skills",
-      [...(skills || []), { name: normalized, requiredLevel: skillLevel }],
+      [...(skills || []), { name: tempSkill, requiredLevel: skillLevel }],
       { shouldDirty: true }
     );
-    setSkillInput("");
+    setTempSkill(null);
+    setSkillSearch("");
     setSkillLevel("BEGINNER");
   };
 
@@ -192,7 +200,7 @@ const JobForm = ({
       setLgas([]);
     }
   }, [watchedStateId, setValue]);
-
+  const jobLevelOptions: JobLevel[] = ['ENTRY', 'INTERMEDIATE', 'SENIOR', 'PRINCIPAL'];
   const employmentTypeOptions = {
     FULLTIME: "Full-time",
     PARTTIME: "Part-time",
@@ -270,6 +278,27 @@ const JobForm = ({
                       }
                     >
                       {val}
+                    </SimpleDropdownItem>
+                  ))}
+                </SimpleDropdown>
+              )}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Job Level</Label>
+            <Controller
+              name="level"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <SimpleDropdown
+                  trigger={<DropdownTrigger><span className="truncate">{watchedLevel}</span><ChevronDown className="h-4 w-4" /></DropdownTrigger>}
+                >
+                  {jobLevelOptions.map((level) => (
+                    <SimpleDropdownItem
+                      key={level}
+                      onSelect={() => onChange(level)}
+                    >
+                      {level}
                     </SimpleDropdownItem>
                   ))}
                 </SimpleDropdown>
@@ -440,17 +469,40 @@ const JobForm = ({
       <section className="space-y-2">
         <h3 className="text-lg font-semibold border-b pb-2">Skills Required</h3>
         <div className="flex gap-2 pt-4">
-          <Input
-            value={skillInput}
-            onChange={(e) => setSkillInput(e.target.value)}
-            placeholder="Type a skill"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addSkill();
-              }
-            }}
-          />
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span className="truncate">
+                  {tempSkill || "Select a skill..."}
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+            isIndustryDropdown
+          >
+            <div className="p-2 border-b border-gray-100 dark:border-zinc-800">
+              <Input
+                type="text"
+                value={skillSearch}
+                onChange={(e) => setSkillSearch(e.target.value)}
+                placeholder="Search skills..."
+                className="w-full text-sm"
+              />
+            </div>
+            <div className="max-h-60 overflow-y-auto">
+              {filteredSkills.map((skill) => (
+                <SimpleDropdownItem
+                  key={skill.id}
+                  onSelect={() => setTempSkill(skill.name)}
+                >
+                  {skill.name}
+                </SimpleDropdownItem>
+              ))}
+              {filteredSkills.length === 0 && (
+                <p className="p-2 text-xs text-gray-500">No matching skills found.</p>
+              )}
+            </div>
+          </SimpleDropdown>
           <SimpleDropdown
             trigger={
               <DropdownTrigger>

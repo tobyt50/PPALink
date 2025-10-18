@@ -1,4 +1,4 @@
-import { Building, CheckCircle, Briefcase, Globe, MapPin } from "lucide-react";
+import { Building, CheckCircle, Briefcase, Globe, MapPin, GraduationCap, User, Crown, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDataStore } from "../../context/DataStore";
 import type { Position } from "../../types/job";
@@ -10,6 +10,32 @@ const JobCard = ({ job }: { job: Position }) => {
   const locationState = job.stateId
     ? states.find((s) => s.id === job.stateId)?.name
     : null;
+
+  const levelIconMap = {
+    ENTRY: GraduationCap,
+    INTERMEDIATE: User,
+    SENIOR: Crown,
+    PRINCIPAL: Award,
+  };
+
+  const formatEmploymentType = (type: string): string => {
+    switch (type) {
+      case 'PARTTIME':
+        return 'Part-time';
+      case 'FULLTIME':
+        return 'Full-time';
+      case 'NYSC':
+        return 'NYSC';
+      default:
+        return type.charAt(0) + type.slice(1).toLowerCase();
+    }
+  };
+
+  const formatLevel = (level: string): string => {
+    return level.charAt(0) + level.slice(1).toLowerCase();
+  };
+
+  const LevelIcon = levelIconMap[job.level as keyof typeof levelIconMap];
 
   return (
     <Link
@@ -44,7 +70,7 @@ const JobCard = ({ job }: { job: Position }) => {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700 dark:text-zinc-200 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
         <span className="flex items-center">
           <Briefcase className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
-          {job.employmentType}
+          {formatEmploymentType(job.employmentType)}
         </span>
         <span className="flex items-center">
           {job.isRemote ? (
@@ -59,23 +85,10 @@ const JobCard = ({ job }: { job: Position }) => {
             </>
           )}
         </span>
-        {job.skills && job.skills.length > 0 && (
-          <div className="flex items-center flex-wrap gap-2 pt-1">
-            {job.skills.slice(0, 2).map((positionSkill) => (
-              <span
-                key={positionSkill.skill.id}
-                className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-950/60 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-300"
-              >
-                {positionSkill.skill.name}
-              </span>
-            ))}
-            {job.skills.length > 2 && (
-              <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-zinc-800 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-zinc-300">
-                + {job.skills.length - 2} more
-              </span>
-            )}
-          </div>
-        )}
+        <span className="flex items-center">
+          <LevelIcon className="h-4 w-4 mr-1.5 text-gray-400 dark:text-zinc-500" />
+          {formatLevel(job.level)}
+        </span>
       </div>
     </Link>
   );

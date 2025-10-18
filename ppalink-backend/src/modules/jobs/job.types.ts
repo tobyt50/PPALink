@@ -1,4 +1,4 @@
-import { EmploymentType, PositionStatus, PositionVisibility } from '@prisma/client';
+import { EmploymentType, PositionStatus, PositionVisibility, JobLevel } from '@prisma/client';
 import { z } from 'zod';
 
 // Schema for CREATING a new position
@@ -11,6 +11,7 @@ export const createJobPositionSchema = z.object({
   lgaId: z.number().int().positive().optional().nullable(),
   minSalary: z.number().int().positive().optional().nullable(),
   maxSalary: z.number().int().positive().optional().nullable(),
+  level: z.nativeEnum(JobLevel),
   skills: z.any().optional().nullable(),
   visibility: z.nativeEnum(PositionVisibility),
   status: z.nativeEnum(PositionStatus).default(PositionStatus.OPEN),

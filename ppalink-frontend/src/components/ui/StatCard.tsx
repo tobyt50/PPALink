@@ -12,6 +12,15 @@ interface StatCardProps {
   color?: "blue" | "green" | "purple" | "pink"; // kept for future theming if needed
 }
 
+// A robust number formatter that handles large numbers gracefully.
+const formatLargeNumber = (num: number | string): string => {
+    if (typeof num === 'string') return num;
+    if (num < 1000) return String(num);
+    if (num < 1_000_000) return `${(num / 1000).toFixed(1)}k`;
+    if (num < 1_000_000_000) return `${(num / 1_000_000).toFixed(1)}m`;
+    return `${(num / 1_000_000_000).toFixed(1)}b`;
+};
+
 export const StatCard = ({
   icon: Icon,
   label,
@@ -37,7 +46,7 @@ export const StatCard = ({
         <Skeleton width={100} height={26} className="mt-3" />
       ) : (
         <dd className="mt-3 text-3xl font-extrabold text-gray-900 dark:text-zinc-50 whitespace-normal break-words">
-          {value}
+          {formatLargeNumber(value)}
         </dd>
       )}
     </div>

@@ -5,11 +5,15 @@ import {
   CheckCircle,
   ChevronLeft,
   Globe,
+  GraduationCap,
   Heart,
   Loader2,
   MapPin,
   Tag,
   Wallet,
+  User,
+  Crown,
+  Award,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -55,7 +59,16 @@ const SmartDescription = ({ text }: { text: string }) => {
             </strong>
           );
         }
-        return <React.Fragment key={index}>{part}</React.Fragment>;
+        return (
+          <React.Fragment key={index}>
+            {part.split("\n").map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < part.split("\n").length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
       })}
     </>
   );
@@ -75,12 +88,36 @@ const PublicJobDetailsPage = () => {
   const { states } = useDataStore();
   const [isApplying, setIsApplying] = useState(false);
 
+  const levelIconMap = {
+    ENTRY: GraduationCap,
+    INTERMEDIATE: User,
+    SENIOR: Crown,
+    PRINCIPAL: Award,
+  };
+
+  const formatEmploymentType = (type: string): string => {
+    switch (type) {
+      case 'PARTTIME':
+        return 'Part-time';
+      case 'FULLTIME':
+        return 'Full-time';
+      case 'NYSC':
+        return 'NYSC';
+      default:
+        return type.charAt(0) + type.slice(1).toLowerCase();
+    }
+  };
+
+  const formatLevel = (level: string): string => {
+    return level.charAt(0) + level.slice(1).toLowerCase();
+  };
+
   useEffect(() => {
-        if (jobId) {
-            jobService.recordJobView(jobId);
-        }
-        // The empty dependency array ensures this effect runs only once on mount.
-    }, [jobId]);
+    if (jobId) {
+      jobService.recordJobView(jobId);
+    }
+    // The empty dependency array ensures this effect runs only once on mount.
+  }, [jobId]);
 
   const handleApply = async () => {
     if (!jobId) return;
@@ -153,21 +190,16 @@ const PublicJobDetailsPage = () => {
   const locationState = job.isRemote
     ? "Remote"
     : job.stateId
-    ? states.find((s) => s.id === job.stateId)?.name
-    : "On-site";
+      ? states.find((s) => s.id === job.stateId)?.name
+      : "On-site";
   const salaryDisplay =
     job.minSalary && job.maxSalary
       ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}`
       : job.minSalary
       ? `From ₦${job.minSalary.toLocaleString()}`
       : "Not specified";
-  const levelColorMap = {
-    BEGINNER:
-      "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-    INTERMEDIATE:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-    ADVANCED: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-  };
+  const LevelIcon = job?.level ? levelIconMap[job.level as keyof typeof levelIconMap] : undefined;
+  const levelDisplay = job?.level ? formatLevel(job.level) : "N/A";
 
   return (
     <div
@@ -249,9 +281,16 @@ const PublicJobDetailsPage = () => {
             <DetailItem
               icon={Briefcase}
               label="Type"
-              value={job.employmentType}
+              value={formatEmploymentType(job.employmentType)}
             />
             <DetailItem icon={Wallet} label="Salary" value={salaryDisplay} />
+            {job.level && LevelIcon && (
+              <DetailItem
+                icon={LevelIcon}
+                label="Experience Level"
+                value={levelDisplay}
+              />
+            )}
             <DetailItem
               icon={Calendar}
               label="Date Posted"
@@ -263,7 +302,7 @@ const PublicJobDetailsPage = () => {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                 Full Job Description
               </h2>
-              <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">
+              <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300">
                 <SmartDescription text={job.description} />
               </div>
             </div>
@@ -280,13 +319,8 @@ const PublicJobDetailsPage = () => {
                     >
                       <Tag className="h-4 w-4 ml-1" />
                       <span>{positionSkill.skill.name}</span>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${
-                          levelColorMap[positionSkill.requiredLevel] ||
-                          "bg-gray-200"
-                        }`}
-                      >
-                        {positionSkill.requiredLevel}
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100">
+                        {formatLevel(positionSkill.requiredLevel)}
                       </span>
                     </div>
                   ))
