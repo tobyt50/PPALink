@@ -1,5 +1,4 @@
 import {
-  AtSign,
   Award,
   BadgeCheck,
   Briefcase,
@@ -13,7 +12,6 @@ import {
   MapPin,
   Phone,
   Tag,
-  User,
   XCircle,
 } from "lucide-react";
 import { useMemo } from "react";
@@ -27,6 +25,7 @@ import type { CandidateProfile } from "../../types/candidate";
 import ProfileField from "./ProfileField";
 import EducationSection from "./sections/EducationSection";
 import WorkExperienceSection from "./sections/WorkExperienceSection";
+import { Avatar } from "../../components/ui/Avatar";
 
 const CandidateProfilePage = () => {
   const {
@@ -130,46 +129,51 @@ const CandidateProfilePage = () => {
                 Personal Information
               </h2>
             </div>
-            <div className="p-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-              <ProfileField
-                icon={User}
-                label="Full Name"
-                value={`${profile.firstName} ${profile.lastName}`}
-              />
-              <ProfileField
-                icon={AtSign}
-                label="Email Address"
-                value={userEmail}
-              />
-              <ProfileField
-                icon={Phone}
-                label="Phone Number"
-                value={profile.phone}
-              />
-              <ProfileField
-                icon={Cake}
-                label="Date of Birth"
-                value={
-                  profile.dob
-                    ? new Date(profile.dob).toLocaleDateString()
-                    : null
-                }
-              />
-              <ProfileField
-                icon={MapPin}
-                label="Primary Location"
-                value={locationState}
-              />
-              <ProfileField
-                icon={LinkIcon}
-                label="LinkedIn Profile"
-                value={profile.linkedin}
-              />
-              <ProfileField
-                icon={LinkIcon}
-                label="Portfolio URL"
-                value={profile.portfolio}
-              />
+            <div className="p-6">
+              <div className="flex flex-col items-center md:flex-row md:items-start gap-6 mb-6">
+                <div className="flex-shrink-0">
+          <Avatar candidate={profile} size="xl" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-50">
+                    {`${profile.firstName} ${profile.lastName}`}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-zinc-300 mt-1">
+                    {userEmail}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                <ProfileField
+                  icon={Phone}
+                  label="Phone Number"
+                  value={profile.phone}
+                />
+                <ProfileField
+                  icon={Cake}
+                  label="Date of Birth"
+                  value={
+                    profile.dob
+                      ? new Date(profile.dob).toLocaleDateString()
+                      : null
+                  }
+                />
+                <ProfileField
+                  icon={MapPin}
+                  label="Primary Location"
+                  value={locationState}
+                />
+                <ProfileField
+                  icon={LinkIcon}
+                  label="LinkedIn Profile"
+                  value={profile.linkedin}
+                />
+                <ProfileField
+                  icon={LinkIcon}
+                  label="Portfolio URL"
+                  value={profile.portfolio}
+                />
+              </div>
             </div>
           </div>
 
@@ -226,70 +230,69 @@ const CandidateProfilePage = () => {
           </div>
 
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-  <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-    <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-      Skills
-    </h2>
-  </div>
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                Skills
+              </h2>
+            </div>
 
-  <div className="p-6 flex flex-wrap gap-2">
-    {displaySkills.length > 0 ? (
-      displaySkills.map((skill) => (
-        <div key={skill.id} className="relative inline-block">
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium cursor-default peer ${
-              skill.isVerified
-                ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
-                : "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-200"
-            }`}
-          >
-            {skill.isVerified ? (
-              <Award className="h-4 w-4 mr-1.5" />
-            ) : (
-              <Tag className="h-4 w-4 mr-1.5" />
+            <div className="p-6 flex flex-wrap gap-2">
+              {displaySkills.length > 0 ? (
+                displaySkills.map((skill) => (
+                  <div key={skill.id} className="relative inline-block">
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium cursor-default peer ${
+                        skill.isVerified
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                          : "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-200"
+                      }`}
+                    >
+                      {skill.isVerified ? (
+                        <Award className="h-4 w-4 mr-1.5" />
+                      ) : (
+                        <Tag className="h-4 w-4 mr-1.5" />
+                      )}
+                      {skill.name}
+                    </span>
+
+                    {/* Tooltip */}
+                    <div
+                      className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2
+                        whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 
+                        px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white 
+                        opacity-0 shadow-lg transition-opacity duration-200 
+                        peer-hover:opacity-100 pointer-events-none"
+                    >
+                      {skill.isVerified
+                        ? `Verified Skill - Score: ${skill.score}%`
+                        : "Unverified skill"}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-zinc-400">
+                  No skills added yet. Click "Edit Profile" to add your skills.
+                </p>
+              )}
+            </div>
+
+            {/* Only show Take Quiz section if there are unverified skills */}
+            {displaySkills.length > 0 && displaySkills.some((s) => !s.isVerified) && (
+              <div className="p-4 text-center border-t border-gray-100 dark:border-zinc-800">
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mb-3">
+                  You have some unverified skills. Take a skill assessment to standout.
+                </p>
+                <Link
+                  to="/dashboard/candidate/assessments"
+                  className="inline-block"
+                >
+                  <Button variant="outline" size="sm">
+                    Take Quiz
+                  </Button>
+                </Link>
+              </div>
             )}
-            {skill.name}
-          </span>
-
-          {/* Tooltip */}
-          <div
-            className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2
-              whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 
-              px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white 
-              opacity-0 shadow-lg transition-opacity duration-200 
-              peer-hover:opacity-100 pointer-events-none"
-          >
-            {skill.isVerified
-              ? `Verified Skill - Score: ${skill.score}%`
-              : "Unverified skill"}
           </div>
-        </div>
-      ))
-    ) : (
-      <p className="text-sm text-gray-500 dark:text-zinc-400">
-        No skills added yet. Click "Edit Profile" to add your skills.
-      </p>
-    )}
-  </div>
-
-  {/* Only show Take Quiz section if there are unverified skills */}
-  {displaySkills.length > 0 && displaySkills.some((s) => !s.isVerified) && (
-    <div className="p-4 text-center border-t border-gray-100 dark:border-zinc-800">
-      <p className="text-sm text-gray-500 dark:text-zinc-400 mb-3">
-        You have some unverified skills. Take a skill assessment to standout.
-      </p>
-      <Link
-        to="/dashboard/candidate/assessments"
-        className="inline-block"
-      >
-        <Button variant="outline" size="sm">
-          Take Quiz
-        </Button>
-      </Link>
-    </div>
-  )}
-</div>
-
 
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">

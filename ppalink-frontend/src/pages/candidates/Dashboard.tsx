@@ -2,7 +2,6 @@ import {
   ArrowRight,
   CheckCircle,
   Search,
-  Building,
   Star,
   BookOpen,
   BrainCircuit,
@@ -20,6 +19,7 @@ import type { Agency } from "../../types/agency";
 import type { FeedItem } from "../../types/feed";
 import { FeedCard } from "../../components/ui/FeedCard";
 import { useState, useMemo } from "react";
+import { Avatar } from "../../components/ui/Avatar";
 
 const ProfileCompleteness = ({ score }: { score: number }) => {
   const clampedScore = Math.min(100, Math.max(0, score));
@@ -150,8 +150,8 @@ const FollowingFeed = () => {
               to={`/agencies/${agency.id}/profile`}
               className="font-semibold flex items-center text-gray-800 dark:text-zinc-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
-              <Building className="h-4 w-4 mr-2 text-primary-600 dark:text-primary-400" />
-              {agency.name}
+              <Avatar user={{ role: 'AGENCY', ownedAgencies: [agency] }} size="sm" />
+              <span className="ml-3">{agency.name}</span>
             </Link>
             <ul className="mt-2 pl-6 space-y-2">
               {agency.positions?.map((job) => (
@@ -378,13 +378,12 @@ const CandidateDashboard = () => {
                       className="group block px-5 py-4 transition-all hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60"
                     >
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-primary-600 dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                            {app.position.title}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-zinc-400">
-                            {app.position.agency.name}
-                          </p>
+                        <div className="flex items-center">
+                          <Avatar user={{ role: 'AGENCY', ownedAgencies: [app.position.agency as Agency] }} size="md" />
+                          <div className="ml-3">
+                            <p className="font-semibold ...">{app.position.title}</p>
+                            <p className="text-sm ...">{app.position.agency.name}</p>
+                          </div>
                         </div>
                         <div className="flex items-center gap-4">
                           <ApplicationStatusBadge status={app.status} />

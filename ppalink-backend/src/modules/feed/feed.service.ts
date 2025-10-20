@@ -53,6 +53,7 @@ export async function generateFeed(
     candidateProfile = await prisma.candidateProfile.findUnique({
       where: { userId },
       include: {
+        user: { select: { avatarKey: true, } },
         skills: { select: { skillId: true } },
         quizAttempts: {
           where: { passed: false },
@@ -66,7 +67,7 @@ export async function generateFeed(
     }
   } else if (role === "AGENCY") {
     agency = await prisma.agency.findFirst({
-      where: { ownerUserId: userId },
+      where: { ownerUserId: userId, },
     });
     if (!agency) {
       return { data: [], nextCursor: null };
@@ -119,8 +120,8 @@ export async function generateFeed(
       where: whereClause,
       orderBy: { createdAt: "desc" },
       include: {
-        agency: { select: { id: true, name: true } },
-        user: { select: { id: true, email: true, candidateProfile: { select: { firstName: true, lastName: true } } } },
+        agency: { select: { id: true, name: true, logoKey: true, } },
+        user: { select: { id: true, email: true, avatarKey:true, candidateProfile: { select: { id: true, firstName: true, lastName: true } } } },
         boosts: true,
       },
     }),

@@ -5,13 +5,17 @@ import type { Notification } from '../types/notification';
 interface OtherUser {
     id: string;
     email: string | null;
-    candidateProfile?: {
-      firstName: string;
-      lastName: string;
-    } | null;
+    avatarKey?: string | null;
     ownedAgencies?: {
-      name: string;
+        id: string;
+        name: string;
+        logoKey?: string | null;
     }[];
+    candidateProfile: {
+      id: string;
+      firstName: string | null;
+      lastName: string | null;
+    } | null;
   }
   
   export interface Conversation {

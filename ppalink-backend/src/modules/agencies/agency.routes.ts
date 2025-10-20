@@ -12,6 +12,7 @@ import { initiateDomainVerificationHandler } from '../verifications/domain.contr
 import { createVerificationSubmissionHandler } from '../verifications/verification.controller';
 import { queryApplicantsInPipelineHandler } from '../jobs/job.controller';
 import { getMyPostsHandler } from '../feed/feed.controller';
+import { updateLogoHandler } from './agency.controller';
 
 const router = Router();
 // All routes below require the user to be an authenticated AGENCY user
@@ -64,8 +65,13 @@ router.post('/:agencyId/jobs/:jobId/pipeline/query', queryApplicantsInPipelineHa
 // GET /api/agencies/me/interviews
 router.get('/interviews', getInterviewPipelineHandler);
 
+// POST /api/agencies/work-experience/:workExperienceId/verify
 router.post('/work-experience/:workExperienceId/verify', issueWorkVerificationHandler);
 
+// GET /api/agencies/me/feed
 router.get('/feed', getMyPostsHandler);
+
+// PATCH /api/agencies/me/logo
+router.patch('/logo', updateLogoHandler);
 
 export default router;

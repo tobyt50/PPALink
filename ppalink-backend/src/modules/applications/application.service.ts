@@ -198,6 +198,7 @@ export async function getApplicationDetails(applicationId: string, agencyId: str
             select: {
               id: true,
               email: true,
+              avatarKey: true,
             }
           },
           quizAttempts: {

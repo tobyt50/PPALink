@@ -29,6 +29,7 @@ import {
   CreateOfferFormModal,
   type OfferFormValues,
 } from "./forms/CreateOfferForm";
+import { Avatar } from "../../components/ui/Avatar";
 
 const CandidateProfileSnapshot = ({
   candidate,
@@ -37,16 +38,11 @@ const CandidateProfileSnapshot = ({
   candidate: Application["candidate"];
   onMessage: () => void;
 }) => {
-  const initials = `${candidate.firstName?.[0] || ""}${
-    candidate.lastName?.[0] || ""
-  }`;
   return (
     <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
       <div className="p-5">
         <div className="flex items-center">
-          <div className="h-16 w-16 text-2xl rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 font-bold">
-            {initials}
-          </div>
+          <Avatar candidate={candidate} size="lg" />
           <div className="ml-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-50">
               {candidate.firstName} {candidate.lastName}

@@ -6,6 +6,7 @@ import { useDataStore } from '../../context/DataStore';
 import useFetch from '../../hooks/useFetch';
 import type { Agency } from '../../types/agency';
 import VerificationSection from './sections/VerificationSection';
+import { Avatar } from '../../components/ui/Avatar';
 
 // Refined ProfileField for better alignment and readability
 const ProfileField = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value?: string | null }) => (
@@ -48,13 +49,19 @@ const CompanyProfilePage = () => {
     <div className="space-y-5">
       {/* Header - Replicated from AgencyDashboard */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            {agency.name}
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            View and manage your company's details.
-          </p>
+        <div className="flex items-center gap-4">
+            <Avatar 
+                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
+                size="lg"
+            />
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+                {agency.name}
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-zinc-300">
+                View and manage your company's details.
+              </p>
+            </div>
         </div>
         <Link to="/dashboard/agency/profile/edit">
           <Button

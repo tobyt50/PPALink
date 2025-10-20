@@ -1,6 +1,7 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthRequest } from '../../middleware/auth';
 import { generatePresignedDownloadUrl, generatePresignedUploadUrl } from './upload.service';
+import { getAgencyByUserId } from '../agencies/agency.service';
 
 /**
  * Handler to get a presigned URL for a file upload.
@@ -18,14 +19,23 @@ export async function getPresignedUrlHandler(req: AuthRequest, res: Response, ne
       return res.status(400).json({ success: false, message: 'fileName, fileType, and uploadType are required.' });
     }
     
-    // You could add more robust validation here (e.g., using Zod) to check
-    // for allowed file types, sizes, or valid uploadType enums.
+    let agencyId: string | undefined;
+
+    // 1. If the upload is for a LOGO, we must find the user's agency ID.
+    if (uploadType === 'LOGO') {
+        const agency = await getAgencyByUserId(req.user.id);
+        if (!agency) {
+            return res.status(403).json({ success: false, message: 'You must be an agency owner to upload a logo.' });
+        }
+        agencyId = agency.id;
+    }
 
     const presignedData = await generatePresignedUploadUrl({
       fileName,
       fileType,
       userId: req.user.id,
       uploadType,
+      agencyId,
     });
 
     return res.status(200).json({ success: true, data: presignedData });
@@ -49,13 +59,12 @@ export async function getPresignedDownloadUrlHandler(req: AuthRequest, res: Resp
       return res.status(400).json({ success: false, message: 'fileKey is required.' });
     }
 
-    // Optional Security Check: You could add logic here to verify if the
-    // currently logged-in user has permission to access this specific fileKey.
-    // For now, we assume any authenticated user can request if they have the key.
-    
     const { downloadUrl } = await generatePresignedDownloadUrl(fileKey);
 
-    return res.status(200).json({ success: true, data: { downloadUrl } });
+    return res.status(200).json({ 
+      success: true, 
+      data: { downloadUrl: downloadUrl || null } 
+    });
   } catch (error) {
     next(error);
   }

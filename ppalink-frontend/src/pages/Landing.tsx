@@ -1,9 +1,10 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Briefcase, Building, Rocket, Users } from "lucide-react";
+import { ArrowRight, Briefcase, Rocket, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import useFetch from "../hooks/useFetch";
 import type { Agency } from "../types/agency";
+import { Avatar } from "../components/ui/Avatar";
 
 const fadeInUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -17,10 +18,12 @@ const AgencyCard = ({ agency }: { agency: Agency }) => (
             whileHover={{ y: -5, scale: 1.03 }}
             className="rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
         >
-            <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center mb-4">
-                <Building className="h-8 w-8 text-gray-400 dark:text-zinc-500" />
-            </div>
-            <h3 className="font-semibold text-white">{agency.name}</h3>
+            <Avatar
+                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
+                size="lg"
+                shape="square"
+            />
+            <h3 className="font-semibold text-white mt-4">{agency.name}</h3>
             <p className="mt-1 text-green-300 text-sm">{agency.industry?.name || 'Various Industries'}</p>
         </motion.div>
     </Link>

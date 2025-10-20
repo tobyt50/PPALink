@@ -22,6 +22,7 @@ import { useState, useMemo } from "react";
 import type { Agency } from "../../types/agency";
 import type { AgencyAnalyticsData, AgencyDashboardData } from "../../types/analytics";
 import type { FeedItem } from "../../types/feed";
+import { Avatar } from "../../components/ui/Avatar";
 
 // Reusable TodoItem with hover transition
 const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
@@ -288,13 +289,16 @@ const AgencyDashboard = () => {
                       className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
                     >
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-primary-600 dark:text-primary-400">
-                            {app.candidate.firstName} {app.candidate.lastName}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-zinc-400">
-                            for {app.position.title}
-                          </p>
+                        <div className="flex items-center">
+                          <Avatar candidate={app.candidate} size="md" />
+                          <div className="ml-3">
+                            <p className="font-semibold text-primary-600 dark:text-primary-400">
+                              {app.candidate.firstName} {app.candidate.lastName}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">
+                              for {app.position.title}
+                            </p>
+                          </div>
                         </div>
                         <ArrowRight className="h-5 w-5 text-gray-400 dark:text-zinc-500" />
                       </div>

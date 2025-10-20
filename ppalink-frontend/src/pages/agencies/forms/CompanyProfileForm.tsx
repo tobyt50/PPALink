@@ -32,9 +32,10 @@ interface CompanyProfileFormProps {
   initialData?: Agency | null;
   onSubmit: (data: CompanyProfileFormValues) => Promise<void>;
   submitButtonText?: string;
+  sidebarOffset?: boolean;
 }
 
-const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Changes" }: CompanyProfileFormProps) => {
+const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Changes", sidebarOffset = false }: CompanyProfileFormProps) => {
   const { industries, states } = useDataStore();
   const [industrySearch, setIndustrySearch] = useState('');
 
@@ -114,10 +115,11 @@ const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Ch
   
     return groups;
   }, [industries, industrySearch]);
-  
+
+  const formClassName = sidebarOffset ? 'md:ml-72' : '';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className={`space-y-6 ${formClassName}`}>
       <div className="space-y-2">
         <Label htmlFor="name">Agency Name</Label>
         <Input id="name" error={!!errors.name} {...register('name')} />
@@ -236,4 +238,3 @@ const CompanyProfileForm = ({ initialData, onSubmit, submitButtonText = "Save Ch
 };
 
 export default CompanyProfileForm;
-

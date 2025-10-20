@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
-import { loginHandler, registerAgencyHandler, registerCandidateHandler, changePasswordHandler, getMyProfileHandler } from './auth.controller';
+import { loginHandler, registerAgencyHandler, registerCandidateHandler, changePasswordHandler, getMyProfileHandler, updateAvatarHandler } from './auth.controller';
 import { LoginSchema, RegisterAgencySchema, RegisterCandidateSchema, changePasswordSchema } from './auth.types';
 import { generate2faSecretHandler, enable2faHandler, disable2faHandler } from './2fa.controller';
 
@@ -43,6 +43,13 @@ router.post(
     '/2fa/disable',
     authenticate,
     disable2faHandler
+);
+
+// PATCH /api/auth/me/avatar
+router.patch(
+  '/me/avatar',
+  authenticate,
+  updateAvatarHandler
 );
 
 export default router;

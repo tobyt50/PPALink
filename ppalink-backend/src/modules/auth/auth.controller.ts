@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { getUserProfile, login, registerAgency, registerCandidate } from './auth.service';
+import { getUserProfile, login, registerAgency, registerCandidate, updateUserAvatar } from './auth.service';
 import { LoginInput, RegisterAgencyInput, RegisterCandidateInput } from './auth.types';
 import { AuthRequest } from '../../middleware/auth';
 import { changeUserPassword } from './auth.service';
@@ -96,4 +96,15 @@ export async function getMyProfileHandler(req: AuthRequest, res: Response, next:
   } catch (error) {
     next(error);
   }
+}
+
+export async function updateAvatarHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).send();
+  try {
+    const { avatarKey } = req.body;
+    if (!avatarKey) return res.status(400).json({ success: false, message: 'avatarKey is required.' });
+    
+    await updateUserAvatar(req.user.id, avatarKey);
+    res.status(200).json({ success: true, message: 'Avatar updated successfully.' });
+  } catch (error) { next(error); }
 }

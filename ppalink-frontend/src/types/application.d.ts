@@ -1,5 +1,6 @@
 import type { CandidateProfile } from './candidate';
 import type { Position } from './job';
+import type { Agency } from './agency';
 
 export type ApplicationStatus = 'APPLIED' | 'REVIEWING' | 'INTERVIEW' | 'OFFER' | 'HIRED' | 'REJECTED' | 'WITHDRAWN';
 export type InterviewMode = 'INPERSON' | 'REMOTE' | 'PHONE';
@@ -21,6 +22,9 @@ export interface Application {
 
   interviews?: Interview[];
   offers?: Offer[];
+  position: Pick<Position, 'title' | 'employmentType' | 'agencyId'> & {
+    agency: Pick<Agency, 'id' | 'name' | 'logoKey'>;
+  };
 }
 export interface Interview {
   id: string;

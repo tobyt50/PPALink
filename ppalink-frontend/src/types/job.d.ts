@@ -35,6 +35,6 @@ export interface Position {
   applications?: Application[]; 
   pipelineInstitutions?: string[];
 
-  agency?: Pick<Agency, 'id' | 'name' | 'domainVerified' | 'cacVerified'>;
+  agency?: Pick<Agency, 'id' | 'name' | 'domainVerified' | 'cacVerified' | 'logoKey'>;
   metrics?: Record<ApplicationStatus, { avgDaysInStage: number }>;
 }

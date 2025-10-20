@@ -53,6 +53,15 @@ class AuthService {
   async disable2fa(token: string): Promise<void> {
     await apiClient.post('/auth/2fa/disable', { token });
   }
+
+  /**
+   * Updates the avatar key for the currently logged-in user.
+   * @param avatarKey The new S3 key for the user's avatar.
+   */
+  async updateAvatar(avatarKey: string): Promise<User> {
+    const response = await apiClient.patch('/auth/me/avatar', { avatarKey });
+    return response.data.data;
+  }
 }
 
 export default new AuthService();

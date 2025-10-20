@@ -141,7 +141,11 @@ export async function getAgencyDashboardData(agencyId: string) {
       orderBy: { createdAt: 'desc' },
       take: 5,
       include: {
-        candidate: { select: { id: true, firstName: true, lastName: true } },
+        candidate: { select: { id: true, firstName: true, lastName: true, user: {
+            select: {
+              avatarKey: true,
+            }
+          }, } },
         position: { select: { id: true, title: true } },
       },
     }),

@@ -30,6 +30,7 @@ import {
   SimpleDropdownItem,
 } from "../../components/ui/SimpleDropdown";
 import { DropdownTrigger } from "../../components/ui/DropdownTrigger";
+import { Avatar } from '../../components/ui/Avatar';
 
 const InterviewCard = ({
   application,
@@ -43,27 +44,30 @@ const InterviewCard = ({
   const interview = application.interviews?.[0];
   return (
     <div className="p-4 bg-white dark:bg-zinc-900 border dark:border-zinc-800 border-gray-100 rounded-2xl shadow-md dark:shadow-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div>
-        <Link
-          to={`/dashboard/agency/applications/${application.id}`}
-          className="font-semibold text-gray-800 dark:text-zinc-100 hover:underline"
-        >
-          {application.candidate.firstName} {application.candidate.lastName}
-        </Link>
-        <p className="text-sm text-gray-500 dark:text-zinc-400">
-          {application.position.title}
-        </p>
+      <div className="flex items-start">
+        <Avatar candidate={application.candidate} size="md" />
+        <div className="ml-3 min-w-0 flex-1">
+          <Link
+            to={`/dashboard/agency/applications/${application.id}`}
+            className="font-semibold text-gray-800 dark:text-zinc-100 hover:underline"
+          >
+            {application.candidate.firstName} {application.candidate.lastName}
+          </Link>
+          <p className="text-sm text-gray-500 dark:text-zinc-400">
+            {application.position.title}
+          </p>
+        </div>
       </div>
       {interview ? (
-        <div className="flex items-center space-x-2">
-          <div className="text-sm text-gray-600 dark:text-zinc-300 text-left sm:text-right">
+        <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-4 sm:gap-2 ml-0 sm:ml-auto">
+          <div className="text-sm text-gray-600 dark:text-zinc-300 text-left flex-1 sm:flex-none">
             <p className="flex items-center">
-              <Clock className="h-4 w-4 mr-2" />
-              {format(new Date(interview.scheduledAt), "MMM d @ h:mm a")}
+              <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>{format(new Date(interview.scheduledAt), "MMM d @ h:mm a")}</span>
             </p>
             <p className="flex items-center mt-1">
-              <Video className="h-4 w-4 mr-2" />
-              {interview.mode}
+              <Video className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>{interview.mode}</span>
             </p>
           </div>
           <Button onClick={onOffer} size="sm" variant="outline">
@@ -72,7 +76,7 @@ const InterviewCard = ({
           </Button>
         </div>
       ) : (
-        <Button onClick={onSchedule} size="sm">
+        <Button className="ml-auto" onClick={onSchedule} size="sm">
           <CalendarPlus className="mr-2 h-4 w-4" />
           Schedule
         </Button>
@@ -190,11 +194,11 @@ const ManageInterviewsPage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`${
-                  activeTab === tab.id
+                className={`
+                  ${activeTab === tab.id
                     ? "border-primary-500 text-primary-600"
                     : "border-transparent text-gray-500 hover:text-gray-700"
-                } flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
+                  } flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
               >
                 {tab.label} (
                 {

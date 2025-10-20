@@ -1,21 +1,21 @@
-import { ApplicationStatus, Prisma } from '@prisma/client';
-import prisma from '../../config/db';
-import { UpdateCandidateProfileInput } from './candidate.types';
-import { logActivity } from '../activity/activity.service';
-import { getPublicJobs } from '../jobs/job.service';
+import { ApplicationStatus, Prisma } from "@prisma/client";
+import prisma from "../../config/db";
+import { UpdateCandidateProfileInput } from "./candidate.types";
+import { logActivity } from "../activity/activity.service";
+import { getPublicJobs } from "../jobs/job.service";
 
 // Helper function to find or create skills and return their IDs for relation mapping.
 async function connectOrCreateSkills(skillNames: string[]) {
   // Find skills that already exist (case-insensitive)
   const skills = await prisma.skill.findMany({
-    where: { name: { in: skillNames, mode: 'insensitive' } },
+    where: { name: { in: skillNames, mode: "insensitive" } },
   });
 
   // Determine which skill names are new
-  const existingSkillNames = new Set(skills.map(s => s.name.toLowerCase()));
+  const existingSkillNames = new Set(skills.map((s) => s.name.toLowerCase()));
   const newSkillsToCreate = skillNames
-    .filter(name => !existingSkillNames.has(name.toLowerCase()))
-    .map(name => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+    .filter((name) => !existingSkillNames.has(name.toLowerCase()))
+    .map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
 
   // Create any new skills in a single batch query
   if (newSkillsToCreate.length > 0) {
@@ -27,12 +27,12 @@ async function connectOrCreateSkills(skillNames: string[]) {
 
   // Get all skill records (existing + newly created)
   const allSkills = await prisma.skill.findMany({
-    where: { name: { in: skillNames, mode: 'insensitive' } },
+    where: { name: { in: skillNames, mode: "insensitive" } },
   });
 
   // Map to the format required for the CandidateSkill 'create' operation.
   // We now include the required `level` field with a default value of 1.
-  return allSkills.map(skill => ({
+  return allSkills.map((skill) => ({
     skillId: skill.id,
     level: 1, // Default skill level to satisfy the schema
   }));
@@ -49,9 +49,11 @@ export async function updateCandidateProfile(
   data: UpdateCandidateProfileInput
 ) {
   // Ensure the profile exists before trying to update
-  const existingProfile = await prisma.candidateProfile.findUnique({ where: { userId } });
+  const existingProfile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+  });
   if (!existingProfile) {
-    throw new Error('Candidate profile not found');
+    throw new Error("Candidate profile not found");
   }
 
   // Separate skills from the rest of the profile data
@@ -82,47 +84,51 @@ export async function updateCandidateProfile(
 export async function getCandidateProfileById(profileId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { id: profileId },
-    // We include skills here so agencies can see them
     include: {
+      user: {
+        select: {
+          avatarKey: true,
+        }
+      },
       skills: {
         include: {
           skill: true,
         },
       },
       workExperiences: {
-        orderBy: { startDate: 'desc' },
+        orderBy: { startDate: "desc" },
         include: {
           verification: {
             include: {
-              verifyingAgency: { select: { name: true } }
-            }
-          }
-        }
+              verifyingAgency: { select: { name: true } },
+            },
+          },
+        },
       },
-      education: { orderBy: { startDate: 'desc' } },
+      education: { orderBy: { startDate: "desc" } },
       quizAttempts: {
         where: { passed: true },
         include: {
-            quiz: { select: { title: true } },
-            skill: true
-        }
+          quiz: { select: { title: true } },
+          skill: true,
+        },
       },
       applications: {
-        where: { status: 'HIRED' },
+        where: { status: "HIRED" },
         select: {
           status: true,
           position: {
             select: {
-              agencyId: true
-            }
-          }
-        }
-      }
+              agencyId: true,
+            },
+          },
+        },
+      },
     },
   });
 
   if (!profile) {
-    throw new Error('Candidate profile not found.');
+    throw new Error("Candidate profile not found.");
   }
 
   return profile;
@@ -132,8 +138,8 @@ export async function getCandidateProfileByUserId(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
-      workExperiences: { orderBy: { startDate: 'desc' } },
-      education: { orderBy: { startDate: 'desc' } },
+      workExperiences: { orderBy: { startDate: "desc" } },
+      education: { orderBy: { startDate: "desc" } },
       skills: {
         include: {
           skill: true,
@@ -143,7 +149,7 @@ export async function getCandidateProfileByUserId(userId: string) {
   });
 
   if (!profile) {
-    throw new Error('Candidate profile not found');
+    throw new Error("Candidate profile not found");
   }
 
   return profile;
@@ -154,36 +160,32 @@ export async function getCandidateProfileByUserId(userId: string) {
  * @param user The authenticated user object.
  */
 export async function getMyApplications(userId: string) {
-  // First, we need to find the candidate's PROFILE ID from their USER ID.
   const candidateProfile = await prisma.candidateProfile.findUnique({
     where: { userId: userId },
-    select: { id: true }, // We only need the ID
+    select: { id: true },
   });
 
   if (!candidateProfile) {
-    throw new Error('Candidate profile not found for the current user.');
+    throw new Error("Candidate profile not found for the current user.");
   }
 
-  // Now, find all applications linked to that profile ID.
   return prisma.application.findMany({
     where: {
       candidateId: candidateProfile.id,
     },
-    // Include the details of the position for each application
     include: {
       position: {
-        // Also include the agency name for display purposes
         include: {
           agency: {
             select: {
-              name: true,
+              name: true, logoKey: true
             },
           },
         },
       },
     },
     orderBy: {
-      createdAt: 'desc', // Show the most recent applications first
+      createdAt: "desc", // Show the most recent applications first
     },
   });
 }
@@ -194,9 +196,12 @@ export async function getMyApplications(userId: string) {
 export async function getCandidateDashboardData(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
+    include: {
+        user: { select: { avatarKey: true } }
+    }
   });
 
-  if (!profile) throw new Error('Candidate profile not found.');
+  if (!profile) throw new Error("Candidate profile not found.");
 
   const [
     applicationStatusCountsRaw,
@@ -208,18 +213,25 @@ export async function getCandidateDashboardData(userId: string) {
     skillsCount,
   ] = await prisma.$transaction([
     prisma.application.groupBy({
-      by: ['status'],
+      by: ["status"],
       where: { candidateId: profile.id },
       _count: { _all: true },
-      orderBy: { status: 'asc' },
+      orderBy: { status: "asc" },
     }),
     prisma.application.findMany({
       where: { candidateId: profile.id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 20,
       include: {
         position: {
-          select: { title: true, agency: { select: { name: true } } },
+          select: { title: true, agency: { 
+              select: { 
+                id: true,
+                name: true, 
+                logoKey: true
+              } 
+            } 
+          },
         },
       },
     }),
@@ -235,8 +247,11 @@ export async function getCandidateDashboardData(userId: string) {
     prisma.candidateSkill.count({ where: { candidateId: profile.id } }),
   ]);
 
-  type CountedApplication = typeof applicationStatusCountsRaw[number] & { _count: { _all: number } };
-  const applicationStatusCounts = applicationStatusCountsRaw as CountedApplication[];
+  type CountedApplication = (typeof applicationStatusCountsRaw)[number] & {
+    _count: { _all: number };
+  };
+  const applicationStatusCounts =
+    applicationStatusCountsRaw as CountedApplication[];
 
   const applicationStats = applicationStatusCounts.reduce((acc, group) => {
     acc[group.status] = group._count._all;
@@ -296,28 +311,37 @@ export async function markOnboardingAsComplete(userId: string) {
  * @param skillNames An array of skill names (e.g., ["JavaScript", "React"]).
  */
 export async function setCandidateSkills(userId: string, skillNames: string[]) {
-  const profile = await prisma.candidateProfile.findUnique({ where: { userId } });
-  if (!profile) throw new Error('Candidate profile not found.');
+  const profile = await prisma.candidateProfile.findUnique({
+    where: { userId },
+  });
+  if (!profile) throw new Error("Candidate profile not found.");
 
   const getSkillIds = async (names: string[]) => {
     if (names.length === 0) return [];
-    
+
     const existingSkills = await prisma.skill.findMany({
-      where: { name: { in: names, mode: 'insensitive' } }
+      where: { name: { in: names, mode: "insensitive" } },
     });
-    const existingNames = new Set(existingSkills.map(s => s.name.toLowerCase()));
-    
+    const existingNames = new Set(
+      existingSkills.map((s) => s.name.toLowerCase())
+    );
+
     const newSkillsToCreate = names
-        .filter(name => !existingNames.has(name.toLowerCase()))
-        .map(name => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+      .filter((name) => !existingNames.has(name.toLowerCase()))
+      .map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
 
     if (newSkillsToCreate.length > 0) {
-        await prisma.skill.createMany({ data: newSkillsToCreate, skipDuplicates: true });
+      await prisma.skill.createMany({
+        data: newSkillsToCreate,
+        skipDuplicates: true,
+      });
     }
 
-    const allSkills = await prisma.skill.findMany({ where: { name: { in: names, mode: 'insensitive' } } });
-   
-    return allSkills.map(skill => ({
+    const allSkills = await prisma.skill.findMany({
+      where: { name: { in: names, mode: "insensitive" } },
+    });
+
+    return allSkills.map((skill) => ({
       skillId: skill.id,
       level: 3, // Provide a default proficiency level (e.g., 3 out of 5)
       years: 1, // Provide a default years of experience
@@ -336,8 +360,8 @@ export async function setCandidateSkills(userId: string, skillNames: string[]) {
     },
   });
 
-  await logActivity(userId, 'profile.skills.update', {
-      skillsAdded: skillNames.length
+  await logActivity(userId, "profile.skills.update", {
+    skillsAdded: skillNames.length,
   });
 
   return updatedProfile;
@@ -363,10 +387,10 @@ export async function getMyCandidateProfile(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
-      user: { select: { id: true, email: true } },
+      user: { select: { id: true, email: true, avatarKey: true, } },
       skills: { include: { skill: true } },
-      workExperiences: { orderBy: { startDate: 'desc' } },
-      education: { orderBy: { startDate: 'desc' } },
+      workExperiences: { orderBy: { startDate: "desc" } },
+      education: { orderBy: { startDate: "desc" } },
       quizAttempts: {
         include: {
           quiz: {
@@ -377,13 +401,13 @@ export async function getMyCandidateProfile(userId: string) {
           skill: true,
         },
         orderBy: {
-          completedAt: 'desc',
+          completedAt: "desc",
         },
       },
     },
   });
   if (!profile) {
-    throw new Error('Candidate profile not found for the current user.');
+    throw new Error("Candidate profile not found for the current user.");
   }
   return profile;
 }
@@ -392,41 +416,61 @@ export async function getMyCandidateProfile(userId: string) {
  * Generates a personalized list of recommended jobs for a candidate.
  * @param userId The ID of the candidate's user account.
  */
-export async function getRecommendedJobs(userId: string, filters: { stateId?: number; isRemote?: boolean }) {
+export async function getRecommendedJobs(
+  userId: string,
+  filters: { stateId?: number; isRemote?: boolean }
+) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
       skills: { include: { skill: true } },
-      workExperiences: { take: 3, orderBy: { startDate: 'desc' } }, // Get recent job titles
-      education: { take: 1, orderBy: { endDate: 'desc' } }, // Get most recent field of study
+      workExperiences: { take: 3, orderBy: { startDate: "desc" } }, // Get recent job titles
+      education: { take: 1, orderBy: { endDate: "desc" } }, // Get most recent field of study
     },
   });
 
   if (!profile) return [];
 
   // 1. Gather all keywords from the candidate's profile
-  const skillNames = profile.skills.map(s => s.skill.name);
-  const jobTitleKeywords = profile.workExperiences.flatMap(exp => exp.title.toLowerCase().split(' '));
-  const educationKeywords = profile.education.flatMap(edu => edu.field?.toLowerCase().split(' ') || []);
-  
-  const allKeywords = [...new Set([...skillNames, ...jobTitleKeywords, ...educationKeywords])];
+  const skillNames = profile.skills.map((s) => s.skill.name);
+  const jobTitleKeywords = profile.workExperiences.flatMap((exp) =>
+    exp.title.toLowerCase().split(" ")
+  );
+  const educationKeywords = profile.education.flatMap(
+    (edu) => edu.field?.toLowerCase().split(" ") || []
+  );
+
+  const allKeywords = [
+    ...new Set([...skillNames, ...jobTitleKeywords, ...educationKeywords]),
+  ];
 
   if (allKeywords.length === 0) {
     // If profile is empty, just return the latest jobs
     return getPublicJobs({});
   }
 
-  const descriptionFilters = allKeywords.map(kw => ({
-    description: { contains: kw, mode: 'insensitive' as const }
+  const descriptionFilters = allKeywords.map((kw) => ({
+    description: { contains: kw, mode: "insensitive" as const },
   }));
 
   const whereClause: Prisma.PositionWhereInput = {
-    visibility: 'PUBLIC',
-    status: 'OPEN',
+    visibility: "PUBLIC",
+    status: "OPEN",
     OR: [
-      { title: { in: allKeywords, mode: 'insensitive' } },
+      { title: { in: allKeywords, mode: "insensitive" } },
       ...descriptionFilters,
-      { skills: { some: { skill: { name: { in: profile.skills.map(s => s.skill.name), mode: 'insensitive' } } } } },
+      {
+        skills: {
+          some: {
+            skill: {
+              name: {
+                in: profile.skills.map((s) => s.skill.name),
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+      },
     ],
   };
 
@@ -442,7 +486,9 @@ export async function getRecommendedJobs(userId: string, filters: { stateId?: nu
   const recommendedJobs = await prisma.position.findMany({
     where: whereClause,
     include: {
-      agency: { select: { name: true, domainVerified: true, cacVerified: true } },
+      agency: {
+        select: { name: true, domainVerified: true, cacVerified: true, logoKey: true },
+      },
       skills: { include: { skill: true } },
     },
     take: 20, // Limit the recommendations
@@ -504,22 +550,22 @@ export async function getFollowingFeed(userId: string) {
           // 2. For each followed agency, fetch their 3 most recent OPEN and PUBLIC jobs
           positions: {
             where: {
-              status: 'OPEN',
-              visibility: 'PUBLIC',
+              status: "OPEN",
+              visibility: "PUBLIC",
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
             take: 3,
           },
         },
       },
     },
     orderBy: {
-        createdAt: 'desc'
-    }
+      createdAt: "desc",
+    },
   });
 
   // 3. We only want to return agencies that actually have recent open jobs
   return followedAgencies
-    .map(follow => follow.agency)
-    .filter(agency => agency.positions.length > 0);
+    .map((follow) => follow.agency)
+    .filter((agency) => agency.positions.length > 0);
 }

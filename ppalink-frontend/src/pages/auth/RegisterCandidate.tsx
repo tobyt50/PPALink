@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Lock, Mail, Briefcase, Shield, Building, User } from "lucide-react";
+import { Lock, Mail, Briefcase, Shield, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -13,6 +13,7 @@ import authService from "../../services/auth.service";
 import useFetch from "../../hooks/useFetch";
 import type { Agency } from "../../types/agency";
 import type { RegisterCandidatePayload } from "../../types/auth";
+import { Avatar } from "../../components/ui/Avatar";
 
 const registerCandidateSchema = z.object({
   firstName: z.string().min(2, { message: "First name is required." }),
@@ -25,18 +26,20 @@ const registerCandidateSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerCandidateSchema>;
 
 const AgencyCard = ({ agency }: { agency: Agency }) => (
-  <Link to={`/agencies/${agency.id}/profile`}>
-    <motion.div
-      whileHover={{ y: -5, scale: 1.03 }}
-      className="rounded-xl border border-white/10 bg-white/5 p-4 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
-    >
-      <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center mb-3">
-        <Building className="h-6 w-6 text-gray-400 dark:text-zinc-500" />
-      </div>
-      <h3 className="font-semibold text-white text-sm">{agency.name}</h3>
-      <p className="mt-1 text-green-300 text-xs">{agency.industry?.name || 'Various Industries'}</p>
-    </motion.div>
-  </Link>
+    <Link to={`/agencies/${agency.id}/profile`}>
+        <motion.div
+            whileHover={{ y: -5, scale: 1.03 }}
+            className="rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
+        >
+            <Avatar
+                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
+                size="lg"
+                shape="square"
+            />
+            <h3 className="font-semibold text-white mt-4">{agency.name}</h3>
+            <p className="mt-1 text-green-300 text-sm">{agency.industry?.name || 'Various Industries'}</p>
+        </motion.div>
+    </Link>
 );
 
 const RegisterCandidate = () => {
