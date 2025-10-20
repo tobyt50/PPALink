@@ -12,6 +12,7 @@ import { useAuthStore } from "../../context/AuthContext";
 import authService from "../../services/auth.service";
 import useFetch from "../../hooks/useFetch";
 import type { Agency } from "../../types/agency";
+import { Avatar } from "../../components/ui/Avatar";
 
 const registerAgencySchema = z
   .object({
@@ -28,18 +29,20 @@ const registerAgencySchema = z
 type RegisterAgencyFormValues = z.infer<typeof registerAgencySchema>;
 
 const AgencyCard = ({ agency }: { agency: Agency }) => (
-  <Link to={`/agencies/${agency.id}/profile`}>
-    <motion.div
-      whileHover={{ y: -5, scale: 1.03 }}
-      className="rounded-xl border border-white/10 bg-white/5 p-4 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
-    >
-      <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center mb-3">
-        <Building2 className="h-6 w-6 text-gray-400 dark:text-zinc-500" />
-      </div>
-      <h3 className="font-semibold text-white text-sm">{agency.name}</h3>
-      <p className="mt-1 text-green-300 text-xs">{agency.industry?.name || 'Various Industries'}</p>
-    </motion.div>
-  </Link>
+    <Link to={`/agencies/${agency.id}/profile`}>
+        <motion.div
+            whileHover={{ y: -5, scale: 1.03 }}
+            className="rounded-xl border border-white/10 bg-white/5 p-6 shadow-sm hover:shadow-xl transition transform backdrop-blur-sm h-full flex flex-col items-center text-center"
+        >
+            <Avatar
+                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
+                size="lg"
+                shape="square"
+            />
+            <h3 className="font-semibold text-white mt-4">{agency.name}</h3>
+            <p className="mt-1 text-green-300 text-sm">{agency.industry?.name || 'Various Industries'}</p>
+        </motion.div>
+    </Link>
 );
 
 const RegisterAgency = () => {

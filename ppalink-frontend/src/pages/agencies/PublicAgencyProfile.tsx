@@ -1,6 +1,5 @@
 import {
   Briefcase,
-  Building,
   CheckCircle,
   ChevronLeft,
   Globe,
@@ -11,6 +10,7 @@ import { JobCard } from "../../components/ui/JobCard";
 import useFetch from "../../hooks/useFetch";
 import type { Agency } from "../../types/agency";
 import { useAuthStore } from "../../context/AuthContext";
+import { Avatar } from "../../components/ui/Avatar";
 
 const PublicAgencyProfilePage = () => {
   const { agencyId } = useParams<{ agencyId: string }>();
@@ -56,9 +56,10 @@ const PublicAgencyProfilePage = () => {
         </div>
         <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
           <div className="flex flex-col sm:flex-row items-start gap-6">
-            <div className="h-24 w-24 rounded-full bg-gray-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center">
-              <Building className="h-12 w-12 text-gray-400 dark:text-zinc-500" />
-            </div>
+            <Avatar 
+                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
+                size="xl"
+            />
             <div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-zinc-50">

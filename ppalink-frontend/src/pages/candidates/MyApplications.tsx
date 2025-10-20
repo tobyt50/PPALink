@@ -1,10 +1,12 @@
-import { ArrowRight, Briefcase, Building, Calendar, PackageSearch, Search } from 'lucide-react';
+import { ArrowRight, Briefcase, Calendar, PackageSearch, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '../../components/ui/EmptyState';
 import useFetch from '../../hooks/useFetch';
 import type { Application, ApplicationStatus } from '../../types/application';
 import { ApplicationCardSkeleton } from './skeletons/ApplicationCardSkeleton';
 import { Button } from '../../components/ui/Button';
+import { Avatar } from '../../components/ui/Avatar';
+import type { Agency } from '../../types/agency';
 
 const ApplicationStatusBadge = ({ status }: { status: Application['status'] }) => {
   const labelMap: Record<ApplicationStatus, { text: string; color: string }> = {
@@ -65,11 +67,14 @@ const MyApplicationsPage = () => {
                 >
                 {/* --- END OF FIX --- */}
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div className="flex-grow">
-                      <p className="font-semibold text-primary-600 dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">{app.position?.title}</p>
-                      <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-zinc-400 mt-1">
-                        <span className="flex items-center"><Building className="h-4 w-4 mr-1.5" />{app.position?.agency?.name}</span>
-                        <span className="flex items-center"><Briefcase className="h-4 w-4 mr-1.5" />{app.position?.employmentType}</span>
+                    <div className="flex items-center flex-grow">
+                      <Avatar user={{ role: 'AGENCY', ownedAgencies: [app.position?.agency as Agency] }} size="md" />
+                      <div className="ml-3 flex-grow">
+                        <p className="font-semibold text-primary-600 dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400">{app.position?.title}</p>
+                        <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-zinc-400 mt-1">
+                          <span className="text-sm">{app.position?.agency?.name}</span>
+                          <span className="flex items-center"><Briefcase className="h-4 w-4 mr-1.5" />{app.position?.employmentType}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0 self-start sm:self-center">

@@ -32,7 +32,7 @@ const BottomNavLink = ({
   );
 };
 
-const BottomNav = ({ navItems }: { navItems: NavItem[] }) => {
+const BottomNav = ({ navItems, className = "" }: { navItems: NavItem[]; className?: string }) => {
   const hasNewQuiz = useNotificationStore((state) => state.hasNewQuiz());
   const hasNewGeneric = useNotificationStore((state) => state.hasNewGeneric());
 
@@ -48,7 +48,7 @@ const BottomNav = ({ navItems }: { navItems: NavItem[] }) => {
   });
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 dark:bg-zinc-900/95 rounded-t-[2rem] overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/20 backdrop-blur-sm">
+    <div className={`fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 dark:bg-zinc-900/95 rounded-t-[2rem] overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/20 backdrop-blur-sm ${className}`}>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/40 dark:via-primary-400/40 to-transparent" />
       <nav className="flex h-16 px-4">
         {navItemsWithNotif.map((item) => (

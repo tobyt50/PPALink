@@ -11,7 +11,6 @@ import {
   Shield,
   ShieldCheck,
   User,
-  UserCircle2,
   Users
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -22,6 +21,7 @@ import { InboxBell } from './InboxBell';
 import { NotificationBell } from './NotificationBell';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Button } from '../ui/Button';
+import { Avatar } from '../ui/Avatar';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Navbar = () => {
           className="bg-transparent hover:bg-transparent focus:ring-0 border-none shadow-none"
           variant="ghost"
         >
-          <UserCircle2 className="h-6 w-6 text-gray-600 dark:text-zinc-300" />
+          <Avatar user={user} name={user?.email} size="sm" />
         </Button>
       }
     >

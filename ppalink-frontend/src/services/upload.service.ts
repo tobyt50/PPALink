@@ -4,7 +4,7 @@ import apiClient from '../config/axios';
 interface PresignedUrlPayload {
   fileName: string;
   fileType: string;
-  uploadType: 'cv' | 'certificate' | 'nysc_document';
+  uploadType: 'cv' | 'certificate' | 'nysc_document' | 'AVATAR' | 'LOGO';
 }
 
 interface PresignedUrlResponse {
@@ -52,6 +52,15 @@ class UploadService {
   async getDownloadUrl(fileKey: string): Promise<PresignedDownloadUrlResponse> {
     const response = await apiClient.post('/uploads/download-url', { fileKey });
     return response.data.data;
+  }
+
+  /**
+   * Asks our backend for a secure, temporary URL to view a private file.
+   * @param fileKey The S3 key of the file.
+   */
+  async getPresignedDownloadUrl(fileKey: string): Promise<PresignedDownloadUrlResponse> {
+      const response = await apiClient.post('/uploads/download-url', { fileKey });
+      return response.data.data;
   }
 }
 

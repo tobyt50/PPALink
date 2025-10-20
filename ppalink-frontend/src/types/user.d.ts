@@ -11,6 +11,7 @@ export interface User {
   id: string;
   email: string;
   phone: string | null;
+  avatarKey: string | null;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'CANDIDATE' | 'AGENCY';
   status: 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
   emailVerifiedAt: string | null;

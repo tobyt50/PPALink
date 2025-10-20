@@ -272,6 +272,7 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
                 select: {
                   id: true,
                   email: true,
+                  avatarKey: true,
                 },
               },
               quizAttempts: {
@@ -381,7 +382,7 @@ export async function getPublicJobs(queryParams: any) {
     where,
     include: {
       agency: {
-        select: { name: true, domainVerified: true, cacVerified: true },
+        select: { name: true, domainVerified: true, cacVerified: true, logoKey: true },
       },
       skills: { include: { skill: true } },
     },

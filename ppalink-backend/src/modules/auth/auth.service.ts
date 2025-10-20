@@ -119,7 +119,11 @@ export async function registerAgency(input: RegisterAgencyInput) {
 export async function login(input: LoginInput) {
   const { email, password, twoFactorToken } = input;
   
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email },
+      include: {
+          candidateProfile: true,
+          ownedAgencies: true,
+      } });
   
   if (!user || user.status !== 'ACTIVE') {
       throw new Error('Invalid email or password');
@@ -246,4 +250,16 @@ export async function getUserProfile(userId: string) {
     ...userWithoutPassword,
     followedAgencyIds,
   };
+}
+
+/**
+ * Updates the avatar key for a specific user.
+ * @param userId The ID of the user to update.
+ * @param avatarKey The new S3 key for their avatar image.
+ */
+export async function updateUserAvatar(userId: string, avatarKey: string) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { avatarKey },
+  });
 }

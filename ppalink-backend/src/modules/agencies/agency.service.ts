@@ -405,7 +405,7 @@ export async function searchCandidates(userId: string, queryParams: any) {
       },
     },
     include: {
-      user: { select: { email: true, role: true } }, // role included for debugging/verification
+      user: { select: { email: true, role: true, avatarKey: true } },
       skills: { include: { skill: true } },
       education: true,
       quizAttempts: {
@@ -463,14 +463,17 @@ export async function getShortlistedCandidates(agencyId: string) {
     where: {
       agencyId: agencyId,
     },
-    // Include the full candidate profile for each shortlist entry
     include: {
       candidate: {
-        // Also include the candidate's skills for the card display
         include: {
           skills: {
             include: {
               skill: true,
+            },
+          },
+          user: {
+            select: {
+              avatarKey: true,
             },
           },
         },
@@ -544,7 +547,18 @@ export async function getInterviewPipeline(
     where: whereClause,
     include: {
       interviews: true,
-      candidate: { select: { id: true, firstName: true, lastName: true } },
+      candidate: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          user: {
+            select: {
+              avatarKey: true,
+            },
+          },
+        },
+      },
       position: { select: { id: true, title: true } },
     },
     orderBy: {
@@ -642,19 +656,19 @@ export async function getPublicAgencyProfile(agencyId: string) {
       industry: { select: { name: true } },
       positions: {
         where: {
-          status: 'OPEN',
-          visibility: 'PUBLIC',
+          status: "OPEN",
+          visibility: "PUBLIC",
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
-            skills: { include: { skill: true } }
-        }
+          skills: { include: { skill: true } },
+        },
       },
     },
   });
 
   if (!agency) {
-    throw new Error('Agency profile not found or is private.');
+    throw new Error("Agency profile not found or is private.");
   }
 
   return agency;
@@ -677,5 +691,17 @@ export async function getFeaturedAgencies() {
       industry: { select: { name: true } },
     },
     take: 6, // Limit to a nice grid of 6 agencies
+  });
+}
+
+/**
+ * Updates the logo key for a specific agency.
+ * @param agencyId The ID of the agency to update.
+ * @param logoKey The new S3 key for their logo image.
+ */
+export async function updateAgencyLogo(agencyId: string, logoKey: string) {
+  return prisma.agency.update({
+    where: { id: agencyId },
+    data: { logoKey },
   });
 }

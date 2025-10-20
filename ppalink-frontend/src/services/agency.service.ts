@@ -141,6 +141,15 @@ class AgencyService {
     const response = await apiClient.post(`/agencies/work-experience/${workExperienceId}/verify`);
     return response.data.data;
   }
+
+  /**
+   * Updates the logo key for the current agency.
+   * @param logoKey The new S3 key for the agency's logo.
+   */
+  async updateLogo(logoKey: string): Promise<Agency> {
+    const response = await apiClient.patch('/agencies/me/logo', { logoKey });
+    return response.data.data;
+  }
 }
 
 export default new AgencyService();

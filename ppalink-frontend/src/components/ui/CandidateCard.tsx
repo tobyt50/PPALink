@@ -2,6 +2,7 @@ import { Award, BadgeCheck, MapPin } from "lucide-react";
 import React, { useMemo } from "react";
 import { useDataStore } from "../../context/DataStore";
 import type { CandidateProfile } from "../../types/candidate";
+import { Avatar } from "./Avatar";
 
 interface CandidateCardProps {
   candidate: CandidateProfile;
@@ -13,11 +14,6 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
     (s) => s.id === candidate.primaryStateId
   )?.name;
   const SKILL_LIMIT = 4;
-
-  // Generate initials for avatar
-  const initials = `${candidate.firstName?.[0] || ""}${
-    candidate.lastName?.[0] || ""
-  }`;
 
   const displaySkills = useMemo(() => {
     if (!candidate) return [];
@@ -60,11 +56,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
     <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5 transition-all hover:shadow-lg hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 flex flex-col h-full">
       {/* Header */}
       <div className="flex items-start">
-        {/* Avatar */}
-        <div className="h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 font-bold">
-          {initials}
-        </div>
-
+        <Avatar candidate={candidate} size="lg" />
         {/* Name & Summary */}
         <div className="ml-4 flex-grow">
           <p className="font-bold text-base bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">

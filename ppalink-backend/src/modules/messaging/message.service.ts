@@ -96,8 +96,9 @@ export async function getConversations(userId: string) {
       select: {
           id: true,
           email: true,
-          candidateProfile: { select: { firstName: true, lastName: true } },
-          ownedAgencies: { select: { name: true } },
+          avatarKey: true, 
+          ownedAgencies: { select: { id: true, name: true, logoKey: true } },
+          candidateProfile: { select: { id: true, firstName: true, lastName: true } },
           messagesSent: {
               where: { toId: userId },
               orderBy: { createdAt: 'desc' },
@@ -121,6 +122,7 @@ export async function getConversations(userId: string) {
       const otherUser = {
           id: user.id,
           email: user.email,
+          avatarKey: user.avatarKey,
           candidateProfile: user.candidateProfile,
           ownedAgencies: user.ownedAgencies,
       };

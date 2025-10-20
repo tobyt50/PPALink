@@ -37,12 +37,6 @@ const ShortlistedCandidatesPage = () => {
       </div>
 
       {/* Results Section */}
-      {isLoading && (
-        <div className="flex justify-center p-16">
-          <Loader2 className="h-10 w-10 animate-spin text-primary-500 dark:text-primary-400" />
-        </div>
-      )}
-
       {error && (
         <div className="rounded-md border border-red-300 dark:border-red-900/50 bg-red-50 dark:bg-red-950/60 p-6 text-center text-red-800">
           <h3 className="text-lg font-semibold">Could Not Load Shortlist</h3>
@@ -53,10 +47,15 @@ const ShortlistedCandidatesPage = () => {
       {!error && (
         <>
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <CandidateCardSkeleton />
-              <CandidateCardSkeleton />
-            </div>
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <CandidateCardSkeleton />
+                <CandidateCardSkeleton />
+              </div>
+              <div className="flex justify-center p-16">
+                <Loader2 className="h-10 w-10 animate-spin text-primary-500 dark:text-primary-400" />
+              </div>
+            </>
           ) : candidates && candidates.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {candidates.map((candidate) => (
@@ -86,4 +85,3 @@ const ShortlistedCandidatesPage = () => {
 };
 
 export default ShortlistedCandidatesPage;
-

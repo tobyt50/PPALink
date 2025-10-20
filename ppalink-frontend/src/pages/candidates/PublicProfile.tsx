@@ -9,13 +9,14 @@ import {
   Heart,
   Loader2,
   MapPin,
+  MessageSquare,
   Tag,
   Trash2,
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import {
   SimpleDropdown,
@@ -32,9 +33,11 @@ import { AddToJobModal } from "../agencies/AddToJobModal";
 import ProfileField from "./ProfileField";
 import EducationSection from "./sections/EducationSection";
 import WorkExperienceSection from "./sections/WorkExperienceSection";
+import { Avatar } from '../../components/ui/Avatar';
 
 const PublicProfilePage = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
+  const navigate = useNavigate();
   const {
     data: profile,
     isLoading,
@@ -129,6 +132,23 @@ const PublicProfilePage = () => {
       setIsProcessing(false);
     }
   };
+
+  const handleMessageCandidate = () => {
+    if (!profile?.user) {
+      toast.error("Candidate user information is not available.");
+      return;
+    }
+    const { user, firstName, lastName } = profile;
+    const conversationState = {
+      otherUser: {
+        id: user.id,
+        email: user.email,
+        candidateProfile: { firstName, lastName },
+      },
+    };
+    navigate("/inbox", { state: { activeConversation: conversationState } });
+  };
+
   const handleAddToJob = async (positionId: string) => {
     if (!candidateId) return;
     const addPromise = applicationService.createApplication(
@@ -162,9 +182,6 @@ const PublicProfilePage = () => {
   const locationState = states.find(
     (s) => s.id === profile.primaryStateId
   )?.name;
-  const initials = `${profile.firstName?.[0] || ""}${
-    profile.lastName?.[0] || ""
-  }`;
 
   const SkillsList = ({ skills }: { skills: typeof displaySkills }) => (
     <div className="p-6 flex flex-wrap gap-2">
@@ -221,9 +238,7 @@ const PublicProfilePage = () => {
           <div className="lg:col-span-2 space-y-8">
             <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
               <div className="flex items-start">
-                <div className="h-24 w-24 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 text-4xl font-bold">
-                  {initials}
-                </div>
+                <Avatar candidate={profile} size="xl" />
                 <div className="ml-6 flex-grow">
                   <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                     {profile.firstName} {profile.lastName}
@@ -231,7 +246,14 @@ const PublicProfilePage = () => {
                   <p className="mt-1 text-gray-600 dark:text-zinc-300">
                     {locationState || "Location not specified"}
                   </p>
-                  <div className="mt-4">
+                  <div className="mt-4 flex gap-2">
+                    <Button
+                      onClick={handleMessageCandidate}
+                      size="sm"
+                    >
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Message
+                    </Button>
                     <SimpleDropdown
                       trigger={
                         <Button

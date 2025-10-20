@@ -41,7 +41,7 @@ const AdminDashboard = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
         <StatCard
           icon={Users}
           label="Total Candidates"

@@ -80,6 +80,7 @@ export interface CandidateProfile {
   user?: {
     id: string;
     email: string;
+    avatarKey?: string | null;
   };
 
   workExperiences?: WorkExperience[];

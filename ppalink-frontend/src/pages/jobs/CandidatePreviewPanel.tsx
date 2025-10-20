@@ -13,6 +13,7 @@ import { Button } from "../../components/ui/Button";
 import DocumentLink from "../../components/ui/DocumentLink";
 import useFetch from "../../hooks/useFetch";
 import type { CandidateProfile } from "../../types/candidate";
+import { Avatar } from "../../components/ui/Avatar";
 
 interface CandidatePreviewPanelProps {
   candidateId: string | null;
@@ -78,10 +79,6 @@ export const CandidatePreviewPanel = ({
     candidateId ? `/candidates/${candidateId}/profile` : null
   );
 
-  const initials = profile
-    ? `${profile.firstName?.[0] || ""}${profile.lastName?.[0] || ""}`
-    : "";
-
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -134,9 +131,7 @@ export const CandidatePreviewPanel = ({
               {profile && (
                 <div className="space-y-8">
                   <div className="flex items-center">
-                    <div className="h-20 w-20 text-3xl rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white font-bold">
-                      {initials}
-                    </div>
+                    <Avatar candidate={profile} size="xl" />
                     <div className="ml-4">
                       <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
                         {profile.firstName} {profile.lastName}

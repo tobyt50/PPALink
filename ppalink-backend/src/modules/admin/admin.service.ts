@@ -50,6 +50,7 @@ export async function getAllUsers(queryParams: {
     select: {
       id: true,
       email: true,
+      avatarKey: true,
       phone: true,
       role: true,
       status: true,
@@ -66,6 +67,7 @@ export async function getAllUsers(queryParams: {
         select: {
           id: true,
           name: true,
+          logoKey: true,
           domainVerified: true,
           cacVerified: true,
           subscriptions: {

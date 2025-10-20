@@ -16,6 +16,7 @@ import { toast } from "react-hot-toast";
 import { useShortlistStore } from "../../context/ShortlistStore";
 import agencyService from "../../services/agency.service";
 import type { Application } from "../../types/application";
+import { Avatar } from '../../components/ui/Avatar';
 
 export const StaticApplicantCard = ({
   application,
@@ -130,9 +131,6 @@ export const StaticApplicantCard = ({
     e.stopPropagation();
     onDelete(application.id);
   };
-  const initials = `${candidate.firstName?.[0] || ""}${
-    candidate.lastName?.[0] || ""
-  }`;
   return (
     <div
       onTouchStart={handleTouchStart}
@@ -160,9 +158,7 @@ export const StaticApplicantCard = ({
       </div>
       <div className="flex flex-col">
         <div className="flex items-start">
-          <div className="h-10 w-10 text-sm rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 font-bold">
-            {initials}
-          </div>
+          <Avatar candidate={candidate} size="md" />
           <div className="ml-3 min-w-0 flex-1">
             <p className="font-semibold text-sm text-gray-800 transition-all dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal break-words">
               {candidate.firstName} {candidate.lastName}
