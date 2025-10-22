@@ -106,20 +106,18 @@ export const PipelineFilterPanel = ({
               onSubmit={handleSubmit(onSubmit)}
               className="flex-grow p-6 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700"
             >
-              <div>
-                <Label>Keyword Search</Label>
-                <div className="relative mt-1">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <Input
-                    type="search"
-                    placeholder="Name, skill, summary..."
-                    className="pl-9"
-                    {...register("q")}
-                  />
-                </div>
-              </div>
+              <div className="relative mt-1">
+  <div className="absolute inset-y-0 left-0 flex items-center pl-3 z-10">
+    <Search className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+  </div>
+  <Input
+    type="search"
+    placeholder="Name, skill, summary..."
+    className="pl-9"
+    {...register("q")}
+  />
+</div>
+
               <div>
                 <Label>Skills (comma separated)</Label>
                 <Input
