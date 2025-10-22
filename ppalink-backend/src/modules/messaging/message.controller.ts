@@ -77,3 +77,33 @@ export async function markAsReadHandler(req: AuthRequest, res: Response, next: N
     res.status(200).json({ success: true, message: 'Messages marked as read.' });
   } catch (error) { next(error); }
 }
+
+/**
+ * Handler for fetching user details for initiating a new conversation.
+ */
+export async function getUserForConversationHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        avatarKey: true,
+        ownedAgencies: { select: { id: true, name: true, logoKey: true } },
+        candidateProfile: { select: { id: true, firstName: true, lastName: true } },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    res.status(200).json({ success: true, data: user });
+  } catch (error) { next(error); }
+}
