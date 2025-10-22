@@ -147,7 +147,7 @@ class AgencyService {
    * @param logoKey The new S3 key for the agency's logo.
    */
   async updateLogo(logoKey: string): Promise<Agency> {
-    const response = await apiClient.patch('/agencies/me/logo', { logoKey });
+    const response = await apiClient.patch('/agencies/logo', { logoKey });
     return response.data.data;
   }
 }

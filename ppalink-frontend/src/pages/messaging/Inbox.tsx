@@ -20,6 +20,22 @@ import messageService, {
 } from "../../services/message.service";
 import type { Message } from "../../types/message";
 
+interface OtherUser {
+  id: string;
+  email: string | null;
+  avatarKey?: string | null;
+  ownedAgencies?: {
+    id: string;
+    name: string;
+    logoKey?: string | null;
+  }[];
+  candidateProfile: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+  } | null;
+}
+
 const isNewDay = (date1: string, date2: string | undefined) => {
   if (!date2) return true;
   return new Date(date1).toDateString() !== new Date(date2).toDateString();
@@ -389,8 +405,13 @@ const InboxPage = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [_isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [pendingConvId, setPendingConvId] = useState<string | null>(null);
   const hasAutoSelectedRef = useRef(false);
+
+  const { data: pendingUser, isLoading: loadingUser, error: userError } = useFetch<OtherUser>(
+    pendingConvId ? `/messages/user/${pendingConvId}` : null
+  );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)');
@@ -406,21 +427,45 @@ const InboxPage = () => {
     const convId = searchParams.get('conversation');
 
     if (view === 'chat') {
-      if (convId && conversations.length > 0) {
+      if (convId) {
         const conv = conversations.find((c) => c.otherUser.id === convId);
         if (conv) {
           setActiveConversation(conv);
+          setPendingConvId(null);
+          return;
+        } else {
+          // Fetch user details for new chat
+          setPendingConvId(convId);
+          setActiveConversation(null); // Ensure we don't show partial UI
           return;
         }
       }
       // Invalid chat view, go to list
       setActiveConversation(null);
+      setPendingConvId(null);
       setSearchParams({}, { replace: true });
       return;
     } else {
       setActiveConversation(null);
+      setPendingConvId(null);
     }
   }, [searchParams, conversations]);
+
+  // Set active conversation once pending user is fetched
+  useEffect(() => {
+    if (pendingUser && pendingConvId) {
+      const conv: Conversation = {
+        otherUser: pendingUser,
+        lastMessage: undefined,
+      };
+      setConversations((prev) => {
+        if (prev.some((c) => c.otherUser.id === pendingConvId)) return prev;
+        return [conv, ...prev];
+      });
+      setActiveConversation(conv);
+      setPendingConvId(null);
+    }
+  }, [pendingUser, pendingConvId]);
 
   // Handle navigation from location.state
   useEffect(() => {
@@ -434,11 +479,12 @@ const InboxPage = () => {
     }
   }, [location.state, activeConversation]);
 
-  // Auto-select first conversation on initial load
+  // Auto-select first conversation on desktop initial load
   useEffect(() => {
     if (
       !hasAutoSelectedRef.current &&
       conversations.length > 0 &&
+      !isMobile &&
       !searchParams.get('view')
     ) {
       hasAutoSelectedRef.current = true;
@@ -449,7 +495,7 @@ const InboxPage = () => {
         { replace: true }
       );
     }
-  }, [conversations, searchParams]);
+  }, [conversations, isMobile, searchParams]);
 
   // Load and prepare conversations
   useEffect(() => {
@@ -490,6 +536,24 @@ const InboxPage = () => {
     setActiveConversation(null);
     setSearchParams({}, { replace: true });
   }, [setSearchParams]);
+
+  // Handle pending user fetch states
+  if (pendingConvId) {
+    if (loadingUser) {
+      return (
+        <div className="h-full flex items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary-600 dark:text-primary-400" />
+        </div>
+      );
+    }
+    if (userError) {
+      return (
+        <div className="p-8 text-center text-red-500">
+          Failed to load user details.
+        </div>
+      );
+    }
+  }
 
   if (isLoading)
     return (
@@ -541,6 +605,7 @@ const InboxPage = () => {
       >
         {activeConversation ? (
           <ChatWindow
+            key={activeConversation.otherUser.id}
             activeConversation={activeConversation}
             onGoBack={handleGoBack}
             refetchConversations={refetchConversations}
