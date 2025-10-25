@@ -9,11 +9,11 @@ import {
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
-import { useDataStore } from "../../context/DataStore";
 import useFetch from "../../hooks/useFetch";
 import type { Application } from "../../types/application";
 import type { Position } from "../../types/job";
 import ProfileField from "./ProfileField";
+import { useLocationNames } from "../../hooks/useLocationNames";
 
 const SimilarJobCard = ({ job }: { job: Position }) => (
   <Link
@@ -35,10 +35,11 @@ const GenericStatusPage = ({ application }: { application: Application }) => {
     showSimilar ? `/candidates/me/jobs/${application.positionId}/similar` : null
   );
 
-  const { states } = useDataStore();
-  const locationState = states.find(
-    (s) => s.id === application.position.stateId
-  )?.name;
+  const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
+    application.position.countryId,
+    application.position.regionId,
+    application.position.cityId
+  );
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -88,8 +89,10 @@ const GenericStatusPage = ({ application }: { application: Application }) => {
               <span className="flex items-center">
                 <Globe className="h-4 w-4 mr-1.5" /> Remote
               </span>
+            ) : isLoadingLocation ? (
+              "Loading..."
             ) : (
-              locationState || "Not specified"
+              fullLocationString || "Not specified"
             )}
           </ProfileField>
           <div className="sm:col-span-2">

@@ -48,10 +48,10 @@ const DiscoverStep = () => {
             </div>
             
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button variant="primary" size="lg" onClick={() => handleFinishAndNavigate('/dashboard/agency/candidates/browse')}>
+                <Button variant="primary" size="sm" onClick={() => handleFinishAndNavigate('/dashboard/agency/candidates/browse')}>
                     Find Your First Candidate
                 </Button>
-                <Button variant="outlineTransparent" size="lg" onClick={() => handleFinishAndNavigate('/dashboard/agency')}>
+                <Button variant="outlineTransparent" size="sm" onClick={() => handleFinishAndNavigate('/dashboard/agency')}>
                      <CheckCircle className="mr-2 h-4 w-4" /> Go to Dashboard
                 </Button>
             </div>

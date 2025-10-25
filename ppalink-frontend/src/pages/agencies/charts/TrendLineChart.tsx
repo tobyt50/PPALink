@@ -1,3 +1,4 @@
+// Refactored TrendLineChart.tsx with smaller height
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { AgencyProAnalytics } from '../../../types/analytics';
 
@@ -12,7 +13,7 @@ export const TrendLineChart = ({ data }: ChartProps) => {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={200}>
       <LineChart
         data={chartData}
         margin={{

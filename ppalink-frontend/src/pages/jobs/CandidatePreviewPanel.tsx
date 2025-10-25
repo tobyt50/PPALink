@@ -96,14 +96,14 @@ export const CandidatePreviewPanel = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed top-14 bottom-0 left-0 right-0 bg-black/50 z-40"
           />
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="fixed top-0 right-0 h-full w-full max-w-lg bg-white dark:bg-zinc-900 z-50 flex flex-col"
+            className="fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-full max-w-lg bg-white dark:bg-zinc-900 z-50 flex flex-col"
           >
             <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center text-gray-900 dark:text-zinc-100">

@@ -1,10 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 export async function seedSettingsAndFeatureFlags(prisma: PrismaClient) {
-  // -----------------------------
-  // Seed Settings & Feature Flags
-  // -----------------------------
-  console.log('\n⚙️ Seeding platform settings...');
+  console.log('⚙️  Seeding platform settings & feature flags...');
+  
   await prisma.setting.upsert({
     where: { key: 'maintenanceMode' },
     update: {},
@@ -20,7 +18,7 @@ export async function seedSettingsAndFeatureFlags(prisma: PrismaClient) {
       update: {},
       create: {
           key: 'freeJobPostLimit',
-          value: 1, // Store as a number
+          value: 1,
           description: "The number of open jobs an agency on the 'Free' plan can have."
       }
   });
@@ -35,15 +33,15 @@ export async function seedSettingsAndFeatureFlags(prisma: PrismaClient) {
       }
   });
 
-  console.log('Seeding feature flags...');
   await prisma.featureFlag.upsert({
     where: { name: 'enableAiRecommendations' },
     update: {},
     create: {
       name: 'enableAiRecommendations',
       description: 'Enables the AI-powered candidate matching feature for Enterprise agencies.',
-      isEnabled: false, // Default to off
+      isEnabled: false,
     },
   });
-  console.log('Static data seeding complete.');
+  
+  console.log('  - ✅ Settings and feature flags seeded.');
 }

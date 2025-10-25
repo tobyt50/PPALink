@@ -18,30 +18,8 @@ class AgencyService {
     return response.data.data;
   }
 
-  async updateMyAgency(payload: CompanyProfileFormValues): Promise<Agency> {
-    const payloadToSend = { ...payload };
-
-    const keysToProcess: Array<keyof CompanyProfileFormValues> = [
-      'industryId',
-      'headquartersStateId',
-      'lgaId',
-    ];
-
-    keysToProcess.forEach(key => {
-      const value = payloadToSend[key];
-
-      // If the value is a non-empty string (like "25"), parse it to a number.
-      // If it's a falsy value (empty string "", null, undefined), set it to null.
-      if (value) {
-        // @ts-ignore - We are intentionally changing the type
-        payloadToSend[key] = parseInt(String(value), 10);
-      } else {
-        // @ts-ignore - We are intentionally changing the type
-        payloadToSend[key] = null;
-      }
-    });
-
-    const response = await apiClient.put('/agencies/me', payloadToSend);
+  async updateMyAgency(data: CompanyProfileFormValues): Promise<Agency> {
+    const response = await apiClient.patch('/agencies/me', data);
     return response.data.data;
   }
 

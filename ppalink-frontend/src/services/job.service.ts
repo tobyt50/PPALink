@@ -12,7 +12,7 @@ import type { Position } from '../types/job';
 const transformJobPayload = (payload: JobFormValues) => {
   const payloadToSend = { ...payload };
 
-  const numericKeys: Array<keyof JobFormValues> = ['minSalary', 'maxSalary', 'stateId', 'lgaId'];
+  const numericKeys: Array<keyof JobFormValues> = ['minSalary', 'maxSalary', 'countryId', 'regionId', 'cityId'];
 
   numericKeys.forEach(key => {
     const value = payloadToSend[key];

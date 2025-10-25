@@ -62,6 +62,53 @@ enum CandidateProfileType {
   STUDENT
 }
 
+model Country {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  iso2      String   @unique
+  regions   Region[]
+  
+  currency  String?
+  capital   String?
+  phonecode String?
+  emoji     String?
+  latitude  Float?
+  longitude Float?
+
+  CandidateProfiles CandidateProfile[]
+  Agencies          Agency[]
+  Positions         Position[]
+}
+
+model Region { // State or Province
+  id        Int      @id @default(autoincrement())
+  name      String
+  countryId Int
+  country   Country  @relation(fields: [countryId], references: [id])
+  cities    City[]
+  latitude  Float?
+  longitude Float?
+  @@unique([name, countryId])
+
+  CandidateProfiles CandidateProfile[]
+  Agencies          Agency[]
+  Positions         Position[]
+}
+
+model City { // LGA or City
+  id        Int      @id @default(autoincrement())
+  name      String
+  regionId  Int
+  region    Region   @relation(fields: [regionId], references: [id])
+  latitude  Float?
+  longitude Float?
+  @@unique([name, regionId])
+
+  CandidateProfiles CandidateProfile[]
+  Agencies          Agency[]
+  Positions         Position[]
+}
+
 model CandidateProfile {
   id              String     @id @default(uuid())
   userId          String     @unique
@@ -77,8 +124,6 @@ model CandidateProfile {
   nyscStream      String?
   callupHash      String?    
   stateCode       String?
-  primaryStateId  Int?
-  lgaId           Int?
   disabilityInfo  String?
   isVerified      Boolean    @default(false)
   verificationLevel VerificationLevel @default(UNVERIFIED)
@@ -93,10 +138,14 @@ model CandidateProfile {
   portfolio       String?
   graduationYear  Int?
   gpaBand         String?
-
   cvFileKey       String?
   nyscFileKey     String?
-
+  countryId       Int?
+  country         Country? @relation(fields: [countryId], references: [id])
+  regionId        Int?
+  region          Region?  @relation(fields: [regionId], references: [id])
+  cityId          Int?
+  city            City?    @relation(fields: [cityId], references: [id])
   workExperiences WorkExperience[]
   education       Education[]
   skills          CandidateSkill[]
@@ -106,6 +155,9 @@ model CandidateProfile {
   shortlists      Shortlist[]
   quizAttempts QuizAttempt[]
   hasCompletedOnboarding Boolean @default(false)
+  @@index([countryId])
+  @@index([regionId])
+  @@index([cityId])
 }
 
 model WorkExperience {
@@ -223,10 +275,14 @@ model Agency {
   domainVerified Boolean       @default(false)
   cacVerified    Boolean       @default(false)
   logoKey       String?
-  headquartersStateId Int?
-  lgaId         Int?
   createdAt     DateTime       @default(now())
   hasCompletedOnboarding  Boolean        @default(false)
+  countryId       Int?
+  country         Country? @relation(fields: [countryId], references: [id])
+  regionId        Int?
+  region          Region?  @relation(fields: [regionId], references: [id])
+  cityId          Int?
+  city            City?    @relation(fields: [cityId], references: [id])
   followers AgencyFollow[]
   members       AgencyMember[]
   positions     Position[]
@@ -235,6 +291,9 @@ model Agency {
   invitations   Invitation[]
   issuedVerifications WorkVerification[]
   feedItems FeedItem[]
+  @@index([countryId])
+  @@index([regionId])
+  @@index([cityId])
 }
 
 model AgencyMember {
@@ -272,8 +331,6 @@ model Position {
   description  String
   employmentType EmploymentType
   isRemote     Boolean     @default(false)
-  stateId      Int?
-  lgaId        Int?
   minSalary    Int?
   maxSalary    Int?
   skillsReq    Json?
@@ -284,7 +341,17 @@ model Position {
   views JobView[]
   applications Application[]
   skills       PositionSkill[]
+  allowedCountryIds Int[]
   level        JobLevel    @default(ENTRY)
+  countryId       Int?
+  country         Country? @relation(fields: [countryId], references: [id])
+  regionId        Int?
+  region          Region?  @relation(fields: [regionId], references: [id])
+  cityId          Int?
+  city            City?    @relation(fields: [cityId], references: [id])
+  @@index([countryId])
+  @@index([regionId])
+  @@index([cityId])
 }
 
 enum JobLevel {
@@ -537,19 +604,6 @@ enum VerificationStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model LocationState {
-  id   Int     @id @default(autoincrement())
-  name String  @unique
-  lgas LocationLGA[]
-}
-
-model LocationLGA {
-  id     Int    @id @default(autoincrement())
-  name   String
-  stateId Int
-  state  LocationState @relation(fields: [stateId], references: [id])
 }
 
 model Industry {

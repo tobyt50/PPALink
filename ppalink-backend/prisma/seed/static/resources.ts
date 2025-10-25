@@ -3,8 +3,6 @@ import { PrismaClient, FeedCategory, FeedType, FeedAudience } from '@prisma/clie
 export async function seedContent(prisma: PrismaClient) {
     console.log('\n📰 Seeding Career Discovery Feed (Static Content)...');
 
-    await prisma.feedItem.deleteMany({});
-
     const agencyUserId = '097944c2-3582-4220-ade4-4a93ab404375';
     const candidateUserId = '5900ca1a-625c-4a14-8331-ee286900ad73';
 

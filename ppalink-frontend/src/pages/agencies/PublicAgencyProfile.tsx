@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   Globe,
   Loader2,
+  MapPin,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { JobCard } from "../../components/ui/JobCard";
@@ -11,6 +12,8 @@ import useFetch from "../../hooks/useFetch";
 import type { Agency } from "../../types/agency";
 import { useAuthStore } from "../../context/AuthContext";
 import { Avatar } from "../../components/ui/Avatar";
+// 1. REMOVE the unnecessary useLocationNames hook
+// import { useLocationNames } from "../../hooks/useLocationNames";
 
 const PublicAgencyProfilePage = () => {
   const { agencyId } = useParams<{ agencyId: string }>();
@@ -22,6 +25,13 @@ const PublicAgencyProfilePage = () => {
   } = useFetch<Agency>(
     agencyId ? `/public/agencies/${agencyId}/profile` : null
   );
+
+  const fullLocationString = [
+    (agency as any)?.region?.name,
+    (agency as any)?.country?.name,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   if (isLoading) {
     return (
@@ -56,9 +66,9 @@ const PublicAgencyProfilePage = () => {
         </div>
         <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
           <div className="flex flex-col sm:flex-row items-start gap-6">
-            <Avatar 
-                user={{ role: 'AGENCY', ownedAgencies: [agency] }}
-                size="xl"
+            <Avatar
+              user={{ role: "AGENCY", ownedAgencies: [agency] }}
+              size="xl"
             />
             <div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -80,9 +90,15 @@ const PublicAgencyProfilePage = () => {
                   )}
                 </div>
               </div>
-              <p className="mt-2 text-gray-600 dark:text-zinc-300">
-                {agency.industry?.name || "Industry not specified"}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-600 dark:text-zinc-300">
+                <span className="text-sm">
+                  {agency.industry?.name || "Industry not specified"}
+                </span>
+                <span className="flex items-center text-sm">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  {fullLocationString || "Location not specified"}
+                </span>
+              </div>
               {agency.website && (
                 <a
                   href={agency.website}

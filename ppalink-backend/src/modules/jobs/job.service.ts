@@ -100,12 +100,13 @@ export async function createJobPosition(
     }
   }
 
-  const { skills: skillNames, ...positionData } = data;
+  const { skills: skillNames, allowedCountryIds, ...positionData } = data;
 
   const position = await prisma.position.create({
     data: {
       ...positionData,
       agencyId,
+      allowedCountryIds: allowedCountryIds || [],
       skills:
         skillNames && skillNames.length > 0
           ? { create: await connectOrCreateSkills(skillNames) }
@@ -158,12 +159,13 @@ export async function updateJobPosition(
   agencyId: string,
   data: UpdateJobPositionInput
 ) {
-  const { skills: skillNames, ...positionData } = data;
+  const { skills: skillNames, allowedCountryIds, ...positionData } = data;
 
   const position = await prisma.position.update({
     where: { id: jobId, agencyId },
     data: {
       ...positionData,
+      allowedCountryIds: allowedCountryIds || [],
       skills: skillNames
         ? {
             deleteMany: {},
@@ -339,22 +341,36 @@ export async function getJobWithApplicants(jobId: string, agencyId: string) {
 
   (job as any).metrics = metricsResult.reduce((acc, metric) => {
     acc[metric.status] = {
-      avgDaysInStage: parseFloat(metric.avgDaysInStage.toFixed(1)), // Format to one decimal place
+      avgDaysInStage: parseFloat(metric.avgDaysInStage.toFixed(1)),
     };
     return acc;
   }, {} as Record<ApplicationStatus, { avgDaysInStage: number }>);
   return job;
 }
 
-export async function getPublicJobs(queryParams: any) {
-  const { q, stateId, isRemote } = queryParams;
+export async function getPublicJobs(queryParams: any, userId?: string) {
+  const { q, countryId, regionId, cityId, isRemote, industryId } = queryParams;
 
-  const where: any = {
-    visibility: PositionVisibility.PUBLIC,
-    status: PositionStatus.OPEN,
-    ...(isRemote === "true" && { isRemote: true }),
-    ...(stateId && { stateId: Number(stateId) }),
-  };
+  const andConditions: Prisma.PositionWhereInput[] = [
+    { visibility: PositionVisibility.PUBLIC },
+    { status: PositionStatus.OPEN },
+  ];
+
+  if (isRemote === "true") {
+    andConditions.push({ isRemote: true });
+  }
+  if (countryId) {
+    andConditions.push({ countryId: Number(countryId) });
+  }
+  if (regionId) {
+    andConditions.push({ regionId: Number(regionId) });
+  }
+  if (cityId) {
+    andConditions.push({ cityId: Number(cityId) });
+  }
+  if (industryId) {
+    andConditions.push({ agency: { industryId: Number(industryId) } });
+  }
 
   if (q) {
     const searchQuery = String(q).trim();
@@ -363,20 +379,30 @@ export async function getPublicJobs(queryParams: any) {
       select: { id: true },
     });
     const matchingAgencyIds = matchingAgencies.map((agency) => agency.id);
-
-    where.OR = [
-      { title: { contains: searchQuery, mode: "insensitive" } },
-      { description: { contains: searchQuery, mode: "insensitive" } },
-      { agencyId: { in: matchingAgencyIds } },
-      {
-        skills: {
-          some: {
-            skill: { name: { contains: searchQuery, mode: "insensitive" } },
-          },
-        },
-      },
-    ];
+    
+    andConditions.push({
+      OR: [
+        { title: { contains: searchQuery, mode: "insensitive" } },
+        { description: { contains: searchQuery, mode: "insensitive" } },
+        { agencyId: { in: matchingAgencyIds } },
+        { skills: { some: { skill: { name: { contains: searchQuery, mode: "insensitive" } } } } },
+      ],
+    });
   }
+
+  if (userId) {
+      const candidate = await prisma.candidateProfile.findUnique({ where: { userId }, select: { countryId: true } });
+      if (candidate && candidate.countryId) {
+          andConditions.push({
+              OR: [
+                  { allowedCountryIds: { isEmpty: true } },
+                  { allowedCountryIds: { has: candidate.countryId } }
+              ]
+          });
+      }
+  }
+  
+  const where: Prisma.PositionWhereInput = { AND: andConditions };
 
   return prisma.position.findMany({
     where,
@@ -404,6 +430,7 @@ export async function getPublicJobById(jobId: string) {
           name: true,
           domainVerified: true,
           cacVerified: true,
+          logoKey: true,
         },
       },
       skills: {

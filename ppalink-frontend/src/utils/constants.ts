@@ -86,7 +86,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { to: "/admin/jobs", icon: Briefcase, text: "Job Posts" },
   { to: "/admin/plans", icon: CreditCard, text: "Subscriptions" },
   { to: "/admin/quizzes", icon: FileQuestion, text: "Assessments" },
-  { to: "/admin/feed", icon: Rss, text: "Manage Feed" },
+  { to: "/feed/manage", icon: Rss, text: "Manage Feed" },
   { to: "/admin/verifications", icon: CheckSquare, text: "Verifications" },
   { to: "/admin/reports", icon: BarChart3, text: "Reports" },
 ];

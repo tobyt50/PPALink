@@ -98,12 +98,12 @@ const RegisterAgency = () => {
       <div className="relative w-full h-full flex items-center justify-center px-4">
         <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-between gap-8">
           {/* Left Section */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="hidden lg:block lg:w-1/2 text-center lg:text-left space-y-1 max-h-[80vh] overflow-y-auto"
-          >
+<motion.div
+  initial={{ opacity: 0, x: -50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }} // faster + smooth
+  className="hidden lg:block lg:w-1/2 text-center lg:text-left space-y-1 max-h-[80vh] overflow-y-auto"
+>
             <div className="space-y-1">
               <h1 className="text-4xl font-bold tracking-tight leading-tight">
                 Join the Network
@@ -124,25 +124,30 @@ const RegisterAgency = () => {
               </div>
             </div>
             {featuredAgencies && featuredAgencies.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <h3 className="text-xl font-bold mb-4 text-white">Active Agencies</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {featuredAgencies.slice(0, 4).map((agency, i) => (
-                    <motion.div key={agency.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
-                      <AgencyCard agency={agency} />
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-          {/* Right Section - Form */}
+    <div className="mt-8 pt-6 border-t border-white/10">
+      <h3 className="text-xl font-bold mb-4 text-white">Active Agencies</h3>
+      <div className="grid grid-cols-2 gap-4">
+        {featuredAgencies.slice(0, 4).map((agency, i) => (
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="w-full lg:w-1/2 flex justify-center lg:justify-end"
+            key={agency.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25, delay: 0.2 + i * 0.08, ease: "easeOut" }} // snappier cascade
           >
+            <AgencyCard agency={agency} />
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )}
+</motion.div>
+          {/* Right Section - Form */}
+<motion.div
+  initial={{ opacity: 0, x: 50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }} // fast + synced
+  className="w-full lg:w-1/2 flex justify-center lg:justify-end"
+>
             <div className="w-full max-w-sm">
               <div className="rounded-2xl border border-gray-200/50 dark:border-zinc-800/50 bg-white/95 dark:bg-zinc-900/95 dark:backdrop-blur-md p-4 lg:p-8 shadow-2xl">
                 <div className="text-center">

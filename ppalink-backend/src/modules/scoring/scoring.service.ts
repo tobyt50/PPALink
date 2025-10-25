@@ -17,8 +17,8 @@ const levelToScore = (level: QuizLevel): number => {
  * @param candidateId The ID of the candidate's profile.
  * @param positionId The ID of the job position.
  */
+
 export async function calculateMatchScore(candidateId: string, positionId: string): Promise<number> {
-  // 1. Fetch all required data in a single, efficient transaction
   const [candidate, position] = await prisma.$transaction([
     prisma.candidateProfile.findUnique({
       where: { id: candidateId },
@@ -39,22 +39,20 @@ export async function calculateMatchScore(candidateId: string, positionId: strin
   ]);
 
   if (!candidate || !position) {
-    // Should not happen in a real flow, but a necessary safeguard
     return 0;
   }
 
   let totalScore = 0;
 
-  // --- 2. Score Skills (50%) ---
+  // --- Score Skills (50%) ---
   if (position.skills.length > 0) {
     let skillScore = 0;
     const maxSkillScore = 50;
     const pointsPerSkill = maxSkillScore / position.skills.length;
     
-    // Create a map of the candidate's verified skills and their levels
     const verifiedSkills = new Map<number, QuizLevel>();
     candidate.quizAttempts.forEach(attempt => {
-        if (attempt.skillId) {
+        if (attempt.skillId && attempt.quiz.level) {
             const currentLevel = verifiedSkills.get(attempt.skillId);
             const attemptLevel = attempt.quiz.level;
             if (!currentLevel || levelToScore(attemptLevel) > levelToScore(currentLevel)) {
@@ -66,52 +64,62 @@ export async function calculateMatchScore(candidateId: string, positionId: strin
     for (const requiredSkill of position.skills) {
       const candidateHasSkill = candidate.skills.some(cs => cs.skillId === requiredSkill.skillId);
       if (candidateHasSkill) {
-        skillScore += pointsPerSkill * 0.5; // Base points for having the skill
+        skillScore += pointsPerSkill * 0.5;
         
-        // Bonus points for verified level
         const candidateLevel = verifiedSkills.get(requiredSkill.skillId);
         if (candidateLevel && levelToScore(candidateLevel) >= levelToScore(requiredSkill.requiredLevel)) {
-          skillScore += pointsPerSkill * 0.5; // Full points if level is met or exceeded
+          skillScore += pointsPerSkill * 0.5;
         }
       }
     }
     totalScore += skillScore;
   }
 
-  // --- 3. Score Experience (20%) ---
-  // A simple keyword match against job titles
+  // --- Score Experience (20%) ---
   let experienceScore = 0;
-  const keywords = position.title.toLowerCase().split(' ');
+  const keywords = position.title.toLowerCase().split(' ').filter(k => k.length > 2);
   for (const exp of candidate.workExperiences) {
       if (keywords.some(kw => exp.title.toLowerCase().includes(kw))) {
-          experienceScore = 20; // Give full points if any experience title matches
+          experienceScore = 20;
           break;
       }
   }
   totalScore += experienceScore;
   
-  // --- 4. Score Education (20%) ---
-  // A simple keyword match against degree and field of study
+  // --- Score Education (20%) ---
   let educationScore = 0;
   for (const edu of candidate.education) {
-      if (keywords.some(kw => edu.degree.toLowerCase().includes(kw) || edu.field?.toLowerCase().includes(kw))) {
-          educationScore = 20; // Full points if any education record matches
+      if (edu.field && keywords.some(kw => edu.degree.toLowerCase().includes(kw) || edu.field!.toLowerCase().includes(kw))) {
+          educationScore = 20;
           break;
       }
   }
   totalScore += educationScore;
-
-  // --- 5. Score Other Requirements (10%) ---
+  
   let otherScore = 0;
-  if (position.stateId && candidate.primaryStateId === position.stateId) {
+  // 1. Direct country match is a strong signal
+  if (position.countryId && candidate.countryId === position.countryId) {
       otherScore += 5;
-  } else if (candidate.isOpenToReloc) {
-      otherScore += 2.5; // Half points for being open to relocation
+      // 2. Bonus points for region/city match within the same country
+      if (position.regionId && candidate.regionId === position.regionId) {
+          otherScore += 2.5;
+          if (position.cityId && candidate.cityId === position.cityId) {
+              otherScore += 2.5; // Maxes out location score at 10
+          }
+      }
+  } 
+  // 3. If no direct match, check if the candidate is open to relocation.
+  else if (candidate.isOpenToReloc) {
+      otherScore += 4; // High score for flexibility
   }
+  
+  // 4. Remote work preference is a separate check
   if (position.isRemote && candidate.isRemote) {
-      otherScore += 5;
+      otherScore += 5; // Add a bonus if both prefer remote
   }
-  totalScore += otherScore;
 
-  return Math.round(totalScore);
+  // Cap the "other" score at 10 points
+  totalScore += Math.min(10, otherScore);
+
+  return Math.round(Math.min(100, totalScore)); // Ensure final score doesn't exceed 100
 }

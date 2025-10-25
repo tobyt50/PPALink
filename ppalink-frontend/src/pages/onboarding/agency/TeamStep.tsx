@@ -53,7 +53,7 @@ const TeamStep = () => {
                 <Button type="button" variant="outline" onClick={() => navigate('/onboarding/agency/pipeline')}>
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button size="lg" onClick={handleNext}>
+                <Button size="sm" onClick={handleNext}>
                     Next: Discover Candidates <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>

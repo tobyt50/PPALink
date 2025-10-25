@@ -4,7 +4,7 @@ import {
   CheckCheck,
   ChevronLeft,
   Loader2,
-  MessageSquare,
+  MessageCircle,
   Send,
 } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -571,7 +571,7 @@ const InboxPage = () => {
     return (
       <div className="h-full flex items-center justify-center p-4">
         <EmptyState
-          icon={MessageSquare}
+          icon={MessageCircle}
           title="No Conversations Yet"
           description="Your message threads will appear here."
         />
@@ -612,7 +612,7 @@ const InboxPage = () => {
           />
         ) : (
           <div className="hidden md:flex flex-col h-full items-center justify-center text-center text-gray-500 dark:text-zinc-400 bg-gray-50 dark:bg-zinc-900/50">
-            <MessageSquare className="h-16 w-16 text-gray-300" />
+            <MessageCircle className="h-16 w-16 text-gray-300" />
             <h2 className="mt-4 text-lg font-medium text-gray-600 dark:text-zinc-300">
               Select a conversation
             </h2>

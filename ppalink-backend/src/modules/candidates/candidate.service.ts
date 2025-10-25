@@ -88,7 +88,7 @@ export async function getCandidateProfileById(profileId: string) {
       user: {
         select: {
           avatarKey: true,
-        }
+        },
       },
       skills: {
         include: {
@@ -178,7 +178,8 @@ export async function getMyApplications(userId: string) {
         include: {
           agency: {
             select: {
-              name: true, logoKey: true
+              name: true,
+              logoKey: true,
             },
           },
         },
@@ -197,8 +198,8 @@ export async function getCandidateDashboardData(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
-        user: { select: { avatarKey: true } }
-    }
+      user: { select: { avatarKey: true } },
+    },
   });
 
   if (!profile) throw new Error("Candidate profile not found.");
@@ -224,13 +225,15 @@ export async function getCandidateDashboardData(userId: string) {
       take: 20,
       include: {
         position: {
-          select: { title: true, agency: { 
-              select: { 
+          select: {
+            title: true,
+            agency: {
+              select: {
                 id: true,
-                name: true, 
-                logoKey: true
-              } 
-            } 
+                name: true,
+                logoKey: true,
+              },
+            },
           },
         },
       },
@@ -387,7 +390,7 @@ export async function getMyCandidateProfile(userId: string) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
-      user: { select: { id: true, email: true, avatarKey: true, } },
+      user: { select: { id: true, email: true, avatarKey: true } },
       skills: { include: { skill: true } },
       workExperiences: { orderBy: { startDate: "desc" } },
       education: { orderBy: { startDate: "desc" } },
@@ -418,20 +421,26 @@ export async function getMyCandidateProfile(userId: string) {
  */
 export async function getRecommendedJobs(
   userId: string,
-  filters: { stateId?: number; isRemote?: boolean }
+  filters: {
+    countryId?: number;
+    regionId?: number;
+    cityId?: number;
+    isRemote?: boolean;
+    industryId?: number;
+    q?: string;
+  }
 ) {
   const profile = await prisma.candidateProfile.findUnique({
     where: { userId },
     include: {
       skills: { include: { skill: true } },
-      workExperiences: { take: 3, orderBy: { startDate: "desc" } }, // Get recent job titles
-      education: { take: 1, orderBy: { endDate: "desc" } }, // Get most recent field of study
+      workExperiences: { take: 3, orderBy: { startDate: "desc" } },
+      education: { take: 1, orderBy: { endDate: "desc" } },
     },
   });
 
   if (!profile) return [];
 
-  // 1. Gather all keywords from the candidate's profile
   const skillNames = profile.skills.map((s) => s.skill.name);
   const jobTitleKeywords = profile.workExperiences.flatMap((exp) =>
     exp.title.toLowerCase().split(" ")
@@ -439,14 +448,12 @@ export async function getRecommendedJobs(
   const educationKeywords = profile.education.flatMap(
     (edu) => edu.field?.toLowerCase().split(" ") || []
   );
-
   const allKeywords = [
     ...new Set([...skillNames, ...jobTitleKeywords, ...educationKeywords]),
   ];
 
   if (allKeywords.length === 0) {
-    // If profile is empty, just return the latest jobs
-    return getPublicJobs({});
+    return getPublicJobs(filters, userId);
   }
 
   const descriptionFilters = allKeywords.map((kw) => ({
@@ -456,42 +463,60 @@ export async function getRecommendedJobs(
   const whereClause: Prisma.PositionWhereInput = {
     visibility: "PUBLIC",
     status: "OPEN",
+
     OR: [
-      { title: { in: allKeywords, mode: "insensitive" } },
-      ...descriptionFilters,
+      { allowedCountryIds: { isEmpty: true } },
+      { allowedCountryIds: { has: profile.countryId } },
+    ],
+
+    AND: [
       {
-        skills: {
-          some: {
-            skill: {
-              name: {
-                in: profile.skills.map((s) => s.skill.name),
-                mode: "insensitive",
+        OR: [
+          { title: { in: allKeywords, mode: "insensitive" } },
+          ...descriptionFilters,
+          {
+            skills: {
+              some: {
+                skill: {
+                  name: {
+                    in: profile.skills.map((s) => s.skill.name),
+                    mode: "insensitive",
+                  },
+                },
               },
             },
           },
-        },
+        ],
+      },
+      {
+        ...(filters.countryId && { countryId: filters.countryId }),
+        ...(filters.regionId && { regionId: filters.regionId }),
+        ...(filters.cityId && { cityId: filters.cityId }),
+        ...(filters.isRemote && { isRemote: true }),
+        ...(filters.industryId && {
+          agency: { industryId: filters.industryId },
+        }),
+        ...(filters.q && {
+          title: { contains: filters.q, mode: "insensitive" },
+        }),
       },
     ],
   };
 
-  // 2. Conditionally add the new filters if they are provided
-  if (filters.stateId) {
-    whereClause.stateId = filters.stateId;
-  }
-  if (filters.isRemote) {
-    whereClause.isRemote = true;
-  }
-
-  // 2. Find jobs that match these keywords
   const recommendedJobs = await prisma.position.findMany({
     where: whereClause,
     include: {
       agency: {
-        select: { name: true, domainVerified: true, cacVerified: true, logoKey: true },
+        select: {
+          name: true,
+          domainVerified: true,
+          cacVerified: true,
+          logoKey: true,
+        },
       },
       skills: { include: { skill: true } },
     },
-    take: 20, // Limit the recommendations
+    take: 20,
   });
 
   return recommendedJobs;

@@ -56,8 +56,9 @@ export interface CandidateProfile {
   nyscBatch: string | null;
   nyscStream: string | null;
   stateCode: string | null;
-  primaryStateId: number | null;
-  lgaId: number | null;
+  countryId: number | null;
+  regionId: number | null;
+  cityId: number | null;
   isVerified: boolean;
   verificationLevel: string;
   isRemote: boolean;

@@ -38,8 +38,9 @@ export interface Agency {
   cacVerified: boolean;
   hasCompletedOnboarding: boolean;
   logoKey: string | null;
-  headquartersStateId: number | null;
-  lgaId: number | null;
+  countryId: number | null;
+  regionId: number | null;
+  cityId: number | null;
   createdAt: string;
 
   members?: AgencyMember[];

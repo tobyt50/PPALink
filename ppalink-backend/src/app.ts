@@ -22,6 +22,7 @@ import { forcePasswordChange } from "./middleware/forcePasswordChange";
 import quizRoutes from './modules/quizzes/quiz.routes';
 import feedRoutes from "./modules/feed/feed.routes";
 import boostRoutes from "./modules/boosts/boost.routes";
+import locationRoutes from "./modules/locations/location.routes";
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use(express.json());
 // --- Public Routes (no auth) ---
 app.use('/api/public', publicRoutes);
 app.use('/api/password', passwordRoutes);
+app.use('/api/locations', locationRoutes);
 
 // Auth Routes: Login/Register are public, but change-password is protected.
 // Handled separately because they have mixed protection levels.

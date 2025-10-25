@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { generateSlug } from '../utils';
+import { generateSlug } from '../utils/helpers';
 
 const skillsToSeed = [
   // Technical & Engineering
@@ -28,21 +28,21 @@ const skillsToSeed = [
 ];
 
 export async function seedSkills(prisma: PrismaClient) {
-    console.log('\n🌱 Seeding essential skills...');
-    
-    // Use a Set to automatically handle any duplicates from the list
+    console.log('🌱 Seeding essential skills...');
+
     const uniqueSkills = [...new Set(skillsToSeed)];
 
     const skillsData = uniqueSkills.map(name => ({
         name,
         slug: generateSlug(name),
     }));
-    
-    // Use `createMany` with `skipDuplicates` to efficiently seed
+
+    // Use `createMany` with `skipDuplicates` for efficiency.
+    // The cleanup script already handles deletion.
     await prisma.skill.createMany({
         data: skillsData,
         skipDuplicates: true,
     });
 
-    console.log(`✅ ${uniqueSkills.length} essential skills seeded.`);
+    console.log(`  - ✅ ${uniqueSkills.length} essential skills seeded.`);
 }

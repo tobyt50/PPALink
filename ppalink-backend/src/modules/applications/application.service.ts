@@ -126,14 +126,30 @@ export async function updateApplication(
   return updatedApplication;
 }
   
+
 export async function createCandidateApplication(positionId: string, userId: string) {
-  const candidateProfile = await prisma.candidateProfile.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
+  const [candidateProfile, position] = await prisma.$transaction([
+    prisma.candidateProfile.findUnique({
+      where: { userId },
+      select: { id: true, countryId: true },
+    }),
+    prisma.position.findUnique({
+      where: { id: positionId },
+      select: { allowedCountryIds: true },
+    })
+  ]);
 
   if (!candidateProfile) {
     throw new Error('Candidate profile not found for the current user.');
+  }
+  if (!position) {
+    throw new Error('Job position not found.');
+  }
+
+  if (position.allowedCountryIds && position.allowedCountryIds.length > 0) {
+    if (!candidateProfile.countryId || !position.allowedCountryIds.includes(candidateProfile.countryId)) {
+      throw new Error('This job is restricted to applicants from specific countries.');
+    }
   }
 
   const existingApplication = await prisma.application.findFirst({
@@ -144,16 +160,14 @@ export async function createCandidateApplication(positionId: string, userId: str
     throw new Error('You have already applied for this position.');
   }
 
-  // Calculate the match score BEFORE creating the application record
   const matchScore = await calculateMatchScore(candidateProfile.id, positionId);
 
-  // Create the application, now including the calculated score
   const application = await prisma.application.create({
     data: {
       positionId,
       candidateId: candidateProfile.id,
       status: ApplicationStatus.APPLIED,
-      matchScore: matchScore, // STORE THE SCORE
+      matchScore: matchScore,
     },
   });
 

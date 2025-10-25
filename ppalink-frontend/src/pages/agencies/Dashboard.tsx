@@ -1,28 +1,35 @@
+import { BarChart2, Briefcase, Package, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { StatCard } from "../../components/ui/StatCard";
+import useFetch from "../../hooks/useFetch";
+import type {
+  AgencyAnalyticsData,
+  AgencyEnterpriseAnalytics,
+  AgencyProAnalytics,
+} from "../../types/analytics";
+import { DistributionBarChart } from "./charts/DistributionBarChart";
+import { GeographicSourcingChart } from "./charts/GeographicSourcingChart";
+import { SkillsHeatmapChart } from "./charts/SkillsHeatmapChart";
+import { TrendLineChart } from "./charts/TrendLineChart";
 import {
   ArrowRight,
-  Briefcase,
   CheckCircle,
   Eye,
-  Package,
   PlusCircle,
   UserPlus,
-  Users,
-  Star,
   BookOpen,
   BrainCircuit,
   TrendingUp,
   List,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "../../components/ui/Button";
-import { StatCard } from "../../components/ui/StatCard";
-import { FeedCard } from "../../components/ui/FeedCard";
-import useFetch from "../../hooks/useFetch";
 import { useState, useMemo } from "react";
 import type { Agency } from "../../types/agency";
-import type { AgencyAnalyticsData, AgencyDashboardData } from "../../types/analytics";
+import type { AgencyDashboardData } from "../../types/analytics";
 import type { FeedItem } from "../../types/feed";
 import { Avatar } from "../../components/ui/Avatar";
+import { FeedCard } from "../../components/ui/FeedCard";
 
 // Reusable TodoItem with hover transition
 const TodoItem = ({ text, linkTo }: { text: string; linkTo: string }) => (
@@ -67,7 +74,8 @@ const DiscoveryFeed = () => {
   const feedItems = feedResponse?.data;
 
   const itemsToShow = useMemo(() => {
-    return feedItems?.slice(0, 4) || [];
+    // Show 3 items for a more compact feed
+    return feedItems?.slice(0, 3) || [];
   }, [feedItems]);
 
   const buttonBaseStyle =
@@ -125,34 +133,27 @@ const DiscoveryFeed = () => {
         <div className="relative">
           {/* Feed cards container */}
           <div className="p-6 space-y-6 overflow-hidden pb-20">
-            {itemsToShow.map((item, index) => (
-              <div
-                key={item.id}
-                className={`transition-transform duration-500 ease-out ${
-                  index === itemsToShow.length - 1 ? "translate-y-6" : ""
-                }`}
-              >
+            {itemsToShow.map((item) => (
+              <div key={item.id}>
                 <FeedCard item={item} />
               </div>
             ))}
           </div>
 
           {/* Gradient fade overlay + See More */}
-          <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end 
-                          bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent 
-                          after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-r after:from-white dark:after:from-zinc-900 after:via-transparent after:to-white dark:after:to-zinc-900 after:pointer-events-none">
+          <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
+                          bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent">
             <Link
-  to={`/feed${activeTab && activeTab !== "ALL" ? `?category=${activeTab}` : ""}`}
-  className="relative z-10 pb-4"
->
-  <Button
-    variant="ghost"
-    className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
-  >
-    See More →
-  </Button>
-</Link>
-
+              to={`/feed${activeTab && activeTab !== "ALL" ? `?category=${activeTab}` : ""}`}
+              className="relative z-10 pb-4"
+            >
+              <Button
+                variant="ghost"
+                className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
+              >
+                See More →
+              </Button>
+            </Link>
           </div>
         </div>
       )}
@@ -160,10 +161,21 @@ const DiscoveryFeed = () => {
   );
 };
 
+const isProOrEnterprise = (
+  data: AgencyAnalyticsData | null
+): data is AgencyProAnalytics => {
+  return !!data && (data.planName === "Pro" || data.planName === "Enterprise");
+};
+const isEnterprise = (
+  data: AgencyAnalyticsData | null
+): data is AgencyEnterpriseAnalytics => {
+  return !!data && data.planName === "Enterprise";
+};
+
 const AgencyDashboard = () => {
   const { data: dashboardData, isLoading: isLoadingDashboard } =
     useFetch<AgencyDashboardData>("/agencies/dashboard");
-  const { data: analytics, isLoading: isLoadingAnalytics } =
+  const { data: analytics, isLoading: isLoadingAnalytics, error: analyticsError } =
     useFetch<AgencyAnalyticsData>("/agencies/analytics");
   const { data: agency, isLoading: isLoadingAgency } =
     useFetch<Agency>("/agencies/me");
@@ -173,7 +185,7 @@ const AgencyDashboard = () => {
   const stats = dashboardData?.stats;
   const verification = dashboardData?.verificationStatus;
   const memberCount = agency?.members?.length ?? 0;
-  
+
   const currentPlan = agency?.subscriptions?.[0]?.plan;
   let jobPostLimit: number;
   let memberLimit: number;
@@ -190,10 +202,10 @@ const AgencyDashboard = () => {
 
   const openJobsCount = stats?.openJobs ?? 0;
   const canPostNewJob = jobPostLimit === -1 || openJobsCount < jobPostLimit;
- 
+
   return (
     <div className="space-y-5">
-      {/* Header */}
+      {/* Dashboard Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
@@ -201,28 +213,36 @@ const AgencyDashboard = () => {
           </h1>
         </div>
         {canPostNewJob ? (
-            <Link to="/dashboard/agency/jobs/create">
-              <Button size="sm" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
-                <PlusCircle className="mr-2 h-5 w-5" />
-                New Job
-              </Button>
-            </Link>
+          <Link to="/dashboard/agency/jobs/create">
+            <Button size="sm" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              New Job
+            </Button>
+          </Link>
         ) : (
-             <div className="text-right">
-                <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
-                <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
-                    Upgrade to post more
-                </Link>
-            </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
+            <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
+              Upgrade to post more
+            </Link>
+          </div>
         )}
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+      {/* Combined Stat Cards */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 sm:gap-4 lg:gap-6">
         <StatCard
           icon={Briefcase}
           label="Open Jobs"
-          value={stats?.openJobs ?? 0}
+          value={analytics?.openJobsCount ?? 0}
+          isLoading={isLoading}
+          linkTo="/dashboard/agency/jobs"
+          color="green"
+        />
+        <StatCard
+          icon={Briefcase}
+          label="Total Jobs Posted"
+          value={isProOrEnterprise(analytics) ? analytics.totalJobsPosted : "N/A"}
           isLoading={isLoading}
           linkTo="/dashboard/agency/jobs"
           color="green"
@@ -235,7 +255,7 @@ const AgencyDashboard = () => {
           linkTo={isPaidUser ? "/dashboard/agency/jobs" : "/dashboard/agency/billing"}
           color="green"
         />
-        <StatCard
+        {/* <StatCard
           icon={Users}
           label="Shortlisted Candidates"
           value={isPaidUser ? stats?.totalShortlisted ?? 0 : "N/A"}
@@ -246,26 +266,149 @@ const AgencyDashboard = () => {
               : "/dashboard/agency/billing"
           }
           color="green"
-        />
+        /> */}
         <StatCard
           icon={Eye}
           label="Job Views"
           value={isPaidUser ? (analytics as any).totalJobViews ?? "N/A" : "N/A"}
           isLoading={isLoading}
-          linkTo={isPaidUser ? "/dashboard/agency/analytics" : "/dashboard/agency/billing"}
+          linkTo={isPaidUser ? "#analytics" : "/dashboard/agency/billing"}
           color="green"
         />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left column */}
+        {/* Left column - Main Content */}
         <div className="lg:col-span-2 space-y-8">
           <DiscoveryFeed />
+
+          {/* Active Jobs - full width */}
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Active Jobs</h2>
+            </div>
+            {isLoading ? (
+              <div className="p-6 space-y-4">
+                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+              </div>
+            ) : dashboardData?.activeJobs.length === 0 ? (
+              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">You have no open jobs.</p>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {dashboardData?.activeJobs.map((job) => (
+                  <li key={job.id}>
+                    <Link
+                      to={`/dashboard/agency/${job.agencyId}/jobs/${job.id}/pipeline`}
+                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-primary-600 dark:text-primary-400">{job.title}</p>
+                        <span className="rounded-full bg-green-100 dark:bg-green-950/60 px-2 py-0.5 text-sm font-medium text-primary-600 dark:text-primary-400">
+                          {job._count.applications}
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
-        {/* Right column */}
+        {/* Right column - Sidebar */}
         <div className="lg:col-span-1 space-y-8">
+          {/* Analytics Section */}
+          <div id="analytics" className="space-y-5">
+            {analyticsError && analyticsError.includes("Analytics are not available on the Free plan") ? (
+              <EmptyState
+                icon={BarChart2}
+                title="Unlock Insights"
+                description="Upgrade to Pro for analytics."
+                action={{
+                  text: "Upgrade",
+                  to: "/dashboard/agency/billing",
+                }}
+              />
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-4">
+                    <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 mb-2">
+                      Status Distribution
+                    </h2>
+                    {isLoading ? (
+                      <div className="h-[180px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+                    ) : (
+                      isProOrEnterprise(analytics) && (
+                        <DistributionBarChart
+                          data={analytics.applicationStatusDistribution}
+                        />
+                      )
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-4">
+                    <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 mb-2">
+                      Application Trends
+                    </h2>
+                    {isLoading ? (
+                      <div className="h-[180px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+                    ) : (
+                      isProOrEnterprise(analytics) && (
+                        <TrendLineChart data={analytics.applicationTrends} />
+                      )
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-4">
+                  {!isEnterprise(analytics) && !isLoading && (
+                    <div className="mt-2 absolute inset-0 bg-white dark:bg-zinc-900/70 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl">
+                      <Star className="h-8 w-8 text-yellow-500" />
+                      <h3 className=" text-md font-semibold text-gray-800 dark:text-zinc-100">
+                        Enterprise Insights
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400 text-center max-w-xs">
+                        Upgrade for skills and sourcing data.
+                      </p>
+                      <Link to="/dashboard/agency/billing" className="m-2">
+                        <Button size="sm">Upgrade</Button>
+                      </Link>
+                    </div>
+                  )}
+                  <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 mb-2">
+                    Advanced Analytics
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4 mt-2">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-zinc-200 mb-1">Top Skills</h3>
+                      {isLoading ? (
+                        <div className="h-[150px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+                      ) : (
+                        isEnterprise(analytics) && (
+                          <SkillsHeatmapChart data={analytics.skillsHeatmap} />
+                        )
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-zinc-200 mb-1">
+                        Top Locations
+                      </h3>
+                      {isLoading ? (
+                        <div className="h-[150px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+                      ) : (
+                        isEnterprise(analytics) && (
+                          <GeographicSourcingChart data={analytics.geographicSourcing} />
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Recent Applications */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
@@ -308,37 +451,7 @@ const AgencyDashboard = () => {
               </ul>
             )}
           </div>
-          {/* Active Jobs */}
-          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Active Jobs</h2>
-            </div>
-            {isLoading ? (
-              <div className="p-6 space-y-4">
-                <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
-              </div>
-            ) : dashboardData?.activeJobs.length === 0 ? (
-              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">You have no open jobs.</p>
-            ) : (
-              <ul className="divide-y divide-gray-100">
-                {dashboardData?.activeJobs.map((job) => (
-                  <li key={job.id}>
-                    <Link
-                      to={`/dashboard/agency/${job.agencyId}/jobs/${job.id}/pipeline`}
-                      className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-primary-600 dark:text-primary-400">{job.title}</p>
-                        <span className="rounded-full bg-green-100 dark:bg-green-950/60 px-2 py-0.5 text-sm font-medium text-primary-600 dark:text-primary-400">
-                          {job._count.applications}
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+
           {/* Next Steps */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
@@ -435,37 +548,6 @@ const AgencyDashboard = () => {
                   </Button>
                 </Link>
               </div>
-            </div>
-          </div>
-
-          {/* Plan */}
-          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Your Plan</h2>
-            {isPaidUser ? (
-              <p className="mt-2 text-gray-500 dark:text-zinc-400">
-                You are on the{" "}
-                <span className="font-semibold text-primary-600 dark:text-primary-400">
-                  {analytics?.planName}
-                </span>{" "}
-                plan.
-              </p>
-            ) : (
-              <p className="mt-2 text-gray-500 dark:text-zinc-400">
-                You are on the{" "}
-                <span className="font-semibold text-primary-600 dark:text-primary-400">Free</span> plan.
-                Upgrade to unlock powerful analytics.
-              </p>
-            )}
-            <div className="mt-4">
-              <Link to="/dashboard/agency/analytics">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
-                >
-                  View Full Analytics
-                </Button>
-              </Link>
             </div>
           </div>
         </div>

@@ -63,11 +63,7 @@ const SidebarLink = ({
 const SidebarContent = ({ navItems }: { navItems: NavItem[] }) => {
   const { isSidebarOpen, toggleSidebar } = useUIStore();
   const isCollapsed = !isSidebarOpen;
-  const user = useAuthStore((state) => state.user);
-  const title =
-    user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
-      ? "Control Panel"
-      : "Quick Links";
+  const title = "Menu";
   const handleLinkClick = () => {
     if (window.innerWidth < 768 && isSidebarOpen) {
       toggleSidebar();

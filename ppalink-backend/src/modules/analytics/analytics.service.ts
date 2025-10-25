@@ -5,7 +5,7 @@ import prisma from '../../config/db';
 // 🔹 Helper types for groupBy results
 type ApplicationGroup = { status: ApplicationStatus; _count: { _all: number } };
 type SkillGroup = { skillId: number; _count: { _all: number } };
-type LocationGroup = { primaryStateId: number | null; _count: { _all: number } };
+type LocationGroup = { primaryRegionId: number | null, _count: { _all: number } };
 
 /**
  * Fetches analytics data for a specific agency, tailored to their subscription plan.
@@ -24,7 +24,7 @@ export async function getAgencyAnalytics(agencyId: string) {
   const freeAnalytics = { planName, openJobsCount };
   if (planName === 'Free') return freeAnalytics;
 
-  // ✅ Pro and Enterprise common data
+  // Pro and Enterprise common data
   const [totalJobsPosted, totalApplications, recentApplications, totalJobViews] = await prisma.$transaction([
     prisma.position.count({ where: { agencyId } }),
     prisma.application.count({ where: { position: { agencyId } } }),
@@ -71,7 +71,7 @@ export async function getAgencyAnalytics(agencyId: string) {
   };
   if (planName === 'Pro') return proAnalytics;
 
-  // ✅ Enterprise additional data
+  // Enterprise additional data
   if (planName === 'Enterprise') {
     const rawSkillsData = await prisma.candidateSkill.groupBy({
       by: ['skillId'],
@@ -81,18 +81,19 @@ export async function getAgencyAnalytics(agencyId: string) {
       take: 5,
     });
     const skillsData = rawSkillsData as SkillGroup[];
-
+    
     const rawLocationsData = await prisma.candidateProfile.groupBy({
-      by: ['primaryStateId'],
+      by: ['regionId'],
       _count: { _all: true },
       where: {
         applications: { some: { position: { agencyId } } },
-        primaryStateId: { not: null },
+        regionId: { not: null },
       },
-      orderBy: { _count: { primaryStateId: 'desc' } },
+      orderBy: { _count: { regionId: 'desc' } },
       take: 5,
     });
-    const locationsData = rawLocationsData as LocationGroup[];
+    const locationsData = rawLocationsData as any[];
+
     const topSkillIds = skillsData.map((s) => s.skillId);
     const topSkills = await prisma.skill.findMany({ where: { id: { in: topSkillIds } } });
 
@@ -102,14 +103,15 @@ export async function getAgencyAnalytics(agencyId: string) {
       return acc;
     }, {} as Record<string, number>);
 
-    const topStateIds = locationsData.map((s) => s.primaryStateId).filter(Boolean) as number[];
-    const topStates = await prisma.locationState.findMany({ where: { id: { in: topStateIds } } });
-    const geographicSourcing = topStates.reduce((acc, state) => {
-      const count = locationsData.find((s) => s.primaryStateId === state.id)?._count._all ?? 0;
-      acc[state.name] = count;
+    const topRegionIds = locationsData.map((s) => s.regionId).filter(Boolean) as number[];
+    const topRegions = await prisma.region.findMany({ where: { id: { in: topRegionIds } } });
+    
+    const geographicSourcing = topRegions.reduce((acc, region) => {
+      const count = locationsData.find((s) => s.regionId === region.id)?._count._all ?? 0;
+      acc[region.name] = count;
       return acc;
     }, {} as Record<string, number>);
-
+    
     return { ...proAnalytics, skillsHeatmap, geographicSourcing };
   }
 

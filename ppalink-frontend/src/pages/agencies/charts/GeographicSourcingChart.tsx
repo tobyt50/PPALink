@@ -1,3 +1,4 @@
+// Refactored GeographicSourcingChart.tsx with smaller height
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { AgencyEnterpriseAnalytics } from '../../../types/analytics';
 
@@ -24,14 +25,14 @@ export const GeographicSourcingChart = ({ data }: ChartProps) => {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={180}>
       <PieChart>
         <Pie
           data={chartData}
           cx="50%"
           cy="50%"
           labelLine={false}
-          outerRadius={80}
+          outerRadius={70}
           fill="#8884d8"
           dataKey="value"
           nameKey="name"

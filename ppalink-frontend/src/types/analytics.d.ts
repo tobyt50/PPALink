@@ -40,7 +40,9 @@ export interface ReportFilters {
   startDate: string; // ISO string
   endDate: string;   // ISO string
   groupBy: 'day' | 'week' | 'month';
-  stateId?: number;
+  countryId?: number;
+  regionId?: number;
+  cityId?: number;
   industryId?: number;
   planId?: string;
   fieldOfStudy?: string;

@@ -72,8 +72,8 @@ const AdminWelcomePage = () => {
             </div>
 
             <div className="mt-8 text-center">
-                <Button size="lg" onClick={handleComplete}>
-                    Go to Command Center <ArrowRight className="ml-2 h-4 w-4" />
+                <Button size="sm" onClick={handleComplete}>
+                    Go to Admin Panel <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
         </motion.div>
