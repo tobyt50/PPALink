@@ -2,7 +2,6 @@
 // Data that can be changed by an admin (like Industries or States) should be fetched from the API.
 
 import {
-  BarChart2,
   BarChart3,
   Briefcase,
   Calendar,
@@ -60,7 +59,6 @@ export const AGENCY_NAV_ITEMS: NavItem[] = [
   },
   { to: '/feed', icon: Rss, text: 'Feed' },
   { to: "/dashboard/agency/interviews", icon: Calendar, text: "Interviews" },
-  { to: "/dashboard/agency/analytics", icon: BarChart2, text: "Analytics" },
   { to: "/dashboard/agency/team", icon: UserPlus, text: "Manage Team" },
 ];
 
@@ -77,7 +75,7 @@ export const ESSENTIAL_AGENCY_NAV_ITEMS: NavItem[] = [
     icon: Heart,
     text: "Shortlist",
   },
-  { to: "/dashboard/agency/analytics", icon: BarChart2, text: "Analytics" },
+  { to: '/feed', icon: Rss, text: 'Feed' },
 ];
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [

@@ -110,14 +110,14 @@ const FeedPage = () => {
               Discover
             </h1>
             <div className="flex space-x-2">
-              <Link to="/feed/create">
-                <Button size="sm">
-                  <PlusCircle className="mr-2 h-4 w-4" /> New
-                </Button>
-              </Link>
               <Link to="/feed/manage">
                 <Button size="sm" variant="outline" className="flex items-center whitespace-nowrap">
                   <List className="mr-2 h-4 w-4 flex-shrink-0" /> My Posts
+                </Button>
+              </Link>
+              <Link to="/feed/create">
+                <Button size="sm">
+                  <PlusCircle className="mr-2 h-4 w-4" /> New
                 </Button>
               </Link>
             </div>
@@ -144,14 +144,14 @@ const FeedPage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-64"
             />
-            <Link to="/feed/create">
-              <Button size="sm">
-                <PlusCircle className="mr-2 h-4 w-4" /> New
-              </Button>
-            </Link>
             <Link to="/feed/manage">
               <Button size="sm" variant="outline" className="flex items-center whitespace-nowrap">
                 <List className="mr-2 h-4 w-4 flex-shrink-0" /> My Posts
+              </Button>
+            </Link>
+            <Link to="/feed/create">
+              <Button size="sm">
+                <PlusCircle className="mr-2 h-4 w-4" /> New
               </Button>
             </Link>
           </div>
@@ -196,29 +196,32 @@ const FeedPage = () => {
               </p>
             </div>
           ) : (
-            <Virtuoso
-              style={{ height: "calc(100vh - 200px)" }}
-              data={items}
-              endReached={() => loadMore()}
-              itemContent={(_index, item) => (
-                <div className="pb-6">
-                  <FeedCard item={item} />
-                </div>
-              )}
-              components={{
-                Footer: () =>
-                  nextCursor != null ? (
-                    <div className="p-4 flex justify-center items-center">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
-                    </div>
-                  ) : (
-                    <div className="p-4 text-center text-sm text-gray-500 dark:text-zinc-400">
-                      You've reached the end.
-                    </div>
-                  ),
-              }}
-            />
-          )}
+  <div className="-mt-4">
+    <Virtuoso
+      style={{ height: "calc(100vh - 200px)" }}
+      data={items}
+      endReached={() => loadMore()}
+      itemContent={(_index, item) => (
+        <div className="pb-6">
+          <FeedCard item={item} />
+        </div>
+      )}
+      components={{
+        Footer: () =>
+          nextCursor != null ? (
+            <div className="p-4 flex justify-center items-center">
+              <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
+            </div>
+          ) : (
+            <div className="p-4 text-center text-sm text-gray-500 dark:text-zinc-400">
+              You've reached the end.
+            </div>
+          ),
+      }}
+    />
+  </div>
+)}
+
         </main>
       </div>
     </div>

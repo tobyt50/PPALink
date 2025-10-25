@@ -304,14 +304,8 @@ const CandidateDashboard = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="h-8 w-48 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
-            <div className="h-4 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
           </div>
           <div className="h-10 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
-        </div>
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
-          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
-          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
-          <div className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-8">

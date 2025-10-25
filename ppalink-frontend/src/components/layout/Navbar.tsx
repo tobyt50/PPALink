@@ -83,11 +83,6 @@ const Navbar = () => {
             {!isDesktop && (
               <>
                 <SimpleDropdownItem
-                  onSelect={() => navigate('/dashboard/agency/posts')}
-                >
-                  <Rss className="mr-2 h-4 w-4" /> My Posts
-                </SimpleDropdownItem>
-                <SimpleDropdownItem
                   onSelect={() => navigate('/dashboard/agency/interviews')}
                 >
                   <Calendar className="mr-2 h-4 w-4" /> Interviews

@@ -1,6 +1,7 @@
 import type { NextFunction, Response } from 'express';
 import prisma from '../../config/db';
 import type { AuthRequest } from '../../middleware/auth';
+import { z } from 'zod';
 import { getConversation, getConversations, markConversationAsRead, sendMessage } from './message.service';
 
 /**
@@ -81,16 +82,19 @@ export async function markAsReadHandler(req: AuthRequest, res: Response, next: N
 /**
  * Handler for fetching user details for initiating a new conversation.
  */
+const userIdSchema = z.string().uuid('Invalid user ID format.');
+
 export async function getUserForConversationHandler(req: AuthRequest, res: Response, next: NextFunction) {
   if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
   try {
     const { userId } = req.params;
-    if (!userId) {
-      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    const validatedUserId = userIdSchema.safeParse(userId);
+    if (!validatedUserId.success) {
+      return res.status(400).json({ success: false, message: validatedUserId.error.issues[0].message });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: validatedUserId.data },
       select: {
         id: true,
         email: true,
