@@ -1,13 +1,19 @@
-import { PrismaClient, Role, UserStatus, EmploymentType, PositionVisibility, PositionStatus } from '@prisma/client';
+import { PrismaClient, Role, UserStatus, EmploymentType, PositionVisibility, PositionStatus, JobLevel } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import { rand, randRange } from '../utils';
-import { categorizedAgencyNames } from '../../seed-candidates-agencies-data';
+import { rand, randRange } from '../utils/helpers';
+import { categorizedAgencyNames } from '../data/people-and-places';
 
 export async function createAgencies(prisma: PrismaClient, count: number) {
-  console.log(`\n🌱 Creating ${count} Agencies...`);
+  console.log(`  - Generating ${count} agencies...`);
 
-  const statesWithLgas = await prisma.locationState.findMany({ include: { lgas: true } });
+  const nigeria = await prisma.country.findUnique({ where: { iso2: 'NG' } });
+   if (!nigeria) {
+    console.warn("  - ⚠️ Nigeria not found in countries. Skipping agency location assignment.");
+    return;
+  }
+  const statesInNigeria = await prisma.region.findMany({ where: { countryId: nigeria.id }, include: { cities: true } });
+  
   const allIndustries = await prisma.industry.findMany({ where: { isHeading: false } });
   const hashedPassword = await bcrypt.hash("Password123!", 10);
 
@@ -22,7 +28,7 @@ export async function createAgencies(prisma: PrismaClient, count: number) {
     'Engineering & Manufacturing': ['Engineering', 'Technical Services', 'Construction', 'Real Estate', 'Architecture', 'Design', 'Manufacturing', 'Production', 'Industrial Automation'],
     'Transport & Logistics': ['Logistics', 'Supply Chain', 'Aviation', 'Aerospace', 'Maritime', 'Shipping', 'Rail Transport', 'Road Transport', 'Ride-hailing', 'Delivery Services'],
     'Government & Public Sector': ['Government', 'Public Service', 'NGO', 'Non-Profit', 'International Organizations', 'Security Services', 'Military', 'Defense'],
-    'Creative & Lifestyle': ['Arts', 'Culture', 'Hospitality', 'Tourism', 'Events Management', 'Fashion', 'Beauty', 'Sports', 'Recreation', 'Entertainment', 'Music', 'Film'],
+    'Creative & Lifestyle': ['Creative', 'Hospitality', 'Tourism', 'Events Management', 'Fashion', 'Beauty', 'Sports', 'Recreation', 'Entertainment', 'Music', 'Film'],
   };
 
   const agencyCategories = Object.keys(categorizedAgencyNames);
@@ -33,13 +39,13 @@ export async function createAgencies(prisma: PrismaClient, count: number) {
     const possibleIndustryNames = industryCategoryMap[category];
     const randomIndustryName = rand(possibleIndustryNames);
     const industry = allIndustries.find(ind => ind.name === randomIndustryName);
-    if (!industry) { console.warn(`Could not find a matching industry for "${randomIndustryName}". Skipping.`); continue; }
+    if (!industry) { console.warn(`  - Could not find matching industry for "${randomIndustryName}". Skipping.`); continue; }
 
     const emailSafeName = name.replace(/\s/g, '').replace(/[.,]/g, '');
     const email = faker.internet.email({ firstName: emailSafeName }).toLowerCase();
     const phone = `+23490${faker.string.numeric(8)}`;
-    const randomState = rand(statesWithLgas);
-    const randomLga = randomState.lgas.length > 0 ? rand(randomState.lgas) : null;
+    const randomState = rand(statesInNigeria);
+    const randomCity = randomState.cities.length > 0 ? rand(randomState.cities) : null;
 
     const owner = await prisma.user.create({ data: { email, phone, passwordHash: hashedPassword, role: Role.AGENCY, emailVerifiedAt: new Date(), status: UserStatus.ACTIVE } });
     const newAgency = await prisma.agency.create({
@@ -54,29 +60,13 @@ export async function createAgencies(prisma: PrismaClient, count: number) {
         domainVerified: faker.datatype.boolean(),
         cacVerified: faker.datatype.boolean(),
         logoKey: `logo_${faker.string.alphanumeric(6)}.png`,
-        headquartersStateId: randomState.id,
-        lgaId: randomLga?.id,
+        countryId: nigeria.id,
+        regionId: randomState.id,
+        cityId: randomCity?.id,
+        
         hasCompletedOnboarding: true,
       },
     });
-
-    for (let p=0; p < randRange(1, 3); p++) {
-        await prisma.position.create({
-            data: {
-                agencyId: newAgency.id,
-                title: faker.person.jobTitle(),
-                description: faker.lorem.paragraphs(3),
-                employmentType: rand(Object.values(EmploymentType)),
-                isRemote: faker.datatype.boolean(),
-                stateId: randomState.id,
-                lgaId: randomLga?.id,
-                minSalary: randRange(80000, 150000),
-                maxSalary: randRange(160000, 400000),
-                visibility: PositionVisibility.PUBLIC,
-                status: PositionStatus.OPEN
-            }
-        });
-    }
   }
-  console.log(`✅ ${count} Agencies (and their positions) created.`);
+  console.log(`  - ✅ ${count} agencies created.`);
 }

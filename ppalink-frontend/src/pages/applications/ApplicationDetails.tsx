@@ -5,7 +5,7 @@ import {
   ChevronLeft,
   FileText,
   Loader2,
-  MessageSquare,
+  MessageCircle,
   Tag,
   Gift,
 } from "lucide-react";
@@ -97,7 +97,7 @@ const CandidateProfileSnapshot = ({
           onClick={onMessage}
           className="w-full"
         >
-          <MessageSquare className="mr-2 h-4 w-4" />
+          <MessageCircle className="mr-2 h-4 w-4" />
           Message Candidate
         </Button>
       </div>

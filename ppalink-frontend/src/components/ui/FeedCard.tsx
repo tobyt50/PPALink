@@ -4,7 +4,7 @@ import type { FeedItem } from "../../types/feed";
 import { Button } from "./Button";
 import { useAuthStore } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
-import { Avatar } from "./Avatar"; // 1. Import the Avatar component
+import { Avatar } from "./Avatar";
 
 const categoryStyles = {
   LEARN_GROW: {
@@ -44,110 +44,94 @@ export const FeedCard = ({ item }: { item: FeedItem | undefined }) => {
 
   const author = useMemo(() => {
     if (!item)
-      return {
-        name: "PPALink Support",
-        link: "#",
-        isClickable: false,
-        userObject: null,
-      };
+      return { name: "PPALink Support", link: "#", isClickable: false, userObject: null };
     if (item.agency) {
-      const agencyUser = {
-        role: "AGENCY",
-        ownedAgencies: [item.agency],
-      } as any;
       return {
         name: item.agency.name,
         link: `/agencies/${item.agency.id}/profile`,
         isClickable: true,
-        userObject: agencyUser,
+        userObject: { role: "AGENCY", ownedAgencies: [item.agency] } as any,
       };
     }
-    if (item.user && item.user.candidateProfile) {
+    if (item.user?.candidateProfile) {
       const name = `${item.user.candidateProfile.firstName} ${item.user.candidateProfile.lastName}`;
       const isClickable = loggedInUser?.role === "AGENCY";
       return {
         name,
-        link:
-          isClickable && item.user.candidateProfile.id
-            ? `/dashboard/agency/candidates/${item.user.candidateProfile.id}/profile`
-            : "#",
+        link: isClickable
+          ? `/dashboard/agency/candidates/${item.user.candidateProfile.id}/profile`
+          : "#",
         isClickable,
         userObject: item.user,
       };
     }
-    return {
-      name: "PPALink Support",
-      link: "#",
-      isClickable: false,
-      userObject: null,
-    };
+    return { name: "PPALink Support", link: "#", isClickable: false, userObject: null };
   }, [item, loggedInUser]);
 
-  if (!item) {
-    return null;
-  }
+  if (!item) return null;
 
   const style = categoryStyles[item.category] || categoryStyles.CAREER_INSIGHT;
-  const isBoosted = useMemo(() => {
-    return (
-      item.boosts &&
-      item.boosts.some(
+
+  const isBoosted = useMemo(
+    () =>
+      item.boosts?.some(
         (b) => b.status === "ACTIVE" && new Date(b.endDate) > new Date()
-      )
-    );
-  }, [item.boosts]);
+      ),
+    [item.boosts]
+  );
+
   const AuthorComponent = author.isClickable ? Link : "div";
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-      <div className="p-5">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <Avatar user={author.userObject} size="md" />
-            <div className="ml-3">
-              <AuthorComponent
-                to={author.link}
-                className={
-                  author.isClickable
-                    ? "font-semibold text-gray-800 dark:text-zinc-100 hover:underline"
-                    : "font-semibold text-gray-800 dark:text-zinc-100"
-                }
-              >
-                {author.name}
-              </AuthorComponent>
-              <p
-                className={`text-xs font-semibold flex items-center ${style.color}`}
-              >
-                {style.label}
-              </p>
-            </div>
+    <div className="group rounded-xl bg-white dark:bg-zinc-900 p-4 shadow-sm ring-1 ring-gray-100 dark:ring-white/10 transition-all hover:shadow-md hover:ring-primary-200 dark:hover:ring-primary-700/40 hover:bg-gradient-to-r hover:from-primary-50/40 dark:hover:from-primary-950/40 hover:to-green-50/40 dark:hover:to-green-950/40">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <Avatar user={author.userObject} size="md" />
+          <div>
+            <AuthorComponent
+              to={author.link}
+              className={`block font-semibold text-sm text-gray-900 dark:text-zinc-100 ${
+                author.isClickable ? "hover:underline" : ""
+              }`}
+            >
+              {author.name}
+            </AuthorComponent>
+            <span className={`text-xs font-medium flex items-center ${style.color}`}>
+              {style.icon} <span className="ml-1">{style.label}</span>
+            </span>
           </div>
-          {isBoosted && (
-            <div className="flex items-center text-xs font-semibold text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/50 px-2 py-1 rounded-full">
-              <Zap className="h-3 w-3 mr-1" />
-              Promoted
-            </div>
-          )}
         </div>
 
-        <h3 className="text-lg font-bold text-gray-900 dark:text-zinc-50 mt-4">
-          {item.title}
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-zinc-300 mt-1">
-          {item.content}
-        </p>
-
-        {item.link && (
-          <div className="mt-4">
-            <a href={item.link} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm">
-                {item.ctaText || "Learn More"}{" "}
-                <ArrowUpRight className="h-4 w-4 ml-2" />
-              </Button>
-            </a>
+        {isBoosted && (
+          <div className="flex items-center text-[11px] font-semibold text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40 px-2 py-0.5 rounded-full">
+            <Zap className="h-3 w-3 mr-1" />
+            Promoted
           </div>
         )}
       </div>
+
+      {/* Content */}
+      <div className="mt-3">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-zinc-50 leading-snug">
+          {item.title}
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 dark:text-zinc-300 line-clamp-3">
+          {item.content}
+        </p>
+      </div>
+
+      {/* CTA */}
+      {item.link && (
+        <div className="mt-3">
+          <a href={item.link} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="sm" className="text-xs">
+              {item.ctaText || "Learn More"}
+              <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+            </Button>
+          </a>
+        </div>
+      )}
     </div>
   );
 };

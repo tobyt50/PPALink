@@ -123,11 +123,13 @@ export async function getAgencyByUserId(userId: string) {
 
 /**
  * Searches for candidate profiles based on a dynamic set of filter criteria.
- * @param queryParams - An object containing potential filter keys like stateId, skills, etc.
+ * @param queryParams - An object containing potential filter keys like countryId, regionId, cityId, skills, etc.
  */
 export async function searchCandidates(userId: string, queryParams: any) {
   const {
-    stateId,
+    countryId,
+    regionId,
+    cityId,
     nyscBatch,
     skills,
     isRemote,
@@ -159,9 +161,12 @@ export async function searchCandidates(userId: string, queryParams: any) {
 
   const andConditions = where.AND as Prisma.CandidateProfileWhereInput[];
 
-  // --- Build the query dynamically ---
-  if (stateId) {
-    where.AND.push({ primaryStateId: parseInt(stateId, 10) });
+  if (cityId) {
+    andConditions.push({ cityId: parseInt(cityId, 10) });
+  } else if (regionId) {
+    andConditions.push({ regionId: parseInt(regionId, 10) });
+  } else if (countryId) {
+    andConditions.push({ countryId: parseInt(countryId, 10) });
   }
 
   if (nyscBatch) {
@@ -654,6 +659,8 @@ export async function getPublicAgencyProfile(agencyId: string) {
       domainVerified: true,
       cacVerified: true,
       industry: { select: { name: true } },
+      country: { select: { name: true } },
+      region: { select: { name: true } },
       positions: {
         where: {
           status: "OPEN",
@@ -662,6 +669,8 @@ export async function getPublicAgencyProfile(agencyId: string) {
         orderBy: { createdAt: "desc" },
         include: {
           skills: { include: { skill: true } },
+          country: { select: { name: true } },
+          region: { select: { name: true } },
         },
       },
     },

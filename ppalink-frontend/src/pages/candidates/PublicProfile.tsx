@@ -9,31 +9,36 @@ import {
   Heart,
   Loader2,
   MapPin,
-  MessageSquare,
+  MessageCircle,
   Tag,
   Trash2,
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
 import {
   SimpleDropdown,
   SimpleDropdownItem,
 } from "../../components/ui/SimpleDropdown";
-import { useDataStore } from "../../context/DataStore";
 import { useShortlistStore } from "../../context/ShortlistStore";
 import useFetch from "../../hooks/useFetch";
+import { useLocationNames } from "../../hooks/useLocationNames";
 import agencyService from "../../services/agency.service";
 import applicationService from "../../services/application.service";
 import type { Agency } from "../../types/agency";
 import type { CandidateProfile } from "../../types/candidate";
 import { AddToJobModal } from "../agencies/AddToJobModal";
-import ProfileField from "./ProfileField";
 import EducationSection from "./sections/EducationSection";
 import WorkExperienceSection from "./sections/WorkExperienceSection";
-import { Avatar } from '../../components/ui/Avatar';
+import ProfileField from "./ProfileField";
 
 const PublicProfilePage = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
@@ -47,7 +52,6 @@ const PublicProfilePage = () => {
     candidateId ? `/candidates/${candidateId}/profile` : null
   );
   const { data: viewingAgency } = useFetch<Agency>("/agencies/me");
-  const { states } = useDataStore();
   const { shortlistedIds, addShortlistId, removeShortlistId } =
     useShortlistStore();
   const isShortlisted = useMemo(
@@ -132,7 +136,6 @@ const PublicProfilePage = () => {
       setIsProcessing(false);
     }
   };
-
   const handleMessageCandidate = () => {
     if (!profile?.user) {
       toast.error("Candidate user information is not available.");
@@ -148,7 +151,6 @@ const PublicProfilePage = () => {
     };
     navigate("/inbox", { state: { activeConversation: conversationState } });
   };
-
   const handleAddToJob = async (positionId: string) => {
     if (!candidateId) return;
     const addPromise = applicationService.createApplication(
@@ -164,6 +166,11 @@ const PublicProfilePage = () => {
     setIsAddToJobModalOpen(false);
   };
 
+  const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
+    profile?.countryId,
+    profile?.regionId
+  );
+
   if (isLoading) {
     return (
       <div className="flex h-80 items-center justify-center">
@@ -178,10 +185,6 @@ const PublicProfilePage = () => {
       </div>
     );
   }
-
-  const locationState = states.find(
-    (s) => s.id === profile.primaryStateId
-  )?.name;
 
   const SkillsList = ({ skills }: { skills: typeof displaySkills }) => (
     <div className="p-6 flex flex-wrap gap-2">
@@ -205,7 +208,7 @@ const PublicProfilePage = () => {
             <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white opacity-0 shadow-lg transition-opacity duration-200 peer-hover:opacity-100 pointer-events-none">
               {skill.isVerified
                 ? `Verified Skill - Score: ${skill.score}%`
-                : "Unverified skill"}
+                : "Self-reported skill"}
             </div>
           </div>
         ))
@@ -244,16 +247,15 @@ const PublicProfilePage = () => {
                     {profile.firstName} {profile.lastName}
                   </h1>
                   <p className="mt-1 text-gray-600 dark:text-zinc-300">
-                    {locationState || "Location not specified"}
+                    {isLoadingLocation
+                      ? "Loading location..."
+                      : fullLocationString || "Location not specified"}
                   </p>
                   <div className="mt-4 flex gap-2">
-                    <Button
-                      onClick={handleMessageCandidate}
-                      size="sm"
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Message
-                    </Button>
+                    <Button onClick={handleMessageCandidate} size="sm" className="p-2">
+  <MessageCircle className="h-4 w-4" />
+  <span className="hidden md:inline ml-2">Message</span>
+</Button>
                     <SimpleDropdown
                       trigger={
                         <Button

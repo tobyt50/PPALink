@@ -103,7 +103,7 @@ const RegisterCandidate = () => {
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
             className="hidden lg:block lg:w-1/2 text-center lg:text-left space-y-1 max-h-[80vh] overflow-y-auto"
           >
             <div className="space-y-1">
@@ -130,7 +130,7 @@ const RegisterCandidate = () => {
                 <h3 className="text-xl font-bold mb-4 text-white">Hiring Now</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {featuredAgencies.slice(0, 4).map((agency, i) => (
-                    <motion.div key={agency.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
+                    <motion.div key={agency.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, delay: 0.2 + i * 0.08, ease: "easeOut" }}>
                       <AgencyCard agency={agency} />
                     </motion.div>
                   ))}
@@ -142,7 +142,7 @@ const RegisterCandidate = () => {
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
             className="w-full lg:w-1/2 flex justify-center lg:justify-end"
           >
             <div className="w-full max-w-sm">

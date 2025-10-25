@@ -6,8 +6,9 @@ export const reportFiltersSchema = z.object({
   groupBy: z.enum(['day', 'week', 'month']),
 
   // --- ALL CANDIDATE-RELATED FILTERS ---
-  stateId: z.number().optional(),
-  lgaId: z.number().optional(),
+  countryId: z.number().optional(),
+  regionId: z.number().optional(),
+  cityId: z.number().optional(),
   nyscBatch: z.string().optional(),
   nyscStream: z.string().optional(),
   gpaBand: z.string().optional(),

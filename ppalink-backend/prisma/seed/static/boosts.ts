@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 export async function seedBoostTiers(prisma: PrismaClient) {
-  console.log('\n🚀 Seeding boost tiers...');
+  console.log('🚀 Seeding boost tiers...');
 
   // It is correct for the SEED file to read from .env.
   // This is a one-time setup action to get the Stripe IDs into the database.
@@ -10,7 +10,7 @@ export async function seedBoostTiers(prisma: PrismaClient) {
   const premiumPriceId = process.env.STRIPE_BOOST_PREMIUM_PRICE_ID;
 
   if (!standardPriceId || !premiumPriceId) {
-    console.error('❌ CRITICAL: Missing STRIPE_BOOST_STANDARD_PRICE_ID or STRIPE_BOOST_PREMIUM_PRICE_ID in your .env file. Skipping boost tier seed.');
+    console.error('  - ❌ CRITICAL: Missing Stripe Price IDs in .env file. Skipping boost tier seed.');
     return;
   }
 
@@ -18,7 +18,6 @@ export async function seedBoostTiers(prisma: PrismaClient) {
   await prisma.boostTier.upsert({
     where: { name: 'STANDARD' },
     update: {
-      // You can update existing values here if you change them
       price: 5000,
       stripePriceId: standardPriceId,
     },
@@ -49,5 +48,5 @@ export async function seedBoostTiers(prisma: PrismaClient) {
     },
   });
 
-  console.log('✅ Boost tiers seeded successfully.');
+  console.log('  - ✅ Boost tiers seeded successfully.');
 }

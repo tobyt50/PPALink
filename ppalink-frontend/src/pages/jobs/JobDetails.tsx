@@ -21,13 +21,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "../../components/ui/Button";
 import { ConfirmationModal } from "../../components/ui/Modal";
-import { useDataStore } from "../../context/DataStore";
 import useFetch from "../../hooks/useFetch";
+import { useLocationNames } from "../../hooks/useLocationNames";
 import jobService from "../../services/job.service";
 import type { Position } from "../../types/job";
 
 const SmartDescription = ({ text }: { text: string }) => {
-  const parts = text.split(/(\*\*.*?\*\*)/g); // Split by bold tags
+  const parts = text.split(/(\*\*.*?\*\*)/g);
   return (
     <>
       {parts.map((part, index) => {
@@ -85,9 +85,14 @@ const JobDetailsPage = () => {
     agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}` : null
   );
 
-  const { states } = useDataStore();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
+    job?.countryId,
+    job?.regionId,
+    job?.cityId
+  );
+  
   const levelIconMap = {
     ENTRY: GraduationCap,
     INTERMEDIATE: User,
@@ -97,14 +102,10 @@ const JobDetailsPage = () => {
 
   const formatEmploymentType = (type: string): string => {
     switch (type) {
-      case 'PARTTIME':
-        return 'Part-time';
-      case 'FULLTIME':
-        return 'Full-time';
-      case 'NYSC':
-        return 'NYSC';
-      default:
-        return type.charAt(0) + type.slice(1).toLowerCase();
+      case 'PARTTIME': return 'Part-time';
+      case 'FULLTIME': return 'Full-time';
+      case 'NYSC': return 'NYSC';
+      default: return type.charAt(0) + type.slice(1).toLowerCase();
     }
   };
 
@@ -146,10 +147,6 @@ const JobDetailsPage = () => {
     );
   }
 
-  const locationState = job.stateId
-    ? states.find((s) => s.id === job.stateId)?.name
-    : undefined;
-
   return (
     <>
       <ConfirmationModal
@@ -180,14 +177,10 @@ const JobDetailsPage = () => {
                 {job.title}
               </h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-zinc-400 mt-2">
-                <span className="flex items-center">
-                  <Briefcase className="h-4 w-4 mr-1.5" />
-                  {formatEmploymentType(job.employmentType)}
-                </span>
-                {!job.isRemote && locationState && (
+                {!job.isRemote && fullLocationString && (
                   <span className="flex items-center">
                     <MapPin className="h-4 w-4 mr-1.5" />
-                    {locationState}
+                    {isLoadingLocation ? 'Loading location...' : fullLocationString}
                   </span>
                 )}
                 {job.isRemote && (
@@ -196,31 +189,16 @@ const JobDetailsPage = () => {
                     Remote
                   </span>
                 )}
-                {job.level && LevelIcon && (
-                  <span className="flex items-center">
-                    <LevelIcon className="h-4 w-4 mr-1.5" />
-                    {formatLevel(job.level)}
-                  </span>
-                )}
               </div>
             </div>
             <div className="flex flex-shrink-0 gap-2">
               <Link to={`/dashboard/agency/${agencyId}/jobs/${job.id}/edit`}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
-                >
+                <Button size="sm" variant="outline" className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Job
                 </Button>
               </Link>
-              <Button
-                size="sm"
-                variant="destructive"
-                className="rounded-lg"
-                onClick={() => setIsDeleteModalOpen(true)}
-              >
+              <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => setIsDeleteModalOpen(true)}>
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
@@ -229,71 +207,37 @@ const JobDetailsPage = () => {
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1 space-y-6">
-              <DetailField
-                icon={Wallet}
-                label="Salary Range"
-                value={
-                  job.minSalary && job.maxSalary
-                    ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}`
-                    : "Not specified"
-                }
-              />
-              <DetailField
-                icon={Globe}
-                label="Visibility"
-                value={job.visibility}
-              />
+              <DetailField icon={Briefcase} label="Employment Type" value={formatEmploymentType(job.employmentType)} />
+              {job.level && LevelIcon && (
+                <DetailField icon={LevelIcon} label="Level" value={formatLevel(job.level)} />
+              )}
+              <DetailField icon={Wallet} label="Salary Range" value={ job.minSalary && job.maxSalary ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}` : "Not specified" } />
+              <DetailField icon={Globe} label="Visibility" value={job.visibility} />
               <DetailField icon={CheckCircle} label="Status">
-                <span
-                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    job.status === "OPEN"
-                      ? "bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200"
-                      : "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100"
-                  }`}
-                >
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${ job.status === "OPEN" ? "bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200" : "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100" }`}>
                   {job.status}
                 </span>
               </DetailField>
-              <DetailField
-                icon={Calendar}
-                label="Date Posted"
-                value={new Date(job.createdAt).toLocaleDateString()}
-              />
+              <DetailField icon={Calendar} label="Date Posted" value={new Date(job.createdAt).toLocaleDateString()} />
             </div>
 
             <div className="md:col-span-2 space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                  Job Description
-                </h2>
-                <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300">
-                  <SmartDescription text={job.description} />
-                </div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Job Description</h2>
+                <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300"><SmartDescription text={job.description} /></div>
               </div>
-
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                  Skills Required
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Skills Required</h2>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Array.isArray(job.skills) && job.skills.length > 0 ? (
                     job.skills.map((positionSkill) => (
-                      <div
-                        key={positionSkill.skill.id}
-                        className="flex items-center gap-x-2 rounded-full bg-primary-50 dark:bg-primary-950/60 p-1 pr-3 text-sm font-medium text-primary-700 dark:text-primary-300 transition"
-                      >
+                      <div key={positionSkill.skill.id} className="flex items-center gap-x-2 rounded-full bg-primary-50 dark:bg-primary-950/60 p-1 pr-3 text-sm font-medium text-primary-700 dark:text-primary-300 transition">
                         <Tag className="h-4 w-4 ml-1" />
                         <span>{positionSkill.skill.name}</span>
-                        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100">
-                          {formatLevel(positionSkill.requiredLevel)}
-                        </span>
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100">{formatLevel(positionSkill.requiredLevel)}</span>
                       </div>
                     ))
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-zinc-400">
-                      No specific skills listed.
-                    </p>
-                  )}
+                  ) : ( <p className="text-sm text-gray-500 dark:text-zinc-400">No specific skills listed.</p> )}
                 </div>
               </div>
             </div>

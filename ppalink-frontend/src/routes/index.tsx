@@ -31,7 +31,6 @@ import EditJobPage from '../pages/agencies/EditJob';
 import JobPostsPage from '../pages/agencies/JobPosts';
 import ShortlistedCandidatesPage from '../pages/agencies/ShortlistedCandidates';
 import TeamManagementPage from '../pages/agencies/TeamManagement';
-import AnalyticsPage from '../pages/agencies/Analytics';
 import ApplicationDetailsPage from '../pages/applications/ApplicationDetails';
 import AcceptInvitePage from '../pages/auth/AcceptInvite';
 import AcceptInviteLoggedInPage from '../pages/auth/AcceptInviteLoggedIn';
@@ -203,7 +202,6 @@ const router = createBrowserRouter([
           { path: 'dashboard/agency/profile/edit', element: <EditCompanyProfilePage /> },
           { path: 'dashboard/agency/billing', element: <BillingPage /> },
           { path: 'dashboard/agency/team', element: <TeamManagementPage /> },
-          { path: 'dashboard/agency/analytics', element: <AnalyticsPage /> },
           { path: 'dashboard/agency/interviews', element: <ManageInterviewsPage /> },
           { path: 'dashboard/agency/jobs', element: <JobPostsPage /> },
           { path: 'dashboard/agency/jobs/create', element: <CreateJobPage /> },

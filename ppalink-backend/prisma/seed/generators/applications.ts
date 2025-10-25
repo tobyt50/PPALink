@@ -2,17 +2,17 @@ import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 export async function createApplicationsForSpecificPosition(prisma: PrismaClient, count: number, positionId: string) {
-    console.log(`\n🌱 Creating ${count} applications for position: ${positionId}...`);
+    console.log(`\n  - Generating ${count} applications for position: ${positionId}...`);
 
     const targetPosition = await prisma.position.findUnique({ where: { id: positionId } });
     if (!targetPosition) {
-        console.warn(`⚠️ Target position with ID ${positionId} not found. Cannot create applications. Skipping.`);
+        console.warn(`  - ⚠️ Target position with ID ${positionId} not found. Cannot create applications. Skipping.`);
         return;
     }
 
     const candidates = await prisma.candidateProfile.findMany({ select: { id: true } });
     if (candidates.length === 0) {
-        console.warn("⚠️ Cannot create applications because there are no candidates. Skipping.");
+        console.warn("  - ⚠️ Cannot create applications because there are no candidates. Skipping.");
         return;
     }
 
@@ -37,5 +37,5 @@ export async function createApplicationsForSpecificPosition(prisma: PrismaClient
             createdCount++;
         }
     }
-    console.log(`✅ ${createdCount} new applications created for the specified position.`);
+    console.log(`  - ✅ ${createdCount} new applications created for the specified position.`);
 }

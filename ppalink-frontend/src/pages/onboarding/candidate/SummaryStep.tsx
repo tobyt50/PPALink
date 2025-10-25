@@ -101,7 +101,7 @@ const SummaryStep = () => {
           )}
         </div>
         <div className="flex justify-end items-center pt-4 border-t border-gray-100 dark:border-zinc-800">
-          <Button type="submit" isLoading={isSubmitting} size="lg">
+          <Button type="submit" isLoading={isSubmitting} size="sm">
             Save & Continue
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

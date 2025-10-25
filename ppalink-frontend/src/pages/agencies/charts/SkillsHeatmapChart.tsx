@@ -1,3 +1,4 @@
+// Refactored SkillsHeatmapChart.tsx with smaller height
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { AgencyEnterpriseAnalytics } from '../../../types/analytics';
 
@@ -23,7 +24,7 @@ export const SkillsHeatmapChart = ({ data }: ChartProps) => {
   ];
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={180}>
       <BarChart
         data={chartData}
         layout="vertical"

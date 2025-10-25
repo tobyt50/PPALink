@@ -18,7 +18,7 @@ const router = Router();
 // All routes below require the user to be an authenticated AGENCY user
 router.use(authenticate, requireRole([Role.AGENCY]));
 // Agency Profile Routes
-router.put('/me', validate(updateAgencyProfileSchema), updateMyAgencyHandler);
+router.patch('/me', validate(updateAgencyProfileSchema), updateMyAgencyHandler);
 router.get('/me', getMyAgencyHandler);
 
 // GET /api/agencies/search/candidates?stateId=25&skills=javascript

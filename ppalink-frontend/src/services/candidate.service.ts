@@ -7,16 +7,20 @@ import type { VerificationRequest, VerificationType } from '../types/user';
 // Define the payload shape for the new function
 interface VerificationSubmissionPayload {
   type: VerificationType;
-  evidence: {
+  evidence?: {
     fileKey: string;
     fileName: string;
   };
 }
 
 // Extend filters to also allow keyword search
-export type CandidateSearchParams = CandidateFilterValues & { q?: string };
+export type CandidateSearchParams = CandidateFilterValues & { 
+  q?: string;
+  countryId?: number | null;
+  regionId?: number | null;
+  cityId?: number | null;
+};
 
-// Define the shape for the WorkExperience form payload
 type WorkExperiencePayload = Omit<WorkExperience, 'id' | 'candidateId'>;
 type EducationPayload = Omit<Education, 'id' | 'candidateId'>;
 class CandidateService {
@@ -56,27 +60,24 @@ class CandidateService {
   /**
    * Searches for candidates based on filter criteria + optional keyword (q).
    */
-  async searchCandidates(filters: CandidateSearchParams | null): Promise<CandidateProfile[]> {
-  if (!filters) {
-    return [];
-  }
+   async searchCandidates(filters: CandidateSearchParams | null): Promise<CandidateProfile[]> {
+    if (!filters) { return []; }
+    const params = new URLSearchParams();
 
-  const params = new URLSearchParams();
-
-  if (filters.stateId) params.append('stateId', String(filters.stateId));
-  if (filters.nyscBatch) params.append('nyscBatch', filters.nyscBatch);
-  if (filters.skills && filters.skills.length > 0) params.append('skills', filters.skills.join(','));
-  if (filters.verifiedSkillIds && filters.verifiedSkillIds.length > 0) params.append('verifiedSkillIds', filters.verifiedSkillIds.join(','));
-  if (filters.isRemote) params.append('isRemote', 'true');
-  if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
-  if (filters.university) params.append('university', filters.university);
-  if (filters.courseOfStudy) params.append('courseOfStudy', filters.courseOfStudy);
-  if (filters.degree) params.append('degree', filters.degree);
-  if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
-  if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
-
-
-    // Include search query if present
+    if (filters.countryId) params.append('countryId', String(filters.countryId));
+    if (filters.regionId) params.append('regionId', String(filters.regionId));
+    if (filters.cityId) params.append('cityId', String(filters.cityId));
+    if (filters.nyscBatch) params.append('nyscBatch', filters.nyscBatch);
+    if (filters.skills && filters.skills.length > 0) params.append('skills', filters.skills.join(','));
+    if (filters.verifiedSkillIds && filters.verifiedSkillIds.length > 0) params.append('verifiedSkillIds', filters.verifiedSkillIds.join(','));
+    if (filters.isRemote) params.append('isRemote', 'true');
+    if (filters.isOpenToReloc) params.append('isOpenToReloc', 'true');
+    if (filters.university) params.append('university', filters.university);
+    if (filters.courseOfStudy) params.append('courseOfStudy', filters.courseOfStudy);
+    if (filters.degree) params.append('degree', filters.degree);
+    if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
+    if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
+    if (filters.q) params.append('q', filters.q);
     if (filters.q) params.append('q', filters.q);
 
     const response = await apiClient.get(`/agencies/search/candidates?${params.toString()}`);

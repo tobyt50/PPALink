@@ -1,15 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { industries } from '../../industries.data';
+import { industries } from '../data/industries';
 
 export async function seedIndustries(prisma: PrismaClient) {
-  // -----------------------------
-  // Seed Industries
-  // -----------------------------
-  console.log('\n🏭 Seeding industries...');
+  console.log('🏭 Seeding industries...');
 
-  await prisma.industry.deleteMany({});
-  console.log('Cleared existing industries.');
-
+  // No need to deleteMany here, as the main cleanup script handles it.
   await prisma.industry.createMany({
     data: industries.map((i) => ({
       name: i.name.trim(),
@@ -18,5 +13,5 @@ export async function seedIndustries(prisma: PrismaClient) {
     })),
   });
 
-  console.log(`Created ${industries.length} industries with headings + order.`);
+  console.log(`  - ✅ Created ${industries.length} industries.`);
 }

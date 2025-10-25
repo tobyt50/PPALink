@@ -1,3 +1,4 @@
+// Refactored DistributionBarChart.tsx with smaller height
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { AgencyProAnalytics } from '../../../types/analytics';
 
@@ -25,7 +26,7 @@ export const DistributionBarChart = ({ data }: ChartProps) => {
   ];
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={200}>
       <BarChart
         data={chartData}
         margin={{

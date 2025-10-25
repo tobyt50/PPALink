@@ -22,8 +22,9 @@ export interface Position {
   description: string;
   employmentType: EmploymentType;
   isRemote: boolean;
-  stateId: number | null;
-  lgaId: number | null;
+  countryId: number | null;
+  regionId: number | null;
+  cityId: number | null;
   minSalary: number | null;
   maxSalary: number | null;
   visibility: PositionVisibility;
@@ -31,6 +32,7 @@ export interface Position {
   createdAt: string;
   updatedAt: string;
   level: JobLevel;
+  allowedCountryIds: number[];
   skills?: PositionSkill[];
   applications?: Application[]; 
   pipelineInstitutions?: string[];

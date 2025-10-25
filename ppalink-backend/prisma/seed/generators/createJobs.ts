@@ -1,9 +1,8 @@
-import { PrismaClient, EmploymentType, PositionVisibility, PositionStatus } from '@prisma/client';
+import { PrismaClient, EmploymentType, PositionVisibility, PositionStatus, QuizLevel, JobLevel } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import { rand, randRange } from '../utils';
-import { careerArchetypes } from '../../seed-candidates-agencies-data';
+import { rand, randRange } from '../utils/helpers';
+import { careerArchetypes } from '../data/archetypes';
 
-// A helper to generate realistic job descriptions
 const generateDescription = (title: string, company: string, archetype: typeof careerArchetypes[0]): string => {
     return `
 **About ${company}**
@@ -27,14 +26,19 @@ We are seeking a talented ${title} to contribute to our dynamic team. The ideal 
 };
 
 export async function createJobs(prisma: PrismaClient, count: number) {
-    console.log(`\n🌱 Creating ${count} realistic Job Positions...`);
-    
+    console.log(`  - Generating ${count} realistic job positions...`);
+
     const allAgencies = await prisma.agency.findMany({ select: { id: true, name: true } });
     const allSkills = await prisma.skill.findMany();
-    const statesWithLgas = await prisma.locationState.findMany({ include: { lgas: true } });
+    
+    // --- THIS IS THE DEFINITIVE FIX ---
+    // 1. Fetch from the new global location models.
+    const allCountries = await prisma.country.findMany();
+    const allRegions = await prisma.region.findMany({ include: { cities: true }});
+    // --- END OF FIX ---
 
     if (allAgencies.length === 0) {
-        console.warn('⚠️ Cannot create jobs because no agencies exist. Skipping.');
+        console.warn('  - ⚠️ Cannot create jobs because no agencies exist. Skipping.');
         return;
     }
 
@@ -43,17 +47,22 @@ export async function createJobs(prisma: PrismaClient, count: number) {
         const agency = rand(allAgencies);
         const title = rand(archetype.jobTitles);
         const description = generateDescription(title, agency.name, archetype);
-        
-        // Generate a realistic salary range
+
         const minSalary = randRange(80000, 250000);
         const maxSalary = minSalary + randRange(50000, 200000);
+
+        const isRemote = faker.datatype.boolean(0.3);
         
-        // Determine location and remote status
-        const isRemote = faker.datatype.boolean(0.3); // 30% chance of being remote
-        const randomState = isRemote ? null : rand(statesWithLgas);
-        const randomLga = randomState?.lgas.length ? rand(randomState.lgas) : null;
+        // --- THIS IS THE DEFINITIVE FIX ---
+        // 2. Select a random global location.
+        const randomRegion = isRemote ? null : rand(allRegions);
+        const randomCity = randomRegion?.cities.length ? rand(randomRegion.cities) : null;
         
-        // Select relevant skills for the job
+        // 3. Generate random country restrictions for some jobs.
+        const hasRestrictions = faker.datatype.boolean(0.2); // 20% of jobs have country restrictions
+        const allowedCountryIds = hasRestrictions ? faker.helpers.arrayElements(allCountries, randRange(1, 3)).map(c => c.id) : [];
+        // --- END OF FIX ---
+
         const relevantSkills = allSkills.filter(s => archetype.skills.includes(s.name));
         const skillSubset = faker.helpers.arrayElements(relevantSkills, randRange(3, 6));
 
@@ -63,9 +72,13 @@ export async function createJobs(prisma: PrismaClient, count: number) {
                 title,
                 description,
                 employmentType: rand(Object.values(EmploymentType)),
+                level: rand(Object.values(JobLevel)),
                 isRemote,
-                stateId: randomState?.id,
-                lgaId: randomLga?.id,
+                countryId: randomRegion?.countryId,
+                regionId: randomRegion?.id,
+                cityId: randomCity?.id,
+                allowedCountryIds: allowedCountryIds,
+
                 minSalary,
                 maxSalary,
                 visibility: PositionVisibility.PUBLIC,
@@ -73,12 +86,12 @@ export async function createJobs(prisma: PrismaClient, count: number) {
                 skills: {
                     create: skillSubset.map(skill => ({
                         skillId: skill.id,
-                        requiredLevel: rand(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
+                        requiredLevel: rand(Object.values(QuizLevel)),
                     })),
                 },
             }
         });
     }
 
-    console.log(`✅ ${count} realistic Job Positions created.`);
+    console.log(`  - ✅ ${count} realistic job positions created.`);
 }

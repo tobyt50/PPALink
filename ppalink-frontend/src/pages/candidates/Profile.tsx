@@ -16,16 +16,16 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
 import DocumentLink from "../../components/ui/DocumentLink";
 import { useAuthStore } from "../../context/AuthContext";
-import { useDataStore } from "../../context/DataStore";
 import useFetch from "../../hooks/useFetch";
+import { useLocationNames } from "../../hooks/useLocationNames";
 import type { CandidateProfile } from "../../types/candidate";
 import ProfileField from "./ProfileField";
 import EducationSection from "./sections/EducationSection";
 import WorkExperienceSection from "./sections/WorkExperienceSection";
-import { Avatar } from "../../components/ui/Avatar";
 
 const CandidateProfilePage = () => {
   const {
@@ -34,8 +34,13 @@ const CandidateProfilePage = () => {
     error,
     refetch,
   } = useFetch<CandidateProfile>("/candidates/me");
-  const userEmail = useAuthStore((state) => state.user?.email);
-  const { states } = useDataStore();
+  const user = useAuthStore((state) => state.user);
+
+  const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
+    profile?.countryId,
+    profile?.regionId,
+    profile?.cityId
+  );
 
   const displaySkills = useMemo(() => {
     if (!profile) return [];
@@ -94,10 +99,6 @@ const CandidateProfilePage = () => {
     );
   }
 
-  const locationState = states.find(
-    (s) => s.id === profile.primaryStateId
-  )?.name;
-
   return (
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -132,14 +133,12 @@ const CandidateProfilePage = () => {
             <div className="p-6">
               <div className="flex flex-col items-center md:flex-row md:items-start gap-6 mb-6">
                 <div className="flex-shrink-0">
-          <Avatar candidate={profile} size="xl" />
+                  <Avatar candidate={profile} size="xl" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-50">
-                    {`${profile.firstName} ${profile.lastName}`}
-                  </h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-50">{`${profile.firstName} ${profile.lastName}`}</h3>
                   <p className="text-sm text-gray-600 dark:text-zinc-300 mt-1">
-                    {userEmail}
+                    {user?.email}
                   </p>
                 </div>
               </div>
@@ -161,7 +160,7 @@ const CandidateProfilePage = () => {
                 <ProfileField
                   icon={MapPin}
                   label="Primary Location"
-                  value={locationState}
+                  value={isLoadingLocation ? "Loading..." : fullLocationString}
                 />
                 <ProfileField
                   icon={LinkIcon}
@@ -176,7 +175,6 @@ const CandidateProfilePage = () => {
               </div>
             </div>
           </div>
-
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -189,7 +187,6 @@ const CandidateProfilePage = () => {
               </p>
             </div>
           </div>
-
           <WorkExperienceSection
             experiences={profile.workExperiences || []}
             isOwner={true}
@@ -228,14 +225,12 @@ const CandidateProfilePage = () => {
               </div>
             </div>
           </div>
-
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                 Skills
               </h2>
             </div>
-
             <div className="p-6 flex flex-wrap gap-2">
               {displaySkills.length > 0 ? (
                 displaySkills.map((skill) => (
@@ -254,15 +249,7 @@ const CandidateProfilePage = () => {
                       )}
                       {skill.name}
                     </span>
-
-                    {/* Tooltip */}
-                    <div
-                      className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2
-                        whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 
-                        px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white 
-                        opacity-0 shadow-lg transition-opacity duration-200 
-                        peer-hover:opacity-100 pointer-events-none"
-                    >
+                    <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white opacity-0 shadow-lg transition-opacity duration-200 peer-hover:opacity-100 pointer-events-none">
                       {skill.isVerified
                         ? `Verified Skill - Score: ${skill.score}%`
                         : "Unverified skill"}
@@ -275,25 +262,24 @@ const CandidateProfilePage = () => {
                 </p>
               )}
             </div>
-
-            {/* Only show Take Quiz section if there are unverified skills */}
-            {displaySkills.length > 0 && displaySkills.some((s) => !s.isVerified) && (
-              <div className="p-4 text-center border-t border-gray-100 dark:border-zinc-800">
-                <p className="text-sm text-gray-500 dark:text-zinc-400 mb-3">
-                  You have some unverified skills. Take a skill assessment to standout.
-                </p>
-                <Link
-                  to="/dashboard/candidate/assessments"
-                  className="inline-block"
-                >
-                  <Button variant="outline" size="sm">
-                    Take Quiz
-                  </Button>
-                </Link>
-              </div>
-            )}
+            {displaySkills.length > 0 &&
+              displaySkills.some((s) => !s.isVerified) && (
+                <div className="p-4 text-center border-t border-gray-100 dark:border-zinc-800">
+                  <p className="text-sm text-gray-500 dark:text-zinc-400 mb-3">
+                    You have some unverified skills. Take a skill assessment to
+                    standout.
+                  </p>
+                  <Link
+                    to="/dashboard/candidate/assessments"
+                    className="inline-block"
+                  >
+                    <Button variant="outline" size="sm">
+                      Take Quiz
+                    </Button>
+                  </Link>
+                </div>
+              )}
           </div>
-
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">

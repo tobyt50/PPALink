@@ -7,14 +7,16 @@ export const createJobPositionSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters'),
   employmentType: z.nativeEnum(EmploymentType),
   isRemote: z.boolean().default(false),
-  stateId: z.number().int().positive().optional().nullable(),
-  lgaId: z.number().int().positive().optional().nullable(),
+  countryId: z.number().int().positive().optional().nullable(),
+  regionId: z.number().int().positive().optional().nullable(),
+  cityId: z.number().int().positive().optional().nullable(),
   minSalary: z.number().int().positive().optional().nullable(),
   maxSalary: z.number().int().positive().optional().nullable(),
   level: z.nativeEnum(JobLevel),
   skills: z.any().optional().nullable(),
   visibility: z.nativeEnum(PositionVisibility),
   status: z.nativeEnum(PositionStatus).default(PositionStatus.OPEN),
+  allowedCountryIds: z.array(z.number()).optional(),
 }).refine(data => {
     // Ensure that if maxSalary is provided, minSalary is also provided and is less than or equal to maxSalary
     if (data.maxSalary !== null && data.maxSalary !== undefined) {

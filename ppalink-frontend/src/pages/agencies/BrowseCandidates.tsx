@@ -1,4 +1,4 @@
-import { Search, Users } from "lucide-react";
+import { Filter, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -14,14 +14,13 @@ import type { CandidateProfile } from "../../types/candidate";
 import CandidateCard from "../../components/ui/CandidateCard";
 import FilterSidebar, { type CandidateFilterValues } from "./FilterSidebar";
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
+import { Button } from "../../components/ui/Button";
 
 const BrowseCandidatesPage = () => {
   const [searchParams] = useSearchParams();
-
   const [searchQuery, setSearchQuery] = useState(
     () => searchParams.get("q") || ""
   );
-
   const [filters, setFilters] = useState<CandidateFilterValues | null>(() => {
     const stored = searchParams.get("filters");
     return stored ? JSON.parse(stored) : null;
@@ -29,19 +28,15 @@ const BrowseCandidatesPage = () => {
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // debounce user typing
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
-  // fetch current agency (to know plan type)
   const { data: agency, isLoading: isLoadingAgency } =
     useFetch<Agency>("/agencies/me");
 
-  // Sync state from URL params (e.g., on back navigation)
   useEffect(() => {
     const q = searchParams.get("q") || "";
     setSearchQuery(q);
-
     const storedFilters = searchParams.get("filters");
     if (storedFilters) {
       try {
@@ -72,7 +67,9 @@ const BrowseCandidatesPage = () => {
           agency?.subscriptions?.[0]?.plan?.name?.toUpperCase() !== "BASIC";
 
         const combinedFilters: CandidateSearchParams = {
-          stateId: filters?.stateId ?? null,
+          countryId: filters?.countryId ?? null,
+          regionId: filters?.regionId ?? null,
+          cityId: filters?.cityId ?? null,
           nyscBatch: filters?.nyscBatch ?? null,
           skills: filters?.skills ?? [],
           verifiedSkillIds: filters?.verifiedSkillIds ?? [],
@@ -80,7 +77,6 @@ const BrowseCandidatesPage = () => {
           isOpenToReloc: filters?.isOpenToReloc ?? false,
           gpaBand: filters?.gpaBand ?? null,
           graduationYear: filters?.graduationYear ?? null,
-          // only include in search if agency has paid plan
           university: isPaid ? filters?.university ?? null : null,
           courseOfStudy: isPaid ? filters?.courseOfStudy ?? null : null,
           degree: isPaid ? filters?.degree ?? null : null,
@@ -100,16 +96,20 @@ const BrowseCandidatesPage = () => {
       }
     };
 
-    performSearch();
-  }, [filters, debouncedSearchQuery, agency]);
+    if (!isLoadingAgency) {
+      performSearch();
+    }
+  }, [filters, debouncedSearchQuery, agency, isLoadingAgency]);
 
   const handleFilterChange = (newFilters: CandidateFilterValues) => {
     setFilters(newFilters);
+    if (showMobileFilters) {
+      setShowMobileFilters(false);
+    }
   };
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
@@ -121,21 +121,22 @@ const BrowseCandidatesPage = () => {
         </div>
       </div>
 
-      {/* Layout */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        {/* Sidebar */}
-        <aside className="lg:col-span-1">
+        <aside className={`${showMobileFilters ? "block" : "hidden lg:block"} lg:col-span-1`}>
           <div
-            className="
-    sticky top-2
-    max-h-[calc(100vh-5rem)]   /* don’t exceed the viewport */
-    overflow-auto              /* scroll internally if filters get tall */
-    rounded-2xl bg-white dark:bg-zinc-900
-    shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
-    p-5
-  "
+            className={`
+              ${
+                showMobileFilters
+                  ? ""
+                  : "sticky top-2 max-h-[calc(100vh-5rem)] overflow-auto"
+              }
+              rounded-2xl bg-white dark:bg-zinc-900
+              shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
+              p-5
+            `}
           >
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4">
+            <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4 flex items-center">
+              <Filter className="mr-2 h-4 w-4" />
               Filters
             </h2>
             {isLoadingAgency ? (
@@ -153,10 +154,21 @@ const BrowseCandidatesPage = () => {
           </div>
         </aside>
 
-        {/* Main */}
         <main className="lg:col-span-3">
+          {!showMobileFilters && (
+            <div className="lg:hidden pb-3">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowMobileFilters(true)}
+                className="w-full"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Show Filters
+              </Button>
+            </div>
+          )}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-            {/* Search bar */}
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-gray-920">
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -172,7 +184,6 @@ const BrowseCandidatesPage = () => {
               </div>
             </div>
 
-            {/* Results */}
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                 <CandidateCardSkeleton />
@@ -185,7 +196,7 @@ const BrowseCandidatesPage = () => {
                 <EmptyState
                   icon={Users}
                   title="Search for Candidates"
-                  description="Use the keyword search or apply filters (state, batch, GPA, university, etc.) to find talent."
+                  description="Use the keyword search or apply filters (location, batch, GPA, university, etc.) to find talent."
                 />
               </div>
             ) : candidates.length === 0 ? (
@@ -201,11 +212,7 @@ const BrowseCandidatesPage = () => {
                 {candidates.map((candidate) => (
                   <Link
                     key={candidate.id}
-                    to={`/dashboard/agency/candidates/${
-                      candidate.id
-                    }/profile?q=${encodeURIComponent(
-                      debouncedSearchQuery
-                    )}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
+                    to={`/dashboard/agency/candidates/${candidate.id}/profile?q=${encodeURIComponent(debouncedSearchQuery)}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
                     className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
                   >
                     <CandidateCard candidate={candidate} />

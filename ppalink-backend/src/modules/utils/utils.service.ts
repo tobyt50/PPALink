@@ -10,26 +10,6 @@ export async function getAllIndustries() {
 }
 
 /**
- * Fetches all location states from the database.
- */
-export async function getAllLocationStates() {
-  return prisma.locationState.findMany({
-    orderBy: { name: 'asc' },
-  });
-}
-
-/**
- * Fetches all LGAs for a given state ID.
- * @param stateId The ID of the state.
- */
-export async function getLgasByStateId(stateId: number) {
-  return prisma.locationLGA.findMany({
-    where: { stateId },
-    orderBy: { name: 'asc' },
-  });
-}
-
-/**
  * Fetches all distinct universities (institutions) from candidate education.
  */
 export async function getAllUniversities() {
@@ -38,7 +18,7 @@ export async function getAllUniversities() {
     select: { institution: true },
     orderBy: { institution: 'asc' },
   });
-  return universities.map(u => ({ name: u.institution }));
+  return universities.map((u, index) => ({ id: index + 1, name: u.institution }));
 }
 
 /**
