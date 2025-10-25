@@ -101,7 +101,13 @@ const BrowseCandidatesPage = () => {
     }
   }, [filters, debouncedSearchQuery, agency, isLoadingAgency]);
 
-  const handleFilterChange = (newFilters: CandidateFilterValues) => {
+  useEffect(() => {
+    if (!filters) {
+      setSearchQuery("");
+    }
+  }, [filters]);
+
+  const handleFilterChange = (newFilters: CandidateFilterValues | null) => {
     setFilters(newFilters);
     if (showMobileFilters) {
       setShowMobileFilters(false);

@@ -299,108 +299,116 @@ export async function searchCandidates(userId: string, queryParams: any) {
   const searchQuery: string = (q ? String(q) : "").trim();
 
   if (searchQuery) {
-    andConditions.push({
-      OR: [
-        // Name
-        {
-          firstName: {
-            contains: searchQuery,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
-        {
-          lastName: {
-            contains: searchQuery,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        },
+  const words = searchQuery.toLowerCase().split(/\s+/).filter((w) => w.length > 0);
+  if (words.length === 0) {
+    // No valid words; skip search condition
+    return;
+  }
 
-        // Associated user
-        {
-          user: {
-            email: {
-              contains: searchQuery,
-              mode: Prisma.QueryMode.insensitive,
+  // Build per-word conditions: each word must match at least one field (OR across fields)
+  const wordConditions = words.map((word) => ({
+    OR: [
+      // Name
+      {
+        firstName: {
+          contains: word,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+      {
+        lastName: {
+          contains: word,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      },
+      // Associated user
+      {
+        user: {
+          email: {
+            contains: word,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      },
+      // Skills
+      {
+        skills: {
+          some: {
+            skill: {
+              name: {
+                contains: word,
+                mode: Prisma.QueryMode.insensitive,
+              },
             },
           },
         },
-
-        // Skills
-        {
-          skills: {
-            some: {
-              skill: {
-                name: {
-                  contains: searchQuery,
+      },
+      // Education (paid only)
+      ...(isPaid
+        ? [
+            {
+              education: {
+                some: {
+                  OR: [
+                    {
+                      institution: {
+                        contains: word,
+                        mode: Prisma.QueryMode.insensitive,
+                      },
+                    },
+                    {
+                      degree: {
+                        contains: word,
+                        mode: Prisma.QueryMode.insensitive,
+                      },
+                    },
+                    {
+                      field: {
+                        contains: word,
+                        mode: Prisma.QueryMode.insensitive,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ]
+        : []),
+      // Work experiences
+      {
+        workExperiences: {
+          some: {
+            OR: [
+              {
+                company: {
+                  contains: word,
                   mode: Prisma.QueryMode.insensitive,
                 },
               },
-            },
-          },
-        },
-
-        // Education (paid)
-        ...(isPaid
-          ? [
               {
-                education: {
-                  some: {
-                    OR: [
-                      {
-                        institution: {
-                          contains: searchQuery,
-                          mode: Prisma.QueryMode.insensitive,
-                        },
-                      },
-                      {
-                        degree: {
-                          contains: searchQuery,
-                          mode: Prisma.QueryMode.insensitive,
-                        },
-                      },
-                      {
-                        field: {
-                          contains: searchQuery,
-                          mode: Prisma.QueryMode.insensitive,
-                        },
-                      },
-                    ],
-                  },
+                title: {
+                  contains: word,
+                  mode: Prisma.QueryMode.insensitive,
                 },
               },
-            ]
-          : []),
-
-        // Work experiences
-        {
-          workExperiences: {
-            some: {
-              OR: [
-                {
-                  company: {
-                    contains: searchQuery,
-                    mode: Prisma.QueryMode.insensitive,
-                  },
+              {
+                description: {
+                  contains: word,
+                  mode: Prisma.QueryMode.insensitive,
                 },
-                {
-                  title: {
-                    contains: searchQuery,
-                    mode: Prisma.QueryMode.insensitive,
-                  },
-                },
-                {
-                  description: {
-                    contains: searchQuery,
-                    mode: Prisma.QueryMode.insensitive,
-                  },
-                },
-              ],
-            },
+              },
+            ],
           },
         },
-      ],
-    });
-  }
+      },
+    ],
+  }));
+
+  // Overall search condition: AND across words (each must match somewhere)
+  andConditions.push({
+    AND: wordConditions,
+  });
+}
 
   return prisma.candidateProfile.findMany({
     where: {

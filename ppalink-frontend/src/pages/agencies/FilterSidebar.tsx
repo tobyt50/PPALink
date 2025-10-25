@@ -41,7 +41,7 @@ export type CandidateFilterValues = {
 };
 
 interface FilterSidebarProps {
-  onFilterChange: (filters: CandidateFilterValues) => void;
+  onFilterChange: (filters: CandidateFilterValues | null) => void;
   agency: Agency | null;
   currentFilters?: Partial<CandidateFilterValues>;
 }
@@ -79,6 +79,7 @@ const FilterSidebar = ({
   } = useDataStore();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [universitySearch, setUniversitySearch] = useState("");
+  const [resetKey, setResetKey] = useState(0);  // New: Tracks resets for child components
 
   const methods = useForm<CandidateFilterValues>({
     defaultValues: currentFilters || {
@@ -97,7 +98,7 @@ const FilterSidebar = ({
       verifiedSkillIds: [],
     },
   });
-  const { register, handleSubmit, reset, control, watch } = methods;
+  const { register, handleSubmit, reset, control, watch, setValue } = methods;
 
   useEffect(() => {
     if (currentFilters) {
@@ -151,10 +152,16 @@ const FilterSidebar = ({
   const handleApplyFilters = (values: CandidateFilterValues) => {
     onFilterChange(values);
   };
+
   const handleReset = () => {
-    reset();
-    handleSubmit(onFilterChange)();
-  };
+  reset();
+  setValue("countryId", null);
+  setValue("regionId", null);
+  setValue("cityId", null);
+  onFilterChange(null);
+  setResetKey((prev) => prev + 1);
+  setUniversitySearch("");
+};
 
   return (
     <div className="space-y-5">
@@ -240,8 +247,9 @@ const FilterSidebar = ({
               </div>
             </>
           ) : null}
+          {/* Updated: Pass resetKey */}
           <div className="flex flex-col space-y-1.5">
-            <LocationSelector variant="country-only" />
+            <LocationSelector variant="country-only" resetKey={resetKey} key={`country-selector-${resetKey}`} />
           </div>
           <div className="border-t border-gray-100 dark:border-zinc-800 pt-5">
             <button
@@ -276,7 +284,8 @@ const FilterSidebar = ({
                   !hasAdvancedAccess ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
-                <LocationSelector variant="region-city" stacked />
+                {/* Updated: Pass resetKey */}
+              <LocationSelector variant="region-city" stacked resetKey={resetKey} key={`region-city-selector-${resetKey}`} />
               </div>
               <div
                 className={`space-y-1.5 ${

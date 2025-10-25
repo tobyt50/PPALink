@@ -49,6 +49,18 @@ const getUserName = (user: Conversation["otherUser"]) => {
   return user.email;
 };
 
+// Extracted to top level for shared use; requires currentUser for role checks
+const getNameLink = (user: Conversation["otherUser"], currentUserRole?: string) => {
+  if (currentUserRole === "ADMIN") return "#";
+  if (user.candidateProfile && currentUserRole === "AGENCY") {
+    return `/dashboard/agency/candidates/${user.candidateProfile.id}/profile`;
+  }
+  if (user.ownedAgencies && user.ownedAgencies.length > 0) {
+    return `/agencies/${user.ownedAgencies[0].id}/profile`;
+  }
+  return "#";
+};
+
 const ChatWindow = ({
   activeConversation,
   onGoBack,
@@ -60,6 +72,7 @@ const ChatWindow = ({
 }) => {
   const currentUser = useAuthStore((state) => state.user);
   const currentUserId = currentUser?.id;
+  const currentUserRole = currentUser?.role;
   const otherUser = activeConversation.otherUser;
   const {
     data: fetchedMessages,
@@ -73,19 +86,7 @@ const ChatWindow = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
 
-  // Compute link logic
-  const getNameLink = (user: Conversation["otherUser"]) => {
-    if (currentUser?.role === "ADMIN") return "#";
-    if (user.candidateProfile && currentUser?.role === "AGENCY") {
-      return `/dashboard/agency/candidates/${user.candidateProfile.id}/profile`;
-    }
-    if (user.ownedAgencies && user.ownedAgencies.length > 0) {
-      return `/agencies/${user.ownedAgencies[0].id}/profile`;
-    }
-    return "#";
-  };
-
-  const nameLink = getNameLink(otherUser);
+  const nameLink = getNameLink(otherUser, currentUserRole);
   const isClickable = nameLink !== "#";
 
   useEffect(() => {
@@ -291,44 +292,24 @@ const ChatWindow = ({
   );
 };
 
-const ConversationList = ({
-  conversations,
-  onSelect,
-  activeConversationId,
-}: {
+interface ConversationListProps {
   conversations: Conversation[];
   onSelect: (conv: Conversation) => void;
   activeConversationId: string | null;
-}) => {
-  const currentUser = useAuthStore((state) => state.user);
+  currentUserRole?: string; // Pass role for getNameLink
+}
 
-  // Compute link logic
-  const getNameLink = (user: Conversation["otherUser"]) => {
-    if (currentUser?.role === "ADMIN") return "#";
-    if (user.candidateProfile && currentUser?.role === "AGENCY") {
-      return `/dashboard/agency/candidates/${user.candidateProfile.id}/profile`;
-    }
-    if (user.ownedAgencies && user.ownedAgencies.length > 0) {
-      return `/agencies/${user.ownedAgencies[0].id}/profile`;
-    }
-    return "#";
-  };
-
+const ConversationList = ({ conversations, onSelect, activeConversationId, currentUserRole }: ConversationListProps) => {
   return (
-    <div className="border-r border-gray-100 dark:border-zinc-800 h-full bg-white dark:bg-zinc-900 flex flex-col">
-      <div className="h-14 px-5 flex items-center border-b border-gray-100 dark:border-zinc-800 flex-shrink-0">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-          Conversations
-        </h2>
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800">
+      <div className="p-4 border-b border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-zinc-100">Inbox</h2>
       </div>
-      <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+      <ul className="divide-y divide-gray-100 dark:divide-zinc-800 flex-1 overflow-y-auto">
         {conversations.map((conv) => {
-          const isActive = conv.otherUser.id === activeConversationId;
-          const hasUnread =
-            conv.lastMessage &&
-            conv.lastMessage.fromId !== currentUser?.id &&
-            !conv.lastMessage.readAt;
-          const nameLink = getNameLink(conv.otherUser);
+          const isActive = activeConversationId === conv.otherUser.id;
+          const hasUnread = !!conv.lastMessage && conv.lastMessage.toId === conv.otherUser.id && !conv.lastMessage.readAt;
+          const nameLink = getNameLink(conv.otherUser, currentUserRole);
           const isClickable = nameLink !== "#";
           const name = getUserName(conv.otherUser);
           return (
@@ -400,6 +381,8 @@ const ConversationList = ({
 };
 
 const InboxPage = () => {
+  const currentUser = useAuthStore((state) => state.user);
+  const currentUserRole = currentUser?.role;
   const { data: initialConversations, isLoading, error, refetch: refetchConversations } = useFetch<Conversation[]>('/messages/conversations');
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const location = useLocation();
@@ -410,7 +393,7 @@ const InboxPage = () => {
   const hasAutoSelectedRef = useRef(false);
 
   const { data: pendingUser, isLoading: loadingUser, error: userError } = useFetch<OtherUser>(
-    pendingConvId ? `/messages/user/${pendingConvId}` : null
+    pendingConvId && pendingConvId !== 'undefined' ? `/messages/user/${pendingConvId}` : null
   );
 
   useEffect(() => {
@@ -427,7 +410,7 @@ const InboxPage = () => {
     const convId = searchParams.get('conversation');
 
     if (view === 'chat') {
-      if (convId) {
+      if (convId && convId !== 'undefined') {
         const conv = conversations.find((c) => c.otherUser.id === convId);
         if (conv) {
           setActiveConversation(conv);
@@ -449,7 +432,7 @@ const InboxPage = () => {
       setActiveConversation(null);
       setPendingConvId(null);
     }
-  }, [searchParams, conversations]);
+  }, [searchParams, conversations, setSearchParams]);
 
   // Set active conversation once pending user is fetched
   useEffect(() => {
@@ -470,14 +453,14 @@ const InboxPage = () => {
   // Handle navigation from location.state
   useEffect(() => {
     const stateConv = location.state?.activeConversation;
-    if (stateConv && !activeConversation) {
+    if (stateConv && stateConv.otherUser?.id && !activeConversation) {
       setActiveConversation(stateConv);
       setSearchParams(
         { view: 'chat', conversation: stateConv.otherUser.id },
         { replace: true }
       );
     }
-  }, [location.state, activeConversation]);
+  }, [location.state, activeConversation, setSearchParams]);
 
   // Auto-select first conversation on desktop initial load
   useEffect(() => {
@@ -495,7 +478,7 @@ const InboxPage = () => {
         { replace: true }
       );
     }
-  }, [conversations, isMobile, searchParams]);
+  }, [conversations, isMobile, searchParams, setSearchParams]);
 
   // Load and prepare conversations
   useEffect(() => {
@@ -503,7 +486,7 @@ const InboxPage = () => {
       let currentConversations = [...initialConversations];
       const newConversationFromState = location.state?.activeConversation;
 
-      if (newConversationFromState) {
+      if (newConversationFromState && newConversationFromState.otherUser?.id) {
         const existingConv = currentConversations.find(
           (c) => c.otherUser.id === newConversationFromState.otherUser.id
         );
@@ -523,6 +506,7 @@ const InboxPage = () => {
 
   const handleSelectConversation = useCallback(
     (conv: Conversation) => {
+      if (!conv.otherUser?.id) return;
       setActiveConversation(conv);
       setSearchParams(
         { view: 'chat', conversation: conv.otherUser.id },
@@ -547,6 +531,13 @@ const InboxPage = () => {
       );
     }
     if (userError) {
+      // Treat userError as string; check for indicators of invalid request (e.g., 400 or 'Invalid')
+      if (typeof userError === 'string' && (userError.includes('400') || userError.includes('Invalid'))) {
+        setPendingConvId(null);
+        setSearchParams({}, { replace: true });
+        toast.error('Invalid conversation selected. Redirecting to inbox.');
+        return null; // Temporarily render nothing; will re-render after state update
+      }
       return (
         <div className="p-8 text-center text-red-500">
           Failed to load user details.
@@ -592,6 +583,7 @@ const InboxPage = () => {
           conversations={conversations}
           onSelect={handleSelectConversation}
           activeConversationId={activeConversation?.otherUser.id || null}
+          currentUserRole={currentUserRole}
         />
       </aside>
       <main

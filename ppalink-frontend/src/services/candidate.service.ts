@@ -78,7 +78,6 @@ class CandidateService {
     if (filters.graduationYear) params.append('graduationYear', String(filters.graduationYear));
     if (filters.gpaBand) params.append('gpaBand', filters.gpaBand);
     if (filters.q) params.append('q', filters.q);
-    if (filters.q) params.append('q', filters.q);
 
     const response = await apiClient.get(`/agencies/search/candidates?${params.toString()}`);
     return response.data.data;

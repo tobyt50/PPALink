@@ -17,11 +17,13 @@ const DisabledTrigger = ({ children }: { children: React.ReactNode }) => (
 interface LocationSelectorProps {
   stacked?: boolean;
   variant?: "full" | "country-only" | "region-city";
+  resetKey?: number;  // New: Triggers search state reset
 }
 
 const LocationSelector = ({
   stacked = false,
   variant = "full",
+  resetKey = 0,  // New: Default to 0
 }: LocationSelectorProps) => {
   const { control, watch, setValue } = useFormContext();
 
@@ -61,6 +63,13 @@ const LocationSelector = ({
   const [countrySearch, setCountrySearch] = useState("");
   const [regionSearch, setRegionSearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
+
+  // New: Clear search states when resetKey changes
+  useEffect(() => {
+    setCountrySearch("");
+    setRegionSearch("");
+    setCitySearch("");
+  }, [resetKey]);
 
   const filteredCountries = countries?.filter((c) =>
     c.name.toLowerCase().includes(countrySearch.toLowerCase())
