@@ -4,6 +4,7 @@ import { acceptInvitationSignUpHandler, verifyInvitationTokenHandler } from '../
 import { getPublicJobByIdHandler, recordJobViewHandler } from '../jobs/job.controller';
 import { finalizeDomainVerificationHandler } from '../verifications/domain.controller';
 import { getPublicAgencyProfileHandler, getFeaturedAgenciesHandler } from '../agencies/agency.controller';
+import { getExchangeRatesHandler } from '../utils/currency.controller';
 import { authenticateOptional } from '../../middleware/auth';
 
 const router = Router();
@@ -31,5 +32,8 @@ router.get('/featured-agencies', getFeaturedAgenciesHandler);
 
 // POST /api/public/jobs/:jobId/view
 router.post('/jobs/:jobId/view', authenticateOptional, recordJobViewHandler);
+
+// GET /api/public/exchange-rates
+router.get('/exchange-rates', getExchangeRatesHandler);
 
 export default router;

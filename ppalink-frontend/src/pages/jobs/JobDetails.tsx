@@ -18,11 +18,11 @@ import {
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
-
 import { Button } from "../../components/ui/Button";
 import { ConfirmationModal } from "../../components/ui/Modal";
 import useFetch from "../../hooks/useFetch";
 import { useLocationNames } from "../../hooks/useLocationNames";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency";
 import jobService from "../../services/job.service";
 import type { Position } from "../../types/job";
 
@@ -92,6 +92,9 @@ const JobDetailsPage = () => {
     job?.regionId,
     job?.cityId
   );
+  
+  const formattedSalary = useSmartCurrency(job?.minSalary, job?.currency);
+  const formattedMaxSalary = useSmartCurrency(job?.maxSalary, job?.currency);
   
   const levelIconMap = {
     ENTRY: GraduationCap,
@@ -211,7 +214,15 @@ const JobDetailsPage = () => {
               {job.level && LevelIcon && (
                 <DetailField icon={LevelIcon} label="Level" value={formatLevel(job.level)} />
               )}
-              <DetailField icon={Wallet} label="Salary Range" value={ job.minSalary && job.maxSalary ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}` : "Not specified" } />
+              <DetailField
+                icon={Wallet}
+                label="Salary Range"
+                value={
+                  job.minSalary && job.currency
+                    ? `${formattedSalary}${job.maxSalary ? ` - ${formattedMaxSalary}` : ''}`
+                    : "Not specified"
+                }
+              />
               <DetailField icon={Globe} label="Visibility" value={job.visibility} />
               <DetailField icon={CheckCircle} label="Status">
                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${ job.status === "OPEN" ? "bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-200" : "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-100" }`}>

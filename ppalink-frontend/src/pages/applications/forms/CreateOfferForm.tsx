@@ -1,17 +1,25 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Fragment } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "../../../components/forms/Input";
 import { Button } from "../../../components/ui/Button";
 import { Label } from "../../../components/ui/Label";
 import { Gift, Send } from "lucide-react";
+import { CurrencyInput } from "../../../components/forms/CurrencyInput";
 
 const offerSchema = z.object({
   salary: z.number().positive("Salary must be a positive number.").optional(),
+  currency: z.string().optional().nullable(),
   startDate: z.string().optional(),
-});
+}).refine(
+    (data) => {
+        if (data.salary && !data.currency) { return false; }
+        return true;
+    },
+    { message: "Currency is required.", path: ["currency"] }
+);
 
 export type OfferFormValues = z.infer<typeof offerSchema>;
 
@@ -26,11 +34,11 @@ export const CreateOfferFormModal = ({
   onClose,
   onSubmit,
 }: CreateOfferFormProps) => {
+  const methods = useForm<OfferFormValues>({ resolver: zodResolver(offerSchema) });
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<OfferFormValues>({ resolver: zodResolver(offerSchema) });
+  } = methods;
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -67,49 +75,48 @@ export const CreateOfferFormModal = ({
                     Extend Job Offer
                   </Dialog.Title>
                 </div>
-                <form
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="p-6 space-y-4"
-                >
-                  <p className="text-sm text-gray-600 dark:text-zinc-300">
-                    Enter the details of the job offer. The candidate will be
-                    notified and can accept or decline.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="salary">Annual Salary (₦)</Label>
-                      <Input
-                        id="salary"
-                        type="number"
-                        placeholder="e.g., 2400000"
-                        {...register("salary", { valueAsNumber: true })}
-                        error={!!errors.salary}
-                      />
-                      {errors.salary && (
-                        <p className="text-xs text-red-500 dark:text-red-400">
-                          {errors.salary.message}
-                        </p>
-                      )}
+                <FormProvider {...methods}>
+                  <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="p-6 space-y-4"
+                  >
+                    <p className="text-sm text-gray-600 dark:text-zinc-300">
+                      Enter the details of the job offer. The candidate will be
+                      notified and can accept or decline.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2">
+                        <CurrencyInput
+                            label="Annual Salary"
+                            amountFieldName="salary"
+                            currencyFieldName="currency"
+                        />
+                         {errors.currency && (
+                            <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                                {errors.currency.message}
+                            </p>
+                         )}
+                      </div>
+                      <div className="col-span-2 space-y-1.5">
+                        <Label htmlFor="startDate">Proposed Start Date</Label>
+                        <Input
+                          id="startDate"
+                          type="date"
+                          {...methods.register("startDate")}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="startDate">Proposed Start Date</Label>
-                      <Input
-                        id="startDate"
-                        type="date"
-                        {...register("startDate")}
-                      />
+                    <div className="mt-6 flex justify-end space-x-3 pt-5 border-t border-gray-100 dark:border-zinc-800">
+                      <Button type="button" variant="outline" onClick={onClose}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" isLoading={isSubmitting}>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Offer
+                      </Button>
                     </div>
-                  </div>
-                  <div className="mt-6 flex justify-end space-x-3 pt-5 border-t border-gray-100 dark:border-zinc-800">
-                    <Button type="button" variant="outline" onClick={onClose}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" isLoading={isSubmitting}>
-                      <Send className="mr-2 h-4 w-4" />
-                      Send Offer
-                    </Button>
-                  </div>
-                </form>
+                  </form>
+                </FormProvider>
               </Dialog.Panel>
             </Transition.Child>
           </div>

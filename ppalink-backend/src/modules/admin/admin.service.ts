@@ -517,8 +517,6 @@ export async function createAdmin(email: string, role: Role, actorId: string) {
     console.log(`Admin invitation email sent successfully to ${email}`);
   } catch (error) {
     console.error("CRITICAL: Failed to send admin creation email:", error);
-    // In a real production app, you would add this to a retry queue.
-    // We will still proceed to create the user, but this error must be logged.
   }
 
   return newAdmin;

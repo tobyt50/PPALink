@@ -14,7 +14,7 @@ import {
   User,
   Wallet,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Avatar } from "../../components/ui/Avatar";
@@ -22,7 +22,9 @@ import { Button } from "../../components/ui/Button";
 import { useAuthStore } from "../../context/AuthContext";
 import useFetch from "../../hooks/useFetch";
 import { useLocationNames } from "../../hooks/useLocationNames";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency";
 import candidateService from "../../services/candidate.service";
+import jobService from "../../services/job.service";
 import type { Position } from "../../types/job";
 import applicationService from "../../services/application.service";
 
@@ -85,10 +87,20 @@ const PublicJobDetailsPage = () => {
 
   const [isApplying, setIsApplying] = useState(false);
 
+  useEffect(() => {
+      if (jobId) {
+          jobService.recordJobView(jobId);
+      }
+  }, [jobId]);
+
   const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
     job?.countryId,
-    job?.regionId
+    job?.regionId,
+    job?.cityId
   );
+  
+  const formattedSalary = useSmartCurrency(job?.minSalary, job?.currency);
+  const formattedMaxSalary = useSmartCurrency(job?.maxSalary, job?.currency);
 
   const levelIconMap = {
     ENTRY: GraduationCap,
@@ -155,14 +167,10 @@ const PublicJobDetailsPage = () => {
 
   const formatEmploymentType = (type: string): string => {
     switch (type) {
-      case "PARTTIME":
-        return "Part-time";
-      case "FULLTIME":
-        return "Full-time";
-      case "NYSC":
-        return "NYSC";
-      default:
-        return type.charAt(0) + type.slice(1).toLowerCase();
+      case "PARTTIME": return "Part-time";
+      case "FULLTIME": return "Full-time";
+      case "NYSC": return "NYSC";
+      default: return type.charAt(0) + type.slice(1).toLowerCase();
     }
   };
 
@@ -194,7 +202,7 @@ const PublicJobDetailsPage = () => {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <Link
-          to="/dashboard/candidate/jobs/browse"
+          to={user ? "/dashboard/candidate/jobs/browse" : "/"}
           className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
         >
           <ChevronLeft className="h-5 w-5 mr-1" />
@@ -225,7 +233,7 @@ const PublicJobDetailsPage = () => {
               </div>
             </div>
             <div className="flex-shrink-0">
-              <Button size="sm" onClick={handleApply} isLoading={isApplying}>
+              <Button size="lg" onClick={handleApply} isLoading={isApplying}>
                 Apply Now
               </Button>
             </div>
@@ -289,8 +297,8 @@ const PublicJobDetailsPage = () => {
               icon={Wallet}
               label="Salary Range"
               value={
-                job.minSalary && job.maxSalary
-                  ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}`
+                job.minSalary && job.currency
+                  ? `${formattedSalary}${job.maxSalary ? ` - ${formattedMaxSalary}` : ''}`
                   : "Not specified"
               }
             />

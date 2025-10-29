@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Button } from "../../components/ui/Button";
 import applicationService from "../../services/application.service";
 import { ConfirmationModal } from "../../components/ui/Modal";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency";
 
 const OfferStatusPage = ({
   application,
@@ -21,6 +22,8 @@ const OfferStatusPage = ({
   }>({ isOpen: false, action: null });
 
   const offer = application.offers?.[0];
+
+  const formattedSalary = useSmartCurrency(offer?.salary, application.position.currency);
 
   const handleResponse = async () => {
     if (!offer || !modalState.action) return;
@@ -115,7 +118,7 @@ const OfferStatusPage = ({
           <div className="p-6 space-y-4">
             {offer.salary && (
               <p className="text-gray-800 dark:text-zinc-100">
-                <strong>Salary:</strong> ₦{offer.salary.toLocaleString()} per
+                <strong>Salary:</strong> {formattedSalary} per
                 annum
               </p>
             )}

@@ -22,6 +22,7 @@ import DocumentLink from "../../components/ui/DocumentLink";
 import { useAuthStore } from "../../context/AuthContext";
 import useFetch from "../../hooks/useFetch";
 import { useLocationNames } from "../../hooks/useLocationNames";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency";
 import type { CandidateProfile } from "../../types/candidate";
 import ProfileField from "./ProfileField";
 import EducationSection from "./sections/EducationSection";
@@ -41,6 +42,8 @@ const CandidateProfilePage = () => {
     profile?.regionId,
     profile?.cityId
   );
+
+  const formattedSalary = useSmartCurrency(profile?.salaryMin, profile?.currency);
 
   const displaySkills = useMemo(() => {
     if (!profile) return [];
@@ -311,41 +314,15 @@ const CandidateProfilePage = () => {
               <ProfileField
                 icon={Briefcase}
                 label="Minimum Salary"
-                value={
-                  profile.salaryMin
-                    ? `₦${profile.salaryMin.toLocaleString()}`
-                    : null
-                }
+                value={formattedSalary}
               />
               <ProfileField icon={MapPin} label="Work Location">
                 <div className="flex flex-col space-y-2 mt-1">
-                  <span
-                    className={`inline-flex items-center text-sm font-medium ${
-                      profile.isRemote
-                        ? "text-green-700 dark:text-green-300"
-                        : "text-gray-500 dark:text-zinc-400"
-                    }`}
-                  >
-                    {profile.isRemote ? (
-                      <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                    ) : (
-                      <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                    )}{" "}
-                    Remote
+                  <span className={`inline-flex items-center text-sm font-medium ${ profile.isRemote ? "text-green-700 dark:text-green-300" : "text-gray-500 dark:text-zinc-400" }`}>
+                    {profile.isRemote ? ( <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> ) : ( <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" /> )}{" "}Remote
                   </span>
-                  <span
-                    className={`inline-flex items-center text-sm font-medium ${
-                      profile.isOpenToReloc
-                        ? "text-green-700 dark:text-green-300"
-                        : "text-gray-500 dark:text-zinc-400"
-                    }`}
-                  >
-                    {profile.isOpenToReloc ? (
-                      <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                    ) : (
-                      <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                    )}{" "}
-                    Relocation
+                  <span className={`inline-flex items-center text-sm font-medium ${ profile.isOpenToReloc ? "text-green-700 dark:text-green-300" : "text-gray-500 dark:text-zinc-400" }`}>
+                    {profile.isOpenToReloc ? ( <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> ) : ( <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" /> )}{" "}Relocation
                   </span>
                 </div>
               </ProfileField>

@@ -10,8 +10,13 @@ import {
   MapPin,
   Tag,
   Wallet,
+  Briefcase,
+  GraduationCap,
+  User,
+  Crown,
+  Award,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -20,6 +25,30 @@ import useFetch from "../../hooks/useFetch";
 import adminService from "../../services/admin.service";
 import type { Position } from "../../types/job";
 import { useLocationNames } from "../../hooks/useLocationNames";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency";
+
+const SmartDescription = ({ text }: { text: string }) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return <strong key={index}>{part.slice(2, -2)}</strong>;
+        }
+        return (
+          <React.Fragment key={index}>
+            {part.split("\n").map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < part.split("\n").length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+};
 
 const DetailField = ({
   icon: Icon,
@@ -47,14 +76,12 @@ const DetailField = ({
 
 const AdminJobDetailsPage = () => {
   const { jobId } = useParams<{ jobId: string }>();
-
   const {
     data: job,
     isLoading,
     error,
     refetch,
   } = useFetch<Position>(jobId ? `/admin/jobs/${jobId}` : null);
-
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     action: "unpublish" | "republish" | null;
@@ -66,6 +93,16 @@ const AdminJobDetailsPage = () => {
     job?.cityId
   );
 
+  const formattedSalary = useSmartCurrency(job?.minSalary, job?.currency);
+  const formattedMaxSalary = useSmartCurrency(job?.maxSalary, job?.currency);
+
+  const levelIconMap = {
+    ENTRY: GraduationCap,
+    INTERMEDIATE: User,
+    SENIOR: Crown,
+    PRINCIPAL: Award,
+  };
+
   const openModal = (action: "unpublish" | "republish") => {
     setModalState({ isOpen: true, action });
   };
@@ -73,7 +110,6 @@ const AdminJobDetailsPage = () => {
 
   const handleModalConfirm = async () => {
     if (!jobId || !modalState.action) return;
-
     const isUnpublishing = modalState.action === "unpublish";
     const actionPromise = isUnpublishing
       ? adminService.adminUnpublishJob(jobId)
@@ -81,7 +117,6 @@ const AdminJobDetailsPage = () => {
     const successMessage = `Job has been ${
       isUnpublishing ? "unpublished" : "republished"
     }.`;
-
     await toast.promise(actionPromise, {
       loading: `${isUnpublishing ? "Unpublishing" : "Republishing"} job...`,
       success: () => {
@@ -96,6 +131,10 @@ const AdminJobDetailsPage = () => {
         );
       },
     });
+  };
+
+  const formatLevel = (level: string): string => {
+    return level.charAt(0) + level.slice(1).toLowerCase();
   };
 
   if (isLoading) {
@@ -115,6 +154,9 @@ const AdminJobDetailsPage = () => {
 
   const agency = job.agency;
   const isPrivate = job.visibility === "PRIVATE";
+  const LevelIcon = job.level
+    ? levelIconMap[job.level as keyof typeof levelIconMap]
+    : Briefcase;
 
   return (
     <>
@@ -131,7 +173,6 @@ const AdminJobDetailsPage = () => {
         confirmButtonText={isPrivate ? "Republish" : "Unpublish"}
         isDestructive={!isPrivate}
       />
-
       <div className="mx-auto max-w-5xl space-y-6">
         <div>
           <Link
@@ -142,7 +183,6 @@ const AdminJobDetailsPage = () => {
             Back to All Jobs
           </Link>
         </div>
-
         <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
@@ -193,15 +233,16 @@ const AdminJobDetailsPage = () => {
               )}
             </div>
           </div>
-
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-1 space-y-6">
               <DetailField
                 icon={Wallet}
                 label="Salary Range"
                 value={
-                  job.minSalary && job.maxSalary
-                    ? `₦${job.minSalary.toLocaleString()} - ₦${job.maxSalary.toLocaleString()}`
+                  job.minSalary && job.currency
+                    ? `${formattedSalary}${
+                        job.maxSalary ? ` - ${formattedMaxSalary}` : ""
+                      }`
                     : "Not specified"
                 }
               />
@@ -233,15 +274,19 @@ const AdminJobDetailsPage = () => {
                   ? "Loading..."
                   : fullLocationString || "Not specified"}
               </DetailField>
+              <DetailField
+                icon={LevelIcon}
+                label="Job Level"
+                value={formatLevel(job.level)}
+              />
             </div>
-
             <div className="md:col-span-2 space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
                   Job Description
                 </h2>
                 <div className="prose prose-sm max-w-none mt-2 text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">
-                  {job.description}
+                  <SmartDescription text={job.description} />
                 </div>
               </div>
               <div>

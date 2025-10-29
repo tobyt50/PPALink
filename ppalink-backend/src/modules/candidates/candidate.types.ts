@@ -24,6 +24,7 @@ export const UpdateCandidateProfileSchema = z.object({
   countryId: z.number().int().positive().optional().nullable(),
   regionId: z.number().int().positive().optional().nullable(),
   cityId: z.number().int().positive().optional().nullable(),
+  currency: z.string().length(3, 'Currency must be a 3-letter ISO code').optional().nullable(),
   skills: z.array(z.string()).optional(),
   cvFileKey: z.string().optional().nullable(),
   nyscFileKey: z.string().optional().nullable(),

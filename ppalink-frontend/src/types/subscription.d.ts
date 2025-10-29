@@ -4,6 +4,7 @@ export interface SubscriptionPlan {
     description: string | null;
     price: number;
     currency: string;
+    currency: string;
     features: string[];
     stripePriceId: string;
     memberLimit: number;

@@ -17,6 +17,7 @@ export const createJobPositionSchema = z.object({
   visibility: z.nativeEnum(PositionVisibility),
   status: z.nativeEnum(PositionStatus).default(PositionStatus.OPEN),
   allowedCountryIds: z.array(z.number()).optional(),
+  currency: z.string().length(3, 'Currency must be a 3-letter ISO code').optional().nullable(),
 }).refine(data => {
     // Ensure that if maxSalary is provided, minSalary is also provided and is less than or equal to maxSalary
     if (data.maxSalary !== null && data.maxSalary !== undefined) {

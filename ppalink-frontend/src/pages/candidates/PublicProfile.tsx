@@ -31,6 +31,7 @@ import {
 import { useShortlistStore } from "../../context/ShortlistStore";
 import useFetch from "../../hooks/useFetch";
 import { useLocationNames } from "../../hooks/useLocationNames";
+import { useSmartCurrency } from "../../hooks/useSmartCurrency"; // 1. Import the new hook
 import agencyService from "../../services/agency.service";
 import applicationService from "../../services/application.service";
 import type { Agency } from "../../types/agency";
@@ -168,8 +169,77 @@ const PublicProfilePage = () => {
 
   const { fullLocationString, isLoading: isLoadingLocation } = useLocationNames(
     profile?.countryId,
-    profile?.regionId
+    profile?.regionId,
+    profile?.cityId
   );
+
+  const DetailsSection = ({ profile }: { profile: CandidateProfile }) => {
+    const formattedSalary = useSmartCurrency(
+      profile.salaryMin,
+      profile.currency
+    );
+
+    return (
+      <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+        <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+            Details
+          </h2>
+        </div>
+        <div className="p-6 space-y-5">
+          <ProfileField
+            icon={GraduationCap}
+            label="Graduation Year"
+            value={profile.graduationYear}
+          />
+          <ProfileField
+            icon={BadgeCheck}
+            label="NYSC Batch"
+            value={`${profile.nyscBatch || ""} ${
+              profile.nyscStream || ""
+            }`.trim()}
+          />
+          <ProfileField
+            icon={Briefcase}
+            label="Minimum Salary"
+            value={formattedSalary}
+          />
+          <ProfileField icon={MapPin} label="Work Preferences">
+            <div className="flex flex-col space-y-2 mt-1">
+              <span
+                className={`inline-flex items-center text-sm font-medium ${
+                  profile.isRemote
+                    ? "text-green-700 dark:text-green-300"
+                    : "text-gray-500 dark:text-zinc-400"
+                }`}
+              >
+                {profile.isRemote ? (
+                  <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                ) : (
+                  <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                )}
+                Remote
+              </span>
+              <span
+                className={`inline-flex items-center text-sm font-medium ${
+                  profile.isOpenToReloc
+                    ? "text-green-700 dark:text-green-300"
+                    : "text-gray-500 dark:text-zinc-400"
+                }`}
+              >
+                {profile.isOpenToReloc ? (
+                  <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                ) : (
+                  <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                )}
+                Relocation
+              </span>
+            </div>
+          </ProfileField>
+        </div>
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -208,7 +278,7 @@ const PublicProfilePage = () => {
             <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 text-xs font-medium text-zinc-900 dark:text-white opacity-0 shadow-lg transition-opacity duration-200 peer-hover:opacity-100 pointer-events-none">
               {skill.isVerified
                 ? `Verified Skill - Score: ${skill.score}%`
-                : "Self-reported skill"}
+                : "Unverified skill"}
             </div>
           </div>
         ))
@@ -252,10 +322,14 @@ const PublicProfilePage = () => {
                       : fullLocationString || "Location not specified"}
                   </p>
                   <div className="mt-4 flex gap-2">
-                    <Button onClick={handleMessageCandidate} size="sm" className="p-2">
-  <MessageCircle className="h-4 w-4" />
-  <span className="hidden md:inline ml-2">Message</span>
-</Button>
+                    <Button
+                      onClick={handleMessageCandidate}
+                      size="sm"
+                      className="p-2"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span className="hidden md:inline ml-2">Message</span>
+                    </Button>
                     <SimpleDropdown
                       trigger={
                         <Button
@@ -323,68 +397,7 @@ const PublicProfilePage = () => {
               </div>
             </div>
             <div className="space-y-8 lg:hidden">
-              <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                    Details
-                  </h2>
-                </div>
-                <div className="p-6 space-y-5">
-                  <ProfileField
-                    icon={GraduationCap}
-                    label="Graduation Year"
-                    value={profile.graduationYear}
-                  />
-                  <ProfileField
-                    icon={BadgeCheck}
-                    label="NYSC Batch"
-                    value={`${profile.nyscBatch || ""} ${
-                      profile.nyscStream || ""
-                    }`.trim()}
-                  />
-                  <ProfileField
-                    icon={Briefcase}
-                    label="Minimum Salary"
-                    value={
-                      profile.salaryMin
-                        ? `₦${profile.salaryMin.toLocaleString()}`
-                        : null
-                    }
-                  />
-                  <ProfileField icon={MapPin} label="Work Preferences">
-                    <div className="flex flex-col space-y-2 mt-1">
-                      <span
-                        className={`inline-flex items-center text-sm font-medium ${
-                          profile.isRemote
-                            ? "text-green-700 dark:text-green-300"
-                            : "text-gray-500 dark:text-zinc-400"
-                        }`}
-                      >
-                        {profile.isRemote ? (
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                        ) : (
-                          <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                        )}
-                        Remote
-                      </span>
-                      <span
-                        className={`inline-flex items-center text-sm font-medium ${
-                          profile.isOpenToReloc
-                            ? "text-green-700 dark:text-green-300"
-                            : "text-gray-500 dark:text-zinc-400"
-                        }`}
-                      >
-                        {profile.isOpenToReloc ? (
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                        ) : (
-                          <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                        )}
-                        Relocation
-                      </span>
-                    </div>
-                  </ProfileField>
-                </div>
-              </div>
+              <DetailsSection profile={profile} />
               <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
                 <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -407,68 +420,7 @@ const PublicProfilePage = () => {
             />
           </div>
           <div className="hidden lg:block lg:col-span-1 space-y-8">
-            <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-                  Details
-                </h2>
-              </div>
-              <div className="p-6 space-y-5">
-                <ProfileField
-                  icon={GraduationCap}
-                  label="Graduation Year"
-                  value={profile.graduationYear}
-                />
-                <ProfileField
-                  icon={BadgeCheck}
-                  label="NYSC Batch"
-                  value={`${profile.nyscBatch || ""} ${
-                    profile.nyscStream || ""
-                  }`.trim()}
-                />
-                <ProfileField
-                  icon={Briefcase}
-                  label="Minimum Salary"
-                  value={
-                    profile.salaryMin
-                      ? `₦${profile.salaryMin.toLocaleString()}`
-                      : null
-                  }
-                />
-                <ProfileField icon={MapPin} label="Work Preferences">
-                  <div className="flex flex-col space-y-2 mt-1">
-                    <span
-                      className={`inline-flex items-center text-sm font-medium ${
-                        profile.isRemote
-                          ? "text-green-700 dark:text-green-300"
-                          : "text-gray-500 dark:text-zinc-400"
-                      }`}
-                    >
-                      {profile.isRemote ? (
-                        <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                      )}
-                      Remote
-                    </span>
-                    <span
-                      className={`inline-flex items-center text-sm font-medium ${
-                        profile.isOpenToReloc
-                          ? "text-green-700 dark:text-green-300"
-                          : "text-gray-500 dark:text-zinc-400"
-                      }`}
-                    >
-                      {profile.isOpenToReloc ? (
-                        <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="mr-2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
-                      )}
-                      Relocation
-                    </span>
-                  </div>
-                </ProfileField>
-              </div>
-            </div>
+            <DetailsSection profile={profile} />
             <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">

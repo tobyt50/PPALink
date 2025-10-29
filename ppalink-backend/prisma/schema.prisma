@@ -146,6 +146,7 @@ model CandidateProfile {
   region          Region?  @relation(fields: [regionId], references: [id])
   cityId          Int?
   city            City?    @relation(fields: [cityId], references: [id])
+  currency        String?    @default("NGN")
   workExperiences WorkExperience[]
   education       Education[]
   skills          CandidateSkill[]
@@ -338,6 +339,7 @@ model Position {
   status       PositionStatus @default(OPEN)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  currency     String?    @default("NGN")
   views JobView[]
   applications Application[]
   skills       PositionSkill[]
@@ -808,7 +810,7 @@ model BoostTier {
   durationInDays  Int
   reachMultiplier Int      // e.g., 2 for 2x reach
   description     String
-  
+  currency        String   @default("NGN")
   stripePriceId   String   @unique
 
   boosts          FeedBoost[]

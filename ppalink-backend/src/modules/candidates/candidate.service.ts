@@ -56,20 +56,19 @@ export async function updateCandidateProfile(
     throw new Error("Candidate profile not found");
   }
 
-  // Separate skills from the rest of the profile data
-  const { skills: skillNames, ...profileData } = data;
+  const { skills: skillNames, currency, ...profileData } = data;
 
   const updatedProfile = await prisma.candidateProfile.update({
     where: { userId },
     data: {
       ...profileData,
-      // If skills are provided, replace the existing ones with the new set.
+      currency: currency || 'NGN',
       skills: skillNames
         ? {
-            deleteMany: {}, // First, remove all existing skill connections
-            create: await connectOrCreateSkills(skillNames), // Then, create the new connections with the required `level` field
+            deleteMany: {},
+            create: await connectOrCreateSkills(skillNames),
           }
-        : undefined, // If no skills array is sent, do nothing
+        : undefined,
     },
   });
 

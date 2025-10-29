@@ -27,6 +27,7 @@ export interface Position {
   cityId: number | null;
   minSalary: number | null;
   maxSalary: number | null;
+  currency: string | null;
   visibility: PositionVisibility;
   status: PositionStatus;
   createdAt: string;

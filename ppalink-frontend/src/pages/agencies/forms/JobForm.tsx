@@ -16,6 +16,7 @@ import { useDataStore } from "../../../context/DataStore";
 import type { Position, JobLevel } from "../../../types/job";
 import type { QuizLevel } from "../../../types/quiz";
 import LocationSelector from "../../../components/forms/LocationSelector";
+import { CurrencyInput } from "../../../components/forms/CurrencyInput";
 
 const jobFormSchema = z
   .object({
@@ -36,6 +37,11 @@ const jobFormSchema = z
     cityId: z.number().int().positive().optional().nullable(),
     minSalary: z.coerce.number().int().positive().optional().nullable(),
     maxSalary: z.coerce.number().int().positive().optional().nullable(),
+    currency: z
+      .string()
+      .min(3, "Currency is required if salary is set.")
+      .optional()
+      .nullable(),
     skills: z.array(
       z.object({
         name: z.string(),
@@ -61,6 +67,15 @@ const jobFormSchema = z
       message: "Max salary must be greater than or equal to min salary",
       path: ["maxSalary"],
     }
+  )
+  .refine(
+    (data) => {
+      if ((data.minSalary || data.maxSalary) && !data.currency) {
+        return false;
+      }
+      return true;
+    },
+    { message: "Please select a currency for the salary.", path: ["currency"] }
   );
 
 export type JobFormValues = z.infer<typeof jobFormSchema>;
@@ -90,6 +105,7 @@ const JobForm = ({
       cityId: initialData?.cityId || undefined,
       minSalary: initialData?.minSalary ?? undefined,
       maxSalary: initialData?.maxSalary ?? undefined,
+      currency: initialData?.currency || undefined,
       skills:
         initialData?.skills?.map((s) => ({
           name: s.skill.name,
@@ -103,7 +119,6 @@ const JobForm = ({
   });
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -119,6 +134,14 @@ const JobForm = ({
   const [skillLevel, setSkillLevel] = useState<QuizLevel>("BEGINNER");
   const watchedLevel = watch("level");
 
+  const selectedCountryNames = useMemo(() => {
+    return countries
+      .filter((country) => allowedCountryIds.includes(country.id))
+      .map((country) => country.name)
+      .sort((a, b) => a.localeCompare(b))
+      .join(", ");
+  }, [countries, allowedCountryIds]);
+
   const filteredSkills = useMemo(() => {
     return allSkills.filter(
       (skill) =>
@@ -126,7 +149,6 @@ const JobForm = ({
         !skills.some((s) => s.name.toLowerCase() === skill.name.toLowerCase())
     );
   }, [allSkills, skillSearch, skills]);
-
   const addSkill = () => {
     if (
       !tempSkill ||
@@ -145,7 +167,6 @@ const JobForm = ({
     setSkillSearch("");
     setSkillLevel("BEGINNER");
   };
-
   const removeSkill = (index: number) => {
     setValue(
       "skills",
@@ -163,6 +184,7 @@ const JobForm = ({
         countryId: initialData.countryId || undefined,
         regionId: initialData.regionId || undefined,
         cityId: initialData.cityId || undefined,
+        currency: initialData.currency || undefined,
         skills:
           initialData.skills?.map((s) => ({
             name: s.skill.name,
@@ -218,7 +240,7 @@ const JobForm = ({
             <Input
               id="title"
               placeholder="e.g., Software Engineer"
-              {...register("title")}
+              {...methods.register("title")}
             />
             {errors.title && (
               <p className="text-xs text-red-600 dark:text-red-400">
@@ -232,7 +254,7 @@ const JobForm = ({
               id="description"
               rows={8}
               error={!!errors.description}
-              {...register("description")}
+              {...methods.register("description")}
             />
             {errors.description && (
               <p className="text-xs text-red-600 dark:text-red-400">
@@ -243,151 +265,146 @@ const JobForm = ({
         </section>
 
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
-            Details & Settings
-          </h3>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Employment Type</Label>
-              <Controller
-                name="employmentType"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <SimpleDropdown
-                    trigger={
-                      <DropdownTrigger>
-                        <span className="truncate">
-                          {employmentTypeOptions[value]}
-                        </span>
-                        <ChevronDown className="h-4 w-4" />
-                      </DropdownTrigger>
-                    }
-                  >
-                    {Object.entries(employmentTypeOptions).map(([key, val]) => (
-                      <SimpleDropdownItem
-                        key={key}
-                        onSelect={() =>
-                          onChange(key as JobFormValues["employmentType"])
-                        }
-                      >
-                        {val}
-                      </SimpleDropdownItem>
-                    ))}
-                  </SimpleDropdown>
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Job Level</Label>
-              <Controller
-                name="level"
-                control={control}
-                render={({ field: { onChange } }) => (
-                  <SimpleDropdown
-                    trigger={
-                      <DropdownTrigger>
-                        <span className="truncate">{watchedLevel}</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </DropdownTrigger>
-                    }
-                  >
-                    {jobLevelOptions.map((level) => (
-                      <SimpleDropdownItem
-                        key={level}
-                        onSelect={() => onChange(level)}
-                      >
-                        {level}
-                      </SimpleDropdownItem>
-                    ))}
-                  </SimpleDropdown>
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Visibility</Label>
-              <Controller
-                name="visibility"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <SimpleDropdown
-                    trigger={
-                      <DropdownTrigger>
-                        <span className="truncate">
-                          {visibilityOptions[value]}
-                        </span>
-                        <ChevronDown className="h-4 w-4" />
-                      </DropdownTrigger>
-                    }
-                  >
-                    {Object.entries(visibilityOptions).map(([key, val]) => (
-                      <SimpleDropdownItem
-                        key={key}
-                        onSelect={() =>
-                          onChange(key as JobFormValues["visibility"])
-                        }
-                      >
-                        {val}
-                      </SimpleDropdownItem>
-                    ))}
-                  </SimpleDropdown>
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="minSalary">Minimum Salary (₦)</Label>
-              <Input
-                id="minSalary"
-                type="number"
-                {...register("minSalary", {
-                  setValueAs: (v) => (v ? parseInt(v, 10) : undefined),
-                })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="maxSalary">Maximum Salary (₦)</Label>
-              <Input
-                id="maxSalary"
-                type="number"
-                {...register("maxSalary", {
-                  setValueAs: (v) => (v ? parseInt(v, 10) : undefined),
-                })}
-              />
-              {errors.maxSalary && (
-                <p className="text-xs text-red-600 dark:text-red-400">
-                  {errors.maxSalary.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label>Position Status</Label>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <SimpleDropdown
-                    trigger={
-                      <DropdownTrigger>
-                        <span className="truncate">{statusOptions[value]}</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </DropdownTrigger>
-                    }
-                  >
-                    {Object.entries(statusOptions).map(([key, val]) => (
-                      <SimpleDropdownItem
-                        key={key}
-                        onSelect={() =>
-                          onChange(key as JobFormValues["status"])
-                        }
-                      >
-                        {val}
-                      </SimpleDropdownItem>
-                    ))}
-                  </SimpleDropdown>
-                )}
-              />
-            </div>
-          </div>
-        </section>
+  <h3 className="text-lg font-semibold border-b pb-2">
+    Details & Settings
+  </h3>
+  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div className="space-y-2">
+      <Label>Employment Type</Label>
+      <Controller
+        name="employmentType"
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span className="truncate">
+                  {employmentTypeOptions[value]}
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+          >
+            {Object.entries(employmentTypeOptions).map(([key, val]) => (
+              <SimpleDropdownItem
+                key={key}
+                onSelect={() =>
+                  onChange(key as JobFormValues["employmentType"])
+                }
+              >
+                {val}
+              </SimpleDropdownItem>
+            ))}
+          </SimpleDropdown>
+        )}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Job Level</Label>
+      <Controller
+        name="level"
+        control={control}
+        render={({ field: { onChange } }) => (
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span className="truncate">{watchedLevel}</span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+          >
+            {jobLevelOptions.map((level) => (
+              <SimpleDropdownItem
+                key={level}
+                onSelect={() => onChange(level)}
+              >
+                {level}
+              </SimpleDropdownItem>
+            ))}
+          </SimpleDropdown>
+        )}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Visibility</Label>
+      <Controller
+        name="visibility"
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span className="truncate">
+                  {visibilityOptions[value]}
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+          >
+            {Object.entries(visibilityOptions).map(([key, val]) => (
+              <SimpleDropdownItem
+                key={key}
+                onSelect={() =>
+                  onChange(key as JobFormValues["visibility"])
+                }
+              >
+                {val}
+              </SimpleDropdownItem>
+            ))}
+          </SimpleDropdown>
+        )}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Position Status</Label>
+      <Controller
+        name="status"
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <SimpleDropdown
+            trigger={
+              <DropdownTrigger>
+                <span className="truncate">{statusOptions[value]}</span>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownTrigger>
+            }
+          >
+            {Object.entries(statusOptions).map(([key, val]) => (
+              <SimpleDropdownItem
+                key={key}
+                onSelect={() =>
+                  onChange(key as JobFormValues["status"])
+                }
+              >
+                {val}
+              </SimpleDropdownItem>
+            ))}
+          </SimpleDropdown>
+        )}
+      />
+    </div>
+    <CurrencyInput
+      label="Minimum Salary"
+      amountFieldName="minSalary"
+      currencyFieldName="currency"
+    />
+    <CurrencyInput
+      label="Maximum Salary"
+      amountFieldName="maxSalary"
+      currencyFieldName="currency"
+    />
+  </div>
+  {errors.maxSalary && (
+    <p className="text-xs text-red-600 dark:text-red-400">
+      {errors.maxSalary.message}
+    </p>
+  )}
+  {errors.currency && (
+    <p className="text-xs text-red-600 dark:text-red-400">
+      {errors.currency.message}
+    </p>
+  )}
+</section>
 
         <section className="space-y-6">
           <h3 className="text-lg font-semibold border-b pb-2">Location</h3>
@@ -397,12 +414,11 @@ const JobForm = ({
               id="isRemote"
               type="checkbox"
               className="h-4 w-4 rounded"
-              {...register("isRemote")}
+              {...methods.register("isRemote")}
             />
             <Label htmlFor="isRemote">This is a fully remote position</Label>
           </div>
         </section>
-
         <section className="space-y-2">
           <h3 className="text-lg font-semibold border-b pb-2">
             Skills Required
@@ -500,64 +516,60 @@ const JobForm = ({
         </section>
 
         <section className="space-y-4">
-  <h3 className="text-lg font-semibold border-b pb-2">
-    Application Restrictions
-  </h3>
-
-  <div>
-    <Label className="flex items-center">
-      <Globe className="h-4 w-4 mr-2" /> Limit applications to specific
-      countries
-    </Label>
-
-    <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
-      Leave blank to allow applications from any country. Select one or more
-      countries to accept applications only from those locations.
-    </p>
-
-    <div className="mt-4">
-      <Controller
-        name="allowedCountryIds"
-        control={control}
-        render={({ field }) => (
-          <SimpleDropdown
-            trigger={
-              <DropdownTrigger>
-                <span className="truncate">
-                  {allowedCountryIds.length > 0
-                    ? `${allowedCountryIds.length} countries selected`
-                    : "Allow all countries"}
-                </span>
-                <ChevronDown className="h-4 w-4" />
-              </DropdownTrigger>
-            }
-            isIndustryDropdown
-          >
-            <div className="max-h-60 overflow-y-auto">
-              {countries.map((country) => (
-                <SimpleDropdownItem
-                  key={country.id}
-                  onSelect={() => handleCountryToggle(country.id)}
-                >
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={field.value?.includes(country.id)}
-                      className="h-4 w-4 rounded mr-2"
-                      readOnly
-                    />
-                    <span>{country.name}</span>
-                  </div>
-                </SimpleDropdownItem>
-              ))}
+          <h3 className="text-lg font-semibold border-b pb-2">
+            Application Restrictions
+          </h3>
+          <div>
+            <Label className="flex items-center">
+              <Globe className="h-4 w-4 mr-2" /> Limit applications to specific
+              countries
+            </Label>
+            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+              Leave blank to allow applications from any country. Select one or
+              more countries to accept applications only from those locations.
+            </p>
+            <div className="mt-4">
+              <Controller
+                name="allowedCountryIds"
+                control={control}
+                render={({ field }) => (
+                  <SimpleDropdown
+                    trigger={
+                      <DropdownTrigger>
+                        <span className="truncate">
+                          {allowedCountryIds.length > 0
+                            ? `Allow only from ${selectedCountryNames}`
+                            : "Allow all countries"}
+                        </span>
+                        <ChevronDown className="h-4 w-4" />
+                      </DropdownTrigger>
+                    }
+                    isIndustryDropdown
+                  >
+                    <div className="max-h-60 overflow-y-auto">
+                      {countries.map((country) => (
+                        <SimpleDropdownItem
+                          key={country.id}
+                          onSelect={() => handleCountryToggle(country.id)}
+                        >
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={field.value?.includes(country.id)}
+                              className="h-4 w-4 rounded mr-2"
+                              readOnly
+                            />
+                            <span>{country.name}</span>
+                          </div>
+                        </SimpleDropdownItem>
+                      ))}
+                    </div>
+                  </SimpleDropdown>
+                )}
+              />
             </div>
-          </SimpleDropdown>
-        )}
-      />
-    </div>
-  </div>
-</section>
-
+          </div>
+        </section>
 
         <div className="flex justify-end pt-4">
           <Button

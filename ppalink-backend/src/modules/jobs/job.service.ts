@@ -100,12 +100,13 @@ export async function createJobPosition(
     }
   }
 
-  const { skills: skillNames, allowedCountryIds, ...positionData } = data;
+  const { skills: skillNames, allowedCountryIds, currency, ...positionData } = data;
 
   const position = await prisma.position.create({
     data: {
       ...positionData,
       agencyId,
+      currency: currency || 'NGN',
       allowedCountryIds: allowedCountryIds || [],
       skills:
         skillNames && skillNames.length > 0
@@ -159,12 +160,13 @@ export async function updateJobPosition(
   agencyId: string,
   data: UpdateJobPositionInput
 ) {
-  const { skills: skillNames, allowedCountryIds, ...positionData } = data;
+  const { skills: skillNames, allowedCountryIds, currency, ...positionData } = data;
 
   const position = await prisma.position.update({
     where: { id: jobId, agencyId },
     data: {
       ...positionData,
+      currency: currency || 'NGN',
       allowedCountryIds: allowedCountryIds || [],
       skills: skillNames
         ? {

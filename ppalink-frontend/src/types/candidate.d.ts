@@ -65,6 +65,7 @@ export interface CandidateProfile {
   isOpenToReloc: boolean;
   salaryMin: number | null;
   salaryMax: number | null;
+  currency: string | null;
   availability: string | null;
   summary: string | null;
   linkedin: string | null;

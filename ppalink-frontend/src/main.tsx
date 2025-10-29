@@ -1,5 +1,5 @@
 ﻿import { Analytics } from '@vercel/analytics/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import toast, { Toaster, ToastBar, type Toast } from 'react-hot-toast';
 import { X } from 'lucide-react';
@@ -8,6 +8,15 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import './index.css';
 import AppRouter from './routes';
 import { ThemeProvider } from './context/ThemeProvider';
+import { useCurrencyStore } from './context/CurrencyStore';
+
+const AppInitializer = () => {
+  useEffect(() => {
+    useCurrencyStore.getState().initializeCurrency();
+  }, []);
+  
+  return null;
+};
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -74,6 +83,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </Toaster>
 
       <ThemeProvider>
+        <AppInitializer />
         <AppRouter />
       </ThemeProvider>
       <Analytics />

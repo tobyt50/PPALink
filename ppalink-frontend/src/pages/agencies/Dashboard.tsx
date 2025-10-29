@@ -74,8 +74,8 @@ const DiscoveryFeed = () => {
   const feedItems = feedResponse?.data;
 
   const itemsToShow = useMemo(() => {
-    // Show 3 items for a more compact feed
-    return feedItems?.slice(0, 3) || [];
+    // Show 4 items for a more compact feed
+    return feedItems?.slice(0, 4) || [];
   }, [feedItems]);
 
   const buttonBaseStyle =

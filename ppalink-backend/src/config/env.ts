@@ -26,6 +26,8 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
 
+  EXCHANGERATE_API_KEY: z.string().min(1),
+
   SYSTEM_USER_ID: z.uuid(),
 });
 

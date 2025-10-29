@@ -18,39 +18,53 @@ import { useDataStore } from "../../../context/DataStore";
 import type { CandidateProfile } from "../../../types/candidate";
 import { NYSC_BATCHES, NYSC_STREAMS } from "../../../utils/constants";
 import LocationSelector from "../../../components/forms/LocationSelector";
+import { CurrencyInput } from "../../../components/forms/CurrencyInput"; // 1. Import the new component
 
-const profileSchema = z.object({
-  firstName: z.string().min(2, "First name is required."),
-  lastName: z.string().min(2, "Last name is required."),
-  phone: z.string().optional().nullable(),
-  dob: z.string().optional().nullable(),
-  gender: z.string().optional().nullable(),
-  summary: z.string().optional().nullable(),
-  linkedin: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .optional()
-    .nullable(),
-  portfolio: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .optional()
-    .nullable(),
-  isRemote: z.boolean().default(false),
-  isOpenToReloc: z.boolean().default(false),
-  salaryMin: z.coerce.number().optional().nullable(),
-  nyscBatch: z.string().optional().nullable(),
-  nyscStream: z.string().optional().nullable(),
-  graduationYear: z.coerce.number().optional().nullable(),
-  cvFileKey: z.string().optional().nullable(),
-  nyscFileKey: z.string().optional().nullable(),
-  skills: z.array(z.string()).optional(),
-  countryId: z.coerce.number().optional().nullable(),
-  regionId: z.coerce.number().optional().nullable(),
-  cityId: z.coerce.number().optional().nullable(),
-});
+// --- THIS IS THE FIX for the Zod schema ---
+const profileSchema = z
+  .object({
+    firstName: z.string().min(2, "First name is required."),
+    lastName: z.string().min(2, "Last name is required."),
+    phone: z.string().optional().nullable(),
+    dob: z.string().optional().nullable(),
+    gender: z.string().optional().nullable(),
+    summary: z.string().optional().nullable(),
+    linkedin: z
+      .string()
+      .url("Must be a valid URL")
+      .or(z.literal(""))
+      .optional()
+      .nullable(),
+    portfolio: z
+      .string()
+      .url("Must be a valid URL")
+      .or(z.literal(""))
+      .optional()
+      .nullable(),
+    isRemote: z.boolean().default(false),
+    isOpenToReloc: z.boolean().default(false),
+    salaryMin: z.coerce.number().optional().nullable(),
+    currency: z.string().optional().nullable(), // Add currency field
+    nyscBatch: z.string().optional().nullable(),
+    nyscStream: z.string().optional().nullable(),
+    graduationYear: z.coerce.number().optional().nullable(),
+    cvFileKey: z.string().optional().nullable(),
+    nyscFileKey: z.string().optional().nullable(),
+    skills: z.array(z.string()).optional(),
+    countryId: z.coerce.number().optional().nullable(),
+    regionId: z.coerce.number().optional().nullable(),
+    cityId: z.coerce.number().optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      if (data.salaryMin && !data.currency) {
+        return false;
+      }
+      return true;
+    },
+    { message: "Please select a currency for your salary.", path: ["currency"] }
+  );
+// --- END OF FIX ---
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -87,6 +101,7 @@ const ProfileForm = ({
       isRemote: initialData?.isRemote ?? false,
       isOpenToReloc: initialData?.isOpenToReloc ?? false,
       salaryMin: initialData?.salaryMin ?? undefined,
+      currency: initialData?.currency || undefined,
       nyscBatch: initialData?.nyscBatch || "",
       nyscStream: initialData?.nyscStream || "",
       graduationYear: initialData?.graduationYear ?? undefined,
@@ -111,7 +126,6 @@ const ProfileForm = ({
   const watchedNyscStream = watch("nyscStream");
   const watchedSkills = watch("skills") || [];
   const [skillSearch, setSkillSearch] = useState("");
-
   const filteredSkills = useMemo(() => {
     return allSkills.filter(
       (skill) =>
@@ -119,7 +133,6 @@ const ProfileForm = ({
         !watchedSkills.includes(skill.name)
     );
   }, [allSkills, skillSearch, watchedSkills]);
-
   const addSkill = (skillName: string) => {
     if (!watchedSkills.includes(skillName)) {
       setValue("skills", [...watchedSkills, skillName], { shouldDirty: true });
@@ -301,23 +314,24 @@ const ProfileForm = ({
           <h3 className="text-lg font-semibold border-b pb-2">
             Job Preferences & Location
           </h3>
+          {/* --- THIS IS THE FIX --- */}
           <div className="grid grid-cols-1 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="salaryMin">Minimum Monthly Salary (₦)</Label>
-              <Input
-                id="salaryMin"
-                type="number"
-                placeholder="e.g., 150000"
-                {...register("salaryMin")}
-              />
-            </div>
+            <CurrencyInput
+              label="Minimum Monthly Salary Expectation"
+              amountFieldName="salaryMin"
+              currencyFieldName="currency"
+            />
+            {errors.currency && (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {errors.currency.message}
+              </p>
+            )}
           </div>
-
+          {/* --- END OF FIX --- */}
           <div className="space-y-2 pt-4">
             <Label>Primary Location</Label>
             <LocationSelector />
           </div>
-
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
               <input

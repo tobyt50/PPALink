@@ -49,6 +49,7 @@ export interface BoostTier {
   id: string;
   name: 'STANDARD' | 'PREMIUM';
   price: number;
+  currency: string;
   durationInDays: number;
   reachMultiplier: number;
   description: string;
