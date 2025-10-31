@@ -55,8 +55,8 @@ const CreateJobPage = () => {
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-          Create a New Job Posting
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          Create Job Posting
         </h1>
         <p className="mt-2 text-gray-600 dark:text-zinc-300">
           Describe the role and the ideal candidate you're looking for.

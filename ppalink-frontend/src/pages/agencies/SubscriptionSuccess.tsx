@@ -21,7 +21,7 @@ const SubscriptionSuccessPage = () => {
                     </div>
 
                     {/* Replicated Gradient Header */}
-                    <h1 className="mt-6 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+                    <h1 className="mt-6 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                         Subscription Successful!
                     </h1>
 

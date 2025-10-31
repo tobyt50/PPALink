@@ -98,7 +98,7 @@ const ManageJobsPage = () => {
       />
       <div className="space-y-5">
         <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Job Management</h1>
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">Job Management</h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">Oversee and moderate all job postings on the platform.</p>
         </div>
 

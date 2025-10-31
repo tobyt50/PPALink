@@ -18,7 +18,7 @@ import type { CandidateProfile } from "../../types/candidate";
 import type { Agency } from "../../types/agency";
 import type { FeedItem } from "../../types/feed";
 import { FeedCard } from "../../components/ui/FeedCard";
-import { useState, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
 
 const ProfileCompleteness = ({ score }: { score: number }) => {
@@ -173,7 +173,7 @@ const FollowingFeed = () => {
 };
 
 const DiscoveryFeed = () => {
-  const [activeTab, setActiveTab] = useState("RECOMMENDATION");
+  const [currentIndex, setCurrentIndex] = useState(1); // Start with "For You" (index 1)
 
   const tabs = [
     { id: "ALL", label: "All", icon: List },
@@ -183,111 +183,210 @@ const DiscoveryFeed = () => {
     { id: "SUCCESS_STORY", label: "Success", icon: TrendingUp },
   ];
 
-  const feedUrl = useMemo(() => {
-    if (activeTab === "ALL") {
-      return "/feed/";
-    }
-    return `/feed/?category=${activeTab}`;
-  }, [activeTab]);
+  const feedContainerRef = useRef<HTMLDivElement>(null);
+  const tabContainerRef = useRef<HTMLDivElement>(null);
 
-  const { data: feedResponse, isLoading } = useFetch<{
+  // Fetch data for each tab
+  const { data: allFeed, isLoading: allLoading } = useFetch<{
     data: FeedItem[];
     nextCursor: string | null;
-  }>(feedUrl);
+  }>("/feed/");
+  const { data: recFeed, isLoading: recLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>("/feed/?category=RECOMMENDATION");
+  const { data: learnFeed, isLoading: learnLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>("/feed/?category=LEARN_GROW");
+  const { data: insightFeed, isLoading: insightLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>("/feed/?category=CAREER_INSIGHT");
+  const { data: successFeed, isLoading: successLoading } = useFetch<{
+    data: FeedItem[];
+    nextCursor: string | null;
+  }>("/feed/?category=SUCCESS_STORY");
 
-  const feedItems = feedResponse?.data;
+  const tabDatas = [
+    allFeed?.data || [],
+    recFeed?.data || [],
+    learnFeed?.data || [],
+    insightFeed?.data || [],
+    successFeed?.data || [],
+  ];
 
-  const itemsToShow = useMemo(() => {
-    return feedItems?.slice(0, 4) || [];
-  }, [feedItems]);
+  const tabLoadings = [allLoading, recLoading, learnLoading, insightLoading, successLoading];
+
+  const scrollTabsToIndex = (index: number) => {
+    if (tabContainerRef.current && tabContainerRef.current.children[index]) {
+      const tab = tabContainerRef.current.children[index] as HTMLElement;
+      const tabWidth = tab.offsetWidth;
+      const containerWidth = tabContainerRef.current.clientWidth;
+      const tabCenter = tab.offsetLeft + tabWidth / 2;
+      const containerCenter = containerWidth / 2;
+      let newScrollLeft = tabCenter - containerCenter;
+
+      // Clamp to bounds
+      const maxScrollLeft = tabContainerRef.current.scrollWidth - containerWidth;
+      newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
+
+      tabContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const handleTabClick = (index: number) => {
+    setCurrentIndex(index);
+
+    // Scroll feed container to the selected panel
+    if (feedContainerRef.current) {
+      const panelWidth = feedContainerRef.current.clientWidth;
+      feedContainerRef.current.scrollTo({
+        left: index * panelWidth,
+        behavior: "smooth",
+      });
+    }
+
+    // Scroll tab container to center the selected tab
+    scrollTabsToIndex(index);
+  };
+
+  const handleFeedScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const scrollLeft = target.scrollLeft;
+    const panelWidth = target.clientWidth;
+    const newIndex = Math.round(scrollLeft / panelWidth);
+    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < tabs.length) {
+      setCurrentIndex(newIndex);
+      // Scroll tabs to center the new active tab
+      scrollTabsToIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    // Initial scroll to center the starting tab
+    scrollTabsToIndex(currentIndex);
+  }, []); // Only on mount
+
+  useEffect(() => {
+    // Scroll tabs whenever currentIndex changes (e.g., from swipe)
+    scrollTabsToIndex(currentIndex);
+  }, [currentIndex]);
 
   const buttonBaseStyle =
-    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap";
+    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex-shrink-0";
   const activeButtonStyle =
     "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-50 font-semibold";
   const inactiveButtonStyle =
     "text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50";
 
-  if (isLoading) {
-    return (
-      <div className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
-    );
-  }
-
   return (
-    <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+    <>
       {/* Header */}
-      <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-            Career Discovery
-          </h2>
-          <Link to="/feed/create">
-            <Button size="sm" variant="outline">
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Post
-            </Button>
-          </Link>
-        </div>
-        <div className="flex flex-row overflow-x-auto gap-2 px-3 scrollbar-hide">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`${buttonBaseStyle} ${
-                activeTab === tab.id ? activeButtonStyle : inactiveButtonStyle
-              }`}
-            >
-              <tab.icon className="h-5 w-5 mr-3 flex-shrink-0" /> {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="flex justify-between items-center py-3 mb-0">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+          Career Discovery
+        </h2>
+        <Link to="/feed/create">
+          <Button size="sm" variant="outline">
+            <PlusCircle className="h-4 w-4 mr-1" />
+            Post
+          </Button>
+        </Link>
+      </div>
+      <div
+        ref={tabContainerRef}
+        className="flex flex-row overflow-x-auto gap-2 scrollbar-hide scroll-smooth no-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <style>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        {tabs.map((tab, index) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(index)}
+            className={`${buttonBaseStyle} ${
+              currentIndex === index ? activeButtonStyle : inactiveButtonStyle
+            }`}
+          >
+            <tab.icon className="h-4 w-4 mr-3 flex-shrink-0" /> {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Feed Items */}
-      {!feedItems || feedItems.length === 0 ? (
-        <div className="p-8 text-center text-gray-500 dark:text-zinc-400">
-          <p>
-            Your personalized feed is being prepared. Complete your profile to
-            get better recommendations!
-          </p>
-        </div>
-      ) : (
-        <div className="relative">
-          {/* Feed cards container */}
-          <div className="p-6 space-y-6 overflow-hidden pb-20">
-            {itemsToShow.map((item, index) => (
-              <div
-                key={item.id}
-                className={`transition-transform duration-500 ease-out ${
-                  index === itemsToShow.length - 1 ? "translate-y-6" : ""
-                }`}
-              >
-                <FeedCard item={item} />
-              </div>
-            ))}
-          </div>
-
-          {/* Gradient fade overlay + See More */}
-          <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end 
-                          bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent 
-                          after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-r after:from-white dark:after:from-zinc-900 after:via-transparent after:to-white dark:after:to-zinc-900 after:pointer-events-none">
-<Link
-  to={`/feed${activeTab && activeTab !== "ALL" ? `?category=${activeTab}` : ""}`}
-  className="relative z-10 pb-4"
->
-  <Button
-    variant="ghost"
-    className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
-  >
-    See More →
-  </Button>
-</Link>
-
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Swipeable Feed Panels */}
+      <div
+        ref={feedContainerRef}
+        className="flex h-[600px] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
+        onScroll={handleFeedScroll}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <style>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        {tabs.map((tab, index) => {
+          const items = tabDatas[index].slice(0, 4);
+          const isLoading = tabLoadings[index];
+          return (
+            <div
+              key={tab.id}
+              className="relative flex-1 min-w-full snap-center flex flex-col h-full"
+            >
+              {isLoading ? (
+                <div className="flex-1 space-y-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-32 bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : items.length === 0 ? (
+                <div className="flex-1 text-center text-gray-500 dark:text-zinc-400 flex flex-col items-center justify-center">
+                  <p>
+                    Your personalized feed is being prepared. Complete your profile to
+                    get better recommendations!
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 space-y-4 overflow-y-auto pb-20">
+                    {items.map((item) => (
+                      <div key={item.id}>
+                        <FeedCard item={item} />
+                      </div>
+                    ))}
+                  </div>
+                  {/* Gradient fade overlay + See More */}
+                  <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
+                                  bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10">
+                    <Link
+                      to={`/feed${tab.id !== "ALL" ? `?category=${tab.id}` : ""}`}
+                      className="pb-4"
+                    >
+                      <Button
+                        variant="ghost"
+                        className="text-primary-600 hover:text-primary-700 font-medium backdrop-blur-sm"
+                      >
+                        See More →
+                      </Button>
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 
@@ -328,7 +427,7 @@ const CandidateDashboard = () => {
     <div className="space-y-5">
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             My Dashboard
           </h1>
         </div>

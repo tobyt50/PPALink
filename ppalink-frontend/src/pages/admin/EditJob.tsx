@@ -37,7 +37,7 @@ const AdminEditJobPage = () => {
                     <ChevronLeft className="h-5 w-5 mr-1" />
                     Back to Job Details
                 </Link>
-                <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+                <h1 className="mt-4 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                     Edit Job Post
                 </h1>
                 <p className="mt-2 text-gray-600 dark:text-zinc-300">You are editing this job as an administrator. Changes will be live immediately.</p>

@@ -107,7 +107,7 @@ const AcceptInvitePage = () => {
       <PageWrapper>
         <div className="text-center">
           <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="mt-4 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Welcome Aboard!
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
@@ -128,7 +128,7 @@ const AcceptInvitePage = () => {
   return (
     <PageWrapper>
       <div className="text-center">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Join Your Team
         </h1>
         <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">Create your account to accept the invitation.</p>

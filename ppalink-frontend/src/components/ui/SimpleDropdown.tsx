@@ -1,6 +1,14 @@
 // SimpleDropdown.tsx
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 export interface Industry {
@@ -23,11 +31,14 @@ interface SimpleDropdownProps {
 const DropdownContext = createContext<{
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
   multiselect: boolean;
+  focusedIndex?: number;
+  setFocusedIndex?: React.Dispatch<React.SetStateAction<number>>;
 } | null>(null);
 
 const useDropdown = () => {
   const context = useContext(DropdownContext);
-  if (!context) throw new Error('useDropdown must be used within a SimpleDropdown provider');
+  if (!context)
+    throw new Error('useDropdown must be used within a SimpleDropdown provider');
   return context;
 };
 
@@ -49,6 +60,8 @@ export const SimpleDropdown = ({
     top: '0px',
     visibility: 'hidden',
   });
+
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
   // Reset styles when portal unmounts
   useEffect(() => {
@@ -80,7 +93,7 @@ export const SimpleDropdown = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isVisible]);
 
-  // Position and measure the menu
+  // Position and measure the menu + reposition on scroll/resize + autoclose when offscreen
   useEffect(() => {
     if (!isVisible) return;
 
@@ -90,7 +103,18 @@ export const SimpleDropdown = ({
       const triggerRect = dropdownRef.current.getBoundingClientRect();
       const menuElement = menuRef.current;
 
-      // Set minWidth if not already set
+      // Auto-close if trigger is completely offscreen
+      if (
+        triggerRect.bottom < 0 ||
+        triggerRect.top > window.innerHeight ||
+        triggerRect.right < 0 ||
+        triggerRect.left > window.innerWidth
+      ) {
+        setIsVisible(false);
+        return;
+      }
+
+      // Ensure dropdown width matches trigger initially
       if (!menuElement.style.minWidth) {
         menuElement.style.minWidth = `${triggerRect.width}px`;
         requestAnimationFrame(measureAndPosition);
@@ -106,8 +130,16 @@ export const SimpleDropdown = ({
       setAnimationY(y);
 
       const margin = 8;
-      const top = shouldDropUp ? triggerRect.top - menuHeight - margin : triggerRect.bottom + margin;
-      const left = triggerRect.right - menuWidth;
+      const top = shouldDropUp
+        ? triggerRect.top - menuHeight - margin
+        : triggerRect.bottom + margin;
+
+      // --- FIXED HORIZONTAL POSITIONING ---
+      let left = triggerRect.right - menuWidth;
+      if (left < margin) left = margin;
+      const maxLeft = window.innerWidth - menuWidth - margin;
+      if (left > maxLeft) left = maxLeft;
+      // ------------------------------------
 
       setMenuPositionStyle({
         left: `${left}px`,
@@ -116,7 +148,18 @@ export const SimpleDropdown = ({
       });
     };
 
+    // Initial measurement
     measureAndPosition();
+
+    // ✅ Reposition on scroll and resize
+    const handleReposition = () => measureAndPosition();
+    window.addEventListener('scroll', handleReposition, true);
+    window.addEventListener('resize', handleReposition);
+
+    return () => {
+      window.removeEventListener('scroll', handleReposition, true);
+      window.removeEventListener('resize', handleReposition);
+    };
   }, [isVisible]);
 
   // Optional: auto-focus input in dropdown
@@ -126,8 +169,51 @@ export const SimpleDropdown = ({
         const input = menuRef.current?.querySelector('input[type="text"]');
         if (input) (input as HTMLInputElement).focus();
       }, 50);
-
       return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
+
+  // Handle arrow keys, enter, and escape
+  useEffect(() => {
+    if (!isVisible || !menuRef.current) return;
+
+    const items = menuRef.current.querySelectorAll<HTMLElement>(
+      '[data-dropdown-item]'
+    );
+    if (!items.length) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!['ArrowUp', 'ArrowDown', 'Enter', 'Escape'].includes(e.key)) return;
+      e.preventDefault();
+
+      switch (e.key) {
+        case 'ArrowDown':
+          setFocusedIndex((prev) => (prev + 1) % items.length);
+          break;
+        case 'ArrowUp':
+          setFocusedIndex((prev) => (prev - 1 + items.length) % items.length);
+          break;
+        case 'Enter':
+          if (focusedIndex >= 0 && items[focusedIndex])
+            items[focusedIndex].click();
+          break;
+        case 'Escape':
+          setIsVisible(false);
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible, focusedIndex]);
+
+  // Auto-focus first item when dropdown opens
+  useEffect(() => {
+    if (isVisible && menuRef.current) {
+      const items = menuRef.current.querySelectorAll<HTMLElement>(
+        '[data-dropdown-item]'
+      );
+      if (items.length) setFocusedIndex(0);
     }
   }, [isVisible]);
 
@@ -148,7 +234,9 @@ export const SimpleDropdown = ({
     }
 
     groups.sort((a, b) => a.heading.name.localeCompare(b.heading.name));
-    groups.forEach((g) => g.children.sort((a, b) => a.name.localeCompare(b.name)));
+    groups.forEach((g) =>
+      g.children.sort((a, b) => a.name.localeCompare(b.name))
+    );
 
     return groups;
   }, [industries, isIndustryDropdown]);
@@ -162,16 +250,18 @@ export const SimpleDropdown = ({
     }
   };
 
-  const handleClose = () => {
-    setIsVisible(false);
-  };
+  const handleClose = () => setIsVisible(false);
 
   const menuY = animationY;
 
   return (
-    <DropdownContext.Provider value={{ setIsVisible: handleClose, multiselect }}>
+    <DropdownContext.Provider
+      value={{ setIsVisible: handleClose, multiselect, focusedIndex, setFocusedIndex }}
+    >
       <div className="relative w-full text-left" ref={dropdownRef}>
-        <div onClick={handleToggle} className="cursor-pointer">{trigger}</div>
+        <div onClick={handleToggle} className="cursor-pointer">
+          {trigger}
+        </div>
 
         {isOpen &&
           createPortal(
@@ -186,7 +276,7 @@ export const SimpleDropdown = ({
                   exit={{ opacity: 0, scale: 0.95, y: menuY }}
                   transition={{ duration: 0.1, ease: 'easeOut' }}
                   onMouseDown={(e) => e.stopPropagation()}
-                  className="fixed origin-top-right w-auto rounded-2xl shadow-md dark:shadow-none dark:ring-1 bg-white dark:bg-zinc-900 ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none z-50 p-1"
+                  className="fixed origin-top-right w-auto max-w-[calc(100vw-16px)] rounded-2xl shadow-md dark:shadow-none dark:ring-1 bg-white dark:bg-zinc-900 ring-1 ring-black dark:ring-white/10 ring-opacity-5 focus:outline-none z-50 p-1"
                 >
                   <div
                     className={`py-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 ${
@@ -196,24 +286,27 @@ export const SimpleDropdown = ({
                     aria-orientation="vertical"
                   >
                     {groupedIndustries.length > 0 && isIndustryDropdown
-                      ? groupedIndustries.map(({ heading, children: industryChildren }) => (
-                          <div key={heading.id}>
-                            <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">
-                              {heading.name}
+                      ? groupedIndustries.map(
+                          ({ heading, children: industryChildren }) => (
+                            <div key={heading.id}>
+                              <div className="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">
+                                {heading.name}
+                              </div>
+                              {industryChildren.map((child) => (
+                                <SimpleDropdownItem
+                                  key={child.id}
+                                  onSelect={() => {
+                                    onSelectIndustry &&
+                                      onSelectIndustry(child.id);
+                                    handleClose();
+                                  }}
+                                >
+                                  {child.name}
+                                </SimpleDropdownItem>
+                              ))}
                             </div>
-                            {industryChildren.map((child) => (
-                              <SimpleDropdownItem
-                                key={child.id}
-                                onSelect={() => {
-                                  onSelectIndustry && onSelectIndustry(child.id);
-                                  handleClose();
-                                }}
-                              >
-                                {child.name}
-                              </SimpleDropdownItem>
-                            ))}
-                          </div>
-                        ))
+                          )
+                        )
                       : children}
                   </div>
                 </motion.div>
@@ -232,14 +325,46 @@ interface SimpleDropdownItemProps {
   className?: string;
 }
 
-export const SimpleDropdownItem = ({ children, onSelect, className }: SimpleDropdownItemProps) => {
-  const { setIsVisible, multiselect } = useDropdown();
+export const SimpleDropdownItem = ({
+  children,
+  onSelect,
+  className,
+}: SimpleDropdownItemProps) => {
+  const { setIsVisible, multiselect, focusedIndex, setFocusedIndex } =
+    useDropdown();
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [index, setIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const allItems = ref.current
+      .closest('[role="menu"]')
+      ?.querySelectorAll<HTMLElement>('[data-dropdown-item]');
+    if (!allItems) return;
+    setIndex(Array.from(allItems).indexOf(ref.current));
+  }, []);
+
+  useEffect(() => {
+    if (focusedIndex === index && ref.current) {
+      ref.current.focus();
+    }
+  }, [focusedIndex, index]);
 
   return (
     <a
+      ref={ref}
       href="#"
-      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-gray-900 ${className}`}
+      data-dropdown-item
+      tabIndex={-1}
       role="menuitem"
+      className={`flex items-center px-3 py-2 text-sm rounded-md text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-gray-900 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 outline-none ${
+        focusedIndex === index
+          ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900'
+          : ''
+      } ${className}`}
+      onMouseEnter={() => {
+        if (setFocusedIndex && index !== null) setFocusedIndex(index);
+      }}
       onClick={(e) => {
         e.preventDefault();
         if (onSelect) onSelect();

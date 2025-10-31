@@ -86,7 +86,7 @@ const ManageFeedPage = () => {
       <div className="mx-auto max-w-7xl space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               {isAdmin ? "Feed Management" : "Published Posts"}
             </h1>
             <p className="mt-2 text-gray-600 dark:text-zinc-300">

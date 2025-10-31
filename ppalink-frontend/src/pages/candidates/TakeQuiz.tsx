@@ -40,7 +40,7 @@ const QuizResultView = ({
       ) : (
         <XCircle className="mx-auto h-16 w-16 text-red-500" />
       )}
-      <h1 className="mt-4 text-2xl md:text-3xl font-extrabold select-none">
+      <h1 className="mt-4 text-xl md:text-2xl font-extrabold select-none">
         {isPass ? "Congratulations, you passed!" : "Better luck next time."}
       </h1>
       <p className="mt-2 text-lg text-gray-600 dark:text-zinc-300 select-none">

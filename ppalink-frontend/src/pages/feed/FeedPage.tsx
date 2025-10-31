@@ -34,60 +34,166 @@ const FeedPage = () => {
     return ALL_TABS.filter(tab => tab.roles.includes(user.role));
   }, [user]);
 
+  const tabs = useMemo(() => [
+    { id: undefined as any, label: "All", icon: List },
+    ...availableTabs
+  ], [availableTabs]);
+
   const [searchParams] = useSearchParams();
 
   const initialCategory = searchParams.get("category") as FeedCategory | undefined;
   
-  const [activeCategory, setActiveCategory] = useState<FeedCategory | undefined>(initialCategory);
-  
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [resetKey, setResetKey] = useState(0);
   
-  const [items, setItems] = useState<FeedItem[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null | undefined>(
-    undefined
-  );
-  const [isLoading, setIsLoading] = useState(true);
+  const [itemsByIndex, setItemsByIndex] = useState<FeedItem[][]>([]);
+  const [cursorsByIndex, setCursorsByIndex] = useState<(string | null | undefined)[]>([]);
+  const [loadingsByIndex, setLoadingsByIndex] = useState<boolean[]>([]);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+  const feedContainerRef = useRef<HTMLDivElement>(null);
 
-  const loadMore = useCallback(async (isInitial = false) => {
-    if (!isInitial && nextCursor === null) return; // Don't load more if we've reached the end
-    if (!user) return; // Don't fetch if user isn't loaded
+  const itemsRef = useRef<FeedItem[][]>([]);
+  const cursorsRef = useRef<(string | null | undefined)[]>([]);
 
-    setIsLoading(true);
+  useEffect(() => {
+    itemsRef.current = itemsByIndex;
+  }, [itemsByIndex]);
+
+  useEffect(() => {
+    cursorsRef.current = cursorsByIndex;
+  }, [cursorsByIndex]);
+
+  useEffect(() => {
+    if (initialCategory) {
+      const idx = tabs.findIndex(t => t.id === initialCategory);
+      if (idx !== -1) {
+        setCurrentIndex(idx);
+      }
+    }
+  }, [initialCategory, tabs]);
+
+  useEffect(() => {
+    setItemsByIndex(new Array(tabs.length).fill([]));
+    setCursorsByIndex(new Array(tabs.length).fill(undefined));
+    setLoadingsByIndex(new Array(tabs.length).fill(false));
+    setResetKey(prev => prev + 1);
+  }, [tabs.length]);
+
+  const loadMore = useCallback(async (index: number, isInitial = false) => {
+    const tab = tabs[index];
+    const category = tab.id;
+    const currentCursor = cursorsRef.current[index];
+    if (!isInitial && currentCursor === null) return;
+    if (!user) return;
+
+    setLoadingsByIndex(prev => {
+      const newLoad = [...prev];
+      newLoad[index] = true;
+      return newLoad;
+    });
     try {
       const params = new URLSearchParams();
-      if (activeCategory) {
-        params.append("category", activeCategory);
+      if (category) {
+        params.append("category", category);
       }
       if (searchQuery) {
         params.append("search", searchQuery);
       }
-      if (!isInitial && nextCursor) {
-        params.append("cursor", nextCursor);
+      if (!isInitial && currentCursor) {
+        params.append("cursor", currentCursor);
       }
       const paginatedResponse = await feedService.getMyFeed(params);
       const { data, nextCursor: newCursor } = paginatedResponse;
-      
-      if (isInitial) {
-          setItems(data || []);
-      } else {
-          setItems((prev) => [...prev, ...data]);
-      }
-      setNextCursor(newCursor);
+
+      setItemsByIndex(prev => {
+        const newItems = [...prev];
+        if (isInitial) {
+          newItems[index] = data || [];
+        } else {
+          newItems[index] = [...(newItems[index] || []), ...data];
+        }
+        return newItems;
+      });
+      setCursorsByIndex(prev => {
+        const newCurs = [...prev];
+        newCurs[index] = newCursor;
+        return newCurs;
+      });
     } catch (error) {
       console.error("Failed to fetch feed items", error);
     } finally {
-      setIsLoading(false);
+      setLoadingsByIndex(prev => {
+        const newLoad = [...prev];
+        newLoad[index] = false;
+        return newLoad;
+      });
     }
-  }, [activeCategory, nextCursor, user, searchQuery]);
+  }, [tabs, searchQuery, user]);
 
-  // Updated effect: Triggers reset and initial load only on category or search changes
   useEffect(() => {
-    setItems([]);
-    setNextCursor(undefined);
-    loadMore(true);
-  }, [activeCategory, searchQuery]);
+    setItemsByIndex(new Array(tabs.length).fill([]));
+    setCursorsByIndex(new Array(tabs.length).fill(undefined));
+    setLoadingsByIndex(new Array(tabs.length).fill(false));
+    setResetKey(prev => prev + 1);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const currentItemsLen = itemsRef.current[currentIndex]?.length ?? 0;
+    const currentCursor = cursorsRef.current[currentIndex];
+    if (currentItemsLen === 0 || currentCursor === undefined) {
+      loadMore(currentIndex, true);
+    }
+  }, [currentIndex, resetKey, loadMore]);
+
+  const scrollTabsToIndex = (index: number) => {
+    if (tabContainerRef.current && tabContainerRef.current.children[index]) {
+      const tab = tabContainerRef.current.children[index] as HTMLElement;
+      const tabWidth = tab.offsetWidth;
+      const containerWidth = tabContainerRef.current.clientWidth;
+      const tabCenter = tab.offsetLeft + tabWidth / 2;
+      const containerCenter = containerWidth / 2;
+      let newScrollLeft = tabCenter - containerCenter;
+
+      const maxScrollLeft = tabContainerRef.current.scrollWidth - containerWidth;
+      newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
+
+      tabContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const handleTabClick = (index: number) => {
+    setCurrentIndex(index);
+
+    if (feedContainerRef.current) {
+      const panelWidth = feedContainerRef.current.clientWidth;
+      feedContainerRef.current.scrollTo({
+        left: index * panelWidth,
+        behavior: "smooth",
+      });
+    }
+
+    scrollTabsToIndex(index);
+  };
+
+  const handleFeedScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const scrollLeft = target.scrollLeft;
+    const panelWidth = target.clientWidth;
+    const newIndex = Math.round(scrollLeft / panelWidth);
+    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < tabs.length) {
+      setCurrentIndex(newIndex);
+      scrollTabsToIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    scrollTabsToIndex(currentIndex);
+  }, [currentIndex]);
 
   const buttonBaseStyle =
     "flex items-center px-3 py-1.5 text-xs lg:text-sm font-medium rounded-md lg:rounded-lg transition-colors whitespace-nowrap lg:w-full";
@@ -100,13 +206,17 @@ const FeedPage = () => {
     ? `No results for "${searchQuery}". Try adjusting your search terms.`
     : "No items to show in this category yet.";
 
+  const currentItems = itemsByIndex[currentIndex] || [];
+  const currentCursor = cursorsByIndex[currentIndex];
+  const currentLoading = loadingsByIndex[currentIndex] || false;
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-6 lg:mb-8 space-y-3 lg:space-y-0">
         {/* Mobile header */}
         <div className="lg:hidden space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent flex-1 pr-4">
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent flex-1 pr-4">
               Discover
             </h1>
             <div className="flex space-x-2">
@@ -123,7 +233,6 @@ const FeedPage = () => {
             </div>
           </div>
           <Input
-            ref={searchInputRef}
             placeholder="Search your feed..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -133,12 +242,11 @@ const FeedPage = () => {
 
         {/* Desktop header */}
         <div className="hidden lg:flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Discover
           </h1>
           <div className="flex items-center gap-4">
             <Input
-              ref={searchInputRef}
               placeholder="Search your feed..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -159,69 +267,145 @@ const FeedPage = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         <aside className="lg:col-span-1 lg:sticky top-24 space-y-2">
-          <div className="flex flex-row overflow-x-auto gap-2 lg:flex-col lg:gap-0 lg:space-y-2 px-3 lg:px-0 pb-3 lg:pb-0 scrollbar-hide">
+          <div
+  ref={tabContainerRef}
+  className="flex flex-row overflow-x-auto gap-2 lg:flex-col lg:gap-0 lg:space-y-2 px-3 lg:px-0 pb-3 lg:pb-0 scrollbar-hide"
+  style={{
+    msOverflowStyle: "none", // IE + Edge
+    scrollbarWidth: "none",  // Firefox
+  }}
+>
+  <style>{`
+    div::-webkit-scrollbar {
+      display: none; /* Chrome, Safari */
+    }
+  `}</style>
+
             <button
-              onClick={() => setActiveCategory(undefined)}
+              onClick={() => handleTabClick(0)}
               className={`${buttonBaseStyle} ${
-                !activeCategory ? activeButtonStyle : inactiveButtonStyle
+                currentIndex === 0 ? activeButtonStyle : inactiveButtonStyle
               }`}
             >
               <List className="h-4 w-4 lg:h-5 lg:w-5 mr-2 lg:mr-3 flex-shrink-0" /> All
             </button>
-            {availableTabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveCategory(tab.id)}
-                className={`${buttonBaseStyle} ${
-                  activeCategory === tab.id
-                    ? activeButtonStyle
-                    : inactiveButtonStyle
-                }`}
-              >
-                <tab.icon className="h-4 w-4 lg:h-5 lg:w-5 mr-2 lg:mr-3 flex-shrink-0" /> {tab.label}
-              </button>
-            ))}
+            {availableTabs.map((tab, i) => {
+              const idx = i + 1;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(idx)}
+                  className={`${buttonBaseStyle} ${
+                    currentIndex === idx ? activeButtonStyle : inactiveButtonStyle
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4 lg:h-5 lg:w-5 mr-2 lg:mr-3 flex-shrink-0" /> {tab.label}
+                </button>
+              );
+            })}
           </div>
         </aside>
 
-        <main className="lg:col-span-3">
-          {isLoading && items.length === 0 ? (
-            <div className="flex justify-center items-center h-[calc(100vh-200px)] lg:h-[calc(100vh-160px)]">
-                <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+        <main className="lg:col-span-3 relative">
+          {/* Mobile Swipeable Feed Panels */}
+          <div className="lg:hidden -mt-6">
+            <div
+              ref={feedContainerRef}
+              className="flex h-[calc(100vh-200px)] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
+              onScroll={handleFeedScroll}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style>{`
+                div::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
+              {tabs.map((_tab, index) => {
+                const panelItems = itemsByIndex[index] || [];
+                const panelCursor = cursorsByIndex[index];
+                const panelLoading = loadingsByIndex[index] || false;
+                return (
+                  <div
+                    key={index}
+                    className="relative flex-1 min-w-full snap-center flex flex-col h-full "
+                  >
+                    {panelLoading && panelItems.length === 0 ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+                      </div>
+                    ) : panelItems.length === 0 && panelCursor === null ? (
+                      <div className="flex-1 text-center text-gray-500 dark:text-zinc-400 flex flex-col items-center justify-center">
+                        <p>{emptyMessage}</p>
+                      </div>
+                    ) : (
+                      <Virtuoso
+                        style={{ height: "100%" }}
+                        data={panelItems}
+                        endReached={() => loadMore(index)}
+                        itemContent={(_idx, item) => (
+                          <div className="pb-4">
+                            <FeedCard item={item} />
+                          </div>
+                        )}
+                        components={{
+                          Footer: () =>
+                            panelCursor != null ? (
+                              <div className="p-4 flex justify-center items-center">
+                                <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
+                              </div>
+                            ) : (
+                              <div className="p-4 text-center text-sm text-gray-500 dark:text-zinc-400">
+                                You've reached the end.
+                              </div>
+                            ),
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          ) : items.length === 0 && nextCursor === null ? (
-            <div className="text-center py-20 rounded-2xl bg-white dark:bg-zinc-900 ring-1 ring-gray-100 dark:ring-white/10">
-              <p className="text-gray-500 dark:text-zinc-400">
-                {emptyMessage}
-              </p>
-            </div>
-          ) : (
-  <div className="-mt-4">
-    <Virtuoso
-      style={{ height: "calc(100vh - 200px)" }}
-      data={items}
-      endReached={() => loadMore()}
-      itemContent={(_index, item) => (
-        <div className="pb-6">
-          <FeedCard item={item} />
-        </div>
-      )}
-      components={{
-        Footer: () =>
-          nextCursor != null ? (
-            <div className="p-4 flex justify-center items-center">
-              <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
-            </div>
-          ) : (
-            <div className="p-4 text-center text-sm text-gray-500 dark:text-zinc-400">
-              You've reached the end.
-            </div>
-          ),
-      }}
-    />
-  </div>
-)}
+          </div>
 
+          {/* Desktop Single Feed */}
+          <div className="hidden lg:block">
+            {currentLoading && currentItems.length === 0 ? (
+              <div className="flex justify-center items-center h-[calc(100vh-120px)]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+              </div>
+            ) : currentItems.length === 0 && currentCursor === null ? (
+              <div className="text-center py-20 rounded-2xl bg-white dark:bg-zinc-900 ring-1 ring-gray-100 dark:ring-white/10">
+                <p className="text-gray-500 dark:text-zinc-400">
+                  {emptyMessage}
+                </p>
+              </div>
+            ) : (
+              <div className="-mt-4">
+                <Virtuoso
+                  style={{ height: "calc(100vh - 120px)" }}
+                  data={currentItems}
+                  endReached={() => loadMore(currentIndex)}
+                  itemContent={(_index, item) => (
+                    <div className="pb-6">
+                      <FeedCard item={item} />
+                    </div>
+                  )}
+                  components={{
+                    Footer: () =>
+                      currentCursor != null ? (
+                        <div className="p-4 flex justify-center items-center">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-sm text-gray-500 dark:text-zinc-400">
+                          You've reached the end.
+                        </div>
+                      ),
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>

@@ -45,7 +45,7 @@ const AdminWelcomePage = () => {
             className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-8 w-full max-w-4xl"
         >
             <div className="text-center">
-                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+                 <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
                     Welcome to the Admin Panel
                 </h1>
                 <p className="mt-2 text-lg text-gray-600 dark:text-zinc-300">

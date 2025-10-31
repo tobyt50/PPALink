@@ -63,7 +63,7 @@ const AcceptInviteLoggedInPage = () => {
       <PageWrapper>
         <div className="text-center">
           <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="mt-4 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          <h1 className="mt-4 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Invitation Accepted!
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">You have successfully joined the agency. You will now be redirected.</p>
@@ -85,7 +85,7 @@ const AcceptInviteLoggedInPage = () => {
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/50">
             <Building className="h-8 w-8 text-primary-600 dark:text-primary-400" />
         </div>
-        <h1 className="mt-6 text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+        <h1 className="mt-6 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Accept Invitation
         </h1>
         <p className="mt-4 text-sm text-gray-600 dark:text-zinc-300">

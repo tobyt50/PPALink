@@ -54,7 +54,7 @@ const CvUploadStep = () => {
       <OnboardingProgressBar step={5} totalSteps={5} />
       <div className="text-center mb-6">
         <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent mt-4">
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent mt-4">
           Final Step: Upload Your CV
         </h1>
         <p className="mt-2 text-gray-600 dark:text-zinc-300">

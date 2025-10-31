@@ -21,7 +21,7 @@ const AgencyCard = ({ agency }: { agency: Agency }) => (
             <Avatar
                 user={{ role: 'AGENCY', ownedAgencies: [agency] }}
                 size="lg"
-                shape="square"
+                
             />
             <h3 className="font-semibold text-white mt-4">{agency.name}</h3>
             <p className="mt-1 text-green-300 text-sm">{agency.industry?.name || 'Various Industries'}</p>

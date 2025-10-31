@@ -39,7 +39,7 @@ const DiscoverStep = () => {
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-100 dark:bg-primary-950/60">
                     <Search className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent mt-4">
+                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent mt-4">
                     You're All Set!
                 </h1>
                 <p className="mt-2 text-gray-600 dark:text-zinc-300 max-w-lg mx-auto">

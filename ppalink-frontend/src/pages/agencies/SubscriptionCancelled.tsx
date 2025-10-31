@@ -21,7 +21,7 @@ const SubscriptionCancelledPage = () => {
                     </div>
 
                     {/* Polished Header */}
-                    <h1 className="mt-6 text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-zinc-50">
+                    <h1 className="mt-6 text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 dark:text-zinc-50">
                         Subscription Cancelled
                     </h1>
 
