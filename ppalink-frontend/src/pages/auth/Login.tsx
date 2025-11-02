@@ -195,7 +195,7 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-920 flex items-start justify-center pt-12 lg:items-start lg:pt-12">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-920 flex items-start justify-center pt-20 lg:items-start lg:pt-12">
       <div className="w-full max-w-5xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
         {/* Left Section */}
         <motion.div
