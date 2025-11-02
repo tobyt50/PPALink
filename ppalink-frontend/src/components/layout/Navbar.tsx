@@ -8,6 +8,7 @@ import {
   ChevronDown,
   CreditCard,
   FileQuestion,
+  Home,
   LogOut,
   Rss,
   Settings,
@@ -83,7 +84,7 @@ const Navbar = () => {
           <SimpleDropdownItem
             onSelect={() => navigate(dashboardPath)}
           >
-            <Building className="mr-2 h-4 w-4" /> Dashboard
+            <Home className="mr-2 h-4 w-4" /> Dashboard
           </SimpleDropdownItem>
 
           {user?.role === 'AGENCY' && (

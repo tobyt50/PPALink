@@ -13,33 +13,47 @@ import {
 
 const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
   const user = useAuthStore((state) => state.user);
-  const fullNavItems = user?.role === 'AGENCY' ? AGENCY_NAV_ITEMS : CANDIDATE_NAV_ITEMS;
-  const essentialNavItems = user?.role === 'AGENCY'
-    ? ESSENTIAL_AGENCY_NAV_ITEMS
-    : ESSENTIAL_CANDIDATE_NAV_ITEMS;
+  const fullNavItems =
+    user?.role === 'AGENCY' ? AGENCY_NAV_ITEMS : CANDIDATE_NAV_ITEMS;
+  const essentialNavItems =
+    user?.role === 'AGENCY'
+      ? ESSENTIAL_AGENCY_NAV_ITEMS
+      : ESSENTIAL_CANDIDATE_NAV_ITEMS;
+
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
+
   const isInbox = pathname.startsWith('/inbox');
   const hideBottomNav = isInbox && searchParams.get('view') === 'chat';
 
   const mainClassName = isInbox
-    ? `flex-1 min-h-0 overflow-hidden ${hideBottomNav ? 'pb-0' : 'pb-[calc(4rem+env(safe-area-inset-bottom,0px))]' } md:pb-0`
+    ? `flex-1 min-h-0 overflow-hidden ${
+        hideBottomNav
+          ? 'pb-0'
+          : 'pb-[calc(4rem+env(safe-area-inset-bottom,0px))]'
+      } md:pb-0`
     : `flex-1 min-h-0 overflow-y-auto scrollbar-thin pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0`;
 
   return (
-    <div className="flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10 md:h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
       <ImpersonationBar />
+
+      {/* Navbar — non-sticky on mobile, sticky on md+ */}
       <div className="md:sticky md:top-0 md:z-50">
-      <Navbar  />
+        <Navbar />
       </div>
-      <div className="flex flex-grow overflow-y-hidden md:h-full">
+
+      <div className="flex flex-grow overflow-y-hidden">
         <Sidebar navItems={fullNavItems} />
-        <BottomNav className={hideBottomNav ? 'hidden' : ''} navItems={essentialNavItems} />
-        <main className={`${mainClassName} md:pt-0`}>
+        <BottomNav
+          className={hideBottomNav ? 'hidden' : ''}
+          navItems={essentialNavItems}
+        />
+        <main className={mainClassName}>
           {isInbox ? (
             <Outlet />
           ) : (
-            <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5 md:pt-0">
+            <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5">
               {children || <Outlet />}
             </div>
           )}
