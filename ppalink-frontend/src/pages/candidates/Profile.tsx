@@ -104,15 +104,10 @@ const CandidateProfilePage = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            My Profile
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            View and manage your professional details.
-          </p>
-        </div>
+      <div className="flex flex-row items-center justify-between gap-4">
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          Profile
+        </h1>
         <Link to="/dashboard/candidate/profile/edit">
           <Button
             variant="outline"
@@ -120,7 +115,7 @@ const CandidateProfilePage = () => {
             className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
           >
             <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
+            Edit
           </Button>
         </Link>
       </div>
@@ -139,7 +134,7 @@ const CandidateProfilePage = () => {
                   <Avatar candidate={profile} size="xl" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-50">{`${profile.firstName} ${profile.lastName}`}</h3>
+                  <h3 className="text-md font-bold text-gray-900 dark:text-zinc-50">{`${profile.firstName} ${profile.lastName}`}</h3>
                   <p className="text-sm text-gray-600 dark:text-zinc-300 mt-1">
                     {user?.email}
                   </p>
@@ -185,7 +180,7 @@ const CandidateProfilePage = () => {
               </h2>
             </div>
             <div className="p-6">
-              <p className="text-gray-600 dark:text-zinc-300 whitespace-pre-wrap">
+              <p className="text-gray-600 text-sm dark:text-zinc-300 whitespace-pre-wrap">
                 {profile.summary || "You have not added a summary yet."}
               </p>
             </div>

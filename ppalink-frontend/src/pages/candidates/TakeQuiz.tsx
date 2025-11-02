@@ -215,7 +215,7 @@ const TakeQuizPage = () => {
     >
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200 mb-4 select-none"
+        className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200 mb-4 select-none"
       >
         <ChevronLeft className="h-5 w-5 mr-1" />
         Back to Assessments

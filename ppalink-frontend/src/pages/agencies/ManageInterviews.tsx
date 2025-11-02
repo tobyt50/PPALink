@@ -183,9 +183,6 @@ const ManageInterviewsPage = () => {
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Interview Hub
           </h1>
-          <p className="mt-1 text-gray-500">
-            Manage all your scheduled and unscheduled interviews in one place.
-          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-zinc-800 mb-6 pb-3">
@@ -197,7 +194,7 @@ const ManageInterviewsPage = () => {
                 className={`
                   ${activeTab === tab.id
                     ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    : "border-transparent text-gray-500 hover:text-gray-900"
                   } flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
               >
                 {tab.label} (

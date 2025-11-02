@@ -28,13 +28,10 @@ const MyApplicationsPage = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            My Applications
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">Track the status of all your job applications.</p>
-        </div>
+      <div className="flex flex-row items-center justify-between gap-4">
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          My Applications
+        </h1>
          <Link to="/dashboard/candidate/jobs/browse">
           <Button
             size="sm"
@@ -78,9 +75,9 @@ const MyApplicationsPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0 self-start sm:self-center">
-                      <div className="flex flex-col items-start sm:items-end">
+                      <div className="flex flex-row items-center gap-2 sm:flex-col sm:items-end">
                         <ApplicationStatusBadge status={app.status} />
-                        <p className="text-xs text-gray-400 dark:text-zinc-500 mt-2 flex items-center">
+                        <p className="text-xs text-gray-400 dark:text-zinc-500 flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
                           Applied on {new Date(app.createdAt).toLocaleDateString()}
                         </p>

@@ -4,16 +4,13 @@
 import {
   BarChart3,
   Briefcase,
-  Calendar,
   CheckSquare,
-  CreditCard,
   FileQuestion,
   Heart,
   Home,
   Package,
   Rss,
   Search,
-  UserPlus,
   Users,
 } from "lucide-react";
 import type { NavItem } from "../components/layout/Sidebar";
@@ -58,8 +55,6 @@ export const AGENCY_NAV_ITEMS: NavItem[] = [
     text: "Shortlist",
   },
   { to: '/feed', icon: Rss, text: 'Feed' },
-  { to: "/dashboard/agency/interviews", icon: Calendar, text: "Interviews" },
-  { to: "/dashboard/agency/team", icon: UserPlus, text: "Manage Team" },
 ];
 
 export const ESSENTIAL_AGENCY_NAV_ITEMS: NavItem[] = [
@@ -82,9 +77,6 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { to: "/admin/dashboard", icon: Home, text: "Home", end: true },
   { to: "/admin/users", icon: Users, text: "Users" },
   { to: "/admin/jobs", icon: Briefcase, text: "Job Posts" },
-  { to: "/admin/plans", icon: CreditCard, text: "Subscriptions" },
-  { to: "/admin/quizzes", icon: FileQuestion, text: "Assessments" },
-  { to: "/feed/manage", icon: Rss, text: "Manage Feed" },
   { to: "/admin/verifications", icon: CheckSquare, text: "Verifications" },
   { to: "/admin/reports", icon: BarChart3, text: "Reports" },
 ];

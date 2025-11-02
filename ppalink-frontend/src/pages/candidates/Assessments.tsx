@@ -1,7 +1,6 @@
 import {
   Book,
   CheckCircle,
-  ChevronRight,
   FileQuestion,
   History,
   Loader2,
@@ -45,7 +44,7 @@ const AssessmentsPage = () => {
         <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Skill Assessments
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-zinc-300">
+        <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
           Prove your expertise and earn badges for your profile by passing these
           quizzes.
         </p>
@@ -65,7 +64,7 @@ const AssessmentsPage = () => {
       {!isLoading && !error && (
         <>
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-50">
+            <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50">
               Available to Take
             </h2>
             {quizzes?.length === 0 && (
@@ -89,14 +88,14 @@ const AssessmentsPage = () => {
                     <Book className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-zinc-100">
+                    <h3 className="text-md font-semibold text-gray-800 dark:text-zinc-100">
                       {quiz.title}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-zinc-400">
+                    <p className="text-xs text-gray-500 dark:text-zinc-400">
                       {quiz.description}
                     </p>
                     <div className="text-xs text-gray-400 dark:text-zinc-500 mt-2 flex items-center gap-x-3">
-                      <span className="flex items-center">
+                      <span className="flex items-center text-nowrap">
                         <FileQuestion className="h-3 w-3 mr-1" />
                         {quiz._count.questions} questions
                       </span>
@@ -112,7 +111,7 @@ const AssessmentsPage = () => {
                 </div>
                 <Link to={`/dashboard/candidate/assessments/${quiz.id}`}>
                   <Button variant="outline">
-                    Start <ChevronRight className="h-4 w-4 ml-2" />
+                    Start
                   </Button>
                 </Link>
               </div>

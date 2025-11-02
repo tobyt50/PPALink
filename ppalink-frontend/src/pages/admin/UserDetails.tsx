@@ -143,7 +143,7 @@ const UserDetailsPage = () => {
 
   const tabStyle = "flex items-center whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors";
   const activeTabStyle = "border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400";
-  const inactiveTabStyle = "border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 hover:border-gray-300";
+  const inactiveTabStyle = "border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-900 hover:border-gray-300";
 
   return (
     <>

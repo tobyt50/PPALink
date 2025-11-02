@@ -72,7 +72,7 @@ const InterviewStatusPage = ({ application }: { application: Application }) => {
       <div className="mb-6">
         <Link
           to="/dashboard/candidate/applications"
-          className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+          className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200"
         >
           <ChevronLeft className="h-5 w-5 mr-1" />
           Back to My Applications

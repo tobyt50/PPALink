@@ -8,6 +8,8 @@ import {
   PieChart,
   ShoppingBag,
   Users,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import reportingService from "../../services/reporting.service";
@@ -43,7 +45,7 @@ const ReportingPage = () => {
     | "agencyInsights"
     | "jobMarketInsights";
   const [activeReport, setActiveReport] = useState<ReportType>("userGrowth");
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [userGrowthData, setUserGrowthData] = useState<
     UserGrowthDataPoint[] | null
   >(null);
@@ -136,7 +138,7 @@ const ReportingPage = () => {
   const activeTabStyle =
     "border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400";
   const inactiveTabStyle =
-    "border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 hover:border-gray-300";
+    "border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-900 hover:border-gray-300";
 
   return (
     <div className="space-y-5">
@@ -144,9 +146,6 @@ const ReportingPage = () => {
         <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
           Reporting & Analytics
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-zinc-300">
-          Generate and export detailed reports on platform activity.
-        </p>
       </div>
       <div className="space-y-4 pb-3 border-b border-gray-200 dark:border-zinc-800">
         <nav
@@ -209,49 +208,32 @@ const ReportingPage = () => {
         </nav>
       </div>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        <aside
-          className={`${
-            showMobileFilters ? "block" : "hidden lg:block"
-          } lg:col-span-1`}
-        >
-          <div
-            className={`
-              ${
-                showMobileFilters
-                  ? ""
-                  : "sticky top-2 max-h-[calc(100vh-5rem)] overflow-auto"
-              }
-              rounded-2xl bg-white dark:bg-zinc-900
-              shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
-              p-5
-            `}
-          >
+        <aside className="hidden lg:block lg:col-span-1">
+          <div className="sticky top-2 max-h-[calc(100vh-5rem)] overflow-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5">
+            <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4 flex items-center">
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Filters
+            </h2>
             <ReportFilterBar
-              onApply={(filters) => {
-                handleGenerateReport(filters);
-                if (showMobileFilters) {
-                  setShowMobileFilters(false);
-                }
-              }}
+              onApply={handleGenerateReport}
               isLoading={isLoading}
               activeReport={activeReport}
             />
           </div>
         </aside>
         <main className="lg:col-span-3">
-          {!showMobileFilters && (
-            <div className="lg:hidden pb-3">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowMobileFilters(true)}
-                className="w-full"
+          <div className="pb-5 lg:hidden">
+            <div className="relative">
+              <button
+                type="button"
+                className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700"
+                onClick={() => setShowFiltersModal(true)}
               >
-                <Filter className="mr-2 h-4 w-4" />
-                Show Filters
-              </Button>
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filters
+              </button>
             </div>
-          )}
+          </div>
           {isLoading ? (
             <div className="text-center p-12 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
               <p className="text-gray-600 dark:text-zinc-300">
@@ -413,6 +395,40 @@ const ReportingPage = () => {
           )}
         </main>
       </div>
+
+      {showFiltersModal && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="fixed top-14 bottom-14 left-0 right-0 bg-black/50"
+            onClick={() => setShowFiltersModal(false)}
+          />
+          <div className="fixed top-14 bottom-14 right-0 w-full max-w-md bg-white dark:bg-zinc-900 shadow-lg overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-zinc-800 flex-shrink-0">
+              <h2 className="flex items-center text-md font-semibold text-gray-900 dark:text-zinc-50">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filters
+              </h2>
+              <button
+                type="button"
+                className="bg-transparent border-none p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
+                onClick={() => setShowFiltersModal(false)}
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              <ReportFilterBar
+                onApply={(filters) => {
+                  handleGenerateReport(filters);
+                  setShowFiltersModal(false);
+                }}
+                isLoading={isLoading}
+                activeReport={activeReport}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

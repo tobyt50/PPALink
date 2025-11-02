@@ -1,7 +1,6 @@
 import { BarChart2, Briefcase, Package, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
-import { EmptyState } from "../../components/ui/EmptyState";
 import { StatCard } from "../../components/ui/StatCard";
 import useFetch from "../../hooks/useFetch";
 import type {
@@ -92,7 +91,13 @@ const DiscoveryFeed = () => {
     successFeed?.data || [],
   ];
 
-  const tabLoadings = [allLoading, recLoading, learnLoading, insightLoading, successLoading];
+  const tabLoadings = [
+    allLoading,
+    recLoading,
+    learnLoading,
+    insightLoading,
+    successLoading,
+  ];
 
   const scrollTabsToIndex = (index: number) => {
     if (tabContainerRef.current && tabContainerRef.current.children[index]) {
@@ -104,7 +109,8 @@ const DiscoveryFeed = () => {
       let newScrollLeft = tabCenter - containerCenter;
 
       // Clamp to bounds
-      const maxScrollLeft = tabContainerRef.current.scrollWidth - containerWidth;
+      const maxScrollLeft =
+        tabContainerRef.current.scrollWidth - containerWidth;
       newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
 
       tabContainerRef.current.scrollTo({
@@ -162,46 +168,46 @@ const DiscoveryFeed = () => {
   return (
     <>
       {/* Header */}
-        <div className="flex justify-between items-center py-3 mb-0">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-            Talent Discovery
-          </h2>
-          <Link to="/feed/create">
-            <Button size="sm" variant="outline">
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Post
-            </Button>
-          </Link>
-        </div>
-        <div
-          ref={tabContainerRef}
-          className="flex flex-row overflow-x-auto gap-2 scrollbar-hide scroll-smooth no-scrollbar"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          <style>{`
+      <div className="flex justify-between items-center py-3 mb-0">
+        <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50">
+          Talent Discovery
+        </h2>
+        <Link to="/feed/create">
+          <Button size="sm" variant="outline">
+            <PlusCircle className="h-4 w-4 mr-1" />
+            Post
+          </Button>
+        </Link>
+      </div>
+      <div
+        ref={tabContainerRef}
+        className="flex flex-row overflow-x-auto gap-2 scrollbar-hide scroll-smooth no-scrollbar"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        <style>{`
             div::-webkit-scrollbar {
               display: none;
             }
           `}</style>
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(index)}
-              className={`${buttonBaseStyle} ${
-                currentIndex === index ? activeButtonStyle : inactiveButtonStyle
-              }`}
-            >
-              <tab.icon className="h-4 w-4 mr-3 flex-shrink-0" /> {tab.label}
-            </button>
-          ))}
-        </div>
+        {tabs.map((tab, index) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(index)}
+            className={`${buttonBaseStyle} ${
+              currentIndex === index ? activeButtonStyle : inactiveButtonStyle
+            }`}
+          >
+            <tab.icon className="h-4 w-4 mr-3 flex-shrink-0" /> {tab.label}
+          </button>
+        ))}
+      </div>
 
       {/* Swipeable Feed Panels */}
       <div
         ref={feedContainerRef}
         className="flex h-[600px] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
         onScroll={handleFeedScroll}
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`
           div::-webkit-scrollbar {
@@ -242,10 +248,14 @@ const DiscoveryFeed = () => {
                     ))}
                   </div>
                   {/* Gradient fade overlay + See More */}
-                  <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
-                                  bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10">
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
+                                  bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10"
+                  >
                     <Link
-                      to={`/feed${tab.id !== "ALL" ? `?category=${tab.id}` : ""}`}
+                      to={`/feed${
+                        tab.id !== "ALL" ? `?category=${tab.id}` : ""
+                      }`}
                       className="pb-4"
                     >
                       <Button
@@ -280,8 +290,10 @@ const isEnterprise = (
 const AgencyDashboard = () => {
   const { data: dashboardData, isLoading: isLoadingDashboard } =
     useFetch<AgencyDashboardData>("/agencies/dashboard");
-  const { data: analytics, isLoading: isLoadingAnalytics, error: analyticsError } =
-    useFetch<AgencyAnalyticsData>("/agencies/analytics");
+  const {
+    data: analytics,
+    isLoading: isLoadingAnalytics,
+  } = useFetch<AgencyAnalyticsData>("/agencies/analytics");
   const { data: agency, isLoading: isLoadingAgency } =
     useFetch<Agency>("/agencies/me");
 
@@ -311,7 +323,7 @@ const AgencyDashboard = () => {
   return (
     <div className="space-y-5">
       {/* Dashboard Header */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Agency Overview
@@ -319,15 +331,23 @@ const AgencyDashboard = () => {
         </div>
         {canPostNewJob ? (
           <Link to="/dashboard/agency/jobs/create">
-            <Button size="sm" className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition">
-              <PlusCircle className="mr-2 h-5 w-5" />
+            <Button
+              size="sm"
+              className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
               New Job
             </Button>
           </Link>
         ) : (
           <div className="text-right">
-            <p className="text-sm font-semibold text-yellow-700">Job Limit Reached</p>
-            <Link to="/dashboard/agency/billing" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
+            <p className="text-sm font-semibold text-yellow-700">
+              Job Limit Reached
+            </p>
+            <Link
+              to="/dashboard/agency/billing"
+              className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+            >
               Upgrade to post more
             </Link>
           </div>
@@ -347,7 +367,9 @@ const AgencyDashboard = () => {
         <StatCard
           icon={Briefcase}
           label="Total Jobs Posted"
-          value={isProOrEnterprise(analytics) ? analytics.totalJobsPosted : "N/A"}
+          value={
+            isProOrEnterprise(analytics) ? analytics.totalJobsPosted : "N/A"
+          }
           isLoading={isLoading}
           linkTo="/dashboard/agency/jobs"
           color="green"
@@ -357,7 +379,9 @@ const AgencyDashboard = () => {
           label="Total Applications"
           value={isPaidUser ? stats?.totalApps ?? 0 : "N/A"}
           isLoading={isLoading}
-          linkTo={isPaidUser ? "/dashboard/agency/jobs" : "/dashboard/agency/billing"}
+          linkTo={
+            isPaidUser ? "/dashboard/agency/jobs" : "/dashboard/agency/billing"
+          }
           color="green"
         />
         {/* <StatCard
@@ -391,14 +415,18 @@ const AgencyDashboard = () => {
           {/* Active Jobs - full width */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Active Jobs</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                Active Jobs
+              </h2>
             </div>
             {isLoading ? (
               <div className="p-6 space-y-4">
                 <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
               </div>
             ) : dashboardData?.activeJobs.length === 0 ? (
-              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">You have no open jobs.</p>
+              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">
+                You have no open jobs.
+              </p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {dashboardData?.activeJobs.map((job) => (
@@ -408,7 +436,9 @@ const AgencyDashboard = () => {
                       className="block px-5 py-4 hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all"
                     >
                       <div className="flex items-center justify-between">
-                        <p className="font-semibold text-primary-600 dark:text-primary-400">{job.title}</p>
+                        <p className="font-semibold text-primary-600 dark:text-primary-400">
+                          {job.title}
+                        </p>
                         <span className="rounded-full bg-green-100 dark:bg-green-950/60 px-2 py-0.5 text-sm font-medium text-primary-600 dark:text-primary-400">
                           {job._count.applications}
                         </span>
@@ -425,16 +455,42 @@ const AgencyDashboard = () => {
         <div className="lg:col-span-1 space-y-8">
           {/* Analytics Section */}
           <div id="analytics" className="space-y-5">
-            {analyticsError && analyticsError.includes("Analytics are not available on the Free plan") ? (
-              <EmptyState
-                icon={BarChart2}
-                title="Unlock Insights"
-                description="Upgrade to Pro for analytics."
-                action={{
-                  text: "Upgrade",
-                  to: "/dashboard/agency/billing",
-                }}
-              />
+            {!isPaidUser ? (
+              <div className="relative rounded-2xl bg-gradient-to-r from-primary-50 via-green-50 to-emerald-50 dark:from-primary-950/30 dark:via-green-950/30 dark:to-emerald-950/30 p-6 border border-primary-200/50 dark:border-primary-800/50 shadow-lg dark:shadow-none dark:ring-1 dark:ring-primary-800/30 ring-1 ring-primary-200/50 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-green-500/10" />
+                <div className="relative flex flex-col items-start gap-4">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <BarChart2 className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-zinc-50">Supercharge Your Hiring Insights</h3>
+                      <p className="mt-1 text-sm text-gray-700 dark:text-zinc-300">Unlock real-time application trends, status breakdowns, and actionable data to streamline your recruitment and hire top talent faster.</p>
+                      <ul className="mt-2 space-y-1 text-xs text-gray-600 dark:text-zinc-400">
+                        <li className="flex items-center">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2" />
+                          Track application funnels at a glance
+                        </li>
+                        <li className="flex items-center">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2" />
+                          Spot trends and optimize your process
+                        </li>
+                        <li className="flex items-center">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2" />
+                          Gain a competitive edge with Pro analytics
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="w-full flex justify-center">
+                    <Link to="/dashboard/agency/billing">
+                      <Button size="sm" className="bg-gradient-to-r from-primary-600 to-green-600 hover:from-primary-700 hover:to-green-700 shadow-md text-white font-semibold">
+                        Start Pro Trial
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-4">
@@ -487,7 +543,9 @@ const AgencyDashboard = () => {
                   </h2>
                   <div className="grid grid-cols-1 gap-4 mt-2">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-700 dark:text-zinc-200 mb-1">Top Skills</h3>
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-zinc-200 mb-1">
+                        Top Skills
+                      </h3>
                       {isLoading ? (
                         <div className="h-[150px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
                       ) : (
@@ -504,7 +562,9 @@ const AgencyDashboard = () => {
                         <div className="h-[150px] w-full bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse" />
                       ) : (
                         isEnterprise(analytics) && (
-                          <GeographicSourcingChart data={analytics.geographicSourcing} />
+                          <GeographicSourcingChart
+                            data={analytics.geographicSourcing}
+                          />
                         )
                       )}
                     </div>
@@ -527,7 +587,9 @@ const AgencyDashboard = () => {
                 <div className="h-10 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
               </div>
             ) : dashboardData?.recentApplications.length === 0 ? (
-              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">No new applications yet.</p>
+              <p className="p-6 text-sm text-gray-500 dark:text-zinc-400">
+                No new applications yet.
+              </p>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {dashboardData?.recentApplications.map((app) => (
@@ -606,8 +668,8 @@ const AgencyDashboard = () => {
                   dashboardData.activeJobs.length > 0 &&
                   (memberCount >= memberLimit || memberLimit === -1) && (
                     <li className="flex items-center p-5 text-sm text-gray-500 dark:text-zinc-400">
-                      <CheckCircle className="mr-2 h-5 w-5 text-green-500" /> You’re
-                      all set up!
+                      <CheckCircle className="mr-2 h-5 w-5 text-green-500" />{" "}
+                      You’re all set up!
                     </li>
                   )}
               </ul>
@@ -617,23 +679,29 @@ const AgencyDashboard = () => {
           {/* Team */}
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">Your Team</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
+                Your Team
+              </h2>
             </div>
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex -space-x-2 overflow-hidden">
-                  {Array.from({ length: Math.min(memberCount, 3) }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-white/10 bg-gray-300"
-                    ></div>
-                  ))}
+                  {Array.from({ length: Math.min(memberCount, 3) }).map(
+                    (_, i) => (
+                      <div
+                        key={i}
+                        className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-white/10 bg-gray-300"
+                      ></div>
+                    )
+                  )}
                 </div>
                 {isLoading ? (
                   <div className="h-5 w-20 animate-pulse rounded-md bg-gray-200 dark:bg-zinc-800"></div>
                 ) : (
                   <p className="text-sm font-medium">
-                    <span className="text-gray-900 dark:text-zinc-50">{memberCount}</span>
+                    <span className="text-gray-900 dark:text-zinc-50">
+                      {memberCount}
+                    </span>
                     <span className="text-gray-500 dark:text-zinc-400">
                       {" "}
                       / {memberLimit === -1 ? "Unlimited" : memberLimit} members

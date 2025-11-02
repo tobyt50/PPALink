@@ -27,17 +27,19 @@ const DashboardLayout = ({ children }: { children?: React.ReactNode }) => {
     : `flex-1 min-h-0 overflow-y-auto scrollbar-thin pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0`;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10">
+    <div className="flex flex-col bg-gray-50 dark:bg-gray-920 has-[[data-impersonating]]:pt-10 md:h-screen">
       <ImpersonationBar />
-      <Navbar />
-      <div className="flex flex-grow overflow-y-hidden">
+      <div className="md:sticky md:top-0 md:z-50">
+      <Navbar  />
+      </div>
+      <div className="flex flex-grow overflow-y-hidden md:h-full">
         <Sidebar navItems={fullNavItems} />
         <BottomNav className={hideBottomNav ? 'hidden' : ''} navItems={essentialNavItems} />
-        <main className={mainClassName}>
+        <main className={`${mainClassName} md:pt-0`}>
           {isInbox ? (
             <Outlet />
           ) : (
-            <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5">
+            <div className="p-4 sm:p-6 lg:px-8 lg:pb-8 lg:pt-5 md:pt-0">
               {children || <Outlet />}
             </div>
           )}

@@ -1,6 +1,5 @@
 import {
   Briefcase,
-  Building2,
   Edit,
   Globe,
   Hash,
@@ -81,21 +80,10 @@ const CompanyProfilePage = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-4">
-          <Avatar
-            user={{ role: "AGENCY", ownedAgencies: [agency] }}
-            size="lg"
-          />
-          <div>
-            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-              {agency.name}
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-zinc-300">
-              View and manage your company's details.
-            </p>
-          </div>
-        </div>
+      <div className="flex flex-row items-center justify-between gap-4">
+        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+          Profile
+        </h1>
         <Link to="/dashboard/agency/profile/edit">
           <Button
             variant="outline"
@@ -103,12 +91,13 @@ const CompanyProfilePage = () => {
             className="rounded-lg border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 hover:bg-primary-50"
           >
             <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
+            Edit
           </Button>
         </Link>
       </div>
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
@@ -116,12 +105,20 @@ const CompanyProfilePage = () => {
               </h2>
             </div>
             <div className="p-6">
+              <div className="flex flex-col items-center md:flex-row md:items-start gap-6 mb-6">
+                <div className="flex-shrink-0">
+                  <Avatar
+                    user={{ role: "AGENCY", ownedAgencies: [agency] }}
+                    size="xl"
+                  />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-md font-bold text-gray-900 dark:text-zinc-50">
+                    {agency.name}
+                  </h3>
+                </div>
+              </div>
               <dl className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-                <ProfileField
-                  icon={Building2}
-                  label="Legal Name"
-                  value={agency.name}
-                />
                 <ProfileField
                   icon={Hash}
                   label="RC Number"
@@ -155,7 +152,8 @@ const CompanyProfilePage = () => {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-1">
+
+        <div className="lg:col-span-1 space-y-8">
           <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-zinc-800">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">

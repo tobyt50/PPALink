@@ -18,18 +18,21 @@ const BillingPage = () => {
   const status = searchParams.get("status");
   const viewerCurrency = useCurrencyStore((state) => state.viewerCurrency);
 
-  const { data: plans, isLoading: isLoadingPlans } = useFetch<SubscriptionPlan[]>(
-    `/public/plans?currency=${viewerCurrency}`
-  );
+  const { data: plans, isLoading: isLoadingPlans } = useFetch<
+    SubscriptionPlan[]
+  >(`/public/plans?currency=${viewerCurrency}`);
 
-  const { data: agency, isLoading: isLoadingAgency } = useFetch<Agency>("/agencies/me");
+  const { data: agency, isLoading: isLoadingAgency } =
+    useFetch<Agency>("/agencies/me");
 
   const isLoading = isLoadingPlans || isLoadingAgency;
 
   const currentPlan = useMemo(() => {
-    const activeSub = agency?.subscriptions?.find(sub => sub.status === "ACTIVE");
+    const activeSub = agency?.subscriptions?.find(
+      (sub) => sub.status === "ACTIVE"
+    );
     if (activeSub) return activeSub.plan;
-    return plans?.find(p => p.price === 0) || null;
+    return plans?.find((p) => p.price === 0) || null;
   }, [agency, plans]);
 
   const handleSubscribe = async (planId: string) => {
@@ -38,7 +41,9 @@ const BillingPage = () => {
       const { url } = await billingService.createCheckoutSession(planId);
       window.location.href = url;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Could not initiate subscription.");
+      toast.error(
+        error.response?.data?.message || "Could not initiate subscription."
+      );
       setIsProcessing(null);
     }
   };
@@ -49,7 +54,9 @@ const BillingPage = () => {
       const { url } = await billingService.createPortalSession();
       window.location.href = url;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Could not open management portal.");
+      toast.error(
+        error.response?.data?.message || "Could not open management portal."
+      );
       setIsProcessing(null);
     }
   };
@@ -59,8 +66,10 @@ const BillingPage = () => {
 
   const PlanCard = ({ plan }: { plan: SubscriptionPlan }) => {
     const isCurrent = currentPlan?.id === plan.id;
-    const isUpgrade = currentPlan ? plan.price > currentPlan.price : plan.price > 0;
-    
+    const isUpgrade = currentPlan
+      ? plan.price > currentPlan.price
+      : plan.price > 0;
+
     const formattedPrice = useSmartCurrency(plan.price, plan.currency);
 
     const getButton = () => {
@@ -96,7 +105,7 @@ const BillingPage = () => {
           isLoading={isProcessing === plan.id}
           disabled={isProcessing !== null}
         >
-          {currentPlan?.price === 0 ? 'Choose Plan' : 'Downgrade'}
+          {currentPlan?.price === 0 ? "Choose Plan" : "Downgrade"}
         </Button>
       );
     };
@@ -114,27 +123,33 @@ const BillingPage = () => {
             Current Plan
           </span>
         )}
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-zinc-100 text-center">{plan.name}</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-zinc-100 text-center">
+          {plan.name}
+        </h2>
         <div className="my-6 text-center space-y-1">
-  {plan.price === 0 ? (
-    <span className="text-4xl font-bold text-gray-900 dark:text-zinc-50">Free</span>
-  ) : (
-    <>
-      {/* Main price */}
-      <div className="text-4xl font-bold text-gray-900 dark:text-zinc-50 leading-tight">
-        {formattedPrice.split("(≈")[0].trim()}
-        <span className="text-sm text-gray-500 dark:text-zinc-400 ml-1 align-top">/month</span>
-      </div>
+          {plan.price === 0 ? (
+            <span className="text-4xl font-bold text-gray-900 dark:text-zinc-50">
+              Free
+            </span>
+          ) : (
+            <>
+              {/* Main price */}
+              <div className="text-4xl font-bold text-gray-900 dark:text-zinc-50 leading-tight">
+                {formattedPrice.split("(≈")[0].trim()}
+                <span className="text-sm text-gray-500 dark:text-zinc-400 ml-1 align-top">
+                  /month
+                </span>
+              </div>
 
-      {/* Converted price (lighter tone) */}
-      {formattedPrice.includes("(≈") && (
-        <div className="text-sm text-gray-500 dark:text-zinc-400 font-medium">
-          ≈ {formattedPrice.split("(≈")[1].replace(")", "").trim()}
+              {/* Converted price (lighter tone) */}
+              {formattedPrice.includes("(≈") && (
+                <div className="text-sm text-gray-500 dark:text-zinc-400 font-medium">
+                  ≈ {formattedPrice.split("(≈")[1].replace(")", "").trim()}
+                </div>
+              )}
+            </>
+          )}
         </div>
-      )}
-    </>
-  )}
-</div>
 
         <ul className="flex-grow space-y-3 text-sm text-gray-600 dark:text-zinc-300">
           {(plan.features as string[]).map((feature, i) => (
@@ -156,7 +171,6 @@ const BillingPage = () => {
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Billing & Subscription
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">Manage your agency's subscription plan.</p>
         </div>
       </div>
       {isLoading ? (
@@ -165,7 +179,7 @@ const BillingPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {plans?.map(plan => (
+          {plans?.map((plan) => (
             <PlanCard key={plan.id} plan={plan} />
           ))}
         </div>

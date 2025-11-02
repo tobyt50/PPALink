@@ -178,18 +178,15 @@ const ManagePlansPage = () => {
         confirmButtonText="Delete"
       />
       <div className="space-y-5">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
+        <div className="flex items-start justify-between gap-4 w-full">
+          <div className="flex-1">
             <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               Subscription Plans
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-zinc-300">
-              Create, edit, and manage subscription plans for agencies.
-            </p>
           </div>
           <Button size="sm" onClick={handleCreate}>
-            <PlusCircle className="mr-2 h-5 w-5" />
-            New Plan
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New
           </Button>
         </div>
 

@@ -1,4 +1,3 @@
-// SimpleDropdown.tsx
 import { AnimatePresence, motion } from 'framer-motion';
 import React, {
   createContext,
@@ -25,6 +24,8 @@ interface SimpleDropdownProps {
   industries?: Industry[];
   onSelectIndustry?: (industryId: number | null) => void;
   multiselect?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 // Context to allow child items to close the dropdown
@@ -49,8 +50,21 @@ export const SimpleDropdown = ({
   industries = [],
   onSelectIndustry,
   multiselect = false,
+  open,
+  onOpenChange,
 }: SimpleDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (isControlled) {
+      onOpenChange(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
+  };
+
   const [isVisible, setIsVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -63,9 +77,16 @@ export const SimpleDropdown = ({
 
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
+  // Sync isVisible with controlled open
+  useEffect(() => {
+    if (isControlled) {
+      setIsVisible(currentOpen);
+    }
+  }, [currentOpen, isControlled]);
+
   // Reset styles when portal unmounts
   useEffect(() => {
-    if (!isOpen) {
+    if (!currentOpen) {
       setMenuPositionStyle({
         left: '-9999px',
         top: '0px',
@@ -73,7 +94,7 @@ export const SimpleDropdown = ({
       });
       setAnimationY(-10);
     }
-  }, [isOpen]);
+  }, [currentOpen]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -242,10 +263,12 @@ export const SimpleDropdown = ({
   }, [industries, isIndustryDropdown]);
 
   const handleToggle = () => {
-    if (isVisible) {
+    if (currentOpen) {
+      // closing
       setIsVisible(false);
     } else {
-      setIsOpen(true);
+      // opening
+      handleOpenChange(true);
       setIsVisible(true);
     }
   };
@@ -263,9 +286,9 @@ export const SimpleDropdown = ({
           {trigger}
         </div>
 
-        {isOpen &&
+        {currentOpen &&
           createPortal(
-            <AnimatePresence onExitComplete={() => setIsOpen(false)}>
+            <AnimatePresence onExitComplete={() => handleOpenChange(false)}>
               {isVisible && (
                 <motion.div
                   key="dropdown-menu"

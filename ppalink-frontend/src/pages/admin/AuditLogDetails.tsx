@@ -169,26 +169,23 @@ const AuditLogDetailsPage = () => {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <Link
-            to="/admin/audit-logs"
-            className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-          >
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            Back to Audit Logs
-          </Link>
-          <h1 className="mt-4 text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
+      <div className="space-y-4">
+        <Link
+          to="/admin/audit-logs"
+          className="flex items-center text-sm font-semibold text-gray-500 dark:text-zinc-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
+        >
+          <ChevronLeft className="h-5 w-5 mr-1" />
+          Back to Audit Logs
+        </Link>
+        <div className="flex items-start justify-between w-full">
+          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Audit Log Details
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            A detailed view of a specific administrative action.
-          </p>
+          <Button onClick={handleExport} variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
-        <Button onClick={handleExport} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
       </div>
 
       <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
@@ -221,4 +218,3 @@ const AuditLogDetailsPage = () => {
 };
 
 export default AuditLogDetailsPage;
-

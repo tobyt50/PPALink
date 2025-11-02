@@ -1,4 +1,4 @@
-import { Filter, Search, Users } from "lucide-react";
+import { SlidersHorizontal, Search, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -14,7 +14,7 @@ import type { CandidateProfile } from "../../types/candidate";
 import CandidateCard from "../../components/ui/CandidateCard";
 import FilterSidebar, { type CandidateFilterValues } from "./FilterSidebar";
 import { CandidateCardSkeleton } from "./skeletons/CandidateCardSkeleton";
-import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/forms/Input";
 
 const BrowseCandidatesPage = () => {
   const [searchParams] = useSearchParams();
@@ -28,7 +28,7 @@ const BrowseCandidatesPage = () => {
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const { data: agency, isLoading: isLoadingAgency } =
@@ -53,12 +53,6 @@ const BrowseCandidatesPage = () => {
 
   useEffect(() => {
     const performSearch = async () => {
-      if (!filters && !debouncedSearchQuery) {
-        setCandidates([]);
-        setHasSearched(false);
-        return;
-      }
-
       setIsLoading(true);
       setHasSearched(true);
 
@@ -109,8 +103,8 @@ const BrowseCandidatesPage = () => {
 
   const handleFilterChange = (newFilters: CandidateFilterValues | null) => {
     setFilters(newFilters);
-    if (showMobileFilters) {
-      setShowMobileFilters(false);
+    if (showFiltersModal) {
+      setShowFiltersModal(false);
     }
   };
 
@@ -121,28 +115,14 @@ const BrowseCandidatesPage = () => {
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
             Browse Candidates
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-zinc-300">
-            Find the best talent for your open positions.
-          </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        <aside className={`${showMobileFilters ? "block" : "hidden lg:block"} lg:col-span-1`}>
-          <div
-            className={`
-              ${
-                showMobileFilters
-                  ? ""
-                  : "sticky top-2 max-h-[calc(100vh-5rem)] overflow-auto"
-              }
-              rounded-2xl bg-white dark:bg-zinc-900
-              shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100
-              p-5
-            `}
-          >
+        <aside className="hidden lg:block lg:col-span-1">
+          <div className="sticky top-2 max-h-[calc(100vh-5rem)] overflow-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 p-5">
             <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4 flex items-center">
-              <Filter className="mr-2 h-4 w-4" />
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
               Filters
             </h2>
             {isLoadingAgency ? (
@@ -161,74 +141,99 @@ const BrowseCandidatesPage = () => {
         </aside>
 
         <main className="lg:col-span-3">
-          {!showMobileFilters && (
-            <div className="lg:hidden pb-3">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowMobileFilters(true)}
-                className="w-full"
+          <div className="pb-5">
+            <div className="relative">
+              <Input
+                type="search"
+                placeholder="Search by name or keyword..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                icon={Search}
+                className="lg:pr-3 pr-10"
+              />
+              <button
+                type="button"
+                className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border-none p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 lg:hidden"
+                onClick={() => setShowFiltersModal(true)}
               >
-                <Filter className="mr-2 h-4 w-4" />
-                Show Filters
-              </Button>
+                <SlidersHorizontal className="h-4 w-6 text-gray-500" />
+              </button>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CandidateCardSkeleton />
+              <CandidateCardSkeleton />
+              <CandidateCardSkeleton />
+              <CandidateCardSkeleton />
+            </div>
+          ) : !hasSearched ? (
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+              <EmptyState
+                icon={Users}
+                title="Search for Candidates"
+                description="Use the keyword search or apply filters (location, batch, GPA, university, etc.) to find talent."
+              />
+            </div>
+          ) : candidates.length === 0 ? (
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
+              <EmptyState
+                icon={Users}
+                title="No Candidates Found"
+                description="Try a different search term or adjusting your filters."
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {candidates.map((candidate) => (
+                <Link
+                  key={candidate.id}
+                  to={`/dashboard/agency/candidates/${
+                    candidate.id
+                  }/profile?q=${encodeURIComponent(
+                    debouncedSearchQuery
+                  )}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
+                  className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
+                >
+                  <CandidateCard candidate={candidate} />
+                </Link>
+              ))}
             </div>
           )}
-          <div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-gray-920">
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Search className="h-5 w-5 text-gray-400 dark:text-zinc-500" />
-                </div>
-                <input
-                  type="search"
-                  placeholder="Search by name, skill, university, or keyword..."
-                  className="block w-full rounded-lg bg-transparent pl-10 pr-3 text-sm placeholder-gray-400 focus:ring-0 focus:outline-none"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                <CandidateCardSkeleton />
-                <CandidateCardSkeleton />
-                <CandidateCardSkeleton />
-                <CandidateCardSkeleton />
-              </div>
-            ) : !hasSearched ? (
-              <div className="p-6">
-                <EmptyState
-                  icon={Users}
-                  title="Search for Candidates"
-                  description="Use the keyword search or apply filters (location, batch, GPA, university, etc.) to find talent."
-                />
-              </div>
-            ) : candidates.length === 0 ? (
-              <div className="p-6">
-                <EmptyState
-                  icon={Users}
-                  title="No Candidates Found"
-                  description="Try a different search term or adjusting your filters."
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                {candidates.map((candidate) => (
-                  <Link
-                    key={candidate.id}
-                    to={`/dashboard/agency/candidates/${candidate.id}/profile?q=${encodeURIComponent(debouncedSearchQuery)}&filters=${encodeURIComponent(JSON.stringify(filters))}`}
-                    className="block hover:bg-gradient-to-r hover:from-primary-50 dark:hover:from-primary-950/60 hover:to-green-50 dark:hover:to-green-950/60 transition-all rounded-xl"
-                  >
-                    <CandidateCard candidate={candidate} />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
         </main>
       </div>
+
+      {showFiltersModal && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="fixed top-14 bottom-14 left-0 right-0 bg-black/50"
+            onClick={() => setShowFiltersModal(false)}
+          />
+          <div className="fixed top-14 bottom-14 right-0 w-full max-w-md bg-white dark:bg-zinc-900 shadow-lg overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-zinc-800 flex-shrink-0">
+              <h2 className="flex items-center text-md font-semibold text-gray-900 dark:text-zinc-50">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filters
+              </h2>
+              <button
+                type="button"
+                className="bg-transparent border-none p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
+                onClick={() => setShowFiltersModal(false)}
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              <FilterSidebar
+                onFilterChange={handleFilterChange}
+                agency={agency}
+                currentFilters={filters || undefined}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

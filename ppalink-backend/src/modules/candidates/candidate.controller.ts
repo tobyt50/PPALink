@@ -217,8 +217,12 @@ export async function getRecommendedJobsHandler(
   if (!req.user) return res.status(401).send();
   try {
     const filters = {
-      stateId: req.query.stateId ? Number(req.query.stateId) : undefined,
+      countryId: req.query.countryId ? Number(req.query.countryId) : undefined,
+      regionId: req.query.regionId ? Number(req.query.regionId) : undefined,
+      cityId: req.query.cityId ? Number(req.query.cityId) : undefined,
       isRemote: req.query.isRemote === "true" ? true : undefined,
+      industryId: req.query.industryId ? Number(req.query.industryId) : undefined,
+      q: req.query.q ? String(req.query.q) : undefined,
     };
     const jobs = await getRecommendedJobs(req.user.id, filters);
     res.status(200).json({ success: true, data: jobs });

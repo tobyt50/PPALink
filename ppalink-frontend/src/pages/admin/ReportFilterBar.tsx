@@ -1,6 +1,6 @@
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
-import { ChevronDown, Filter } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import {
   SimpleDropdown,
@@ -82,10 +82,6 @@ const ReportFilterBar = ({
 
   return (
     <div className="space-y-5">
-      <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50 border-b border-gray-100 dark:border-zinc-800 pb-3 mb-4 flex items-center">
-        <Filter className="mr-2 h-4 w-4" />
-        Filter Reports
-      </h2>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(processSubmit)} className="space-y-3">
           {/* Start Date */}

@@ -150,7 +150,10 @@ const FollowingFeed = () => {
               to={`/agencies/${agency.id}/profile`}
               className="font-semibold flex items-center text-gray-800 dark:text-zinc-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
-              <Avatar user={{ role: 'AGENCY', ownedAgencies: [agency] }} size="sm" />
+              <Avatar
+                user={{ role: "AGENCY", ownedAgencies: [agency] }}
+                size="sm"
+              />
               <span className="ml-3">{agency.name}</span>
             </Link>
             <ul className="mt-2 pl-6 space-y-2">
@@ -216,7 +219,13 @@ const DiscoveryFeed = () => {
     successFeed?.data || [],
   ];
 
-  const tabLoadings = [allLoading, recLoading, learnLoading, insightLoading, successLoading];
+  const tabLoadings = [
+    allLoading,
+    recLoading,
+    learnLoading,
+    insightLoading,
+    successLoading,
+  ];
 
   const scrollTabsToIndex = (index: number) => {
     if (tabContainerRef.current && tabContainerRef.current.children[index]) {
@@ -228,7 +237,8 @@ const DiscoveryFeed = () => {
       let newScrollLeft = tabCenter - containerCenter;
 
       // Clamp to bounds
-      const maxScrollLeft = tabContainerRef.current.scrollWidth - containerWidth;
+      const maxScrollLeft =
+        tabContainerRef.current.scrollWidth - containerWidth;
       newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
 
       tabContainerRef.current.scrollTo({
@@ -277,7 +287,7 @@ const DiscoveryFeed = () => {
   }, [currentIndex]);
 
   const buttonBaseStyle =
-    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex-shrink-0";
+    "flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-colors whitespace-nowrap flex-shrink-0";
   const activeButtonStyle =
     "bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-zinc-50 font-semibold";
   const inactiveButtonStyle =
@@ -287,8 +297,8 @@ const DiscoveryFeed = () => {
     <>
       {/* Header */}
       <div className="flex justify-between items-center py-3 mb-0">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-50">
-          Career Discovery
+        <h2 className="text-md font-semibold text-gray-900 dark:text-zinc-50">
+          Career Feed
         </h2>
         <Link to="/feed/create">
           <Button size="sm" variant="outline">
@@ -300,7 +310,7 @@ const DiscoveryFeed = () => {
       <div
         ref={tabContainerRef}
         className="flex flex-row overflow-x-auto gap-2 scrollbar-hide scroll-smooth no-scrollbar"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`
           div::-webkit-scrollbar {
@@ -325,7 +335,7 @@ const DiscoveryFeed = () => {
         ref={feedContainerRef}
         className="flex h-[600px] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
         onScroll={handleFeedScroll}
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <style>{`
           div::-webkit-scrollbar {
@@ -352,8 +362,8 @@ const DiscoveryFeed = () => {
               ) : items.length === 0 ? (
                 <div className="flex-1 text-center text-gray-500 dark:text-zinc-400 flex flex-col items-center justify-center">
                   <p>
-                    Your personalized feed is being prepared. Complete your profile to
-                    get better recommendations!
+                    Your personalized feed is being prepared. Complete your
+                    profile to get better recommendations!
                   </p>
                 </div>
               ) : (
@@ -366,10 +376,14 @@ const DiscoveryFeed = () => {
                     ))}
                   </div>
                   {/* Gradient fade overlay + See More */}
-                  <div className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
-                                  bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10">
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
+                                  bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10"
+                  >
                     <Link
-                      to={`/feed${tab.id !== "ALL" ? `?category=${tab.id}` : ""}`}
+                      to={`/feed${
+                        tab.id !== "ALL" ? `?category=${tab.id}` : ""
+                      }`}
                       className="pb-4"
                     >
                       <Button
@@ -422,13 +436,12 @@ const CandidateDashboard = () => {
   }
 
   const { recentApplications, profileCompleteness, isVerified } = dashboardData;
-
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-            My Dashboard
+            Dashboard
           </h1>
         </div>
         <Link to="/dashboard/candidate/jobs/browse">
@@ -436,8 +449,8 @@ const CandidateDashboard = () => {
             size="sm"
             className="rounded-xl shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 text-white dark:text-zinc-100 hover:opacity-90 transition"
           >
-            <Search className="mr-2 h-5 w-5" />
-            Find a Job
+            <Search className="mr-2 h-4 w-4" />
+            Find Jobs
           </Button>
         </Link>
       </div>
@@ -472,10 +485,20 @@ const CandidateDashboard = () => {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <Avatar user={{ role: 'AGENCY', ownedAgencies: [app.position.agency as Agency] }} size="md" />
+                          <Avatar
+                            user={{
+                              role: "AGENCY",
+                              ownedAgencies: [app.position.agency as Agency],
+                            }}
+                            size="md"
+                          />
                           <div className="ml-3">
-                            <p className="font-semibold ...">{app.position.title}</p>
-                            <p className="text-sm ...">{app.position.agency.name}</p>
+                            <p className="font-semibold ...">
+                              {app.position.title}
+                            </p>
+                            <p className="text-sm ...">
+                              {app.position.agency.name}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">

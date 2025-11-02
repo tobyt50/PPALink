@@ -26,7 +26,7 @@ const PublicHeader = () => {
       <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 dark:backdrop-blur-sm backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/header.png" alt="ppalink Logo" className="h-9 w-28" />
+            <img src="/header.png" alt="ppalink Logo" className="h-6 w-18" />
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/login">
