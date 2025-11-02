@@ -91,7 +91,6 @@ const EditProfilePage = () => {
                 uploadType="AVATAR"
                 initialImageKey={profile.user?.avatarKey}
                 onUploadSuccess={handleAvatarUpload}
-                shape="circle"
             />
             </div>
             <div className="w-full">
