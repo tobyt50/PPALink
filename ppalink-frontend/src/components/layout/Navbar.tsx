@@ -131,7 +131,7 @@ const Navbar = () => {
                     <FileQuestion className="mr-2 h-4 w-4" /> Skill Assessments
                   </SimpleDropdownItem>
                   <SimpleDropdownItem
-                    onSelect={() => navigate('/admin/feed')}
+                    onSelect={() => navigate('/feed/manage')}
                   >
                     <Rss className="mr-2 h-4 w-4" /> Manage Feed
                   </SimpleDropdownItem>
@@ -287,8 +287,8 @@ const Navbar = () => {
                   Skill Assessments
                 </Link>
                 <Link
-                  to="/admin/feed"
-                  className={getNavLinkClass('/admin/feed')}
+                  to="/feed/manage"
+                  className={getNavLinkClass('/feed/manage')}
                 >
                   Manage Feed
                 </Link>
