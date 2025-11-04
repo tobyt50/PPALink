@@ -1,6 +1,6 @@
 import { ChevronDown, SlidersHorizontal, Search, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { useEffect } from "react";
+// Removed useEffect
 import { Button } from "../../components/ui/Button";
 import { AnimatePresence, motion } from "framer-motion";
 import { Label } from "../../components/ui/Label";
@@ -62,35 +62,7 @@ export const PipelineFilterPanel = ({
     onClose();
   };
 
-  useEffect(() => {
-  // Handle Escape key
-  const handleEsc = (e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
-  };
-  window.addEventListener("keydown", handleEsc);
-
-  // Handle mobile/browser back button
-  const handlePopState = (e: PopStateEvent) => {
-    e.preventDefault();
-    onClose();
-  };
-
-  if (isOpen) {
-    // Add a temporary history entry when the panel opens
-    window.history.pushState({ filterPanelOpen: true }, "");
-    window.addEventListener("popstate", handlePopState);
-  }
-
-  return () => {
-    window.removeEventListener("keydown", handleEsc);
-    window.removeEventListener("popstate", handlePopState);
-
-    // Clean up the temporary history entry when closing
-    if (isOpen && window.history.state?.filterPanelOpen) {
-      window.history.back();
-    }
-  };
-}, [isOpen, onClose]);
+  // Removed useEffect for history/keydown/popstate
 
   return (
     <AnimatePresence>

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react"; // Removed useEffect
 import {
   Award,
   Briefcase,
@@ -79,36 +79,7 @@ export const CandidatePreviewPanel = ({
     candidateId ? `/candidates/${candidateId}/profile` : null
   );
 
-  useEffect(() => {
-  // Handle Escape key
-  const handleEsc = (e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
-  };
-  window.addEventListener("keydown", handleEsc);
-
-  // Handle browser/mobile back button (popstate)
-  const handlePopState = (e: PopStateEvent) => {
-    e.preventDefault();
-    onClose();
-  };
-
-  if (candidateId) {
-    // Add a temporary history entry when the panel opens
-    window.history.pushState({ panelOpen: true }, "");
-    window.addEventListener("popstate", handlePopState);
-  }
-
-  return () => {
-    window.removeEventListener("keydown", handleEsc);
-    window.removeEventListener("popstate", handlePopState);
-
-    // Clean up the temporary history entry when the panel closes
-    if (candidateId && window.history.state?.panelOpen) {
-      window.history.back();
-    }
-  };
-}, [candidateId, onClose]);
-
+  // Removed useEffect for history/keydown/popstate
 
   return (
     <AnimatePresence>
