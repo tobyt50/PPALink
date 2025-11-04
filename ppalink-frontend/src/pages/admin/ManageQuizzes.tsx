@@ -566,7 +566,7 @@ const ManageQuizzesPage = () => {
         {showFiltersModal && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="fixed top-14 bottom-14 left-0 right-0 bg-black/50"
+              className="fixed top-0 md:top-14 bottom-14 left-0 right-0 bg-black/50"
               onClick={() => setShowFiltersModal(false)}
             />
             <div className="fixed top-14 bottom-14 right-0 w-full max-w-md bg-white dark:bg-zinc-900 shadow-lg overflow-hidden flex flex-col">

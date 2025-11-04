@@ -80,12 +80,35 @@ export const CandidatePreviewPanel = ({
   );
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  // Handle Escape key
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+  };
+  window.addEventListener("keydown", handleEsc);
+
+  // Handle browser/mobile back button (popstate)
+  const handlePopState = (e: PopStateEvent) => {
+    e.preventDefault();
+    onClose();
+  };
+
+  if (candidateId) {
+    // Add a temporary history entry when the panel opens
+    window.history.pushState({ panelOpen: true }, "");
+    window.addEventListener("popstate", handlePopState);
+  }
+
+  return () => {
+    window.removeEventListener("keydown", handleEsc);
+    window.removeEventListener("popstate", handlePopState);
+
+    // Clean up the temporary history entry when the panel closes
+    if (candidateId && window.history.state?.panelOpen) {
+      window.history.back();
+    }
+  };
+}, [candidateId, onClose]);
+
 
   return (
     <AnimatePresence>
@@ -96,14 +119,14 @@ export const CandidatePreviewPanel = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed top-14 bottom-0 left-0 right-0 bg-black/50 z-40"
+            className="fixed top-0 md:top-14 bottom-0 left-0 right-0 bg-black/50 z-40"
           />
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-full max-w-lg bg-white dark:bg-zinc-900 z-50 flex flex-col"
+            className="fixed top-0 md:top-14 right-0 h-[calc(100vh-3.5rem)] w-full max-w-lg bg-white dark:bg-zinc-900 z-50 flex flex-col"
           >
             <div className="p-4 border-b border-gray-200 dark:border-zinc-800 flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center text-gray-900 dark:text-zinc-100">
