@@ -12,7 +12,7 @@ import { SortableContext, rectSwappingStrategy } from "@dnd-kit/sortable";
 import { CheckSquare, Clock, Loader2, Square, X } from "lucide-react";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useNavigate, useParams, useLocation } from "react-router-dom"; // Added useLocation
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { ConfirmationModal } from "../../components/ui/Modal";
 import { useSocket } from "../../context/SocketContext";
@@ -33,10 +33,6 @@ import applicationService from "../../services/application.service";
 const JobPipelinePage = () => {
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
   const navigate = useNavigate();
-  const location = useLocation(); // Added
-  const searchParams = new URLSearchParams(location.search); // Added
-  const previewAppId = searchParams.get("preview"); // Added
-  const isFilterPanelOpen = searchParams.get("filter") === "open"; // Replaced useState
   const {
     data: job,
     isLoading,
@@ -88,12 +84,9 @@ const JobPipelinePage = () => {
     isDragging,
   } = pipelineLogic;
 
-  // Derived from search params (replaced useState)
-  const previewingApplication = React.useMemo(
-    () => applications.find((app) => app.id === previewAppId) || null,
-    [applications, previewAppId]
-  );
-
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [previewingApplication, setPreviewingApplication] =
+    useState<Application | null>(null);
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const { socket } = useSocket();
 
@@ -115,31 +108,8 @@ const JobPipelinePage = () => {
     setDeleteTarget([applicationId]);
   };
 
-  // Updated: Set query param instead of state
   const handlePreviewClick = (app: Application) => {
-    const newSearchParams = new URLSearchParams(location.search);
-    newSearchParams.set("preview", app.id);
-    navigate({ search: newSearchParams.toString() });
-  };
-
-  // Added: Close handlers now remove query params
-  const handleClosePreview = () => {
-    const newSearchParams = new URLSearchParams(location.search);
-    newSearchParams.delete("preview");
-    navigate({ search: newSearchParams.toString() }, { replace: true });
-  };
-
-  const handleCloseFilterPanel = () => {
-    const newSearchParams = new URLSearchParams(location.search);
-    newSearchParams.delete("filter");
-    navigate({ search: newSearchParams.toString() }, { replace: true });
-  };
-
-  // Updated: Open filter by setting query param (replaced setIsFilterPanelOpen)
-  const handleOpenFilterPanel = () => {
-    const newSearchParams = new URLSearchParams(location.search);
-    newSearchParams.set("filter", "open");
-    navigate({ search: newSearchParams.toString() });
+    setPreviewingApplication(app);
   };
 
   useEffect(() => {
@@ -386,9 +356,9 @@ const JobPipelinePage = () => {
         case "Escape":
           e.preventDefault();
           if (previewingApplication) {
-            handleClosePreview(); // Updated
+            setPreviewingApplication(null);
           } else if (isFilterPanelOpen) {
-            handleCloseFilterPanel(); // Updated
+            setIsFilterPanelOpen(false);
           } else if (focusedStage) {
             setFocusedStage(null);
           } else {
@@ -438,46 +408,72 @@ const JobPipelinePage = () => {
                 break;
               }
             }
-            if (currentCoords.col === -1) return;
-            if (e.key === "ArrowDown") {
-              if (currentCoords.row < navigableApps[currentCoords.col].length - 1) {
-                nextFocusedCardId = navigableApps[currentCoords.col][currentCoords.row + 1].id;
-              }
-            } else if (e.key === "ArrowUp") {
-              if (currentCoords.row > 0) {
-                nextFocusedCardId = navigableApps[currentCoords.col][currentCoords.row - 1].id;
-              }
-            } else if (e.key === "ArrowRight") {
-              let nextColIndex = currentCoords.col + 1;
-              while (
-                nextColIndex < navigableApps.length &&
-                navigableApps[nextColIndex].length === 0
+            if (currentCoords.col === -1) break;
+            if (isGridView) {
+              const numCols = 5;
+              const currentIndex = currentCoords.row;
+              const currentColumn = navigableApps[0];
+              if (
+                e.key === "ArrowRight" &&
+                currentIndex < currentColumn.length - 1
               ) {
-                nextColIndex++;
-              }
-              if (nextColIndex < navigableApps.length) {
-                const nextCol = navigableApps[nextColIndex];
-                const nextRow = Math.min(
-                  currentCoords.row,
-                  nextCol.length - 1
-                );
-                nextFocusedCardId = nextCol[nextRow].id;
-              }
-            } else if (e.key === "ArrowLeft") {
-              let prevColIndex = currentCoords.col - 1;
-              while (
-                prevColIndex >= 0 &&
-                navigableApps[prevColIndex].length === 0
+                nextFocusedCardId = currentColumn[currentIndex + 1].id;
+              } else if (e.key === "ArrowLeft" && currentIndex > 0) {
+                nextFocusedCardId = currentColumn[currentIndex - 1].id;
+              } else if (
+                e.key === "ArrowDown" &&
+                currentIndex + numCols < currentColumn.length
               ) {
-                prevColIndex--;
+                nextFocusedCardId = currentColumn[currentIndex + numCols].id;
+              } else if (e.key === "ArrowUp" && currentIndex - numCols >= 0) {
+                nextFocusedCardId = currentColumn[currentIndex - numCols].id;
               }
-              if (prevColIndex >= 0) {
-                const prevCol = navigableApps[prevColIndex];
-                const nextRow = Math.min(
-                  currentCoords.row,
-                  prevCol.length - 1
-                );
-                nextFocusedCardId = prevCol[nextRow].id;
+            } else {
+              if (e.key === "ArrowDown") {
+                if (
+                  currentCoords.row <
+                  navigableApps[currentCoords.col].length - 1
+                ) {
+                  nextFocusedCardId =
+                    navigableApps[currentCoords.col][currentCoords.row + 1].id;
+                }
+              } else if (e.key === "ArrowUp") {
+                if (currentCoords.row > 0) {
+                  nextFocusedCardId =
+                    navigableApps[currentCoords.col][currentCoords.row - 1].id;
+                }
+              } else if (e.key === "ArrowRight") {
+                let nextColIndex = currentCoords.col + 1;
+                while (
+                  nextColIndex < navigableApps.length &&
+                  navigableApps[nextColIndex].length === 0
+                ) {
+                  nextColIndex++;
+                }
+                if (nextColIndex < navigableApps.length) {
+                  const nextCol = navigableApps[nextColIndex];
+                  const nextRow = Math.min(
+                    currentCoords.row,
+                    nextCol.length - 1
+                  );
+                  nextFocusedCardId = nextCol[nextRow].id;
+                }
+              } else if (e.key === "ArrowLeft") {
+                let prevColIndex = currentCoords.col - 1;
+                while (
+                  prevColIndex >= 0 &&
+                  navigableApps[prevColIndex].length === 0
+                ) {
+                  prevColIndex--;
+                }
+                if (prevColIndex >= 0) {
+                  const prevCol = navigableApps[prevColIndex];
+                  const nextRow = Math.min(
+                    currentCoords.row,
+                    prevCol.length - 1
+                  );
+                  nextFocusedCardId = prevCol[nextRow].id;
+                }
               }
             }
           }
@@ -716,16 +712,16 @@ const JobPipelinePage = () => {
       />
       <CandidatePreviewPanel
         candidateId={previewingApplication?.candidate.id ?? null}
-        applicationId={previewAppId ?? null}
-        onClose={handleClosePreview} // Updated
+        applicationId={previewingApplication?.id ?? null}
+        onClose={() => setPreviewingApplication(null)}
       />
       <PipelineFilterPanel
-        isOpen={isFilterPanelOpen} // Updated
-        onClose={handleCloseFilterPanel} // Updated
+        isOpen={isFilterPanelOpen}
+        onClose={() => setIsFilterPanelOpen(false)}
         onApply={handleApplyFilters}
         onClear={() => {
           handleClearFilters();
-          handleCloseFilterPanel(); // Updated
+          setIsFilterPanelOpen(false);
         }}
         isLoading={isQueryLoading}
         institutions={job?.pipelineInstitutions || []}
@@ -735,7 +731,7 @@ const JobPipelinePage = () => {
           jobTitle={job.title}
           applicationCount={applications.length}
           onExport={handleExport}
-          onFilter={handleOpenFilterPanel} // Updated
+          onFilter={() => setIsFilterPanelOpen(true)}
           onUndo={handleUndo}
           onRedo={handleRedo}
           canUndo={undoStack.length > 0}
@@ -753,7 +749,7 @@ const JobPipelinePage = () => {
                   size="sm"
                   onClick={() => {
                     handleClearFilters();
-                    handleCloseFilterPanel(); // Updated
+                    setIsFilterPanelOpen(false);
                   }}
                 >
                   Clear Search
@@ -785,7 +781,7 @@ const JobPipelinePage = () => {
                   onSelectToggle={() => {}}
                   isFocused={false}
                   onDelete={handleInlineDelete}
-                  onPreview={() => {}}
+                  onPreview={() => {}} 
                 />
                 {selectedIds.size > 1 && (
                   <div className="absolute -top-2 -left-2 bg-primary-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">

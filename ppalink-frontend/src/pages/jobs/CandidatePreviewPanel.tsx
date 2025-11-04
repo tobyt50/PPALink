@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo } from "react"; // Removed useEffect
+import { useEffect, useMemo } from "react";
 import {
   Award,
   Briefcase,
@@ -79,7 +79,13 @@ export const CandidatePreviewPanel = ({
     candidateId ? `/candidates/${candidateId}/profile` : null
   );
 
-  // Removed useEffect for history/keydown/popstate
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
 
   return (
     <AnimatePresence>

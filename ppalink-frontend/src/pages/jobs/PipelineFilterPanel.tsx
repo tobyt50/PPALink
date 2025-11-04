@@ -1,6 +1,6 @@
-import { ChevronDown, SlidersHorizontal, Search, X } from "lucide-react";
+import { ChevronDown, Filter, Search, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-// Removed useEffect
+import { useEffect } from "react";
 import { Button } from "../../components/ui/Button";
 import { AnimatePresence, motion } from "framer-motion";
 import { Label } from "../../components/ui/Label";
@@ -62,7 +62,13 @@ export const PipelineFilterPanel = ({
     onClose();
   };
 
-  // Removed useEffect for history/keydown/popstate
+  useEffect(() => {
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+  };
+  window.addEventListener("keydown", handleEsc);
+  return () => window.removeEventListener("keydown", handleEsc);
+}, [onClose]);
 
   return (
     <AnimatePresence>
@@ -84,7 +90,7 @@ export const PipelineFilterPanel = ({
           >
             <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center">
-                <SlidersHorizontal className="mr-2 h-5 w-5" />
+                <Filter className="mr-2 h-5 w-5" />
                 Filter & Search Pipeline
               </h2>
               <button
