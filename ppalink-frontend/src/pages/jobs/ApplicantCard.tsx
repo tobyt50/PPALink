@@ -179,38 +179,37 @@ export const StaticApplicantCard = ({
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5 min-h-[26px]">
-  {topSkills.length > 0 ? (
-    topSkills.map((skill) => (
-      <div key={skill.id} className="relative inline-block">
-        <span
-          className={`flex items-center rounded-full px-2.5 py-1 text-xs font-medium cursor-default peer ${
-            skill.isVerified
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
-              : "bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300"
-          }`}
-        >
-          {skill.isVerified && <Award className="h-3 w-3 mr-1" />}
-          {skill.name}
-        </span>
+        {topSkills.length > 0 ? (
+          topSkills.map((skill) => (
+            <div key={skill.id} className="relative inline-block">
+              <span
+                className={`flex items-center rounded-full px-2.5 py-1 text-xs font-medium cursor-default peer ${
+                  skill.isVerified
+                    ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                    : "bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300"
+                }`}
+              >
+                {skill.isVerified && <Award className="h-3 w-3 mr-1" />}
+                {skill.name}
+              </span>
 
-        {/* Tooltip (triggered only when hovering this chip) */}
-        <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 
-          whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 
-          text-xs font-medium text-zinc-900 dark:text-white opacity-0 
-          shadow-lg transition-opacity duration-300 peer-hover:opacity-100 
-          pointer-events-none max-w-[calc(100vw-2rem)]">
-          {skill.isVerified
-            ? `Verified Skill - Score: ${skill.score}%`
-            : "Unverified skill"}
-        </div>
+              <div className="absolute top-full left-1/2 z-20 mt-2 -translate-x-1/2 
+                whitespace-nowrap rounded-md bg-gray-100 dark:bg-zinc-900 px-2 py-1.5 
+                text-xs font-medium text-zinc-900 dark:text-white opacity-0 
+                shadow-lg transition-opacity duration-300 peer-hover:opacity-100 
+                pointer-events-none max-w-[calc(100vw-2rem)]">
+                {skill.isVerified
+                  ? `Verified Skill - Score: ${skill.score}%`
+                  : "Unverified skill"}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="italic text-xs text-gray-400 dark:text-zinc-500">
+            No skills listed
+          </p>
+        )}
       </div>
-    ))
-  ) : (
-    <p className="italic text-xs text-gray-400 dark:text-zinc-500">
-      No skills listed
-    </p>
-  )}
-</div>
 
       <div className="mt-4 flex items-center justify-center gap-3 opacity-0 max-h-0 overflow-hidden transition-all duration-200 group-hover:mt-4 group-hover:opacity-100 group-hover:max-h-16">
         <button
@@ -274,12 +273,13 @@ export const DraggableCard = ({
   };
 
   return (
+    // --- MODIFICATION: Removed `touch-none` and added `select-none` ---
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-pointer touch-none"
+      className="cursor-pointer select-none" // `touch-none` is removed, `select-none` is added
       data-application-id={app.id}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey) {

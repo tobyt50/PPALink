@@ -6,7 +6,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CheckSquare, Clock, Square } from "lucide-react";
 import type { Application, ApplicationStatus } from "../../types/application";
-import { DraggableCard } from "./ApplicantCard"; // MODIFIED: Import DraggableCard
+import { DraggableCard } from "./ApplicantCard";
 
 export const PipelineColumn = ({
   title,
@@ -55,9 +55,10 @@ export const PipelineColumn = ({
   };
 
   return (
+    // --- MODIFICATION: Added `select-none` to the root element ---
     <div
       data-status={status}
-      className={`rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col h-[650px] overflow-hidden transition-all duration-200 ${
+      className={`select-none rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col h-[650px] overflow-hidden transition-all duration-200 ${
         isOver ? "scale-[1.05] ring-2 ring-primary-500 z-10" : ""
       }`}
     >
