@@ -20,6 +20,7 @@ export const PipelineColumn = ({
   onPreview,
   focusedCardId,
   onDelete,
+  overContainerId,
 }: {
   title: string;
   status: ApplicationStatus;
@@ -32,12 +33,13 @@ export const PipelineColumn = ({
   onPreview: (application: Application) => void;
   focusedCardId: string | null;
   onDelete: (applicationId: string) => void;
+  overContainerId: ApplicationStatus | null;
 }) => {
   const applicationIds = useMemo(
     () => applications.map((app) => app.id),
     [applications]
   );
-  const { setNodeRef, isOver } = useDroppable({ id: status });
+  const { setNodeRef } = useDroppable({ id: status });
   const [showHeaderCheckbox, setShowHeaderCheckbox] = useState(false);
 
   const handleHeaderTouch = (e: React.TouchEvent) => {
@@ -57,9 +59,8 @@ export const PipelineColumn = ({
   return (
     <div
       data-status={status}
-      // --- MODIFICATION: Disable text selection for a cleaner interaction ---
       className={`select-none rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col h-[650px] overflow-hidden transition-all duration-200 ${
-        isOver ? "scale-[1.05] ring-2 ring-primary-500 z-10" : ""
+        overContainerId === status ? "scale-[1.05] ring-2 ring-primary-500 z-10" : ""
       }`}
     >
       <div
@@ -100,7 +101,7 @@ export const PipelineColumn = ({
           items={applicationIds}
           strategy={verticalListSortingStrategy}
         >
-          <div className="px-4 pt-1 space-y-3">
+          <div className="px-2 pt-1 space-y-2">
             {applications.length > 0 ? (
               applications.map((app) => (
                 <DraggableCard

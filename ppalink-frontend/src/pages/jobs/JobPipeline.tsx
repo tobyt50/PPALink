@@ -5,9 +5,8 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  pointerWithin,
   MeasuringStrategy,
-  // --- MODIFICATION: Import the new collision detection strategy ---
-  pointerWithin, 
 } from "@dnd-kit/core";
 import { SortableContext, rectSwappingStrategy } from "@dnd-kit/sortable";
 import { CheckSquare, Clock, Loader2, Square, X } from "lucide-react";
@@ -70,9 +69,12 @@ const JobPipelinePage = () => {
     setInterviewScheduleTarget,
     offerCreationTarget,
     setOfferCreationTarget,
+    overContainerId,
     handleCardClick,
     handleDragStart,
     handleDragEnd,
+    handleDragOver,
+    handleDragCancel,
     handleUndo,
     handleRedo,
     handleApplyFilters,
@@ -80,8 +82,6 @@ const JobPipelinePage = () => {
     handleConfirmDelete,
     commitStatusChanges,
     isDragging,
-    setIsDragging,
-    setActiveId,
   } = pipelineLogic;
 
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
@@ -677,6 +677,7 @@ const JobPipelinePage = () => {
               onPreview={handlePreviewClick}
               focusedCardId={focusedCardId}
               onDelete={handleInlineDelete}
+              overContainerId={overContainerId}
             />
           </div>
         ))}
@@ -761,11 +762,8 @@ const JobPipelinePage = () => {
           sensors={sensors}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
-          onDragCancel={() => {
-            setIsDragging(false);
-            setActiveId(null);
-          }}
-          // --- MODIFICATION: Change the collision detection strategy ---
+          onDragOver={handleDragOver}
+          onDragCancel={handleDragCancel}
           collisionDetection={pointerWithin}
           measuring={
             isFilteredView || focusedStageData
