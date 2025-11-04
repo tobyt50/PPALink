@@ -9,6 +9,7 @@ interface AvatarProps {
   user?: Partial<UserType> | null;
   candidate?: Partial<CandidateProfile> | null;
   name?: string;
+  shape?: "circle" | "square";
   size?: "sm" | "md" | "lg" | "xl";
 }
 
@@ -16,12 +17,14 @@ export const Avatar = ({
   user,
   candidate,
   name: nameOverride,
+  shape: shapeProp,
   size = "md",
 }: AvatarProps) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const isAgency = !!(user?.ownedAgencies && user.ownedAgencies.length > 0);
+  
   const imageKey = isAgency ? user?.ownedAgencies?.[0]?.logoKey : (user?.avatarKey || candidate?.user?.avatarKey);
   
   const name = nameOverride || 
@@ -31,7 +34,9 @@ export const Avatar = ({
                  ))
                )) || '';
   
+  const shape = shapeProp || (isAgency ? 'square' : 'circle');
   const iconType = isAgency ? 'agency' : 'user';
+
   const { url, isLoading } = usePresignedUrl(imageKey);
 
   const sizeClasses = {
@@ -58,6 +63,7 @@ export const Avatar = ({
     : "";
 
   const FallbackIcon = iconType === "agency" ? Building : User;
+
   const isClickable = ['lg', 'xl'].includes(size);
 
   const handleAvatarClick = () => {
@@ -66,12 +72,16 @@ export const Avatar = ({
     }
   };
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     if (isModalOpen) {
       const handleEsc = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') setIsModalOpen(false);
+        if (e.key === 'Escape') {
+          setIsModalOpen(false);
+        }
       };
       document.addEventListener('keydown', handleEsc);
       return () => document.removeEventListener('keydown', handleEsc);
@@ -91,7 +101,7 @@ export const Avatar = ({
           <img
             src={url!}
             alt={name || "Enlarged Profile"}
-            className="w-full max-h-[80vh] object-contain rounded-full"
+            className="w-full max-h-[80vh] object-contain rounded-2xl"
           />
           <button
             onClick={handleCloseModal}
@@ -107,9 +117,9 @@ export const Avatar = ({
   return (
     <>
       <div
-        className={`flex-shrink-0 bg-gray-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden rounded-full ${
+        className={`flex-shrink-0 bg-gray-200 dark:bg-zinc-800 flex items-center justify-center overflow-hidden ${
           isClickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
-        } ${sizeClasses[size]}`}
+        } ${sizeClasses[size]} ${shape === "circle" ? "rounded-full" : "rounded-lg"}`}
         onClick={isClickable ? handleAvatarClick : undefined}
       >
         {isLoading ? (
@@ -120,9 +130,15 @@ export const Avatar = ({
           <img
             src={url}
             alt={name || "Profile"}
-            className="w-full h-full object-cover rounded-full"
+            className="w-full h-full object-cover"
           />
-        ) : initials ? (
+        ) : 
+        isAgency ? (
+          <FallbackIcon
+            className={`text-gray-400 dark:text-zinc-500 ${iconSizeClasses[size]}`}
+          />
+        ) : 
+        initials ? (
           <span className="font-bold text-gray-500 dark:text-zinc-400">
             {initials}
           </span>

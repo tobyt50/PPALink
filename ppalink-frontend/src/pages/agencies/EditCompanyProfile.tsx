@@ -93,6 +93,7 @@ const EditCompanyProfilePage = () => {
                 uploadType="LOGO"
                 initialImageKey={agency.logoKey}
                 onUploadSuccess={handleLogoUpload}
+                shape="square"
               />
             </div>
             <div className="w-full flex-1">

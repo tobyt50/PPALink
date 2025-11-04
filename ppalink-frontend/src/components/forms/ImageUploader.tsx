@@ -7,10 +7,11 @@ interface ImageUploaderProps {
   initialImageKey?: string | null;
   onUploadSuccess: (fileKey: string) => void;
   uploadType: 'AVATAR' | 'LOGO';
+  shape?: 'circle' | 'square';
   label: string;
 }
 
-export const ImageUploader = ({ initialImageKey, onUploadSuccess, uploadType, label }: ImageUploaderProps) => {
+export const ImageUploader = ({ initialImageKey, onUploadSuccess, uploadType, shape = 'circle', label }: ImageUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [remoteImageUrl, setRemoteImageUrl] = useState<string | null>(null);
@@ -71,7 +72,7 @@ export const ImageUploader = ({ initialImageKey, onUploadSuccess, uploadType, la
   return (
     <div className="relative group w-32 h-32">
       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-      <div className="w-full h-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden rounded-full">
+      <div className={`w-full h-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden ${shape === 'circle' ? 'rounded-full' : 'rounded-lg'}`}>
         {isUploading || (initialImageKey && !remoteImageUrl) ? (
           <Loader2 className="animate-spin text-primary-500" />
         ) : currentImageUrl ? (
@@ -80,7 +81,7 @@ export const ImageUploader = ({ initialImageKey, onUploadSuccess, uploadType, la
           <User className="w-16 h-16 text-gray-400" />
         )}
       </div>
-      <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full" disabled={isUploading}>
+      <button type="button" onClick={() => fileInputRef.current?.click()} className={`absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity ${shape === 'circle' ? 'rounded-full' : 'rounded-lg'}`} disabled={isUploading}>
         <Edit className="h-6 w-6" />
       </button>
     </div>
