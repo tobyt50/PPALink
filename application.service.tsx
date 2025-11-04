@@ -1,12 +1,10 @@
 import { ApplicationStatus, NotificationType } from '@prisma/client';
 import type { Server } from 'socket.io';
-import sgMail from '@sendgrid/mail';
 import { ioInstance, onlineUsers } from '../../config/socket';
 import prisma from '../../config/db';
 import { logActivity } from '../activity/activity.service';
 import { createNotification } from '../notifications/notification.service';
 import { calculateMatchScore } from '../scoring/scoring.service';
-import env from '../../config/env';
 
 interface CreateApplicationInput {
   positionId: string;
@@ -66,21 +64,8 @@ export async function updateApplication(
   const application = await prisma.application.findFirst({
     where: { id: applicationId, position: { agencyId: agencyId } },
     include: {
-      candidate: { 
-        select: { 
-          id: true, 
-          userId: true, 
-          firstName: true,
-          user: { select: { email: true } }
-        } 
-      },
-      position: { 
-        select: { 
-          id: true, 
-          title: true,
-          agency: { select: { name: true } }
-        }
-      },
+      candidate: { select: { userId: true, id: true } }, // Include candidateId
+      position: { select: { title: true, id: true } }, // Include positionId
     }
   });
 
@@ -93,6 +78,7 @@ export async function updateApplication(
     data: { status: data.status, notes: data.notes },
   });
 
+  // --- Detailed Logging ---
   const agency = await prisma.agency.findUnique({ where: { id: agencyId }, select: { ownerUserId: true } });
   if (agency) {
     if (data.status && data.status !== application.status) {
@@ -108,61 +94,6 @@ export async function updateApplication(
        await logActivity(agency.ownerUserId, 'application.update_notes', {
         applicationId: updatedApplication.id,
       });
-    }
-  }
-
-  const statusChanged = data.status && data.status !== application.status;
-  // Do not send emails for statuses handled by other services
-  const isHandledElsewhere = data.status === ApplicationStatus.INTERVIEW || data.status === ApplicationStatus.OFFER;
-
-  if (statusChanged && !isHandledElsewhere && application.candidate.user?.email) {
-    let subject = '';
-    let htmlContent = '';
-    const { firstName } = application.candidate;
-    const { title } = application.position;
-    const { name: agencyName } = application.position.agency;
-    const applicationLink = `${env.FRONTEND_URL}/dashboard/candidate/applications/${application.id}`;
-
-    switch (data.status) {
-      case ApplicationStatus.REVIEWING:
-        subject = `Update on your application for ${title}`;
-        htmlContent = `
-          <p>Hello ${firstName},</p>
-          <p>Good news! Your application for the <strong>${title}</strong> position at <strong>${agencyName}</strong> is now under review.</p>
-          <p>We are carefully considering your qualifications and experience. You will be notified of the next steps. Thank you for your patience.</p>
-          <p>You can view your application status here: <a href="${applicationLink}">View Application</a></p>
-        `;
-        break;
-      
-      case ApplicationStatus.REJECTED:
-        subject = `Update regarding your application for ${title}`;
-        htmlContent = `
-          <p>Hello ${firstName},</p>
-          <p>Thank you for your interest in the <strong>${title}</strong> position at <strong>${agencyName}</strong> and for the time you invested in this process.</p>
-          <p>After careful consideration, we have decided not to move forward with your application at this time. This was a difficult decision due to the high volume of qualified applicants.</p>
-          <p>We wish you the very best in your job search and future professional endeavors.</p>
-        `;
-        break;
-
-      case ApplicationStatus.WITHDRAWN:
-        // Typically withdrawn by the candidate, but an email can confirm the action if done by an admin.
-        subject = `Your application for ${title} has been withdrawn`;
-        htmlContent = `
-          <p>Hello ${firstName},</p>
-          <p>This email is to confirm that your application for the <strong>${title}</strong> position at <strong>${agencyName}</strong> has been withdrawn from consideration as per your request.</p>
-          <p>We wish you luck in your career journey.</p>
-        `;
-        break;
-    }
-
-    if (subject && htmlContent) {
-      const msg = {
-        to: application.candidate.user.email,
-        from: env.SMTP_FROM_EMAIL!,
-        subject: subject,
-        html: htmlContent,
-      };
-      sgMail.send(msg).catch(error => console.error("Error sending status update email:", error.response?.body));
     }
   }
 
@@ -184,6 +115,7 @@ export async function updateApplication(
     .map(member => onlineUsers.get(member.userId))
     .filter(Boolean) as string[];
 
+  // If there are any online members, broadcast the update.
   if (onlineMemberSocketIds.length > 0) {
     io.to(onlineMemberSocketIds).emit('pipeline:application_updated', {
       jobId: updatedApplication.positionId,
@@ -249,7 +181,7 @@ export async function createCandidateApplication(positionId: string, userId: str
   return application;
 }
 
-export async function getApplicationDetails(applicationId: string, agencyId: string, io: Server) {
+export async function getApplicationDetails(applicationId: string, agencyId: string) {
   const application = await prisma.application.findFirst({
     where: {
       id: applicationId,
@@ -296,17 +228,6 @@ export async function getApplicationDetails(applicationId: string, agencyId: str
 
   if (!application) {
     throw new Error('Application not found or you do not have permission to view it.');
-  }
-
-  if (application.status === ApplicationStatus.APPLIED) {
-    const updatedApplication = await updateApplication(
-      applicationId,
-      agencyId,
-      { status: ApplicationStatus.REVIEWING },
-      io
-    );
-
-    return { ...application, ...updatedApplication };
   }
 
   return application;

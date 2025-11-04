@@ -1,69 +1,12 @@
-import React, { forwardRef, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Virtuoso } from "react-virtuoso";
 import { CheckSquare, Clock, Square } from "lucide-react";
 import type { Application, ApplicationStatus } from "../../types/application";
-import { StaticApplicantCard } from "./ApplicantCard";
-
-const SortableGhostItem = ({
-  id,
-  register,
-}: {
-  id: string;
-  register: (el: HTMLElement | null) => void;
-}) => {
-  const { setNodeRef, listeners, attributes } = useSortable({ id });
-  return (
-    <div
-      ref={(el) => {
-        setNodeRef(el);
-        register(el);
-      }}
-      {...listeners}
-      {...attributes}
-    />
-  );
-};
-
-const ApplicantCard = ({
-  application,
-  isSelected,
-  onSelectToggle,
-  forwardEventToGhost,
-  onCardClick,
-  isFocused,
-  onDelete,
-}: {
-  application: Application;
-  isSelected: boolean;
-  onSelectToggle: (e: React.MouseEvent) => void;
-  forwardEventToGhost: (id: string, e: React.PointerEvent) => void;
-  onCardClick: (e: React.MouseEvent) => void;
-  isFocused: boolean;
-  onDelete: (applicationId: string) => void;
-}) => {
-  return (
-    <div
-      className="relative group cursor-pointer"
-      onPointerDown={(e) => forwardEventToGhost(application.id, e)}
-      onClick={onCardClick}
-      data-application-id={application.id}
-    >
-      <StaticApplicantCard
-        application={application}
-        isSelected={isSelected}
-        onSelectToggle={onSelectToggle}
-        isFocused={isFocused}
-        onDelete={onDelete}
-      />
-    </div>
-  );
-};
+import { DraggableCard } from "./ApplicantCard"; // MODIFIED: Import DraggableCard
 
 export const PipelineColumn = ({
   title,
@@ -95,80 +38,21 @@ export const PipelineColumn = ({
     [applications]
   );
   const { setNodeRef, isOver } = useDroppable({ id: status });
-  const ghostRefs = React.useRef<Record<string, HTMLElement | null>>({});
-  const forwardEventToGhost = (id: string, e: React.PointerEvent) => {
-    const ghost = ghostRefs.current[id];
-    if (ghost) {
-      const init: PointerEventInit = {
-        bubbles: e.bubbles,
-        cancelable: e.cancelable,
-        composed: e.nativeEvent.composed,
-        detail: e.nativeEvent.detail,
-        screenX: e.screenX,
-        screenY: e.screenY,
-        clientX: e.clientX,
-        clientY: e.clientY,
-        ctrlKey: e.ctrlKey,
-        shiftKey: e.shiftKey,
-        altKey: e.altKey,
-        metaKey: e.metaKey,
-        button: e.button,
-        buttons: e.buttons,
-        relatedTarget: e.relatedTarget,
-        pointerId: e.nativeEvent.pointerId,
-        width: e.nativeEvent.width,
-        height: e.nativeEvent.height,
-        pressure: e.nativeEvent.pressure,
-        tangentialPressure: e.nativeEvent.tangentialPressure,
-        tiltX: e.nativeEvent.tiltX,
-        tiltY: e.nativeEvent.tiltY,
-        twist: e.nativeEvent.twist,
-        pointerType: e.nativeEvent.pointerType,
-        isPrimary: e.nativeEvent.isPrimary,
-      };
-      const cloned = new PointerEvent(e.type, init);
-      ghost.dispatchEvent(cloned);
-    }
-  };
-  const renderItem = (_index: number, app: Application) => (
-    <ApplicantCard
-      application={app}
-      isSelected={selectedIds.has(app.id)}
-      onSelectToggle={(e) => onCardClick(app.id, e)}
-      forwardEventToGhost={forwardEventToGhost}
-      onCardClick={(e) => {
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault();
-          onCardClick(app.id, e);
-        } else {
-          onPreview(app);
-        }
-      }}
-      isFocused={app.id === focusedCardId}
-      onDelete={onDelete}
-    />
-  );
-  const List = forwardRef<HTMLDivElement>((props, listRef) => (
-    <div
-      {...props}
-      ref={listRef}
-      className="px-4 pt-6 space-y-3 [&>*:first-child]:mt-1"
-    ></div>
-  ));
   const [showHeaderCheckbox, setShowHeaderCheckbox] = useState(false);
+
   const handleHeaderTouch = (e: React.TouchEvent) => {
     const pressTimer = setTimeout(() => setShowHeaderCheckbox(true), 500);
     const clear = () => clearTimeout(pressTimer);
     e.currentTarget.addEventListener("touchend", clear, { once: true });
     e.currentTarget.addEventListener("touchmove", clear, { once: true });
   };
+
   const toggleAll = (e: React.MouseEvent) => {
-  e.stopPropagation();
-  // Always select all cards in this column
-  if (applicationIds.length > 0) {
-    setSelectedIds(new Set(applicationIds));
-  }
-};
+    e.stopPropagation();
+    if (applicationIds.length > 0) {
+      setSelectedIds(new Set(applicationIds));
+    }
+  };
 
   return (
     <div
@@ -209,35 +93,35 @@ export const PipelineColumn = ({
       </div>
       <div
         ref={setNodeRef}
-        className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600 relative"
+        className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-zinc-600"
       >
         <SortableContext
           items={applicationIds}
           strategy={verticalListSortingStrategy}
         >
-          <div className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none">
-            {applicationIds.map((id) => (
-              <SortableGhostItem
-                key={id}
-                id={id}
-                register={(el) => (ghostRefs.current[id] = el)}
-              />
-            ))}
+          <div className="p-4 space-y-3">
+            {applications.length > 0 ? (
+              applications.map((app) => (
+                <DraggableCard
+                  key={app.id}
+                  app={app}
+                  onCardClick={(e) => onCardClick(app.id, e)}
+                  onPreview={onPreview}
+                  isFocused={app.id === focusedCardId}
+                  isSelected={selectedIds.has(app.id)}
+                  isFilteredView={false}
+                  onDelete={onDelete}
+                />
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full min-h-[200px] rounded-lg border-2 border-dashed border-gray-200 dark:border-zinc-800">
+                <p className="text-sm text-gray-500 dark:text-zinc-400">
+                  Drop applicants here
+                </p>
+              </div>
+            )}
           </div>
         </SortableContext>
-        {applications.length > 0 ? (
-          <Virtuoso
-            data={applications}
-            itemContent={renderItem}
-            components={{ List }}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-200 dark:border-zinc-800 m-4">
-            <p className="text-sm text-gray-500 dark:text-zinc-400">
-              Drop applicants here
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

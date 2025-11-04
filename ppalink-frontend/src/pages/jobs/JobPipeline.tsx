@@ -5,8 +5,9 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-  closestCenter,
   MeasuringStrategy,
+  // --- MODIFICATION: Import the new collision detection strategy ---
+  pointerWithin, 
 } from "@dnd-kit/core";
 import { SortableContext, rectSwappingStrategy } from "@dnd-kit/sortable";
 import { CheckSquare, Clock, Loader2, Square, X } from "lucide-react";
@@ -17,7 +18,7 @@ import { Button } from "../../components/ui/Button";
 import { ConfirmationModal } from "../../components/ui/Modal";
 import { useSocket } from "../../context/SocketContext";
 import useFetch from "../../hooks/useFetch";
-import type { Application } from "../../types/application";
+import type { Application, ApplicationStatus } from "../../types/application";
 import type { Position } from "../../types/job";
 import { CandidatePreviewPanel } from "./CandidatePreviewPanel";
 import { PipelineFilterPanel } from "./PipelineFilterPanel";
@@ -26,6 +27,9 @@ import { useJobPipeline } from "../../hooks/useJobPipeline";
 import { DraggableCard, StaticApplicantCard } from "./ApplicantCard";
 import { PipelineColumn } from "./PipelineColumn";
 import { PipelineToolbar } from "./PipelineToolbar";
+import { ScheduleInterviewFormModal, type InterviewFormValues } from "../applications/forms/ScheduleInterviewForm";
+import { CreateOfferFormModal, type OfferFormValues } from "../applications/forms/CreateOfferForm";
+import applicationService from "../../services/application.service";
 
 const JobPipelinePage = () => {
   const { agencyId, jobId } = useParams<{ agencyId: string; jobId: string }>();
@@ -34,7 +38,7 @@ const JobPipelinePage = () => {
     data: job,
     isLoading,
     error,
-  } = useFetch<Position>( // <-- FIXED: Removed 'refetch'
+  } = useFetch<Position>(
     agencyId && jobId ? `/agencies/${agencyId}/jobs/${jobId}/pipeline` : null
   );
 
@@ -62,6 +66,10 @@ const JobPipelinePage = () => {
     categorizedApps,
     focusedStageData,
     navigableApps,
+    interviewScheduleTarget, 
+    setInterviewScheduleTarget,
+    offerCreationTarget,
+    setOfferCreationTarget,
     handleCardClick,
     handleDragStart,
     handleDragEnd,
@@ -70,6 +78,7 @@ const JobPipelinePage = () => {
     handleApplyFilters,
     handleClearFilters,
     handleConfirmDelete,
+    commitStatusChanges,
     isDragging,
     setIsDragging,
     setActiveId,
@@ -80,6 +89,20 @@ const JobPipelinePage = () => {
     useState<Application | null>(null);
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const { socket } = useSocket();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 15,
+      },
+    })
+  );
 
   const handleInlineDelete = (applicationId: string) => {
     setDeleteTarget([applicationId]);
@@ -132,6 +155,55 @@ const JobPipelinePage = () => {
     }
   };
 
+  const handleScheduleInterviewSubmit = async (data: InterviewFormValues) => {
+    if (!interviewScheduleTarget) return;
+    const targetApp = interviewScheduleTarget;
+    
+    const schedulePromise = applicationService.scheduleInterview(
+      targetApp.id,
+      { ...data, scheduledAt: new Date(data.scheduledAt).toISOString() }
+    );
+  
+    await toast.promise(schedulePromise, {
+      loading: "Scheduling interview...",
+      success: "Interview scheduled and candidate notified!",
+      error: (err) => err.response?.data?.message || "Failed to schedule interview.",
+    });
+  
+    setInterviewScheduleTarget(null);
+  
+    if (targetApp.status !== 'INTERVIEW') {
+      const batch = [{ id: targetApp.id, from: targetApp.status, to: 'INTERVIEW' as ApplicationStatus }];
+      commitStatusChanges(batch);
+    }
+  };
+  
+  const handleCreateOfferSubmit = async (data: OfferFormValues) => {
+    if (!offerCreationTarget) return;
+    const targetApp = offerCreationTarget;
+  
+    const payload = {
+      ...data,
+      startDate: data.startDate
+        ? new Date(data.startDate).toISOString()
+        : undefined,
+    };
+  
+    const offerPromise = applicationService.createOffer(targetApp.id, payload);
+    await toast.promise(offerPromise, {
+      loading: "Sending offer...",
+      success: "Offer sent to candidate!",
+      error: (err) => err.response?.data?.message || "Failed to send offer.",
+    });
+  
+    setOfferCreationTarget(null);
+  
+    if (targetApp.status !== 'OFFER') {
+      const batch = [{ id: targetApp.id, from: targetApp.status, to: 'OFFER' as ApplicationStatus }];
+      commitStatusChanges(batch);
+    }
+  };
+
   const toggleAllInFocusedView = () => {
     if (!focusedStageData) return;
     const appIds = focusedStageData.applications.map((app) => app.id);
@@ -148,13 +220,14 @@ const JobPipelinePage = () => {
     });
   };
 
-  // Keyboard Navigation and Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         isFilterPanelOpen ||
         previewingApplication ||
         deleteTarget ||
+        interviewScheduleTarget ||
+        offerCreationTarget ||
         (e.target as HTMLElement).tagName === "INPUT"
       ) {
         return;
@@ -458,6 +531,8 @@ const JobPipelinePage = () => {
     setSelectionAnchor,
     setSelectedIds,
     setFocusedStage,
+    interviewScheduleTarget,
+    offerCreationTarget,
   ]);
 
   useLayoutEffect(() => {
@@ -468,15 +543,6 @@ const JobPipelinePage = () => {
       cardElement?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [focusedCardId]);
-
-  const sensors = useSensors(
-  useSensor(PointerSensor, {
-    activationConstraint: { distance: 4 },
-  }),
-  useSensor(TouchSensor, {
-    activationConstraint: { delay: 250, tolerance: 15 },
-  })
-);
 
   if (isLoading)
     return (
@@ -620,6 +686,16 @@ const JobPipelinePage = () => {
 
   return (
     <>
+      <ScheduleInterviewFormModal
+        isOpen={!!interviewScheduleTarget}
+        onClose={() => setInterviewScheduleTarget(null)}
+        onSubmit={handleScheduleInterviewSubmit}
+      />
+      <CreateOfferFormModal
+        isOpen={!!offerCreationTarget}
+        onClose={() => setOfferCreationTarget(null)}
+        onSubmit={handleCreateOfferSubmit}
+      />
       <ConfirmationModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -689,7 +765,8 @@ const JobPipelinePage = () => {
             setIsDragging(false);
             setActiveId(null);
           }}
-          collisionDetection={closestCenter}
+          // --- MODIFICATION: Change the collision detection strategy ---
+          collisionDetection={pointerWithin}
           measuring={
             isFilteredView || focusedStageData
               ? undefined

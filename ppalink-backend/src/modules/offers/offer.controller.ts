@@ -19,7 +19,8 @@ export async function createOfferHandler(req: AuthRequest, res: Response, next: 
         applicationId,
         agencyId: agency.id,
         salary,
-        startDate
+        startDate,
+        io: req.app.io
     });
 
     res.status(201).json({ success: true, data: offer });

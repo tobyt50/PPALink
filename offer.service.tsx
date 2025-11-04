@@ -5,8 +5,6 @@ import {
   PositionStatus,
   NotificationType,
 } from "@prisma/client";
-import sgMail from "@sendgrid/mail";
-import env from "../../config/env";
 import { createNotification } from "../notifications/notification.service";
 import type { Server } from "socket.io";
 import { onlineUsers } from "../../config/socket";
@@ -24,45 +22,43 @@ interface CreateOfferInput {
  * Also updates the application status to OFFER.
  */
 export async function createOffer(data: CreateOfferInput) {
-  const { applicationId, agencyId, salary, startDate, io } = data;
-  
-  const result = await prisma.$transaction(async (tx) => {
+  const { applicationId, agencyId, salary, startDate, io } = data;  // Include io
+  return prisma.$transaction(async (tx) => {
+    // Updated select to include position.id and status for emit
     const application = await tx.application.findFirst({
       where: { id: applicationId, position: { agencyId } },
       select: { 
         id: true, 
         candidateId: true,
-        position: { 
-          select: { 
-            id: true,
-            title: true,
-            agency: { select: { name: true } }
-          }
-        },
-        candidate: {
-          select: {
-            firstName: true,
-            user: { select: { email: true } }
-          }
-        },
-        status: true
+        position: { select: { id: true } },  // NEW: For emit
+        status: true  // For comparison
       },
     });
-
     if (!application)
-      throw new Error("Application not found or you do not have permission to modify it.");
-
+      throw new Error(
+        "Application not found or you do not have permission to modify it."
+      );
     const offer = await tx.offer.create({
-      data: { applicationId, salary, startDate: startDate ? new Date(startDate) : undefined },
+      data: {
+        applicationId,
+        salary,
+        startDate: startDate ? new Date(startDate) : undefined,
+      },
     });
-
+    // Updated to select for emit
     const updatedApplication = await tx.application.update({
       where: { id: applicationId },
       data: { status: ApplicationStatus.OFFER },
-      select: { id: true, status: true, positionId: true, candidateId: true }
+      select: {
+        id: true,
+        status: true,
+        positionId: true,
+        candidateId: true
+      }
     });
     
-    if (io) {
+    // NEW: Emit socket update to agency members
+    if (io) {  // Only if io is provided
       const agencyMembers = await tx.agencyMember.findMany({
         where: { agencyId },
         select: { userId: true },
@@ -78,42 +74,11 @@ export async function createOffer(data: CreateOfferInput) {
       }
     }
 
-    return { offer, application };
+    // (Future) Notify candidate about the offer
+    // await createNotification(...)
+    return offer;
   });
-
-  const { offer, application } = result;
-  if (application.candidate?.user?.email) {
-    const { firstName } = application.candidate;
-    const { title: positionTitle } = application.position;
-    const { name: agencyName } = application.position.agency;
-    const applicationLink = `${env.FRONTEND_URL}/dashboard/candidate/applications/${application.id}/status`;
-
-    const msg = {
-      to: application.candidate.user.email,
-      from: env.SMTP_FROM_EMAIL!,
-      subject: `Congratulations! You've Received a Job Offer from ${agencyName}`,
-      html: `
-        <p>Dear ${firstName},</p>
-        <p>We are thrilled to extend an offer of employment for the <strong>${positionTitle}</strong> position at <strong>${agencyName}</strong>!</p>
-        <p>Your skills and experience greatly impressed our team during the interview process, and we are confident that you will be a valuable asset to our team.</p>
-        <p>To view the full details of your offer, including salary and start date, and to formally accept or decline, please visit your applicant dashboard:</p>
-        <a href="${applicationLink}" style="font-size: 16px; font-weight: bold; padding: 10px 20px; background-color: #22c55e; color: white; text-decoration: none; border-radius: 5px;">View Your Offer</a>
-        <p>We are very excited about the possibility of you joining our team and look forward to your response.</p>
-        <p>Congratulations once again!</p>
-      `,
-    };
-
-    try {
-      await sgMail.send(msg);
-      console.log(`Job offer email sent to ${application.candidate.user.email}`);
-    } catch (error: any) {
-      console.error("Error sending job offer email:", error.response?.body);
-    }
-  }
-
-  return offer;
 }
-
 
 /**
  * Allows a candidate to respond to a job offer (ACCEPT or DECLINE).

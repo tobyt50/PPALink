@@ -32,6 +32,8 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
   const [deleteTarget, setDeleteTarget] = useState<string[] | null>(null);
   const [undoStack, setUndoStack] = useState<Batch[]>([]);
   const [redoStack, setRedoStack] = useState<Batch[]>([]);
+  const [interviewScheduleTarget, setInterviewScheduleTarget] = useState<Application | null>(null);
+  const [offerCreationTarget, setOfferCreationTarget] = useState<Application | null>(null);
 
   useEffect(() => {
     if (job?.applications) setApplications(job.applications);
@@ -59,14 +61,10 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
   const categorizedApps = useMemo(() => {
     const initial: Record<ApplicationStatus, Application[]> = { APPLIED: [], REVIEWING: [], INTERVIEW: [], OFFER: [], HIRED: [], REJECTED: [], WITHDRAWN: [] };
     
-    // Use the raw, unsorted applications list as the base for sorting
     const sourceList = isFilteredView ? queryResults! : applications;
     
-    // Sort the source list by matchScore in descending order.
-    // Applications without a score are treated as 0 and placed at the bottom.
     const sortedSource = [...sourceList].sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
     
-    // Reduce the sorted list into categorized columns.
     return sortedSource.reduce((acc, app) => {
       if (acc[app.status]) {
         acc[app.status].push(app);
@@ -144,37 +142,16 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    setIsDragging(false);
-    setActiveId(null);
-    const { active, over } = event;
-    if (!over || !active.id) return;
-    const destinationContainerId = over.id as ApplicationStatus;
-    const idsToMove = Array.from(
-      selectedIds.size > 0 ? selectedIds : [String(active.id)]
-    );
-    const sourceApps = idsToMove
-      .map((id) => applications.find((app) => app.id === id))
-      .filter((app): app is Application => !!app);
-    const batch: StatusChange[] = sourceApps
-      .filter((app) => app.status !== destinationContainerId)
-      .map((app) => ({
-        id: app.id,
-        from: app.status,
-        to: destinationContainerId,
-      }));
+  const commitStatusChanges = (batch: Batch) => {
     if (batch.length === 0) return;
 
     setUndoStack((prev) => [...prev, batch]);
     setRedoStack([]);
 
-    const updateFunction = (prev: Application[]) => {
-      const restOfApps = prev.filter((app) => !idsToMove.includes(app.id));
-      const movedApps = prev
-        .filter((app) => idsToMove.includes(app.id))
-        .map((app) => ({ ...app, status: destinationContainerId }));
-      return [...restOfApps, ...movedApps];
-    };
+    const statusMap = new Map(batch.map(change => [change.id, change.to]));
+    
+    const updateFunction = (prev: Application[]) => 
+      prev.map(app => statusMap.has(app.id) ? { ...app, status: statusMap.get(app.id)! } : app);
 
     if (isFilteredView) {
       setQueryResults(null);
@@ -183,16 +160,58 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
     setFocusedStage(null);
     setApplications(updateFunction);
 
-    const updatePromises = idsToMove.map((id) =>
-      applicationService.updateApplicationStatus(id, destinationContainerId)
+    const updatePromises = batch.map(change =>
+      applicationService.updateApplicationStatus(change.id, change.to)
     );
     toast.promise(Promise.all(updatePromises), {
-      loading: `Moving ${idsToMove.length} candidate(s)...`,
+      loading: `Moving ${batch.length} candidate(s)...`,
       success: "Status updated successfully!",
       error: (err) => {
         return err.response?.data?.message || "Failed to update status.";
       },
     });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setIsDragging(false);
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over || !active.id) return;
+    
+    const activeApp = applications.find(app => app.id === active.id);
+    if (!activeApp) return;
+
+    const destinationContainerId = over.id as ApplicationStatus;
+
+    if (destinationContainerId === 'INTERVIEW') {
+      setInterviewScheduleTarget(activeApp);
+      return;
+    }
+
+    if (destinationContainerId === 'OFFER') {
+      setOfferCreationTarget(activeApp);
+      return;
+    }
+
+    const idsToMove = Array.from(
+      selectedIds.size > 0 ? selectedIds : [String(active.id)]
+    );
+    const sourceApps = idsToMove
+      .map((id) => applications.find((app) => app.id === id))
+      .filter((app): app is Application => !!app);
+      
+    const batch: StatusChange[] = sourceApps
+      .filter((app) => app.status !== destinationContainerId)
+      .map((app) => ({
+        id: app.id,
+        from: app.status,
+        to: destinationContainerId,
+      }));
+
+    if (batch.length > 0) {
+      commitStatusChanges(batch);
+    }
+    
     setSelectedIds(new Set());
     setLastSelectedId(null);
   };
@@ -348,6 +367,10 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
     categorizedApps,
     focusedStageData,
     navigableApps,
+    interviewScheduleTarget, 
+    setInterviewScheduleTarget,
+    offerCreationTarget,
+    setOfferCreationTarget,
     handleCardClick,
     handleDragStart,
     handleDragEnd,
@@ -356,5 +379,6 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
     handleApplyFilters,
     handleClearFilters,
     handleConfirmDelete,
+    commitStatusChanges,
   };
 };

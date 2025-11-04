@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Tag,
   Gift,
+  XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -30,6 +31,7 @@ import {
   type OfferFormValues,
 } from "./forms/CreateOfferForm";
 import { Avatar } from "../../components/ui/Avatar";
+import { ConfirmationModal } from "../../components/ui/Modal";
 
 const CandidateProfileSnapshot = ({
   candidate,
@@ -119,8 +121,8 @@ const ApplicationDetailsPage = () => {
   );
 
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
-
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const handleCreateOffer = async (data: OfferFormValues) => {
     if (!applicationId) return;
@@ -226,6 +228,27 @@ const ApplicationDetailsPage = () => {
     setIsInterviewModalOpen(false);
   };
 
+  const handleRejectApplication = async () => {
+    if (!applicationId) return;
+
+    const rejectPromise = applicationService.updateApplicationStatus(
+      applicationId,
+      "REJECTED"
+    );
+
+    await toast.promise(rejectPromise, {
+      loading: "Rejecting application...",
+      success: () => {
+        refetch();
+        return "Application rejected.";
+      },
+      error: (err) =>
+        err.response?.data?.message || "Failed to reject application.",
+    });
+
+    setIsRejectModalOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-80 items-center justify-center">
@@ -255,17 +278,31 @@ const ApplicationDetailsPage = () => {
         onClose={() => setIsOfferModalOpen(false)}
         onSubmit={handleCreateOffer}
       />
+      <ConfirmationModal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        onConfirm={handleRejectApplication}
+        title="Reject Application"
+        description="Are you sure you want to reject this candidate? The candidate will be notified of this decision."
+        confirmButtonText="Yes, Reject Candidate"
+        isDestructive={true}
+      />
       <div className="space-y-5">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
               {candidate.firstName} {candidate.lastName}
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-zinc-300">
+            <p className="mt-2 text-sm text-gray-600 dark:text-zinc-300">
               Application for{" "}
+              <Link
+            to={`/dashboard/agency/${position.agencyId}/jobs/${position.id}`}
+            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-zinc-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+          >
               <span className="font-semibold text-gray-800 dark:text-zinc-100">
                 {position.title}
               </span>
+              </Link>
             </p>
           </div>
           <Link
@@ -315,6 +352,15 @@ const ApplicationDetailsPage = () => {
                     <Gift className="mr-2 h-4 w-4" />
                     Extend Offer
                   </Button>
+                  <Button
+  onClick={() => setIsRejectModalOpen(true)}
+  className="w-full !text-red-600 dark:!text-red-400 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-900/20 hover:!text-red-700 dark:hover:!text-red-300"
+  variant="outline"
+>
+  <XCircle className="mr-2 h-4 w-4" />
+  Reject Candidate
+</Button>
+
                 </div>
               </div>
             </div>

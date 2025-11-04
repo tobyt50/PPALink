@@ -166,8 +166,7 @@ export async function getApplicationDetailsHandler(
 
     const applicationDetails = await getApplicationDetails(
       applicationId,
-      agency.id,
-      req.app.io
+      agency.id
     );
 
     return res.status(200).json({ success: true, data: applicationDetails });

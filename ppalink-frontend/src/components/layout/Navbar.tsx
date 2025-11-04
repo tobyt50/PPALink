@@ -216,7 +216,7 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={`w-full z-40 md:border-b border-gray-100 dark:border-zinc-800 bg-surface/95 backdrop-blur-sm ${isDesktop ? 'sticky top-0' : ''}`}
+      className={`w-full z-40 md:border-b border-gray-100 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-sm ${isDesktop ? 'sticky top-0' : ''}`}
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}

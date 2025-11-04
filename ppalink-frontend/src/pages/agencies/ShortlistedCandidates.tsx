@@ -19,7 +19,7 @@ const ShortlistedCandidatesPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 w-full">
         <h1 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 dark:from-primary-500 to-green-500 dark:to-green-400 bg-clip-text text-transparent">
-          Shortlisted
+          Shortlist
         </h1>
         <Link to="/dashboard/agency/candidates/browse">
           <Button
