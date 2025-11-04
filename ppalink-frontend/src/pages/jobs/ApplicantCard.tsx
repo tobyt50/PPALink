@@ -140,14 +140,9 @@ export const StaticApplicantCard = ({
           e.stopPropagation();
           onSelectToggle(e);
         }}
-        // --- MODIFICATION: This is the new, robust CSS-based logic ---
         className={`absolute top-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md bg-white/60 backdrop-blur-sm cursor-pointer transition-opacity dark:bg-zinc-800/50 ${
           isSelected
-            ? 'opacity-100' // ALWAYS show if selected
-            // If NOT selected:
-            // - By default (on touch devices), show it.
-            // - On devices that can hover (desktop), HIDE it by default...
-            // - ...and only SHOW it when the parent 'group' is hovered.
+            ? 'opacity-100'
             : 'opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100'
         }`}
       >
@@ -260,6 +255,10 @@ export const DraggableCard = ({
   onDelete: (applicationId: string) => void;
 }) => {
   const isTouchDevice = useIsTouchDevice();
+
+  // --- MODIFICATION: Create a single, clear boolean to define draggability ---
+  const isDraggable = !isTouchDevice || isSelected;
+
   const {
     attributes,
     listeners,
@@ -267,23 +266,24 @@ export const DraggableCard = ({
     transform,
     transition,
     isDragging: isItemDragging,
-  } = useSortable({ id: app.id });
+    // Use the `disabled` flag for clarity and to let dnd-kit optimize
+  } = useSortable({ id: app.id, disabled: !isDraggable });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isItemDragging ? 0.4 : 1,
   };
-  
-  const dragListeners = !isTouchDevice || isSelected ? listeners : undefined;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...dragListeners}
-      className="cursor-pointer touch-none"
+      // Only attach listeners if draggable
+      {...(isDraggable ? listeners : {})}
+      // --- MODIFICATION: The className is now conditional ---
+      className={isDraggable ? 'cursor-grab touch-none' : 'cursor-pointer'}
       data-application-id={app.id}
       onClick={(e) => {
         if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {

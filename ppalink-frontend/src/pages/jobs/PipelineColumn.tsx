@@ -100,7 +100,7 @@ export const PipelineColumn = ({
           items={applicationIds}
           strategy={verticalListSortingStrategy}
         >
-          <div className="p-4 space-y-3">
+          <div className="px-4 pt-1 space-y-3">
             {applications.length > 0 ? (
               applications.map((app) => (
                 <DraggableCard

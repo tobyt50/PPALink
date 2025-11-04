@@ -205,7 +205,7 @@ const DiscoveryFeed = () => {
       {/* Swipeable Feed Panels */}
       <div
         ref={feedContainerRef}
-        className="flex h-[600px] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
         onScroll={handleFeedScroll}
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
@@ -247,7 +247,6 @@ const DiscoveryFeed = () => {
                       </div>
                     ))}
                   </div>
-                  {/* Gradient fade overlay + See More */}
                   <div
                     className="absolute bottom-0 left-0 w-full h-36 flex flex-col items-center justify-end
                                   bg-gradient-to-t from-white dark:from-zinc-900 via-white/90 dark:via-zinc-900/90 to-transparent z-10"

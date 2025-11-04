@@ -141,35 +141,48 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
       setLastSelectedId(String(event.active.id));
     }
   };
-
-  const commitStatusChanges = (batch: Batch) => {
+  
+  const commitStatusChanges = async (batch: Batch) => {
     if (batch.length === 0) return;
+
+    const originalApplications = applications;
+
+    const statusMap = new Map(batch.map(change => [change.id, change.to]));
+    const updatedApplications = originalApplications.map(app =>
+        statusMap.has(app.id) ? { ...app, status: statusMap.get(app.id)! } : app
+    );
+    setApplications(updatedApplications);
 
     setUndoStack((prev) => [...prev, batch]);
     setRedoStack([]);
 
-    const statusMap = new Map(batch.map(change => [change.id, change.to]));
-    
-    const updateFunction = (prev: Application[]) => 
-      prev.map(app => statusMap.has(app.id) ? { ...app, status: statusMap.get(app.id)! } : app);
+    try {
+      const updatePromises = batch.map(change =>
+        applicationService.updateApplicationStatus(change.id, change.to)
+      );
 
-    if (isFilteredView) {
-      setQueryResults(null);
-      setAppliedFilters({});
+      await toast.promise(Promise.all(updatePromises), {
+        loading: `Moving ${batch.length} candidate(s)...`,
+        success: "Status updated successfully!",
+        error: (err) => err.response?.data?.message || "Failed to update status.",
+      });
+
+      if (isFilteredView) {
+        setQueryResults(null);
+        setAppliedFilters({});
+      }
+      setFocusedStage(null);
+
+    } catch (error) {
+      setApplications(originalApplications);
+
+      setUndoStack((prev) => prev.slice(0, -1));
+
+      console.error("Failed to update application status:", error);
+    } finally {
+        setSelectedIds(new Set());
+        setLastSelectedId(null);
     }
-    setFocusedStage(null);
-    setApplications(updateFunction);
-
-    const updatePromises = batch.map(change =>
-      applicationService.updateApplicationStatus(change.id, change.to)
-    );
-    toast.promise(Promise.all(updatePromises), {
-      loading: `Moving ${batch.length} candidate(s)...`,
-      success: "Status updated successfully!",
-      error: (err) => {
-        return err.response?.data?.message || "Failed to update status.";
-      },
-    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -210,10 +223,10 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
 
     if (batch.length > 0) {
       commitStatusChanges(batch);
+    } else {
+        setSelectedIds(new Set());
+        setLastSelectedId(null);
     }
-    
-    setSelectedIds(new Set());
-    setLastSelectedId(null);
   };
 
   const applyBatch = (batch: Batch, isUndo: boolean) => {
@@ -333,7 +346,6 @@ export const useJobPipeline = (job: Position, agencyId: string) => {
       setSelectedIds(new Set());
       setLastSelectedId(null);
     } catch (e) {
-      // Error is handled by toast.promise
     } finally {
       setDeleteTarget(null);
     }

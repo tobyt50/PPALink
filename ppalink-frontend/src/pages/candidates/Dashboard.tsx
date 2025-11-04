@@ -333,7 +333,7 @@ const DiscoveryFeed = () => {
       {/* Swipeable Feed Panels */}
       <div
         ref={feedContainerRef}
-        className="flex h-[600px] overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth no-scrollbar"
         onScroll={handleFeedScroll}
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
