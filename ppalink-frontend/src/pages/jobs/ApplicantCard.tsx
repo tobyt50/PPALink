@@ -264,7 +264,7 @@ export const DraggableCard = ({
     setNodeRef,
     transform,
     transition,
-    isDragging: isItemDragging,
+    isDragging: isItemDragging, // <-- We get the dragging state here
   } = useSortable({ id: app.id });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -273,13 +273,15 @@ export const DraggableCard = ({
   };
 
   return (
-    // --- MODIFICATION: Removed `touch-none` and added `select-none` ---
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-pointer select-none" // `touch-none` is removed, `select-none` is added
+      // --- THE FINAL FIX: Conditionally apply `touch-none` only DURING a drag ---
+      className={`cursor-pointer select-none ${
+        isItemDragging ? "touch-none" : ""
+      }`}
       data-application-id={app.id}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey || e.shiftKey) {
