@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Award,
   BadgeCheck,
@@ -25,17 +25,23 @@ export const StaticApplicantCard = ({
   onSelectToggle,
   isFocused,
   onDelete,
+  onPreview,
 }: {
   application: Application;
   isSelected: boolean;
   onSelectToggle: (e: React.MouseEvent) => void;
   isFocused: boolean;
   onDelete: (applicationId: string) => void;
+  onPreview: (application: Application) => void;
 }) => {
   const { candidate } = application;
   const navigate = useNavigate();
+  const isTouchDevice = useIsTouchDevice();
   const { shortlistedIds, addShortlistId, removeShortlistId } =
     useShortlistStore();
+  
+  const [isActivated, setIsActivated] = useState(false);
+
   const isShortlisted = useMemo(
     () => shortlistedIds.includes(candidate.id),
     [shortlistedIds, candidate.id]
@@ -127,6 +133,11 @@ export const StaticApplicantCard = ({
   };
   return (
     <div
+      onClick={() => {
+        if (isTouchDevice) {
+          setIsActivated(prev => !prev);
+        }
+      }}
       className={`group relative flex flex-col rounded-xl bg-white p-4 shadow-sm ring-1 transition-all duration-200 dark:bg-zinc-900 dark:shadow-none ${
         isSelected
           ? "ring-2 ring-primary-500"
@@ -141,9 +152,9 @@ export const StaticApplicantCard = ({
           onSelectToggle(e);
         }}
         className={`absolute top-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md bg-white/60 backdrop-blur-sm cursor-pointer transition-opacity dark:bg-zinc-800/50 ${
-          isSelected
-            ? 'opacity-100'
-            : 'opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100'
+          isSelected || (isTouchDevice && isActivated)
+            ? "opacity-100"
+            : "opacity-0 group-hover:opacity-100"
         }`}
       >
         {isSelected ? (
@@ -153,7 +164,13 @@ export const StaticApplicantCard = ({
         )}
       </div>
       <div className="flex flex-col">
-        <div className="flex items-start">
+        <div 
+          className="flex items-start"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPreview(application);
+          }}
+        >
           <Avatar candidate={candidate} size="md" />
           <div className="ml-3 min-w-0 flex-1">
             <p className="font-semibold text-sm text-gray-800 transition-all dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal break-words">
@@ -207,7 +224,11 @@ export const StaticApplicantCard = ({
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-3 opacity-0 max-h-0 overflow-hidden transition-all duration-200 group-hover:mt-4 group-hover:opacity-100 group-hover:max-h-16">
+      <div className={`mt-4 flex items-center justify-center gap-3 transition-all duration-200 ${
+        (isTouchDevice && isActivated)
+          ? "opacity-100 max-h-16"
+          : "opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-16"
+      }`}>
         <button
           onClick={handleMessage}
           className="rounded-full bg-white/50 p-1.5 backdrop-blur-sm hover:bg-gray-200 dark:bg-zinc-800/50 dark:hover:bg-zinc-700"
@@ -255,8 +276,6 @@ export const DraggableCard = ({
   onDelete: (applicationId: string) => void;
 }) => {
   const isTouchDevice = useIsTouchDevice();
-
-  // --- MODIFICATION: Create a single, clear boolean to define draggability ---
   const isDraggable = !isTouchDevice || isSelected;
 
   const {
@@ -266,7 +285,6 @@ export const DraggableCard = ({
     transform,
     transition,
     isDragging: isItemDragging,
-    // Use the `disabled` flag for clarity and to let dnd-kit optimize
   } = useSortable({ id: app.id, disabled: !isDraggable });
 
   const style: React.CSSProperties = {
@@ -280,16 +298,9 @@ export const DraggableCard = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      // Only attach listeners if draggable
       {...(isDraggable ? listeners : {})}
-      // --- MODIFICATION: The className is now conditional ---
       className={isDraggable ? 'cursor-grab touch-none' : 'cursor-pointer'}
       data-application-id={app.id}
-      onClick={(e) => {
-        if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
-          onPreview(app);
-        }
-      }}
     >
       <StaticApplicantCard
         application={app}
@@ -297,6 +308,7 @@ export const DraggableCard = ({
         onSelectToggle={onCardClick}
         isFocused={isFocused}
         onDelete={onDelete}
+        onPreview={onPreview}
       />
       {isFilteredView && (
         <div className="text-xs text-center text-gray-500 mt-1">

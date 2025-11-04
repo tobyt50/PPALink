@@ -1,4 +1,4 @@
-import { ChevronDown, Filter, Search, X } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, Search, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { Button } from "../../components/ui/Button";
@@ -90,7 +90,7 @@ export const PipelineFilterPanel = ({
           >
             <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center">
-                <Filter className="mr-2 h-5 w-5" />
+                <SlidersHorizontal className="mr-2 h-5 w-5" />
                 Filter & Search Pipeline
               </h2>
               <button

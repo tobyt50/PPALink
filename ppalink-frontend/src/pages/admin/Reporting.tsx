@@ -4,7 +4,6 @@ import {
   BarChart3,
   Briefcase,
   Download,
-  Filter,
   PieChart,
   ShoppingBag,
   Users,
@@ -169,7 +168,7 @@ const ReportingPage = () => {
                 : inactiveTabStyle
             }`}
           >
-            <Filter className="mr-2 h-5 w-5" />
+            <SlidersHorizontal className="mr-2 h-5 w-5" />
             Application Funnel
           </button>
           <button

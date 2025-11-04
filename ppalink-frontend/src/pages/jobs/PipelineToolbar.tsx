@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import {
   ChevronLeft,
   Download,
-  Filter,
   Undo,
   Redo,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
@@ -49,7 +49,7 @@ export const PipelineToolbar = ({
           Export
         </Button>
         <Button variant="outline" onClick={onFilter}>
-          <Filter className="h-4 w-4 mr-2" /> Filters
+          <SlidersHorizontal className="h-4 w-4 mr-2" /> Filters
         </Button>
         {canUndo && (
           <Button variant="ghost" size="icon" onClick={onUndo}>

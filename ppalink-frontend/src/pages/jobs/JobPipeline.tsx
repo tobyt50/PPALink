@@ -108,6 +108,10 @@ const JobPipelinePage = () => {
     setDeleteTarget([applicationId]);
   };
 
+  const handlePreviewClick = (app: Application) => {
+    setPreviewingApplication(app);
+  };
+
   useEffect(() => {
     if (!socket) return;
     const handlePipelineUpdate = (data: {
@@ -134,10 +138,6 @@ const JobPipelinePage = () => {
       socket.off("pipeline:application_updated", handlePipelineUpdate);
     };
   }, [socket, jobId, setApplications]);
-
-  const handlePreviewClick = (app: Application) => {
-    setPreviewingApplication(app);
-  };
 
   const handleExport = async () => {
     if (!job || !applications || applications.length === 0) {
@@ -781,6 +781,7 @@ const JobPipelinePage = () => {
                   onSelectToggle={() => {}}
                   isFocused={false}
                   onDelete={handleInlineDelete}
+                  onPreview={() => {}} 
                 />
                 {selectedIds.size > 1 && (
                   <div className="absolute -top-2 -left-2 bg-primary-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center ring-2 ring-white dark:ring-zinc-900">

@@ -462,7 +462,7 @@ export async function queryApplicantsInPipeline(
 
   const where: Prisma.ApplicationWhereInput = {
     positionId: jobId,
-    AND: [], // Use an AND array to stack multiple conditions
+    AND: [],
   };
 
   if (q) {
@@ -509,10 +509,8 @@ export async function queryApplicantsInPipeline(
     });
   }
 
-  // 5. Execute the final, dynamically constructed query
   return prisma.application.findMany({
     where,
-    // We must include the same detailed data as the main pipeline fetch
     include: {
       candidate: {
         select: {
@@ -526,7 +524,7 @@ export async function queryApplicantsInPipeline(
             where: { passed: true },
             include: { skill: true },
           },
-          user: { select: { id: true, email: true } },
+          user: { select: { id: true, email: true, avatarKey: true, } },
         },
       },
     },

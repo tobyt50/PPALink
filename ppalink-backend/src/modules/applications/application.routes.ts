@@ -14,29 +14,20 @@ import { createOfferHandler, respondToOfferHandler } from '../offers/offer.contr
 
 const router = Router();
 
-// --- THIS IS THE DEFINITIVE FIX ---
-// The route definition now PERFECTLY matches the URL the frontend is calling.
-// The `:applicationId` parameter comes FIRST, followed by the static `/candidate` segment.
-// This is the most specific route and must be defined before the generic `/:applicationId`.
-
 router.get(
-  '/:applicationId/candidate', // CORRECTED ROUTE
+  '/:applicationId/candidate',
   authenticate,
   requireRole([Role.CANDIDATE]),
   getApplicationForCandidateHandler
 );
 
-// --- Candidate Offer Response Route ---
-// This also needs to be specific.
 router.post(
-  '/offers/:offerId/respond', // We can adjust the frontend to call this if needed
+  '/offers/:offerId/respond',
   authenticate,
   requireRole([Role.CANDIDATE]),
   respondToOfferHandler
 );
 
-
-// --- Agency Routes ---
 router.post(
   '/',
   authenticate,
@@ -58,7 +49,6 @@ router.post(
   createOfferHandler
 );
 
-// --- Generic Agency Routes with :applicationId (Defined LAST) ---
 router.get(
   '/:applicationId',
   authenticate,
@@ -79,6 +69,5 @@ router.delete(
   requireRole([Role.AGENCY]),
   deleteApplicationHandler
 );
-// --- END OF FIX ---
 
 export default router;
