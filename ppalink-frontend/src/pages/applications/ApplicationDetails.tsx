@@ -337,30 +337,35 @@ const ApplicationDetailsPage = () => {
                   value={new Date(application.createdAt).toLocaleDateString()}
                 />
                 <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 space-y-3">
-                  <Button
-                    onClick={() => setIsInterviewModalOpen(true)}
-                    className="w-full"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Schedule Interview
-                  </Button>
-                  <Button
-                    onClick={() => setIsOfferModalOpen(true)}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    <Gift className="mr-2 h-4 w-4" />
-                    Extend Offer
-                  </Button>
-                  <Button
-  onClick={() => setIsRejectModalOpen(true)}
-  className="w-full !text-red-600 dark:!text-red-400 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-900/20 hover:!text-red-700 dark:hover:!text-red-300"
-  variant="outline"
->
-  <XCircle className="mr-2 h-4 w-4" />
-  Reject Candidate
-</Button>
-
+                  {application.status !== "INTERVIEW" && (
+                    <Button
+                      onClick={() => setIsInterviewModalOpen(true)}
+                      className="w-full"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Schedule Interview
+                    </Button>
+                  )}
+                  {application.status !== "OFFER" && (
+                    <Button
+                      onClick={() => setIsOfferModalOpen(true)}
+                      className="w-full"
+                      variant="outline"
+                    >
+                      <Gift className="mr-2 h-4 w-4" />
+                      Extend Offer
+                    </Button>
+                  )}
+                  {application.status !== "REJECTED" && (
+                    <Button
+                      onClick={() => setIsRejectModalOpen(true)}
+                      className="w-full !text-red-600 dark:!text-red-400 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-900/20 hover:!text-red-700 dark:hover:!text-red-300"
+                      variant="outline"
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Reject Candidate
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

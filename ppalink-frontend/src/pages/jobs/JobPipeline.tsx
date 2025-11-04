@@ -657,13 +657,13 @@ const JobPipelinePage = () => {
         className={`pt-2 transition-all duration-300 ease-in-out ${
           isDragging
             ? "flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-5 md:scale-95 md:gap-2"
-            : "flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-6 md:overflow-visible md:pb-0"
+            : "flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory px-4 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 md:gap-6 md:overflow-visible md:pb-0"
         }`}
       >
         {pipelineColumns.map((col) => (
           <div
             key={col.status}
-            className="flex-shrink-0 w-80 md:w-auto"
+            className="flex-shrink-0 w-[100%] snap-start md:w-auto"
           >
             <PipelineColumn
               title={col.title}

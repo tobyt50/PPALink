@@ -135,7 +135,11 @@ export const StaticApplicantCard = ({
     <div
       onClick={() => {
         if (isTouchDevice) {
+          // On mobile, a click on the card background toggles activation
           setIsActivated(prev => !prev);
+        } else {
+          // On desktop, a click on the card background opens the preview
+          onPreview(application);
         }
       }}
       className={`group relative flex flex-col rounded-xl bg-white p-4 shadow-sm ring-1 transition-all duration-200 dark:bg-zinc-900 dark:shadow-none ${
@@ -148,7 +152,7 @@ export const StaticApplicantCard = ({
     >
       <div
         onClick={(e) => {
-          e.stopPropagation();
+          e.stopPropagation(); // Stop propagation to prevent card's main onClick
           onSelectToggle(e);
         }}
         className={`absolute top-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md bg-white/60 backdrop-blur-sm cursor-pointer transition-opacity dark:bg-zinc-800/50 ${
@@ -164,28 +168,34 @@ export const StaticApplicantCard = ({
         )}
       </div>
       <div className="flex flex-col">
-        <div 
-          className="flex items-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            onPreview(application);
-          }}
-        >
-          <Avatar candidate={candidate} size="md" />
-          <div className="ml-3 min-w-0 flex-1">
-            <p className="font-semibold text-sm text-gray-800 transition-all dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:whitespace-normal break-words">
-              {candidate.firstName} {candidate.lastName}
-            </p>
-            {application.matchScore != null && (
-              <div className="mt-1 flex items-center">
-                <span className="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/50 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:text-orange-300">
-                  <Flame className="h-3 w-3 mr-1" />
-                  {application.matchScore}% Match
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="flex items-start">
+  {/* Avatar + name + match score: precise tap target */}
+  <div
+    className="flex items-start cursor-pointer"
+    onClick={(e) => {
+      e.stopPropagation();
+      onPreview(application);
+    }}
+  >
+    <Avatar candidate={candidate} size="md" />
+    <div className="ml-3 min-w-0 flex-1">
+      <p className="font-semibold text-sm text-gray-800 transition-all dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 break-words">
+        {candidate.firstName} {candidate.lastName}
+      </p>
+
+      {/* Move match score BELOW the name */}
+      {application.matchScore != null && (
+        <div className="mt-1 flex items-center">
+          <span className="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/50 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:text-orange-300">
+            <Flame className="h-3 w-3 mr-1" />
+            {application.matchScore}% Match
+          </span>
         </div>
+      )}
+    </div>
+  </div>
+</div>
+
         <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-zinc-400">
           <BadgeCheck className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
           <span>{candidate.verificationLevel.replace("_", " ")}</span>
