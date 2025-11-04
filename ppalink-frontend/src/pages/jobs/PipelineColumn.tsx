@@ -55,9 +55,9 @@ export const PipelineColumn = ({
   };
 
   return (
-    // --- MODIFICATION: Added `select-none` to the root element ---
     <div
       data-status={status}
+      // --- MODIFICATION: Disable text selection for a cleaner interaction ---
       className={`select-none rounded-2xl bg-gray-100 dark:bg-zinc-800 shadow-md dark:shadow-none dark:ring-1 dark:ring-white/10 ring-1 ring-gray-100 w-full flex flex-col h-[650px] overflow-hidden transition-all duration-200 ${
         isOver ? "scale-[1.05] ring-2 ring-primary-500 z-10" : ""
       }`}

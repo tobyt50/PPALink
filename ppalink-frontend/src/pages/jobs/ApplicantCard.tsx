@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Award,
   BadgeCheck,
@@ -17,6 +17,7 @@ import { useShortlistStore } from "../../context/ShortlistStore";
 import agencyService from "../../services/agency.service";
 import type { Application } from "../../types/application";
 import { Avatar } from '../../components/ui/Avatar';
+import { useIsTouchDevice } from "../../hooks/useIsTouchDevice";
 
 export const StaticApplicantCard = ({
   application,
@@ -39,7 +40,6 @@ export const StaticApplicantCard = ({
     () => shortlistedIds.includes(candidate.id),
     [shortlistedIds, candidate.id]
   );
-  const [showCheckbox, setShowCheckbox] = useState(false);
 
   const topSkills = useMemo(() => {
     const selfReportedSkills = candidate.skills || [];
@@ -83,12 +83,6 @@ export const StaticApplicantCard = ({
     return combinedSkills.slice(0, 2);
   }, [candidate.skills, candidate.quizAttempts]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const pressTimer = setTimeout(() => setShowCheckbox(true), 500);
-    const clear = () => clearTimeout(pressTimer);
-    e.currentTarget.addEventListener("touchend", clear, { once: true });
-    e.currentTarget.addEventListener("touchmove", clear, { once: true });
-  };
   const handleMessage = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -133,7 +127,6 @@ export const StaticApplicantCard = ({
   };
   return (
     <div
-      onTouchStart={handleTouchStart}
       className={`group relative flex flex-col rounded-xl bg-white p-4 shadow-sm ring-1 transition-all duration-200 dark:bg-zinc-900 dark:shadow-none ${
         isSelected
           ? "ring-2 ring-primary-500"
@@ -143,12 +136,20 @@ export const StaticApplicantCard = ({
       }`}
     >
       <div
-        onClick={onSelectToggle}
-        className={`absolute top-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md bg-white/60 backdrop-blur-sm cursor-pointer transition-opacity ${
-          isSelected || showCheckbox
-            ? "opacity-100"
-            : "opacity-0 group-hover:opacity-100"
-        } dark:bg-zinc-800/50`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectToggle(e);
+        }}
+        // --- MODIFICATION: This is the new, robust CSS-based logic ---
+        className={`absolute top-2 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-md bg-white/60 backdrop-blur-sm cursor-pointer transition-opacity dark:bg-zinc-800/50 ${
+          isSelected
+            ? 'opacity-100' // ALWAYS show if selected
+            // If NOT selected:
+            // - By default (on touch devices), show it.
+            // - On devices that can hover (desktop), HIDE it by default...
+            // - ...and only SHOW it when the parent 'group' is hovered.
+            : 'opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100'
+        }`}
       >
         {isSelected ? (
           <CheckSquare className="h-5 w-5 text-primary-600" />
@@ -258,36 +259,34 @@ export const DraggableCard = ({
   isFilteredView: boolean;
   onDelete: (applicationId: string) => void;
 }) => {
+  const isTouchDevice = useIsTouchDevice();
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging: isItemDragging, // <-- We get the dragging state here
+    isDragging: isItemDragging,
   } = useSortable({ id: app.id });
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isItemDragging ? 0.4 : 1,
   };
+  
+  const dragListeners = !isTouchDevice || isSelected ? listeners : undefined;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      // --- THE FINAL FIX: Conditionally apply `touch-none` only DURING a drag ---
-      className={`cursor-pointer select-none ${
-        isItemDragging ? "touch-none" : ""
-      }`}
+      {...dragListeners}
+      className="cursor-pointer touch-none"
       data-application-id={app.id}
       onClick={(e) => {
-        if (e.ctrlKey || e.metaKey || e.shiftKey) {
-          e.preventDefault();
-          onCardClick(e);
-        } else {
+        if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
           onPreview(app);
         }
       }}
